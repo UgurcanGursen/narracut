@@ -7,11 +7,11 @@
 - most media contracts verified
 - operational drawtext still blocked by Fontconfig in this environment
 
-## S2 addendum
+## Post-S2 addendum
 
-- Prepared sibling current tree secret scan is clean
-- Freesound current-tree remediation: PASS
-- Remote replacement: PREPARED / PENDING VERIFICATION
+- Freesound current tree remediation: PASS
+- Freesound reachable main history remediation: PASS
+- Remote replacement verification: PASS
 - Provider revoke/rotation: NOT CONFIRMED
 - Drawtext blocker remains the active media gate
 - General Phase 0 remains OPEN

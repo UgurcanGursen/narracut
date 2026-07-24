@@ -1,81 +1,49 @@
 {
-  "manifest_version": "1.4.0",
+  "manifest_version": "1.5.0",
   "captured_at": "2026-07-24",
-  "phase": "phase_00_4b_s2_freesound_history_replacement_prepared",
-  "verification_status": "s2_prepared_current_tree_remediated_remote_replacement_pending_verification_phase0_open",
-  "source_repository": {
-    "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_sanitized_20260724_163134",
-    "branch": "main",
-    "head": "1ba85a7e33dca034503f7b09878deb10689e3080",
-    "origin_main": "1ba85a7e33dca034503f7b09878deb10689e3080",
-    "staged_files": 0,
-    "allowed_status_classes": [
-      "ffmpeg_docs_baseline",
-      "freesound_remediation",
-      "allowed_generated_norm_words_debug"
-    ]
-  },
-  "recovery": {
-    "s1b_recovery_root": "C:\\tmp\\kurgu_s1_unexpected_diffs_20260724_222331485",
-    "s1b_recovery_scan_hits": 0,
-    "s2_snapshot_root": "C:\\tmp\\kurgu_freesound_s2_recovery_20260724_224056280"
-  },
-  "prepared_sibling": {
+  "phase": "phase_00_4b_s2_freesound_history_replacement_verified",
+  "verification_status": "remote_replacement_verified_phase0_open",
+  "authoritative_repository": {
     "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304",
-    "copied_counts": {
-      "tracked": 109,
-      "allowed_untracked": 2,
-      "total": 111
-    },
-    "excluded": [
-      ".git",
-      "norm_words_debug.json",
-      ".env local secret files",
-      "__pycache__",
-      ".pytest_cache",
-      "cache",
-      "output",
-      "temp",
-      "temp_assets",
-      "binary archive files"
-    ],
-    "parity": {
-      "sha256_mismatches": 0,
-      "git_present": false,
-      "norm_words_present": false
-    }
+    "branch": "main",
+    "root_sha": "49d57a5f05366df7779af277a36f949c74984f55",
+    "root_message": "chore: establish Freesound-safe sanitized baseline",
+    "commit_count_before_docs_followup": 1,
+    "parent_count_root": 0
   },
-  "pre_init_secret_scan": {
-    "text_files_scanned": 110,
-    "nonempty_freesound_assignments": 0,
-    "hardcoded_freesound_literals": 0,
-    "exact_historical_freesound_occurrences": 0,
-    "nonempty_pexels_fallback_assignments": 0,
-    "exact_historical_pexels_occurrences": 0,
-    "verified_generic_secret_hits": 0,
-    "local_env_files": 0,
-    "binary_archive_files": 0,
-    "git_metadata_entries": 0
+  "remote_replacement": {
+    "pre_push_remote_sha": "1ba85a7e33dca034503f7b09878deb10689e3080",
+    "post_push_remote_sha": "49d57a5f05366df7779af277a36f949c74984f55",
+    "mode": "exact_force_with_lease",
+    "result": "pass"
+  },
+  "post_push_clone_verification": {
+    "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_freesound_postpush_verify_20260724_230300000",
+    "branch": "main",
+    "head": "49d57a5f05366df7779af277a36f949c74984f55",
+    "commit_count": 1,
+    "parent_count": 0,
+    "blob_hash_diffs": 0,
+    "current_tree_freesound_exact": 0,
+    "current_tree_freesound_nonempty": 0,
+    "current_tree_pexels_exact": 0,
+    "current_tree_generic_secrets": 0,
+    "reachable_freesound": 0,
+    "reachable_pexels": 0,
+    "reachable_generic_secrets": 0,
+    "old_secret_bearing_object_present": false,
+    "git_fsck_clean": true,
+    "full_pytest": "49 passed"
   },
   "status_summary": {
     "freesound_current_tree_remediation": "pass",
-    "sanitized_root_replacement": "prepared",
-    "remote_replacement": "pending_verification",
+    "freesound_reachable_main_history_remediation": "pass",
+    "remote_replacement_verification": "pass",
     "provider_revoke_rotation": "not_confirmed",
     "ffmpeg_paired_runtime": "verified",
     "drawtext_operational_gate": "blocked",
     "offline_isolated_full_render": "open",
-    "general_phase0": "open"
-  },
-  "pending_gates": [
-    "targeted_freesound_pexels_tests",
-    "full_pytest_suite",
-    "py_compile_and_manifest_parse",
-    "root_commit_creation",
-    "live_remote_sha_verification",
-    "exact_force_with_lease_push",
-    "fresh_clone_verification",
-    "docs_only_follow_up_commit",
-    "final_clone_verification"
-  ]
+    "general_phase0": "open",
+    "baseline_tag": "not_created"
+  }
 }

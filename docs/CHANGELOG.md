@@ -1,38 +1,30 @@
 # Changelog
 
-## 2026-07-24 - Faz 0.4B-S2 Freesound sanitized-root history replacement preparation
-
-### Added
-
-- `baseline/freesound_secret_remediation_report.md`
-- `C:\tmp\kurgu_freesound_s2_recovery_20260724_224056280` source snapshot artifact'leri
+## 2026-07-24 - Faz 0.4B-S2 Freesound history replacement verified
 
 ### Verified
 
-- Authoritative source preflight `main`; `HEAD == origin/main == 1ba85a7e33dca034503f7b09878deb10689e3080`
-- S1B recovery klasoru mevcut ve patch/manifest taramasi 0 hit
-- Yeni sibling `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304` current working-tree dosyalarindan olusturuldu
-- 109 tracked + 2 izinli untracked dosyada source/sibling parity farki 0
-- Sibling pre-init Freesound/Pexels/generic secret scan temiz
+- Parentless sanitized root commit `49d57a5f05366df7779af277a36f949c74984f55` olusturuldu
+- Live `origin/main` exact `--force-with-lease` ile eski SHA `1ba85a7e33dca034503f7b09878deb10689e3080` uzerinden degistirildi
+- Fresh post-push clone `C:\Users\user\Documents\Kurgu_V3_Clean_freesound_postpush_verify_20260724_230300000` ile root history, blob parity, secret absence ve `49 passed` full suite dogrulandi
+- Freesound current-tree remediation: PASS
+- Freesound reachable main history remediation: PASS
+- Remote replacement verification: PASS
 
-### Not performed
+### Still open
 
-- Root commit, push, live remote lease verification, fresh clone verification, provider revoke/rotation veya drawtext unblock yapilmadi
+- Provider revoke/rotation: **NOT CONFIRMED**
+- Drawtext operational gate: BLOCKED
+- Offline isolated full render: OPEN
+- General Phase 0: OPEN
 
 ## 2026-07-24 - Faz 0.4B existing paired runtime verification
 
-### Verified
-
-- Pre-existing user-level gyan.dev 8.1.2 full_build paired runtime accepted
-- Literal ffmpeg / ffprobe resolution, version/build family ve temel mux/probe/rawvideo/audio-crossfade contract'leri dogrulandi
-
-### Blocked
-
-- Practical drawtext invocation Fontconfig nedeniyle fail oldu
+- Existing paired runtime accepted
+- drawtext practical invocation blocked by Fontconfig
 
 ## 2026-07-24 - Faz 0.1B through Faz 0.4A recap
 
 - Freesound current-tree remediation accepted
 - Existing paired runtime verified
-- Provider revoke/rotation remains NOT CONFIRMED
-- General Phase 0 remains OPEN
+- Baseline tag not created

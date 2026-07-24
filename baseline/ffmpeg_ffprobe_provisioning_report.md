@@ -1,6 +1,6 @@
 # Faz 0.4B - Existing Paired Runtime Verification Report
 
-## Decision
+## Runtime decision
 
 Existing paired runtime remains accepted for Phase 0 baseline work:
 
@@ -9,14 +9,11 @@ Existing paired runtime remains accepted for Phase 0 baseline work:
 - mux/probe/rawvideo/audio-crossfade contracts: PASS
 - practical drawtext invocation: FAIL / BLOCKER
 
-## S2 addendum
+## Post-S2 state
 
-Prepared sibling current tree:
-`C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
-
-- Freesound current-tree secret remediation: PASS
-- Current-tree generic secret blocker from old `download_assets.py` no longer applies to this sibling
-- Remaining media blocker: drawtext invocation on accepted paired runtime
-- Remote replacement: PREPARED / PENDING VERIFICATION
+- Freesound current-tree remediation: PASS
+- Freesound reachable main history remediation: PASS
+- Remote replacement verification: PASS
 - Provider revoke/rotation: NOT CONFIRMED
+- Remaining media blocker: drawtext invocation on accepted paired runtime
 - General Phase 0: OPEN
