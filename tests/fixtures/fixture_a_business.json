@@ -1,0 +1,48 @@
+{
+    "expected_failure": true,
+    "expected_failure_code": "SOURCE_VISUAL_NEAR_BLANK",
+    "beats": [
+        {
+            "beat_id": "b1",
+            "narration_text": "The company reported a massive shift in their Q3 earnings, surprising Wall Street.",
+            "purpose": "hook",
+            "shots": [
+                {
+                    "shot_id": "s1",
+                    "trigger_cue": "The company reported",
+                    "shot_role": "establish",
+                    "visual_type": "stock",
+                    "payload": {"query": "wall street corporate building", "fit_mode": "cover"}
+                },
+                {
+                    "shot_id": "s2",
+                    "trigger_cue": "surprising Wall Street",
+                    "shot_role": "evidence",
+                    "visual_type": "web_record",
+                    "payload": {"source_url": "https://wikipedia.org", "target_text": "Q3 earnings", "zoom": 1.5}
+                }
+            ]
+        },
+        {
+            "beat_id": "b2",
+            "narration_text": "Profits jumped by forty-two percent, reaching a new milestone of two billion dollars. This growth was driven by their cloud segment.",
+            "purpose": "evidence",
+            "shots": [
+                {
+                    "shot_id": "s3",
+                    "trigger_cue": "Profits jumped by forty-two percent",
+                    "shot_role": "explain",
+                    "visual_type": "counter",
+                    "payload": {"start_val": 0, "end_val": 42, "suffix": "%", "label": "PROFIT GROWTH"}
+                },
+                {
+                    "shot_id": "s4",
+                    "trigger_cue": "driven by their cloud segment",
+                    "shot_role": "explain",
+                    "visual_type": "chart",
+                    "payload": {"chart_title": "Q3 GROWTH BY SEGMENT", "x_labels": ["Cloud", "Hardware", "Services"], "y_values": [42, -5, 10], "value_suffix": "%"}
+                }
+            ]
+        }
+    ]
+}

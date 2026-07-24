@@ -1,0 +1,183 @@
+{
+  "beats": [
+    {
+      "beat_id": "beat_hook",
+      "narration_text": "On July 14, 2026, IBM released selected preliminary second-quarter results ahead of its earnings call. The market reaction was brutal: shares fell about twenty-five percent.",
+      "purpose": "hook",
+      "shots": [
+        {
+          "shot_id": "shot_market_establish",
+          "trigger_cue": "On July 14, 2026",
+          "shot_role": "establish",
+          "visual_type": "stock",
+          "visual_purpose": "Market selloff atmosphere",
+          "payload": {
+            "query": "Wall Street trading floor market selloff",
+            "fit_mode": "cover",
+            "forbidden_content": [
+              "cryptocurrency",
+              "personal finance"
+            ]
+          }
+        },
+        {
+          "shot_id": "shot_ibm_source_header",
+          "trigger_cue": "IBM released selected preliminary",
+          "shot_role": "evidence",
+          "visual_type": "web_record",
+          "min_duration": 2.5,
+          "payload": {
+            "source_url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm",
+            "target_text": "Selected Preliminary Second Quarter Results",
+            "zoom": 1.8,
+            "highlight_target": true
+          }
+        },
+        {
+          "shot_id": "shot_25_percent_drop",
+          "trigger_cue": "shares fell about twenty-five percent",
+          "shot_role": "reinforce",
+          "visual_type": "big_text",
+          "max_duration": 2.5,
+          "payload": {
+            "main_text": "ABOUT -25%",
+            "sub_text": "IBM SHARES \u2014 MARKET REACTION"
+          }
+        }
+      ]
+    },
+    {
+      "beat_id": "beat_numbers",
+      "narration_text": "Yet the official numbers were not a collapse. Revenue was seventeen point two billion dollars, up one percent. Software rose five percent, consulting was flat, and infrastructure fell seven percent. Operating earnings were two dollars and ninety-three cents per share, up five percent from a year earlier.",
+      "purpose": "evidence",
+      "shots": [
+        {
+          "shot_id": "shot_revenue_source",
+          "trigger_cue": "Revenue was seventeen point two billion",
+          "shot_role": "evidence",
+          "visual_type": "web_record",
+          "min_duration": 2.5,
+          "payload": {
+            "source_url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm",
+            "target_text": "Revenue of $17.2 billion, up 1 percent",
+            "zoom": 1.8
+          }
+        },
+        {
+          "shot_id": "shot_segment_chart",
+          "trigger_cue": "Software rose five percent",
+          "shot_role": "explain",
+          "visual_type": "chart",
+          "min_duration": 3.5,
+          "payload": {
+            "chart_title": "IBM PRELIMINARY Q2 2026 REVENUE GROWTH",
+            "x_labels": [
+              "Software",
+              "Consulting",
+              "Infrastructure"
+            ],
+            "y_values": [
+              5,
+              0,
+              -7
+            ],
+            "value_suffix": "%",
+            "source_note": "Source: IBM Q2 2026 preliminary results"
+          }
+        },
+        {
+          "shot_id": "shot_eps_metric",
+          "trigger_cue": "Operating earnings were two dollars",
+          "shot_role": "explain",
+          "visual_type": "counter",
+          "min_duration": 2.5,
+          "payload": {
+            "start_val": 2.8,
+            "end_val": 2.93,
+            "prefix": "$",
+            "label": "OPERATING EPS \u2014 YEAR OVER YEAR",
+            "decimal_places": 2,
+            "source_note": "IBM Q2 2025 vs Q2 2026 preliminary"
+          }
+        }
+      ]
+    },
+    {
+      "beat_id": "beat_spending_shift",
+      "narration_text": "The deeper problem was what IBM said happened in June. Clients redirected quarterly capital spending toward servers, storage, and memory to secure constrained infrastructure before expected price increases. IBM said it expected some supply-chain impact, but not the scale of the reprioritization.",
+      "purpose": "causal_explanation",
+      "shots": [
+        {
+          "shot_id": "shot_datacenter_establish",
+          "trigger_cue": "Clients redirected quarterly capital spending",
+          "shot_role": "establish",
+          "visual_type": "stock",
+          "payload": {
+            "query": "enterprise data center server racks storage",
+            "fit_mode": "cover",
+            "forbidden_content": [
+              "external hard drive",
+              "USB",
+              "gaming"
+            ]
+          }
+        },
+        {
+          "shot_id": "shot_capex_source",
+          "trigger_cue": "toward servers, storage, and memory",
+          "shot_role": "evidence",
+          "visual_type": "web_record",
+          "min_duration": 2.5,
+          "payload": {
+            "source_url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm",
+            "target_text": "clients shift their quarterly capex spend toward servers, storage, and memory purchases",
+            "zoom": 1.9
+          }
+        },
+        {
+          "shot_id": "shot_reprioritization_article",
+          "trigger_cue": "not the scale of the reprioritization",
+          "shot_role": "evidence",
+          "visual_type": "highlight_article",
+          "min_duration": 2.5,
+          "payload": {
+            "source": "IBM INVESTOR LETTER \u2014 JULY 14, 2026",
+            "headline": "IBM Underestimated the Reprioritization",
+            "content_before": "IBM said it had anticipated some supply-chain effects.",
+            "target_text": "It did not anticipate the magnitude of the capex reprioritization.",
+            "source_url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm"
+          }
+        }
+      ]
+    },
+    {
+      "beat_id": "beat_admission",
+      "narration_text": "Then came the admission: the company faltered, moved too slowly, and large deals failed to close on schedule.",
+      "purpose": "payoff",
+      "shots": [
+        {
+          "shot_id": "shot_contract_broll",
+          "trigger_cue": "Then came the admission",
+          "shot_role": "bridge",
+          "visual_type": "stock",
+          "payload": {
+            "query": "enterprise contract negotiation executives deadline",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_admission_source",
+          "trigger_cue": "the company faltered",
+          "shot_role": "payoff",
+          "visual_type": "web_record",
+          "min_duration": 2.5,
+          "payload": {
+            "source_url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm",
+            "target_text": "We did not adapt and move quickly enough",
+            "zoom": 2.0
+          }
+        }
+      ]
+    }
+  ]
+}

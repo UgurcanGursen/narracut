@@ -1,0 +1,248 @@
+{
+  "version": "2.2",
+  "ai_research_notes": "Araştırma ve teyit özeti:\n1) Başlıktaki olay doğrulandı. IBM, 14 Temmuz 2026'da planlanan 22 Temmuz bilanço açıklamasından önce seçili öncü ikinci çeyrek sonuçlarını yayımladı. Reuters, hisselerin aynı gün yüzde 25 düştüğünü ve bunun şirketin bir yüzyılı aşan tarihindeki en sert tek günlük düşüş olduğunu bildirdi. Wall Street Journal, satışın yaklaşık 67 milyar dolarlık piyasa değerini sildiğini yazdı. Kaynaklar: https://www.reuters.com/business/ibm-expects-second-quarter-revenue-below-estimates-2026-07-14/ ; https://www.wsj.com/business/earnings/ibm-q2-earnings-report-2026-stock-ded1f568\n2) IBM'in SEC'ye sunduğu 14 Temmuz yatırımcı mektubu öncü rakamları doğruluyor: 17,2 milyar dolar gelir ve yıllık yüzde 1 büyüme; yazılımda yüzde 5 büyüme; danışmanlıkta yatay seyir; altyapıda yüzde 7 düşüş; düzeltilmiş hisse başına kazanç 2,93 dolar. Şirket, kapanış süreci sürdüğü için nihai rakamların az miktarda değişebileceğini belirtti. Kaynaklar: https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714.htm ; https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm\n3) Yönetimin hata kabulü resmî metinde doğrulandı. IBM, Haziranın son haftalarında müşterilerin üç aylık sermaye harcamalarını, beklenen fiyat artışları öncesinde arzı kısıtlı sunucu, depolama ve bellek ürünlerine kaydırdığını söyledi. Şirket bazı tedarik zinciri etkilerini beklediğini ancak yeniden önceliklendirmenin büyüklüğünü öngöremediğini; yeterince hızlı uyum sağlayamadığını ve çok sayıda büyük anlaşmanın beklenen tarihlerde kapanmadığını kabul etti. Kaynak: https://newsroom.ibm.com/2026-07-14-Arvind-Krishnas-Letter-to-IBM-Investors\n4) Önceki büyüme hikâyesi resmî sonuçlarla doğrulandı. IBM'in 2025 geliri 67,5 milyar dolar oldu; toplam gelir yüzde 8, yazılım yüzde 11 ve altyapı yüzde 12 büyüdü. Şirket, generative AI book of business tutarının 12,5 milyar doları aştığını açıkladı. 2026'nın ilk çeyreğinde gelir yüzde 9, yazılım yüzde 11 ve altyapı yüzde 15 arttı. Kaynaklar: https://newsroom.ibm.com/2026-01-28-IBM-RELEASES-FOURTH-QUARTER-RESULTS ; https://newsroom.ibm.com/2026-04-22-IBM-RELEASES-FIRST-QUARTER-RESULTS\n5) 22 Temmuz'daki nihai ikinci çeyrek açıklaması öncü sonuçları doğruladı: toplam gelir yaklaşık 17,2 milyar dolar; yazılım yüzde 5 artış; altyapı yüzde 7 düşüş. Alt kırılımda Distributed Infrastructure yüzde 37 artarken IBM Z yüzde 42 ve Transaction Processing yüzde 8 düştü. IBM ayrıca 2026 sabit kur gelir büyümesi beklentisini yüzde 5'in üzerinden yüzde 4-5 aralığına indirdi. Kaynaklar: https://newsroom.ibm.com/2026-07-22-IBM-RELEASES-SECOND-QUARTER-RESULTS ; https://www.reuters.com/business/ibm-cuts-yearly-revenue-growth-forecast-customers-prioritize-ai-infrastructure-2026-07-22/\n6) Başlığın doğru çerçevesi: Bu bir şirket çöküşü veya AI talebinin sona ermesi değildir. Doğrulanmış anlatı, müşterilerin teknoloji harcamalarını AI odaklı altyapıya beklenenden hızlı kaydırması, IBM'in bu değişimin büyüklüğünü yanlış okuması ve büyük anlaşmaları zamanında kapatamamasıdır. Analist gelir beklentileri kaynaklara göre farklılaştığı için narration içinde tek bir konsensüs tahmini kullanılmadı.",
+  "blocks": [
+    {
+      "block_id": "scene_01_intro",
+      "narration": "On July fourteenth, twenty twenty-six, IBM did something rare: it warned investors eight days before its scheduled earnings call. By the close, the stock had fallen twenty-five percent, its steepest one-day decline in more than a century, wiping out approximately sixty-seven billion dollars in market value. The headline numbers did not look like a collapse. Preliminary quarterly revenue was seventeen-point-two billion dollars, still up one percent. But software growth had slowed to five percent, infrastructure revenue had fallen seven percent, and IBM admitted that major deals had slipped. The market was not reacting to one weak quarter. It was reacting to the possibility that IBM had misunderstood how the AI boom was rearranging corporate technology budgets.",
+      "pause_before": 0.3,
+      "pause_after": 0.6,
+      "bgm_drop": true,
+      "sfx_category": "booms",
+      "fill_policy": "error",
+      "visuals": [
+        {
+          "type": "document_scan",
+          "query": "IBM July 14 2026 preliminary second quarter investor letter",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "narration_cue_start": "On July fourteenth, twenty twenty-six",
+          "narration_cue_end": "before its scheduled earnings call.",
+          "extra": {
+            "url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm",
+            "target_text": "This morning we are releasing selected preliminary second-quarter 2026 financial results."
+          }
+        },
+        {
+          "type": "big_text",
+          "query": "IBM historic one day stock decline July 2026",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "narration_cue_start": "By the close",
+          "narration_cue_end": "in market value.",
+          "extra": {
+            "main_text": "25% IN ONE DAY",
+            "sub_text": "APPROX. $67 BILLION ERASED"
+          }
+        },
+        {
+          "type": "chart",
+          "query": "IBM preliminary second quarter 2026 segment growth",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "short_dissolve",
+          "subtitle_policy": "show",
+          "narration_cue_start": "The headline numbers did not look like a collapse.",
+          "narration_cue_end": "major deals had slipped.",
+          "extra": {
+            "chart_title": "IBM Preliminary Q2 2026 YoY Change (%)",
+            "x_labels": [
+              "Total Revenue",
+              "Software",
+              "Consulting",
+              "Infrastructure"
+            ],
+            "y_values": [
+              1,
+              5,
+              0,
+              -7
+            ]
+          }
+        },
+        {
+          "type": "stock",
+          "query": "corporate technology budget meeting executives reviewing server spending",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "dip_to_black",
+          "subtitle_policy": "show",
+          "narration_cue_start": "The market was not reacting to one weak quarter.",
+          "narration_cue_end": "corporate technology budgets."
+        }
+      ]
+    },
+    {
+      "block_id": "scene_02_promise_and_rise",
+      "narration": "That fear cut directly against the story investors had been buying. IBM had spent years recasting itself around hybrid cloud, enterprise software and artificial intelligence. In twenty twenty-five, revenue reached sixty-seven-point-five billion dollars, up eight percent. Software rose eleven percent, infrastructure twelve percent, and IBM said its generative AI book of business had surpassed twelve-point-five billion dollars. The first quarter of twenty twenty-six appeared to confirm the transformation: revenue climbed nine percent, software eleven percent and infrastructure fifteen percent. Management said AI remained a tailwind and kept its full-year constant-currency growth outlook above five percent. IBM looked positioned for the next computing cycle.",
+      "pause_before": 0.2,
+      "pause_after": 0.4,
+      "bgm_drop": false,
+      "sfx_category": null,
+      "fill_policy": "error",
+      "visuals": [
+        {
+          "type": "stock",
+          "query": "enterprise hybrid cloud operations center software dashboards",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "narration_cue_start": "That fear cut directly against",
+          "narration_cue_end": "artificial intelligence."
+        },
+        {
+          "type": "document_scan",
+          "query": "IBM full year 2025 revenue generative AI book of business results",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "narration_cue_start": "In twenty twenty-five",
+          "narration_cue_end": "twelve-point-five billion dollars.",
+          "extra": {
+            "url": "https://newsroom.ibm.com/2026-01-28-IBM-RELEASES-FOURTH-QUARTER-RESULTS",
+            "target_text": "Our generative AI book of business now stands at more than $12.5 billion."
+          }
+        },
+        {
+          "type": "chart",
+          "query": "IBM first quarter 2026 revenue software infrastructure growth",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "short_dissolve",
+          "subtitle_policy": "show",
+          "narration_cue_start": "The first quarter of twenty twenty-six",
+          "narration_cue_end": "infrastructure fifteen percent.",
+          "extra": {
+            "chart_title": "IBM Q1 2026 YoY Growth (%)",
+            "x_labels": [
+              "Revenue",
+              "Software",
+              "Infrastructure"
+            ],
+            "y_values": [
+              9,
+              11,
+              15
+            ]
+          }
+        },
+        {
+          "type": "document_scan",
+          "query": "IBM first quarter 2026 AI tailwind statement",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "dip_to_black",
+          "subtitle_policy": "show",
+          "narration_cue_start": "Management said AI remained a tailwind",
+          "narration_cue_end": "the next computing cycle.",
+          "extra": {
+            "url": "https://newsroom.ibm.com/2026-04-22-IBM-RELEASES-FIRST-QUARTER-RESULTS",
+            "target_text": "As clients scale use cases, AI continues to be a tailwind for our global business."
+          }
+        }
+      ]
+    },
+    {
+      "block_id": "scene_03_first_crack",
+      "narration": "But beneath that momentum was a fragile link between IBM's mainframes, their software and the timing of huge customer budgets. Management expected the z seventeen cycle to cool. It did not expect the speed of the spending shift. In late June, clients moved capital budgets toward supply-constrained servers, storage and memory ahead of expected price increases. Distributed Infrastructure revenue surged thirty-seven percent, while IBM Z later proved to have fallen forty-two percent. Transaction-processing software weakened, and numerous large deals missed their expected closing dates. AI had not stopped companies from spending; it had changed what they bought first. IBM's chief executive acknowledged that the company anticipated some supply-chain pressure, but not the magnitude of the reprioritization. The first crack was an execution problem—and a warning that IBM's portfolio might be less balanced than investors believed.",
+      "pause_before": 0.2,
+      "pause_after": 0.7,
+      "bgm_drop": false,
+      "sfx_category": "paper",
+      "fill_policy": "error",
+      "visuals": [
+        {
+          "type": "image_pip",
+          "query": "IBM z17 mainframe official product image",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "narration_cue_start": "But beneath that momentum",
+          "narration_cue_end": "the speed of the spending shift.",
+          "extra": {
+            "url": "https://www.ibm.com/products/z17",
+            "target_text": "IBM z17™ delivers built‑in AI that accelerates developer productivity and shrinks modernization timelines."
+          }
+        },
+        {
+          "type": "stock",
+          "query": "data center technicians installing server storage and memory racks",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "narration_cue_start": "In late June",
+          "narration_cue_end": "expected price increases."
+        },
+        {
+          "type": "chart",
+          "query": "IBM second quarter 2026 infrastructure product growth",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "narration_cue_start": "Distributed Infrastructure revenue surged thirty-seven percent",
+          "narration_cue_end": "expected closing dates.",
+          "extra": {
+            "chart_title": "IBM Q2 2026 YoY Change (%)",
+            "x_labels": [
+              "Distributed Infrastructure",
+              "IBM Z",
+              "Transaction Processing"
+            ],
+            "y_values": [
+              37,
+              -42,
+              -8
+            ]
+          }
+        },
+        {
+          "type": "document_scan",
+          "query": "IBM capex reprioritization investor letter July 2026",
+          "allow_generic_stock": false,
+          "offset_start": "AUTO",
+          "offset_end": "AUTO",
+          "transition_in": "hard_cut",
+          "transition_out": "dip_to_black",
+          "subtitle_policy": "show",
+          "narration_cue_start": "AI had not stopped companies from spending",
+          "narration_cue_end": "investors believed.",
+          "extra": {
+            "url": "https://www.sec.gov/Archives/edgar/data/51143/000005114326000070/ibm-20260714xex991.htm",
+            "target_text": "While we anticipated some supply chain related impact in our expectations, we did not anticipate the magnitude of the capex reprioritization."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+    "beats": [
+        {
+            "beat_id": "b1",
+            "narration_text": "Artificial intelligence adoption grew by a staggering rate this year, fundamentally altering the developer landscape.",
+            "purpose": "hook",
+            "shots": [
+                {
+                    "shot_id": "s1",
+                    "trigger_cue": "Artificial intelligence adoption grew",
+                    "shot_role": "establish",
+                    "visual_type": "stock",
+                    "payload": {"query": "artificial intelligence circuit board", "fit_mode": "cover"}
+                },
+                {
+                    "shot_id": "s2",
+                    "trigger_cue": "developer landscape",
+                    "shot_role": "evidence",
+                    "visual_type": "big_text",
+                    "payload": {"main_text": "Developer Landscape Altered", "sub_text": "AI Integration 2024"}
+                }
+            ]
+        },
+        {
+            "beat_id": "b2",
+            "narration_text": "Usage statistics show over eighty percent of new software contains AI-generated code.",
+            "purpose": "evidence",
+            "shots": [
+                {
+                    "shot_id": "s3",
+                    "trigger_cue": "Usage statistics show",
+                    "shot_role": "explain",
+                    "visual_type": "counter",
+                    "payload": {"start_val": 0, "end_val": 80, "suffix": "%", "label": "AI ADOPTION"}
+                }
+            ]
+        }
+    ]
+}

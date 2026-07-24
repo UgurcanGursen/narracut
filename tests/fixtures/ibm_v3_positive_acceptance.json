@@ -1,0 +1,281 @@
+{
+  "format_version": "3.0",
+  "project_id": "ibm_v3_positive_acceptance",
+  "quality_profile": "acceptance",
+  "metadata": {
+    "title": "IBM Q2 Preliminary Results (Strict Acceptance Baseline)"
+  },
+  "beats": [
+    {
+      "beat_id": "ibm_q2_intro",
+      "shots": [
+        {
+          "shot_id": "shot_market_establish",
+          "trigger_cue": "On July 14, 2026",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_market_establish",
+            "resolved_path": "tests/assets/ibm/shot_market_establish.mp4",
+            "expected_sha256": "bac0b41d934e4393c76079efa946f3376725e20a16a6a9cc4635485e27b58ebf",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_ibm_source_header",
+          "trigger_cue": "IBM released selected preliminary",
+          "visual_type": "web_record",
+          "shot_role": "base",
+          "max_duration": 4.5,
+          "payload": {
+            "source_url": "ibm.com/investor",
+            "target_text": "Preliminary Q2 Results"
+          }
+        },
+        {
+          "shot_id": "shot_earnings_call_broll",
+          "trigger_cue": "ahead of its earnings call.",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_earnings_call_broll",
+            "resolved_path": "tests/assets/ibm/shot_earnings_call_broll.mp4",
+            "expected_sha256": "e52ea1b21317595757f681faa5d5a80f6b95dfaf022ef248b3794e0c93ae694c",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_reaction_broll",
+          "trigger_cue": "The market reaction was brutal:",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_reaction_broll",
+            "resolved_path": "tests/assets/ibm/shot_reaction_broll.mp4",
+            "expected_sha256": "124076ef1fd9edb62e40e4ad0317a9cc5d6244174e8572f034f602215b466d5d",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_25_percent_drop",
+          "trigger_cue": "shares fell about twenty-five percent",
+          "visual_type": "big_text",
+          "shot_role": "base",
+          "max_duration": 4.5,
+          "payload": {
+            "main_text": "-25%",
+            "sub_text": "Market Reaction"
+          }
+        },
+        {
+          "shot_id": "shot_not_a_collapse_broll",
+          "trigger_cue": "Yet the official numbers were not a collapse.",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_not_a_collapse_broll",
+            "resolved_path": "tests/assets/ibm/shot_not_a_collapse_broll.mp4",
+            "expected_sha256": "39cf57dfdd96e3071ee4bb18fe246bec671184729226301c0b67f22a8e22ef79",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_revenue_source",
+          "trigger_cue": "Revenue was seventeen point two billion",
+          "visual_type": "web_record",
+          "shot_role": "base",
+          "max_duration": 6.0,
+          "payload": {
+            "source_url": "ibm.com/investor/q2",
+            "target_text": "Revenue: $17.2 Billion"
+          }
+        },
+        {
+          "shot_id": "shot_segment_chart",
+          "trigger_cue": "Software rose five percent",
+          "visual_type": "chart",
+          "shot_role": "base",
+          "max_duration": 4.5,
+          "payload": {
+            "chart_title": "Q2 Segment Revenue",
+            "x_labels": [
+              "Software",
+              "Consulting",
+              "Infrastructure"
+            ],
+            "y_values": [
+              5.0,
+              0.0,
+              -7.0
+            ],
+            "value_suffix": "%",
+            "chart_type": "bar"
+          }
+        },
+        {
+          "shot_id": "shot_infrastructure_broll",
+          "trigger_cue": "consulting was flat",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_infrastructure_broll",
+            "resolved_path": "tests/assets/ibm/shot_infrastructure_broll.mp4",
+            "expected_sha256": "516c29b02555921e1713d022747dde246374b90e5427be0d4fd46933a7d317b5",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_eps_metric",
+          "trigger_cue": "Operating earnings were two dollars",
+          "visual_type": "counter",
+          "shot_role": "base",
+          "max_duration": 5.0,
+          "payload": {
+            "start_val": 0.0,
+            "end_val": 2.93,
+            "label": "Operating EPS",
+            "prefix": "$",
+            "decimal_places": 2
+          }
+        },
+        {
+          "shot_id": "shot_year_earlier_broll",
+          "trigger_cue": "up five percent from",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_year_earlier_broll",
+            "resolved_path": "tests/assets/ibm/shot_year_earlier_broll.mp4",
+            "expected_sha256": "702190da9f699d9e6ca614dba1090dd86ade3278a3f24b92a5d5f377ae9f4e52",
+            "fit_mode": "cover"
+          }
+        }
+      ],
+      "narration_text": "On July 14, 2026, IBM released selected preliminary second-quarter results ahead of its earnings call. The market reaction was brutal: shares fell about twenty-five percent. Yet the official numbers were not a collapse. Revenue was seventeen point two billion dollars, up one percent. Software rose five percent, consulting was flat, and infrastructure fell seven percent. Operating earnings were two dollars and ninety-three cents per share, up five percent from a year earlier."
+    },
+    {
+      "beat_id": "ibm_q2_analysis",
+      "shots": [
+        {
+          "shot_id": "shot_june_problem_broll",
+          "trigger_cue": "The deeper problem",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_june_problem_broll",
+            "resolved_path": "tests/assets/ibm/shot_june_problem_broll.mp4",
+            "expected_sha256": "9dbed23bb967505619b3a46b3d25703e81308eaf1b9010b9c41661c4e1efa6e5",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_datacenter_establish",
+          "trigger_cue": "Clients redirected quarterly capital spending",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_datacenter_establish",
+            "resolved_path": "tests/assets/ibm/shot_datacenter_establish.mp4",
+            "expected_sha256": "6c7896c65708e3e7b804179ad04677c5a8607b4f0b07429512d2e27c9d442c55",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_capex_source",
+          "trigger_cue": "toward servers, storage, and memory",
+          "visual_type": "web_record",
+          "shot_role": "base",
+          "max_duration": 4.5,
+          "payload": {
+            "source_url": "wsj.com/tech",
+            "target_text": "Infrastructure Spending Spikes"
+          }
+        },
+        {
+          "shot_id": "shot_price_increase_broll",
+          "trigger_cue": "before expected price increases",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_price_increase_broll",
+            "resolved_path": "tests/assets/ibm/shot_price_increase_broll.mp4",
+            "expected_sha256": "b9a8f307849c5f8449857ab6e8cf88a92f80d5f5dc433021089d9daeed2ca293",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_supply_chain_broll",
+          "trigger_cue": "expected some supply chain impact,",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_supply_chain_broll",
+            "resolved_path": "tests/assets/ibm/shot_supply_chain_broll.mp4",
+            "expected_sha256": "5825c009ae8f88c1578f839de8e395b83640cd46ef3c099692a56a47cfd1eeb0",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_reprioritization_article",
+          "trigger_cue": "not the scale of the reprioritization",
+          "visual_type": "highlight_article",
+          "shot_role": "base",
+          "max_duration": 4.5,
+          "payload": {
+            "source": "Financial Times",
+            "headline": "Tech Supply Chain Bottlenecks",
+            "target_text": "scale of reprioritization"
+          }
+        },
+        {
+          "shot_id": "shot_contract_broll",
+          "trigger_cue": "Then came the admission",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_contract_broll",
+            "resolved_path": "tests/assets/ibm/shot_contract_broll.mp4",
+            "expected_sha256": "15bd7c96937dbf6a300ff9bad8ce677fae37f281f60817f16b6ad55e524f84e0",
+            "fit_mode": "cover"
+          }
+        },
+        {
+          "shot_id": "shot_admission_source",
+          "trigger_cue": "the company faltered",
+          "visual_type": "web_record",
+          "shot_role": "base",
+          "max_duration": 4.5,
+          "payload": {
+            "source_url": "bloomberg.com",
+            "target_text": "IBM Execution Falters"
+          }
+        },
+        {
+          "shot_id": "shot_failed_deals_broll",
+          "trigger_cue": "large deals failed",
+          "visual_type": "stock",
+          "shot_role": "base",
+          "payload": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_failed_deals_broll",
+            "resolved_path": "tests/assets/ibm/shot_failed_deals_broll.mp4",
+            "expected_sha256": "73be2a7a44272fcb8fe08941dd29ad8231caba45174c833d75c0554fb0dc864d",
+            "fit_mode": "cover"
+          }
+        }
+      ],
+      "narration_text": "The deeper problem was what IBM said happened in June. Clients redirected quarterly capital spending toward servers, storage, and memory to secure constrained infrastructure before expected price increases. IBM said it expected some supply-chain impact, but not the scale of the reprioritization. Then came the admission: the company faltered, moved too slowly, and large deals failed to close on schedule."
+    }
+  ]
+}

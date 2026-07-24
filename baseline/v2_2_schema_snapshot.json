@@ -1,0 +1,658 @@
+{
+  "$comment": "Generated from v2.models.TimelineV2.model_json_schema() with Pydantic 2.13.4 on 2026-07-24. The runtime config reports GRAPHICS_RENDERER_VERSION=2.2.0 and CACHE_SCHEMA_VERSION=2.2.0. No canonical standalone V2.2 schema file existed.",
+  "$defs": {
+    "BgmConfig": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "track_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Track Id"
+        },
+        "gain_db": {
+          "default": -22.0,
+          "title": "Gain Db",
+          "type": "number"
+        },
+        "fade_in": {
+          "default": 0.0,
+          "title": "Fade In",
+          "type": "number"
+        },
+        "fade_out": {
+          "default": 0.0,
+          "title": "Fade Out",
+          "type": "number"
+        }
+      },
+      "title": "BgmConfig",
+      "type": "object"
+    },
+    "NarrationBlock": {
+      "properties": {
+        "block_id": {
+          "title": "Block Id",
+          "type": "string"
+        },
+        "narration": {
+          "default": "",
+          "title": "Narration",
+          "type": "string"
+        },
+        "audio_file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Audio File"
+        },
+        "pause_before": {
+          "default": 0.3,
+          "title": "Pause Before",
+          "type": "number"
+        },
+        "pause_after": {
+          "default": 0.5,
+          "title": "Pause After",
+          "type": "number"
+        },
+        "bgm_drop": {
+          "default": false,
+          "title": "Bgm Drop",
+          "type": "boolean"
+        },
+        "sfx_category": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sfx Category"
+        },
+        "fill_policy": {
+          "default": "error",
+          "title": "Fill Policy",
+          "type": "string"
+        },
+        "visuals": {
+          "items": {
+            "$ref": "#/$defs/VisualScene"
+          },
+          "title": "Visuals",
+          "type": "array"
+        }
+      },
+      "title": "NarrationBlock",
+      "type": "object"
+    },
+    "SfxConfig": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "asset_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Asset Id"
+        },
+        "trigger_cue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trigger Cue"
+        },
+        "gain_db": {
+          "default": 0.0,
+          "title": "Gain Db",
+          "type": "number"
+        },
+        "max_duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Duration"
+        }
+      },
+      "title": "SfxConfig",
+      "type": "object"
+    },
+    "VisualScene": {
+      "properties": {
+        "offset_start": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "default": 0.0,
+          "title": "Offset Start"
+        },
+        "offset_end": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "default": "AUTO",
+          "title": "Offset End"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "clip_start": {
+          "default": 0.0,
+          "title": "Clip Start",
+          "type": "number"
+        },
+        "clip_end": {
+          "default": 0.0,
+          "title": "Clip End",
+          "type": "number"
+        },
+        "query": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Query"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        },
+        "target_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Text"
+        },
+        "target_selector": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Selector"
+        },
+        "zoom": {
+          "default": 1.7,
+          "title": "Zoom",
+          "type": "number"
+        },
+        "scroll_duration": {
+          "default": 2.0,
+          "title": "Scroll Duration",
+          "type": "number"
+        },
+        "highlight_target": {
+          "default": true,
+          "title": "Highlight Target",
+          "type": "boolean"
+        },
+        "main_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Main Text"
+        },
+        "sub_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sub Text"
+        },
+        "background_style": {
+          "default": "black",
+          "title": "Background Style",
+          "type": "string"
+        },
+        "accent_animation": {
+          "default": "impact",
+          "title": "Accent Animation",
+          "type": "string"
+        },
+        "logo_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Logo Url"
+        },
+        "start_val": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Val"
+        },
+        "end_val": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Val"
+        },
+        "prefix": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "",
+          "title": "Prefix"
+        },
+        "suffix": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "",
+          "title": "Suffix"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "is_approximate": {
+          "default": false,
+          "title": "Is Approximate",
+          "type": "boolean"
+        },
+        "max_height": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Height"
+        },
+        "crop_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": "none",
+          "title": "Crop Mode"
+        },
+        "fit_mode": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fit Mode"
+        },
+        "extra": {
+          "additionalProperties": true,
+          "title": "Extra",
+          "type": "object"
+        },
+        "narration_cue_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Narration Cue Start"
+        },
+        "narration_cue_end": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Narration Cue End"
+        },
+        "visual_purpose": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Visual Purpose"
+        },
+        "required_content": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Required Content"
+        },
+        "forbidden_content": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Forbidden Content"
+        },
+        "fallback_queries": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Fallback Queries"
+        },
+        "allow_generic_stock": {
+          "default": true,
+          "title": "Allow Generic Stock",
+          "type": "boolean"
+        },
+        "transition_in": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transition In"
+        },
+        "transition_out": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transition Out"
+        },
+        "timing_mode": {
+          "default": "cue_locked",
+          "title": "Timing Mode",
+          "type": "string"
+        },
+        "trigger_cue": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trigger Cue"
+        },
+        "min_duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Duration"
+        },
+        "max_duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Duration"
+        },
+        "subtitle_policy": {
+          "default": "hide_tool_subtitles",
+          "title": "Subtitle Policy",
+          "type": "string"
+        },
+        "fill_policy": {
+          "default": "error",
+          "title": "Fill Policy",
+          "type": "string"
+        },
+        "asset_locked": {
+          "default": false,
+          "title": "Asset Locked",
+          "type": "boolean"
+        },
+        "selected_asset_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Asset Url"
+        },
+        "sfx_category": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sfx Category"
+        },
+        "preferred_duration": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Preferred Duration"
+        },
+        "sfx": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SfxConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "VisualScene",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "bgm": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/BgmConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "blocks": {
+      "items": {
+        "$ref": "#/$defs/NarrationBlock"
+      },
+      "title": "Blocks",
+      "type": "array"
+    }
+  },
+  "required": [
+    "blocks"
+  ],
+  "title": "TimelineV2",
+  "type": "object"
+}

@@ -1,0 +1,81 @@
+{
+  "manifest_version": "1.4.0",
+  "captured_at": "2026-07-24",
+  "phase": "phase_00_4b_s2_freesound_history_replacement_prepared",
+  "verification_status": "s2_prepared_current_tree_remediated_remote_replacement_pending_verification_phase0_open",
+  "source_repository": {
+    "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_sanitized_20260724_163134",
+    "branch": "main",
+    "head": "1ba85a7e33dca034503f7b09878deb10689e3080",
+    "origin_main": "1ba85a7e33dca034503f7b09878deb10689e3080",
+    "staged_files": 0,
+    "allowed_status_classes": [
+      "ffmpeg_docs_baseline",
+      "freesound_remediation",
+      "allowed_generated_norm_words_debug"
+    ]
+  },
+  "recovery": {
+    "s1b_recovery_root": "C:\\tmp\\kurgu_s1_unexpected_diffs_20260724_222331485",
+    "s1b_recovery_scan_hits": 0,
+    "s2_snapshot_root": "C:\\tmp\\kurgu_freesound_s2_recovery_20260724_224056280"
+  },
+  "prepared_sibling": {
+    "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304",
+    "copied_counts": {
+      "tracked": 109,
+      "allowed_untracked": 2,
+      "total": 111
+    },
+    "excluded": [
+      ".git",
+      "norm_words_debug.json",
+      ".env local secret files",
+      "__pycache__",
+      ".pytest_cache",
+      "cache",
+      "output",
+      "temp",
+      "temp_assets",
+      "binary archive files"
+    ],
+    "parity": {
+      "sha256_mismatches": 0,
+      "git_present": false,
+      "norm_words_present": false
+    }
+  },
+  "pre_init_secret_scan": {
+    "text_files_scanned": 110,
+    "nonempty_freesound_assignments": 0,
+    "hardcoded_freesound_literals": 0,
+    "exact_historical_freesound_occurrences": 0,
+    "nonempty_pexels_fallback_assignments": 0,
+    "exact_historical_pexels_occurrences": 0,
+    "verified_generic_secret_hits": 0,
+    "local_env_files": 0,
+    "binary_archive_files": 0,
+    "git_metadata_entries": 0
+  },
+  "status_summary": {
+    "freesound_current_tree_remediation": "pass",
+    "sanitized_root_replacement": "prepared",
+    "remote_replacement": "pending_verification",
+    "provider_revoke_rotation": "not_confirmed",
+    "ffmpeg_paired_runtime": "verified",
+    "drawtext_operational_gate": "blocked",
+    "offline_isolated_full_render": "open",
+    "general_phase0": "open"
+  },
+  "pending_gates": [
+    "targeted_freesound_pexels_tests",
+    "full_pytest_suite",
+    "py_compile_and_manifest_parse",
+    "root_commit_creation",
+    "live_remote_sha_verification",
+    "exact_force_with_lease_push",
+    "fresh_clone_verification",
+    "docs_only_follow_up_commit",
+    "final_clone_verification"
+  ]
+}

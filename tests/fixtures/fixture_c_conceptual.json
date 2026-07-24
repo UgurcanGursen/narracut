@@ -1,0 +1,46 @@
+{
+    "beats": [
+        {
+            "beat_id": "b1",
+            "narration_text": "Understanding quantum entanglement can seem like magic. It defies our classical intuition about how the universe works.",
+            "purpose": "hook",
+            "shots": [
+                {
+                    "shot_id": "s1",
+                    "trigger_cue": "Understanding quantum entanglement",
+                    "shot_role": "establish",
+                    "visual_type": "big_text",
+                    "payload": {"main_text": "QUANTUM", "sub_text": "ENTANGLEMENT"}
+                },
+                {
+                    "shot_id": "s2",
+                    "trigger_cue": "defies our classical intuition",
+                    "shot_role": "explain",
+                    "visual_type": "stock",
+                    "payload": {"query": "galaxy space abstract connection particles", "fit_mode": "cover"}
+                }
+            ]
+        },
+        {
+            "beat_id": "b2",
+            "narration_text": "Yet, experiments have proven its reality time and time again. Einstein famously called it spooky action at a distance.",
+            "purpose": "evidence",
+            "shots": [
+                {
+                    "shot_id": "s3",
+                    "trigger_cue": "experiments have proven",
+                    "shot_role": "evidence",
+                    "visual_type": "stock",
+                    "payload": {"query": "laboratory science laser physics", "fit_mode": "cover"}
+                },
+                {
+                    "shot_id": "s4",
+                    "trigger_cue": "spooky action at a distance",
+                    "shot_role": "quote",
+                    "visual_type": "quote",
+                    "payload": {"text": "Spooky action at a distance.", "author": "Albert Einstein", "title": "1947"}
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,255 @@
+[
+  {
+    "type": "stock",
+    "query": "Wall Street trading floor red market crash screens cinematic",
+    "overlay_logo_url": "",
+    "narration": "On July 14, 2026, one of the oldest and most experienced technology companies in the world gave investors a warning they were not prepared to hear.",
+    "pause_before": 1.2,
+    "pause_after": 0.6,
+    "sfx_category": "whooshes"
+  },
+  {
+    "type": "big_text",
+    "main_text": "25% IN ONE DAY",
+    "sub_text": "IBM'S SHARES COLLAPSED",
+    "narration": "Within hours, IBM shares were down roughly twenty-five percent—putting the company on course for one of the most violent single-day declines in its modern history.",
+    "pause_before": 0.5,
+    "pause_after": 1.3,
+    "bgm_drop": true,
+    "sfx_category": "booms"
+  },
+  {
+    "type": "web_record",
+    "url": "https://www.reuters.com/business/ibm-expects-second-quarter-revenue-below-estimates-2026-07-14/",
+    "narration": "The market reaction was so severe that IBM was briefly on track to lose around seventy billion dollars in market value.",
+    "pause_before": 0.8,
+    "pause_after": 1.0,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "counter",
+    "start_val": 273,
+    "end_val": 203,
+    "prefix": "$",
+    "suffix": " Billion",
+    "narration": "A company valued at approximately two hundred and seventy-three billion dollars before the warning was being repriced in real time.",
+    "pause_before": 0.6,
+    "pause_after": 1.2,
+    "bgm_drop": true,
+    "sfx_category": "glitch"
+  },
+  {
+    "type": "highlight_article",
+    "source": "IBM NEWSROOM",
+    "headline": "IBM Releases Preliminary Second-Quarter Results",
+    "content_before": "IBM said its final results could still change slightly as the company completed its financial reporting.",
+    "target_text": "Revenue reached $17.2 billion, while Infrastructure revenue declined 7 percent.",
+    "narration": "The preliminary numbers did not describe a company in free fall. Revenue was still slightly higher than a year earlier. But the details revealed a shortfall that investors had not expected.",
+    "pause_before": 0.8,
+    "pause_after": 1.0,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "chart",
+    "chart_title": "IBM Preliminary Q2 2026 Segment Growth",
+    "x_labels": [
+      "Software",
+      "Consulting",
+      "Infrastructure"
+    ],
+    "y_values": [
+      5,
+      0,
+      -7
+    ],
+    "narration": "Software revenue increased five percent. Consulting was effectively flat. But Infrastructure—the division containing IBM's powerful mainframe systems—fell seven percent.",
+    "pause_before": 0.5,
+    "pause_after": 1.1,
+    "sfx_category": "whooshes"
+  },
+  {
+    "type": "quote",
+    "name": "Arvind Krishna",
+    "title": "Chairman, President and CEO of IBM",
+    "text": "What played out was worse than our expectations.",
+    "avatar_url": "https://newsroom.ibm.com/image/IBM-2020-AR-Arvind_1800x2400_1b_crop.jpg",
+    "narration": "IBM's chief executive, Arvind Krishna, did not try to present the result as a minor forecasting error.",
+    "pause_before": 0.7,
+    "pause_after": 1.4,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "stock",
+    "query": "massive enterprise data center rows of servers storage memory cinematic",
+    "overlay_logo_url": "",
+    "narration": "The problem began in the final weeks of June, as companies across the technology industry confronted a new and increasingly expensive reality.",
+    "pause_before": 0.7,
+    "pause_after": 0.6,
+    "sfx_category": "whooshes"
+  },
+  {
+    "type": "web_record",
+    "url": "https://newsroom.ibm.com/2026-07-14-Arvind-Krishnas-Letter-to-IBM-Investors",
+    "narration": "IBM's customers were rapidly changing the order in which they spent their technology budgets.",
+    "pause_before": 1.0,
+    "pause_after": 1.0,
+    "sfx_category": "typing"
+  },
+  {
+    "type": "big_text",
+    "main_text": "THE BUDGET MOVED",
+    "sub_text": "SERVERS • STORAGE • MEMORY",
+    "narration": "Money that IBM expected to flow into software and large enterprise agreements was redirected toward servers, storage systems and memory.",
+    "pause_before": 0.4,
+    "pause_after": 1.3,
+    "bgm_drop": true,
+    "sfx_category": "booms"
+  },
+  {
+    "type": "youtube",
+    "url": "https://www.youtube.com/watch?v=8_J7AzEsBv0",
+    "clip_start": 0,
+    "clip_end": 8,
+    "narration": "This was deeply ironic. IBM had spent years positioning itself as one of the companies best prepared to help businesses enter the artificial-intelligence era.",
+    "pause_before": 0.0,
+    "pause_after": 0.2,
+    "sfx_category": null
+  },
+  {
+    "type": "stock",
+    "query": "AI data center construction server chips memory supply chain cinematic",
+    "overlay_logo_url": "",
+    "narration": "But the AI boom was creating demand in a specific sequence. Before many companies could deploy new software, they first needed the physical infrastructure capable of running it.",
+    "pause_before": 0.6,
+    "pause_after": 0.7,
+    "sfx_category": "whooshes"
+  },
+  {
+    "type": "quote",
+    "name": "Arvind Krishna",
+    "title": "Chairman, President and CEO of IBM",
+    "text": "We did not anticipate the magnitude of the capex reprioritization.",
+    "avatar_url": "https://newsroom.ibm.com/image/IBM-2020-AR-Arvind_1800x2400_1b_crop.jpg",
+    "narration": "IBM had expected supply constraints to influence purchasing decisions. What it misjudged was how quickly—and how aggressively—customers would move their money.",
+    "pause_before": 0.6,
+    "pause_after": 1.4,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "highlight_article",
+    "source": "IBM INVESTOR LETTER",
+    "headline": "Clients Race to Secure Infrastructure",
+    "content_before": "Customers were responding to limited hardware availability and the possibility of higher prices.",
+    "target_text": "Clients shifted quarterly capital spending toward servers, storage and memory purchases.",
+    "narration": "Customers were attempting to secure supply-constrained equipment before anticipated price increases. For IBM, that shift disrupted buying patterns at the worst possible moment.",
+    "pause_before": 0.9,
+    "pause_after": 1.0,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "big_text",
+    "main_text": "DEALS DID NOT CLOSE",
+    "sub_text": "THE QUARTER WAS ALREADY ENDING",
+    "narration": "And then came the second problem. Numerous large agreements that IBM expected to complete before the end of the quarter simply did not close on schedule.",
+    "pause_before": 0.5,
+    "pause_after": 1.4,
+    "bgm_drop": true,
+    "sfx_category": "booms"
+  },
+  {
+    "type": "stock",
+    "query": "executives reviewing unsigned contracts tense corporate boardroom night",
+    "overlay_logo_url": "",
+    "narration": "For an enterprise technology company, a delayed signature can move millions of dollars from one reporting period into the next. When several large deals slip together, the damage becomes visible immediately.",
+    "pause_before": 0.7,
+    "pause_after": 0.7,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "quote",
+    "name": "Arvind Krishna",
+    "title": "Chairman, President and CEO of IBM",
+    "text": "We did not adapt and move quickly enough.",
+    "avatar_url": "https://newsroom.ibm.com/image/IBM-2020-AR-Arvind_1800x2400_1b_crop.jpg",
+    "narration": "Krishna's conclusion was unusually direct. The external environment had changed—but IBM's own execution had failed to change with it.",
+    "pause_before": 0.7,
+    "pause_after": 1.8,
+    "bgm_drop": true,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "web_record",
+    "url": "https://newsroom.ibm.com/2026-07-14-Arvind-Krishnas-Letter-to-IBM-Investors",
+    "narration": "He described the supply constraints, the shifting budgets and the cybersecurity concerns affecting clients. Then he made the company's position clear: these were realities, not excuses.",
+    "pause_before": 0.9,
+    "pause_after": 1.0,
+    "sfx_category": "typing"
+  },
+  {
+    "type": "youtube",
+    "url": "https://www.youtube.com/watch?v=npgvV_-Nh60",
+    "clip_start": 20,
+    "clip_end": 29,
+    "narration": "That admission carried unusual weight because IBM is not a young company caught experiencing its first technology cycle.",
+    "pause_before": 0.0,
+    "pause_after": 0.3,
+    "sfx_category": null
+  },
+  {
+    "type": "stock",
+    "query": "vintage 1960s mainframe computer room magnetic tape reels",
+    "overlay_logo_url": "",
+    "narration": "For more than a century, IBM has survived—and often defined—some of the largest changes in corporate computing.",
+    "pause_before": 0.7,
+    "pause_after": 0.8,
+    "sfx_category": "whooshes"
+  },
+  {
+    "type": "highlight_article",
+    "source": "IBM INVESTOR LETTER",
+    "headline": "The Entire Business Was Not Failing",
+    "content_before": "Despite the headline shortfall, several parts of IBM's portfolio continued to report strong performance.",
+    "target_text": "Red Hat revenue grew 11 percent, while Distributed Infrastructure increased 37 percent.",
+    "narration": "And this is what made the warning more complicated. Red Hat was still growing. Distributed Infrastructure delivered its strongest reported performance. Even the new z17 mainframe remained ahead of its previous generation.",
+    "pause_before": 0.9,
+    "pause_after": 1.1,
+    "sfx_category": "paper"
+  },
+  {
+    "type": "chart",
+    "chart_title": "Strength Hidden Inside a Weak Quarter",
+    "x_labels": [
+      "Red Hat",
+      "Distributed Infrastructure",
+      "Total Infrastructure"
+    ],
+    "y_values": [
+      11,
+      37,
+      -7
+    ],
+    "narration": "IBM was simultaneously reporting some of its strongest individual product results and one of its most damaging quarterly disappointments.",
+    "pause_before": 0.6,
+    "pause_after": 1.4,
+    "sfx_category": "glitch"
+  },
+  {
+    "type": "big_text",
+    "main_text": "IBM DID NOT MISS AI",
+    "sub_text": "IT MISREAD THE ORDER OF SPENDING",
+    "narration": "The company had not ignored artificial intelligence. It had misread how the AI boom would rearrange customer priorities—and which suppliers would be paid first.",
+    "pause_before": 0.5,
+    "pause_after": 1.6,
+    "bgm_drop": true,
+    "sfx_category": "booms"
+  },
+  {
+    "type": "stock",
+    "query": "old mainframe computer transforming into modern AI data center cinematic",
+    "overlay_logo_url": "",
+    "narration": "To understand why that mistake wiped tens of billions of dollars from IBM's valuation, we have to examine the transformation the company has been attempting for more than a decade—and the business it has never truly been able to leave behind.",
+    "pause_before": 0.8,
+    "pause_after": 2.0,
+    "sfx_category": "whooshes"
+  }
+]

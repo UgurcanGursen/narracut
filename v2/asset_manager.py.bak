@@ -1,0 +1,112 @@
+import os
+import glob
+import random
+import requests
+import hashlib
+
+from .cache_manager import CACHE_BASE
+from .config import YOUTUBE_DEFAULT_MAX_HEIGHT, YOUTUBE_ZOOMED_MAX_HEIGHT
+from .youtube_state_machine import YouTubeDownloadStateMachine
+
+PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY", "")
+_URL_COUNTS = {}
+
+def init_grouping(timeline_blocks: list):
+    global _URL_COUNTS
+    _URL_COUNTS.clear()
+    for block in timeline_blocks:
+        for vis in block.visuals:
+            if vis.type == "youtube" and vis.url:
+                _URL_COUNTS[vis.url] = _URL_COUNTS.get(vis.url, 0) + 1
+
+def _safe_video_id(url: str) -> str:
+    return hashlib.md5(url.encode("utf-8")).hexdigest()[:12]
+
+def fetch_pexels_video(query: str) -> str:
+    if not PEXELS_API_KEY:
+        local_stock = os.path.join("assets", "videos")
+        if os.path.isdir(local_stock):
+            files = glob.glob(os.path.join(local_stock, "*.mp4"))
+            if files:
+                return random.choice(files)
+        return None
+        
+    identifier = f"pexels_{hashlib.md5(query.encode('utf-8')).hexdigest()}"
+    out_path = os.path.join(CACHE_BASE, f"{identifier}.mp4")
+    if os.path.exists(out_path):
+        return out_path
+        
+    headers = {"Authorization": PEXELS_API_KEY}
+    url = f"https://api.pexels.com/videos/search?query={query}&per_page=5&orientation=landscape"
+    
+    try:
+        res = requests.get(url, headers=headers, timeout=10)
+        if res.status_code == 200:
+            data = res.json()
+            if data.get("videos"):
+                best_video = random.choice(data["videos"])
+                video_files = best_video.get("video_files", [])
+                hd_files = [f for f in video_files if f.get("quality") == "hd" and f.get("width", 0) >= 1280]
+                if not hd_files and video_files:
+                    hd_files = video_files
+                if hd_files:
+                    target_url = hd_files[0]["link"]
+                    v_res = requests.get(target_url, stream=True, timeout=15)
+                    if v_res.status_code == 200:
+                        with open(out_path, "wb") as f:
+                            for chunk in v_res.iter_content(chunk_size=1024*1024):
+                                f.write(chunk)
+                        return out_path
+    except Exception:
+        pass
+    return None
+
+def resolve_asset_with_fallback(
+    visual_type: str, url: str = None, query: str = None, 
+    clip_start: float = 0, clip_end: float = 0,
+    max_height: int = None, crop_mode: str = "none", scene_id: str = "youtube_scene"
+) -> dict:
+    fallback_used = False
+    duration = clip_end - clip_start
+    yt_log = None
+    
+    if visual_type == "youtube" and url:
+        mh = max_height
+        if mh is None:
+            if crop_mode != "none":
+                mh = YOUTUBE_ZOOMED_MAX_HEIGHT
+            else:
+                mh = YOUTUBE_DEFAULT_MAX_HEIGHT
+                
+        req_count = _URL_COUNTS.get(url, 1)
+        video_id = _safe_video_id(url)
+        
+        machine = YouTubeDownloadStateMachine(
+            video_id=video_id, url=url, clip_start=clip_start, 
+            duration=duration, max_height=mh, crop_mode=crop_mode, 
+            request_count=req_count
+        )
+        
+        yt_res = machine.run()
+        yt_log = yt_res
+        
+        if yt_res["result"] == "success":
+            return {"path": yt_res["path"], "fallback_used": False, "type_used": "youtube", "log": yt_log}
+            
+        print(f"  [FALLBACK] YouTube failed for {url}. Falling back to stock.")
+        fallback_used = True
+        visual_type = "stock"
+        query = query if query else "abstract background"
+        
+    if visual_type == "stock":
+        path = fetch_pexels_video(query)
+        if path:
+            return {"path": path, "fallback_used": fallback_used, "type_used": "stock", "log": yt_log}
+            
+        local_stock = os.path.join("assets", "videos")
+        if os.path.isdir(local_stock):
+            files = glob.glob(os.path.join(local_stock, "*.mp4"))
+            if files:
+                return {"path": random.choice(files), "fallback_used": True, "type_used": "local_stock", "log": yt_log}
+                
+    return {"path": None, "fallback_used": True, "type_used": "none", "log": yt_log}

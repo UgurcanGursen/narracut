@@ -1,0 +1,46 @@
+{
+    "beats": [
+        {
+            "beat_id": "b1",
+            "narration_text": "In nineteen ninety-four, the internet was a wild frontier. Many people doubted its potential to change the world.",
+            "purpose": "hook",
+            "shots": [
+                {
+                    "shot_id": "s1",
+                    "trigger_cue": "In nineteen ninety-four",
+                    "shot_role": "establish",
+                    "visual_type": "stock",
+                    "payload": {"query": "retro computer 1990s crt monitor", "fit_mode": "cover"}
+                },
+                {
+                    "shot_id": "s2",
+                    "trigger_cue": "doubted its potential",
+                    "shot_role": "explain",
+                    "visual_type": "quote",
+                    "payload": {"text": "I predict the internet will soon go spectacularly supernova and in 1996 catastrophically collapse.", "author": "Robert Metcalfe", "title": "InfoWorld, 1995"}
+                }
+            ]
+        },
+        {
+            "beat_id": "b2",
+            "narration_text": "However, visionary engineers saw something else entirely. They began laying the groundwork for the modern web.",
+            "purpose": "evidence",
+            "shots": [
+                {
+                    "shot_id": "s3",
+                    "trigger_cue": "visionary engineers saw something",
+                    "shot_role": "b-roll",
+                    "visual_type": "stock",
+                    "payload": {"query": "server rack cables datacenter vintage", "fit_mode": "contain_blur"}
+                },
+                {
+                    "shot_id": "s4",
+                    "trigger_cue": "groundwork for the modern web",
+                    "shot_role": "evidence",
+                    "visual_type": "highlight_article",
+                    "payload": {"source": "Tech Archive", "headline": "The Birth of the Web", "target_text": "Tim Berners-Lee"}
+                }
+            ]
+        }
+    ]
+}
