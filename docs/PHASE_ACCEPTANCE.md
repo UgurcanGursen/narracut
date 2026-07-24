@@ -13,14 +13,15 @@ Genel durum: PASS / POST-PUSH VERIFIED / FAZ 0 REMAINS OPEN
 | Remote replacement verification | PASS | fresh clone branch `main`, root SHA, parent count 0, blob parity 0, full suite `49 passed` |
 | Provider revoke/rotation | OPEN | **NOT CONFIRMED** |
 | FFmpeg paired runtime | PASS | accepted paired runtime verified |
-| Drawtext operational gate | FAIL / BLOCKER | operational drawtext invocation halen yok |
+| Drawtext operational gate | PASS | explicit `fontfile` ile operasyonel; varsayilan Fontconfig discovery known limitation |
 | Offline isolated full render | OPEN | henuz kanitlanmadi |
 | Baseline tag | NOT CREATED | `stage3-development-baseline` yok |
-| General Phase 0 | OPEN | drawtext, provider teyidi ve offline render acik |
+| General Phase 0 | OPEN | provider teyidi ve offline render acik |
 
 ### Sonuc
 
 Freesound current tree remediation, reachable main history remediation ve remote
-replacement verification PASS durumundadir. Provider revoke/rotation NOT
-CONFIRMED, drawtext gate BLOCKED, offline isolated full render OPEN ve genel
-Faz 0 OPEN olarak kalir.
+replacement verification PASS durumundadir. Drawtext explicit-font capability
+PASS, varsayilan Fontconfig discovery known limitation, provider
+revoke/rotation NOT CONFIRMED, offline isolated full render OPEN ve genel Faz 0
+OPEN olarak kalir.

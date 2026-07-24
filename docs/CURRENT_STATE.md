@@ -30,12 +30,13 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Canonical engine entrypoint: `v2/main.py`
 - Ana orchestration fonksiyonu: `v2.main.process_timeline`
 - FFmpeg paired runtime: VERIFIED
-- Drawtext operational gate: BLOCKED
+- Drawtext operational gate: PASS with explicit fontfile / default Fontconfig known limitation
 - Offline isolated full render: OPEN
 - General Phase 0: OPEN
 
 ## Current next move
 
-This repository is now the authoritative sanitized root. The next recommended
-Phase 0 task is drawtext/fontconfig runtime unblock on the accepted paired
-runtime, while provider revoke/rotation remains NOT CONFIRMED.
+This repository is now the authoritative sanitized root. The accepted paired
+runtime supports `drawtext` when a verified Windows font is passed explicitly;
+the remaining recommended Phase 0 task is offline isolated full render
+reproduction, while provider revoke/rotation remains NOT CONFIRMED.

@@ -14,14 +14,25 @@
 ### Still open
 
 - Provider revoke/rotation: **NOT CONFIRMED**
-- Drawtext operational gate: BLOCKED
+- Drawtext operational gate: PASS with explicit fontfile / default Fontconfig known limitation
 - Offline isolated full render: OPEN
 - General Phase 0: OPEN
+
+## 2026-07-24 - Faz 0 drawtext / Fontconfig operational gate closure
+
+- Accepted paired `ffmpeg` / `ffprobe` runtime revalidated on the authoritative sanitized repository
+- Default `drawtext` invocation reproduced the expected Fontconfig config-file failure
+- Verified Windows font `C:\WINDOWS\Fonts\segoeui.ttf` used with escaped `fontfile=` strategy
+- Explicit-font `drawtext` render passed with real frame-hash difference and valid `ffprobe` metadata
+- Production inventory confirmed ordinary subtitles and text overlays use PIL/MoviePy rather than `drawtext`
+- Only verified production `drawtext` call-site is the stock local-fallback generator in `v2.asset_manager.py`
+- Drawtext capability decision: `DRAWTEXT_OPERATIONAL_WITH_EXPLICIT_FONTFILE`
+- Faz 0 blocker decision: `NOT_A_BASELINE_BLOCKER`
 
 ## 2026-07-24 - Faz 0.4B existing paired runtime verification
 
 - Existing paired runtime accepted
-- drawtext practical invocation blocked by Fontconfig
+- drawtext practical invocation initially appeared blocked by Fontconfig before explicit-font verification
 
 ## 2026-07-24 - Faz 0.1B through Faz 0.4A recap
 

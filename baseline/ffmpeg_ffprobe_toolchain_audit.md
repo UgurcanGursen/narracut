@@ -5,7 +5,7 @@
 - ffmpeg / ffprobe paired runtime verified
 - literal resolution single and consistent
 - most media contracts verified
-- operational drawtext still blocked by Fontconfig in this environment
+- operational drawtext verified with explicit `fontfile`; default Fontconfig discovery remains a known limitation
 
 ## Post-S2 addendum
 
@@ -13,5 +13,5 @@
 - Freesound reachable main history remediation: PASS
 - Remote replacement verification: PASS
 - Provider revoke/rotation: NOT CONFIRMED
-- Drawtext blocker remains the active media gate
+- Drawtext explicit-font capability: PASS
 - General Phase 0 remains OPEN

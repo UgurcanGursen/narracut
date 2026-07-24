@@ -16,6 +16,12 @@ Sonuc: **PARTIALLY CLOSED / FREESOUND HISTORY REMEDIATION COMPLETE / FAZ 0 STILL
 ## Remaining blockers
 
 - Provider revoke/rotation NOT CONFIRMED
-- Drawtext gate BLOCKED
 - Offline isolated full render OPEN
 - Baseline tag not created
+
+## Drawtext gate closure
+
+- Capability decision: `DRAWTEXT_OPERATIONAL_WITH_EXPLICIT_FONTFILE`
+- Baseline blocker decision: `NOT_A_BASELINE_BLOCKER`
+- Default Fontconfig discovery failure is documented as an environment limitation, not a baseline render blocker
+- Offline isolated full render OPEN

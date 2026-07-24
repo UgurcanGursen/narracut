@@ -41,7 +41,7 @@
 
 ## Remaining Phase 0 blockers
 
-- Drawtext operational gate: BLOCKED
+- Drawtext operational gate: PASS with explicit fontfile / default Fontconfig known limitation
 - Offline isolated full render: OPEN
 - Provider revoke/rotation: NOT CONFIRMED
 - General Phase 0: OPEN

@@ -5,7 +5,7 @@ Son guncelleme: 24 Temmuz 2026
 ## Faz 0 blocker'lari
 
 1. Provider revoke/rotation durumu **NOT CONFIRMED** olarak kalir.
-2. Accepted paired FFmpeg/ffprobe runtime dogrulansa da practical `drawtext` invocation halen Fontconfig nedeniyle blockerdir.
+2. Varsayilan Fontconfig font discovery bu Windows ortaminda calismaz; `drawtext` yalniz explicit `fontfile` ile dogrulanmistir.
 3. Full offline isolated render reproduction halen aciktir.
 4. `stage3-development-baseline` tag'i yoktur.
 

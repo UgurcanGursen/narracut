@@ -1,8 +1,8 @@
 {
-  "manifest_version": "1.5.0",
+  "manifest_version": "1.6.0",
   "captured_at": "2026-07-24",
   "phase": "phase_00_4b_s2_freesound_history_replacement_verified",
-  "verification_status": "remote_replacement_verified_phase0_open",
+  "verification_status": "drawtext_gate_closed_phase0_open",
   "authoritative_repository": {
     "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304",
     "branch": "main",
@@ -40,10 +40,26 @@
     "freesound_reachable_main_history_remediation": "pass",
     "remote_replacement_verification": "pass",
     "provider_revoke_rotation": "not_confirmed",
-    "ffmpeg_paired_runtime": "verified",
-    "drawtext_operational_gate": "blocked",
+    "ffmpeg_paired_runtime": "pass",
+    "drawtext_operational_gate": "pass_explicit_fontfile_default_fontconfig_known_limitation",
     "offline_isolated_full_render": "open",
     "general_phase0": "open",
     "baseline_tag": "not_created"
+  },
+  "drawtext_gate": {
+    "decision": "DRAWTEXT_OPERATIONAL_WITH_EXPLICIT_FONTFILE",
+    "phase0_blocker_decision": "NOT_A_BASELINE_BLOCKER",
+    "default_fontconfig_discovery": "known_limitation",
+    "verified_font_path": "C:\\WINDOWS\\Fonts\\segoeui.ttf",
+    "explicit_fontfile_probe": {
+      "return_code": 0,
+      "output_exists": true,
+      "output_nonzero": true,
+      "ffprobe_json": "pass",
+      "frame_hash_difference": true,
+      "width": 320,
+      "height": 180,
+      "duration_seconds": 2.0
+    }
   }
 }
