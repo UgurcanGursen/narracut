@@ -34,6 +34,19 @@ python main.py <input>
 Kök normal dal `run_validation()` çağırmaz (`main.py:40-52`). Legacy validation
 engine içinde gerçekleşir (`v2/main.py:163-193`).
 
+## Selected closure path (Faz 0 offline reproducibility)
+
+- Preferred root path `python main.py <input>` gercekte `v2.main.process_timeline`
+  delegation'ina iner.
+- Faz 0 closure kaniti icin secilen canonical symbol
+  `v2.main.process_timeline` olmustur.
+- Root CLI dogrudan secilmemistir; cunku fail-closed provider/network guard
+  kurulumu, repo-disina run-scoped output izolasyonu ve evidence capture hook'u
+  icin mevcut CLI yuzeyi ek production degisikligi sunmaz.
+- `scripts/verify_phase0_offline_render.py` yalniz fixture materialization,
+  isolated run root kurulumu, guard, production symbol invocation ve output
+  validation islerini yapar; renderer/normalizer/encode davranisini mock etmez.
+
 ## `v2.main.process_timeline`
 
 ```text
@@ -112,6 +125,7 @@ Dispatcher tablosu (`v2/visual_dispatcher.py:547-560`):
 
 - V1 list: `timeline.json`
 - V2 blocks: `test_1_min.json`
+- Faz 0 closure fixture: `baseline/fixtures/phase0_offline_full_render.json`
 - Editorial beats: `ibm_v3_native.json`
 - Acceptance/negative fixtures: `tests/fixtures/*.json`
 - Acceptance asset manifest:

@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-07-24 - Faz 0 offline isolated full-render closure
+
+- Canonical closure fixture `baseline/fixtures/phase0_offline_full_render.json` eklendi
+- Verification harness `scripts/verify_phase0_offline_render.py` ile gercek `v2.main.process_timeline` orchestration'i iki izole run root'ta calistirildi
+- Root `main.py` yerine harness kullanimi, fail-closed guard ve run-scoped evidence capture hook'u gerektirdigi icin belgelendi
+- Her iki run icin provider/network attempt sayisi `0`, repository mutation sayisi `0` ve output isolation PASS olarak dogrulandi
+- Final MP4'ler `h264` video + `aac` audio ile gecerli, decode PASS, A/V drift `0.003s`
+- Run 1 ve Run 2 decoded video fingerprint'leri eslesti
+- Run 1 ve Run 2 decoded audio fingerprint'leri eslesti
+- Full regression suite `56 passed`
+- Offline isolated full render: PASS
+- Fail-closed provider/network gate: PASS
+- Two-run decoded-content reproducibility: PASS
+- Faz 0 technical acceptance gates: PASS
+- Provider revoke/rotation: **NOT CONFIRMED**
+- Baseline tag: PENDING
+- General Phase 0: OPEN pending final closure/tag decision
+
 ## 2026-07-24 - Faz 0.4B-S2 Freesound history replacement verified
 
 ### Verified

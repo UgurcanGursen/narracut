@@ -1,0 +1,95 @@
+{
+  "version": "2.2",
+  "blocks": [
+    {
+      "block_id": "phase0_block_01",
+      "narration": "IBM warned investors before its scheduled earnings call, and the stock fell twenty five percent in a single session. Roughly sixty seven billion dollars in market value disappeared as traders questioned the durability of IBM's momentum.",
+      "audio_file": "assets/audio/phase0_block_01.wav",
+      "pause_before": 0.3,
+      "pause_after": 0.4,
+      "bgm_drop": false,
+      "fill_policy": "error",
+      "visuals": [
+        {
+          "type": "stock",
+          "offset_start": 0.0,
+          "offset_end": 6.0,
+          "allow_generic_stock": false,
+          "fit_mode": "cover",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "fill_policy": "error",
+          "extra": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_market_establish",
+            "resolved_path": "assets/video/shot_market_establish.mp4",
+            "expected_sha256": "bac0b41d934e4393c76079efa946f3376725e20a16a6a9cc4635485e27b58ebf"
+          }
+        },
+        {
+          "type": "stock",
+          "offset_start": 6.0,
+          "offset_end": "AUTO",
+          "allow_generic_stock": false,
+          "fit_mode": "cover",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "fill_policy": "error",
+          "extra": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_earnings_call_broll",
+            "resolved_path": "assets/video/shot_earnings_call_broll.mp4",
+            "expected_sha256": "e52ea1b21317595757f681faa5d5a80f6b95dfaf022ef248b3794e0c93ae694c"
+          }
+        }
+      ]
+    },
+    {
+      "block_id": "phase0_block_02",
+      "narration": "Management later said customers redirected budgets toward AI infrastructure while several large IBM deals slipped. This offline closure fixture keeps every input local and proves that the baseline production render can be reproduced without any provider or network access.",
+      "audio_file": "assets/audio/phase0_block_02.wav",
+      "pause_before": 0.3,
+      "pause_after": 0.4,
+      "bgm_drop": false,
+      "fill_policy": "error",
+      "visuals": [
+        {
+          "type": "stock",
+          "offset_start": 0.0,
+          "offset_end": 6.0,
+          "allow_generic_stock": false,
+          "fit_mode": "cover",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "fill_policy": "error",
+          "extra": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_datacenter_establish",
+            "resolved_path": "assets/video/shot_datacenter_establish.mp4",
+            "expected_sha256": "6c7896c65708e3e7b804179ad04677c5a8607b4f0b07429512d2e27c9d442c55"
+          }
+        },
+        {
+          "type": "stock",
+          "offset_start": 6.0,
+          "offset_end": "AUTO",
+          "allow_generic_stock": false,
+          "fit_mode": "cover",
+          "transition_in": "hard_cut",
+          "transition_out": "hard_cut",
+          "subtitle_policy": "show",
+          "fill_policy": "error",
+          "extra": {
+            "asset_mode": "locked_local",
+            "asset_id": "shot_supply_chain_broll",
+            "resolved_path": "assets/video/shot_supply_chain_broll.mp4",
+            "expected_sha256": "5825c009ae8f88c1578f839de8e395b83640cd46ef3c099692a56a47cfd1eeb0"
+          }
+        }
+      ]
+    }
+  ]
+}

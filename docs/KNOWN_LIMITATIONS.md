@@ -6,8 +6,7 @@ Son guncelleme: 24 Temmuz 2026
 
 1. Provider revoke/rotation durumu **NOT CONFIRMED** olarak kalir.
 2. Varsayilan Fontconfig font discovery bu Windows ortaminda calismaz; `drawtext` yalniz explicit `fontfile` ile dogrulanmistir.
-3. Full offline isolated render reproduction halen aciktir.
-4. `stage3-development-baseline` tag'i yoktur.
+3. `stage3-development-baseline` tag'i yoktur.
 
 ## Security sinirlari
 
@@ -20,4 +19,5 @@ Son guncelleme: 24 Temmuz 2026
 - Koku CLI icin explicit offline/cache-only/skip-download modu yoktur.
 - Legacy output override yoktur.
 - Edge TTS, YouTube, web capture ve benzeri yollar ag bagimliligi tasir.
+- Closure fixture render'i `phase0_block_01` icin `159.5 WPM` warning'i ile `success_with_warnings` dondurur; decoded fingerprint, A/V drift ve output validity gate'leri yine de PASS durumundadir.
 - `v2/audio_engine_debug.py` ve `v2/audio_engine_debug2.py` bilinen debug debt olarak disarida tutulur.

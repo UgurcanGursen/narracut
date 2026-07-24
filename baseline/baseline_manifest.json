@@ -1,8 +1,8 @@
 {
-  "manifest_version": "1.6.0",
+  "manifest_version": "1.7.0",
   "captured_at": "2026-07-24",
-  "phase": "phase_00_4b_s2_freesound_history_replacement_verified",
-  "verification_status": "drawtext_gate_closed_phase0_open",
+  "phase": "phase_00_offline_isolated_render_closed",
+  "verification_status": "phase0_technical_gates_closed_baseline_tag_pending",
   "authoritative_repository": {
     "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304",
     "branch": "main",
@@ -42,9 +42,31 @@
     "provider_revoke_rotation": "not_confirmed",
     "ffmpeg_paired_runtime": "pass",
     "drawtext_operational_gate": "pass_explicit_fontfile_default_fontconfig_known_limitation",
-    "offline_isolated_full_render": "open",
-    "general_phase0": "open",
-    "baseline_tag": "not_created"
+    "offline_isolated_full_render": "pass",
+    "fail_closed_provider_network_gate": "pass",
+    "two_run_decoded_content_reproducibility": "pass",
+    "repository_output_isolation": "pass",
+    "full_suite_regression": "pass_56_passed",
+    "phase0_technical_acceptance_gates": "pass",
+    "general_phase0": "open_pending_final_closure_tag_decision",
+    "baseline_tag": "pending"
+  },
+  "offline_isolated_full_render": {
+    "repository_revision": "7f877a311bb6ab1f02c24bf35cdfa90cc14928e7",
+    "report_path": "baseline/offline_isolated_full_render_report.md",
+    "evidence_path": "baseline/offline_isolated_full_render_evidence.json",
+    "fixture_path": "baseline/fixtures/phase0_offline_full_render.json",
+    "fixture_sha256": "46163fe535ab0b931540a1cc6864a78a2a8858def0d24ce92175739b14a9d8e0",
+    "orchestrator": "v2.main.process_timeline",
+    "run_count": 2,
+    "provider_attempt_count": 0,
+    "network_attempt_count": 0,
+    "decoded_video_equal": true,
+    "decoded_audio_equal": true,
+    "repository_mutation_count": 0,
+    "output_isolation": "pass",
+    "full_pytest": "56 passed",
+    "final_decision": "pass"
   },
   "drawtext_gate": {
     "decision": "DRAWTEXT_OPERATIONAL_WITH_EXPLICIT_FONTFILE",

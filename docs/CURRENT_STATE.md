@@ -1,7 +1,7 @@
 # Current State
 
 Son guncelleme: 24 Temmuz 2026
-Aktif faz: **Faz 0.4B-S2 - Freesound Sanitized-Root History Replacement**
+Aktif faz: **Faz 0 - Offline Isolated Full-Render Closure**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
@@ -31,12 +31,18 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Ana orchestration fonksiyonu: `v2.main.process_timeline`
 - FFmpeg paired runtime: VERIFIED
 - Drawtext operational gate: PASS with explicit fontfile / default Fontconfig known limitation
-- Offline isolated full render: OPEN
-- General Phase 0: OPEN
+- Offline isolated full render: PASS
+- Fail-closed provider/network gate: PASS
+- Two-run decoded-content reproducibility: PASS
+- Repository/output isolation: PASS
+- Full-suite regression: `56 passed`
+- Faz 0 technical acceptance gates: PASS
+- General Phase 0: OPEN pending final closure/tag decision
 
 ## Current next move
 
-This repository is now the authoritative sanitized root. The accepted paired
-runtime supports `drawtext` when a verified Windows font is passed explicitly;
-the remaining recommended Phase 0 task is offline isolated full render
-reproduction, while provider revoke/rotation remains NOT CONFIRMED.
+This repository remains the authoritative sanitized root. Technical Faz 0
+render gates are now closed through the accepted offline isolated
+reproducibility proof; the remaining Faz 0 item is the final baseline
+tag/closure decision, while provider revoke/rotation remains a separate
+NOT CONFIRMED security follow-up.
