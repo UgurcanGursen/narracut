@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-07-25 - Faz 1 migrator security hardening
+
+- URI user-info, sensitive query/fragment, signed-URL ve control-character
+  kaynaklari standard-library security boundary ile fail-closed yapildi
+- Raw secret'in workspace, result, mapping, report, summary ve CLI output'una
+  tasinmamasi regression testleriyle sabitlendi
+- FAILED migration target fingerprint/workspace ID alanlari null ve raporlar
+  `not published` semantigine getirildi
+- BGM/SFX bilinen alanlari aktif V2 modelinden exact allowlist olarak alindi;
+  unknown/nested unknown alanlar iki modda da fail-closed yapildi
+- Migrator suite: `111 passed`
+- Birlesik contract/migrator suite: `198 passed, 1 skipped`
+- Full suite: `254 passed, 1 skipped`
+- Demo A/B/committed expected byte equality: PASS
+- Multi-file output setinin transaction olmadigi ve WorkspaceStore zorunlu
+  transaction acceptance kriterleri belgelendi
+- Migrator security hardening: PASS
+- WorkspaceStore entry gate: PENDING_INDEPENDENT_REAUDIT
+
 ## 2026-07-25 - Faz 1 V2ToV3Migrator
 
 - Gercek V2 `TimelineV2`/production fixture contract'i field-by-field

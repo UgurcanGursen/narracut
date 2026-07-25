@@ -29,16 +29,25 @@ Son guncelleme: 25 Temmuz 2026
 
 - V3 contract foundation, contract integrity hardening ve public validation
   boundary PASS durumundadir. V2ToV3Migrator ve structured migration-loss
-  reporting de PASS'tir; WorkspaceStore entry gate READY'dir.
+  reporting ile migrator security hardening PASS'tir; WorkspaceStore entry
+  gate PENDING_INDEPENDENT_REAUDIT durumundadir.
 - V2 audio file, BGM/SFX, pause, frame-duration, subtitle ve renderer-specific
   visual ayarlari Phase 1 canonical workspace'te birebir temsil edilmez.
   Migrator bunlari structured loss olarak raporlar; strict mod yayinlamaz.
 - Descriptor fingerprint, source media hash'i bulunmadiginda yalniz
   deterministic review placeholder'idir; media-byte hash'i oldugu iddia
   edilmez ve manual verification gerekir.
-- Aggregate migration output embedded policy snapshot kullanir. Split
-  workspace persistence ve external document revision management
-  WorkspaceStore kapsaminda aciktir.
+- Aggregate migration outputta embedded policy snapshot authoritative'dir;
+  `policy_snapshot_ref` logical/informational identity'dir. Split workspace'te
+  ayni alan gercek external document reference olmaya devam eder.
+- Migrator her output dosyasini tek basina atomic replace ile yazar; dort
+  artifact seti transaction degildir ve write/process failure sonrasi
+  mixed-generation set kalabilir. Production persistence icin guvenilir
+  sayilmaz.
+- WorkspaceStore staged revision directory, tum artifact hash dogrulamasi,
+  revision manifest, file close/fsync, commit marker veya atomic active
+  revision pointer, crash recovery, mixed-generation engeli, onceki valid
+  revision'i koruma ve partial staging cleanup saglamalidir.
 - Faz 1 production persistence, timing/frame, renderer integration ve Studio
   API/UI kapsamlarini henuz tamamlamaz.
 - `engine/contracts/workspace.py` modul boyutu LOW/non-blocking teknik borctur;

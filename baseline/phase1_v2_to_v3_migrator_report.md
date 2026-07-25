@@ -257,3 +257,28 @@ Faz 1 genel durumu OPEN/IN_PROGRESS kalir. Acik kapsam:
 
 Sonraki tek onerilen gorev: **V3 WorkspaceStore — versioned persistence,
 atomic save/load ve migration output revision management.**
+
+## Post-audit security hardening
+
+Independent audit sonrasi URI user-info/sensitive-query no-leak boundary,
+FAILED unpublished-target metadata ve BGM/SFX exact allowlist davranislari
+harden edildi. Security finding her iki modda
+`MIGRATION_SECRET_REDACTED`/ERROR ile FAILED olur; raw URI veya credential
+workspace/result/report/summary/CLI output'una tasinmaz. FAILED result target
+fingerprint/workspace ID degerlerini null tutar ve insan tarafindan okunabilir
+ciktilar workspace'in yayinlanmadigini aciklar.
+
+Migrator output dosyalari tek tek atomic yazilir; dort-artifact seti transaction
+degildir. Bu eksik WorkspaceStore staged revision ve active-revision commit
+protokolunun zorunlu acceptance kriteridir.
+
+Aggregate layout'ta embedded policy snapshot authoritative,
+`policy_snapshot_ref` logical/informational identity'dir; split layout'ta
+external document reference semantigi korunur.
+
+Security hardening: PASS. WorkspaceStore entry gate:
+PENDING_INDEPENDENT_REAUDIT.
+
+Post-hardening verification: migrator `111 passed`, combined contract/migrator
+`198 passed, 1 skipped`, full suite `254 passed, 1 skipped`; demo
+A/B/committed expected byte equality PASS.

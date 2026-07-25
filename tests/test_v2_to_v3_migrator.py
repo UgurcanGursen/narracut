@@ -710,6 +710,347 @@ def test_secret_redaction_is_structured(
     assert issue["source_pointer"] == "/authorization_token"
 
 
+@pytest.mark.parametrize("mode", ["strict", "permissive"])
+@pytest.mark.parametrize(
+    ("uri", "pointer"),
+    [
+        (
+            "https://audit-user:audit-password@example.invalid/path",
+            "/blocks/0/visuals/0/url",
+        ),
+        (
+            "https://audit-user@example.invalid/path",
+            "/blocks/0/visuals/0/url",
+        ),
+        (
+            "https://audit-user:audit-password@[invalid",
+            "/blocks/0/visuals/0/url",
+        ),
+        (
+            "https://example.invalid/path#auth=audit-fragment",
+            "/blocks/0/visuals/0/url",
+        ),
+        (
+            "https://example.invalid/path\n?view=public",
+            "/blocks/0/visuals/0/url",
+        ),
+    ],
+)
+def test_uri_credentials_fail_closed_without_artifact_leakage(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+    mode: str,
+    uri: str,
+    pointer: str,
+) -> None:
+    valid_source["blocks"][0]["visuals"][0]["url"] = uri
+    outcome = migrator.migrate(
+        valid_source,
+        MigrationOptions(mode=mode, source_path="security-input.json"),
+    )
+    rendered = "\n".join(
+        (
+            json.dumps(outcome.workspace, sort_keys=True),
+            json.dumps(outcome.result, sort_keys=True),
+            render_migration_report(outcome),
+            render_inspection_summary(outcome),
+        )
+    )
+    issue = issue_for(outcome, "MIGRATION_SECRET_REDACTED")
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert issue["source_pointer"] == pointer
+    assert uri not in rendered
+    assert "audit-password" not in rendered
+    assert "audit-fragment" not in rendered
+
+
+@pytest.mark.parametrize(
+    "query_key",
+    [
+        "token",
+        "access_token",
+        "refresh-token",
+        "IdToken",
+        "auth",
+        "authorization",
+        "api_key",
+        "Api-Key",
+        "APIKEY",
+        "client_secret",
+        "password",
+        "passwd",
+        "pwd",
+        "credential",
+        "credentials",
+        "signature",
+        "sig",
+        "X-Amz-Signature",
+        "X-Amz-Credential",
+        "X-Amz-Security-Token",
+        "X-Goog-Signature",
+        "X-Goog-Credential",
+        "AWSAccessKeyId",
+        "x-api-key",
+    ],
+)
+def test_sensitive_uri_query_keys_fail_closed(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+    query_key: str,
+) -> None:
+    marker = "synthetic-audit-credential"
+    uri = f"https://example.invalid/media?view=public&{query_key}={marker}"
+    valid_source["blocks"][0]["visuals"][0]["url"] = uri
+    outcome = migrator.migrate(valid_source, permissive())
+    rendered = "\n".join(
+        (
+            json.dumps(outcome.workspace, sort_keys=True),
+            json.dumps(outcome.result, sort_keys=True),
+            render_migration_report(outcome),
+            render_inspection_summary(outcome),
+        )
+    )
+    issue = issue_for(outcome, "MIGRATION_SECRET_REDACTED")
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert issue["source_pointer"] == "/blocks/0/visuals/0/url"
+    assert marker not in rendered
+    assert uri not in rendered
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "pointer"),
+    [
+        (
+            "selected_asset_url",
+            "https://audit-user:audit-password@example.invalid/media",
+            "/blocks/0/visuals/0/selected_asset_url",
+        ),
+        (
+            "query",
+            "auth=synthetic-audit-credential",
+            "/blocks/0/visuals/0/query",
+        ),
+        (
+            "logo_url",
+            "https://example.invalid/logo?api_key=synthetic-audit-credential",
+            "/blocks/0/visuals/0/logo_url",
+        ),
+    ],
+)
+def test_all_visual_uri_paths_use_security_boundary(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+    field: str,
+    value: str,
+    pointer: str,
+) -> None:
+    visual = valid_source["blocks"][0]["visuals"][0]
+    visual["extra"].pop("resolved_path")
+    visual[field] = value
+    outcome = migrator.migrate(valid_source, permissive())
+    rendered = json.dumps(
+        {
+            "workspace": outcome.workspace,
+            "result": outcome.result,
+            "report": render_migration_report(outcome),
+            "summary": render_inspection_summary(outcome),
+        },
+        sort_keys=True,
+    )
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert issue_for(
+        outcome, "MIGRATION_SECRET_REDACTED"
+    )["source_pointer"] == pointer
+    assert value not in rendered
+    assert "synthetic-audit-credential" not in rendered
+    assert "audit-password" not in rendered
+
+
+def test_open_extra_uri_is_checked_for_credentials(
+    migrator: V2ToV3Migrator, valid_source: dict
+) -> None:
+    value = "https://example.invalid/provider?signature=synthetic-signature"
+    pointer = "/blocks/0/visuals/0/extra/provider_uri"
+    valid_source["blocks"][0]["visuals"][0]["extra"]["provider_uri"] = value
+    outcome = migrator.migrate(valid_source, permissive())
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert issue_for(
+        outcome, "MIGRATION_SECRET_REDACTED"
+    )["source_pointer"] == pointer
+    assert value not in json.dumps(outcome.result, sort_keys=True)
+
+
+@pytest.mark.parametrize(
+    "uri",
+    [
+        "https://example.invalid/media?view=public&language=tr",
+        "https://example.invalid/media?monkey=capuchin&public_key=reference",
+    ],
+)
+def test_safe_https_query_does_not_trigger_secret_detection(
+    migrator: V2ToV3Migrator, valid_source: dict, uri: str
+) -> None:
+    visual = valid_source["blocks"][0]["visuals"][0]
+    visual["extra"].pop("resolved_path")
+    visual["url"] = uri
+    outcome = migrator.migrate(valid_source, strict())
+    assert outcome.status == "SUCCESS"
+    assert outcome.workspace is not None
+    assert outcome.workspace["assets"][0]["provenance"]["origin_uri"] == uri
+    assert "MIGRATION_SECRET_REDACTED" not in issue_codes(outcome)
+
+
+def test_failed_result_does_not_publish_target_metadata(
+    catalog: SchemaCatalog,
+    migrator: V2ToV3Migrator,
+    unsupported_source: dict,
+) -> None:
+    outcome = migrator.migrate(unsupported_source, strict())
+    result = outcome.result
+    report = render_migration_report(outcome)
+    summary = render_inspection_summary(outcome)
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert result["target_fingerprint"] is None
+    assert result["workspace_id"] is None
+    assert result["validation"]["workspace_schema_valid"] is False
+    assert result["validation"]["workspace_loader_valid"] is False
+    assert "Workspace published: **no**" in report
+    assert "Target fingerprint: `not published`" in report
+    assert "Workspace ID: `not published`" in report
+    assert "target_workspace_id: not_published" in summary
+    assert "workspace.json" not in summary
+    validation = catalog.validate(
+        result, "migration_result.schema.json", "failed-result.json"
+    )
+    assert validation.is_valid, validation.issues
+
+
+@pytest.mark.parametrize("source_fixture", ["valid_v2.json", "unsupported_v2.json"])
+def test_published_results_keep_target_metadata(
+    catalog: SchemaCatalog,
+    source_fixture: str,
+) -> None:
+    source = load_json(FIXTURE_ROOT / source_fixture)
+    outcome = V2ToV3Migrator(catalog).migrate(source, permissive())
+    assert outcome.status in {"SUCCESS", "SUCCESS_WITH_LOSS"}
+    assert outcome.workspace is not None
+    assert outcome.result["target_fingerprint"] is not None
+    assert outcome.result["workspace_id"] == outcome.workspace["workspace_id"]
+
+
+@pytest.mark.parametrize("mode", ["strict", "permissive"])
+@pytest.mark.parametrize(
+    ("container", "pointer"),
+    [
+        ("bgm", "/bgm/audit_unknown"),
+        ("sfx", "/blocks/0/visuals/0/sfx/audit_unknown"),
+    ],
+)
+def test_unknown_bgm_and_sfx_fields_fail_closed(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+    mode: str,
+    container: str,
+    pointer: str,
+) -> None:
+    if container == "bgm":
+        valid_source["bgm"] = {"audit_unknown": False}
+    else:
+        valid_source["blocks"][0]["visuals"][0]["sfx"] = {
+            "audit_unknown": 0
+        }
+    outcome = migrator.migrate(
+        valid_source, MigrationOptions(mode=mode)
+    )
+    issue = issue_for(outcome, "MIGRATION_UNACCOUNTED_SOURCE_FIELD")
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert issue["severity"] == "ERROR"
+    assert issue["source_pointer"] == pointer
+
+
+@pytest.mark.parametrize(
+    ("container", "pointer"),
+    [
+        ("bgm", "/bgm/enabled/audit_nested"),
+        ("sfx", "/blocks/0/visuals/0/sfx/enabled/audit_nested"),
+    ],
+)
+def test_nested_unknown_bgm_and_sfx_fields_have_exact_pointer(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+    container: str,
+    pointer: str,
+) -> None:
+    if container == "bgm":
+        valid_source["bgm"] = {"enabled": {"audit_nested": True}}
+    else:
+        valid_source["blocks"][0]["visuals"][0]["sfx"] = {
+            "enabled": {"audit_nested": True}
+        }
+    outcome = migrator.migrate(valid_source, permissive())
+    issue = issue_for(outcome, "MIGRATION_UNACCOUNTED_SOURCE_FIELD")
+    assert outcome.status == "FAILED"
+    assert issue["source_pointer"] == pointer
+
+
+def test_known_sfx_fields_keep_structured_loss_behavior(
+    migrator: V2ToV3Migrator, valid_source: dict
+) -> None:
+    valid_source["blocks"][0]["visuals"][0]["sfx"] = {
+        "enabled": True,
+        "asset_id": "legacy_sfx",
+        "trigger_cue": "impact",
+        "gain_db": -3.0,
+        "max_duration": 1.0,
+    }
+    outcome = migrator.migrate(valid_source, permissive())
+    assert outcome.status == "SUCCESS_WITH_LOSS"
+    assert "MIGRATION_FIELD_UNSUPPORTED" in issue_codes(outcome)
+    assert "MIGRATION_UNACCOUNTED_SOURCE_FIELD" not in issue_codes(outcome)
+
+
+def test_failed_secret_cli_has_no_artifact_or_console_leakage(
+    tmp_path: Path,
+) -> None:
+    secret_value = "synthetic-cli-audit-credential"
+    raw_uri = (
+        "https://example.invalid/media?access_token=" + secret_value
+    )
+    source_data = load_json(FIXTURE_ROOT / "valid_v2.json")
+    source_data["blocks"][0]["visuals"][0]["url"] = raw_uri
+    source = tmp_path / "secret-input.json"
+    source.write_text(json.dumps(source_data), encoding="utf-8")
+    output = tmp_path / "secret-output"
+    result = run_cli(
+        source,
+        output,
+        "--mode",
+        "permissive",
+        "--resolution-mode",
+        "core_only",
+    )
+    artifact_payload = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(output.iterdir())
+        if path.is_file()
+    )
+    combined = result.stdout + result.stderr + artifact_payload
+    migration_result = load_json(output / "migration_result.json")
+    assert result.returncode == 3
+    assert migration_result["status"] == "FAILED"
+    assert migration_result["target_fingerprint"] is None
+    assert migration_result["workspace_id"] is None
+    assert not (output / "workspace.json").exists()
+    assert raw_uri not in combined
+    assert secret_value not in combined
+
+
 def test_absolute_source_path_is_portably_encoded(
     migrator: V2ToV3Migrator, valid_source: dict
 ) -> None:

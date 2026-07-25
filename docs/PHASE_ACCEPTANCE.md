@@ -56,14 +56,25 @@ Genel durum: PASS / Faz 1 geneli OPEN
 | Core-only/domain-pack migration resolution | PASS |
 | Safe deterministic CLI output | PASS |
 | Real Phase 0 demo migration | PASS |
+| URI user-info/sensitive-query fail-closed boundary | PASS |
+| Secret-bearing migration artifact/CLI no-leak | PASS |
+| FAILED unpublished target metadata semantics | PASS |
+| BGM/SFX exact allowlist and unknown fail-closed | PASS |
+| Migrator security hardening | PASS |
 | Duplicate stable-ID rejection | PASS |
 | Typed event target resolution/compatibility | PASS |
 | Minimal, business-tech, split sample validation | PASS |
-| Targeted/full regression | PASS (`147 passed, 1 skipped`; `203 passed, 1 skipped`) |
+| Targeted/full regression | PASS (`198 passed, 1 skipped`; `254 passed, 1 skipped`) |
 | V2 production regression | PASS |
 
 Contract foundation: PASS. Contract integrity hardening: PASS. Public validation
-boundary: PASS. V2ToV3Migrator ve structured migration-loss reporting: PASS.
-Faz 1 geneli OPEN/IN_PROGRESS ve WorkspaceStore entry gate READY'dir. Sonraki
-Faz 1 isi V3 WorkspaceStore versioned persistence, atomic save/load ve migration
-output revision management'tir.
+boundary: PASS. V2ToV3Migrator, structured migration-loss reporting ve
+migrator security hardening: PASS. Faz 1 geneli OPEN/IN_PROGRESS ve
+WorkspaceStore entry gate PENDING_INDEPENDENT_REAUDIT durumundadir. Sonraki tek
+is migrator security hardening post-commit independent audit'idir.
+
+WorkspaceStore production persistence acceptance'i staged revision directory,
+butun artifact hash dogrulamasi, revision manifest, file close/fsync, commit
+marker veya atomic active-revision pointer, crash recovery, mixed-generation
+artifact engeli, onceki valid revision'i koruma ve partial staging cleanup
+gerektirir.

@@ -10,6 +10,16 @@ from .models import CLASSIFICATIONS, MigrationOutcome
 def render_migration_report(outcome: MigrationOutcome) -> str:
     result = outcome.result
     counts = result["counts"]["classifications"]
+    workspace_published = outcome.workspace is not None
+    target_fingerprint = (
+        result["target_fingerprint"] if workspace_published else "not published"
+    )
+    workspace_id = (
+        result["workspace_id"] if workspace_published else "not published"
+    )
+    publication_lines = (
+        [] if workspace_published else ["- Workspace published: **no**"]
+    )
     lines = [
         "# V2 to V3 Migration Report",
         "",
@@ -23,9 +33,10 @@ def render_migration_report(outcome: MigrationOutcome) -> str:
         f"- Mode: `{result['mode']}`",
         f"- Resolution mode: `{result['resolution_mode']}`",
         f"- Status: **{result['status']}**",
+        *publication_lines,
         f"- Source fingerprint: `{result['source_fingerprint']}`",
-        f"- Target fingerprint: `{result['target_fingerprint']}`",
-        f"- Workspace ID: `{result['workspace_id']}`",
+        f"- Target fingerprint: `{target_fingerprint}`",
+        f"- Workspace ID: `{workspace_id}`",
         "",
         "## Classification counts",
         "",
@@ -158,7 +169,12 @@ def render_inspection_summary(outcome: MigrationOutcome) -> str:
         f"input: {result['source_path']}",
         f"source_fingerprint: {result['source_fingerprint']}",
         f"status: {result['status']}",
-        f"target_workspace_id: {result['workspace_id']}",
+        "target_workspace_id: "
+        + (
+            str(result["workspace_id"])
+            if outcome.workspace is not None
+            else "not_published"
+        ),
         "counts: "
         + ", ".join(f"{name}={value}" for name, value in counts.items()),
         f"warnings: {severity['WARNING']}",

@@ -30,6 +30,7 @@ from .models import (
     deterministic_token,
     source_type,
 )
+from .security import inspect_source_value
 
 
 MIGRATION_VERSION = "1.0.0"
@@ -37,6 +38,12 @@ EPOCH = "1970-01-01T00:00:00Z"
 SCHEMA_VERSION = "3.0.0"
 
 ROOT_FIELDS = frozenset({"version", "bgm", "blocks"})
+BGM_FIELDS = frozenset(
+    {"enabled", "track_id", "gain_db", "fade_in", "fade_out"}
+)
+SFX_FIELDS = frozenset(
+    {"enabled", "asset_id", "trigger_cue", "gain_db", "max_duration"}
+)
 BLOCK_FIELDS = frozenset(
     {
         "block_id",
@@ -100,14 +107,6 @@ VISUAL_FIELDS = frozenset(
         "preferred_duration",
         "sfx",
     }
-)
-SECRET_KEY = re.compile(
-    r"(^|[_-])(api[_-]?key|secret|token|password|authorization|cookie)($|[_-])",
-    re.IGNORECASE,
-)
-SECRET_VALUE = re.compile(
-    r"(?i)(?:bearer\s+[a-z0-9._-]{8,}|(?:api[_-]?key|token|secret)="
-    r"[^&\s]{4,}|sk-[a-z0-9_-]{8,})"
 )
 LOSS_CODES = {
     "DEFAULTED": "MIGRATION_FIELD_DEFAULTED",
@@ -217,12 +216,6 @@ def _semantic_offset(value: Any, fallback: str) -> str:
     if isinstance(value, str) and value and value != "AUTO":
         return f"v2-offset:{value}"
     return fallback
-
-
-def _is_secret(pointer: str, value: Any) -> bool:
-    return any(SECRET_KEY.search(part) for part in pointer.split("/") if part) or (
-        isinstance(value, str) and SECRET_VALUE.search(value) is not None
-    )
 
 
 class _MigrationBuilder:
@@ -1374,7 +1367,9 @@ class V2ToV3Migrator:
             if not isinstance(value, str) or not value:
                 continue
             source_pointer = f"{pointer}/{field_name}"
-            if _is_secret(source_pointer, value):
+            if inspect_source_value(
+                source_pointer, value, uri_reference=True
+            ) is not None:
                 builder.account(
                     source_pointer,
                     value,
@@ -1446,7 +1441,7 @@ class V2ToV3Migrator:
         for pointer, value in _leaf_items(source):
             if pointer in builder.accounted:
                 continue
-            if _is_secret(pointer, value):
+            if inspect_source_value(pointer, value) is not None:
                 builder.account(
                     pointer,
                     value,
@@ -1474,7 +1469,11 @@ class V2ToV3Migrator:
                     notes=f"V2 root field {_field(pointer)!r} has no V3 mapping.",
                 )
                 continue
-            if len(parts) >= 2 and parts[0] == "bgm":
+            if (
+                len(parts) == 2
+                and parts[0] == "bgm"
+                and _field(pointer) in BGM_FIELDS
+            ):
                 builder.account(
                     pointer,
                     value,
@@ -1531,7 +1530,31 @@ class V2ToV3Migrator:
                         ),
                     )
                     continue
-                if len(parts) >= 5 and parts[2] == "visuals":
+                if (
+                    len(parts) == 6
+                    and parts[2] == "visuals"
+                    and parts[4] == "sfx"
+                    and _field(pointer) in SFX_FIELDS
+                ):
+                    builder.account(
+                        pointer,
+                        value,
+                        None,
+                        "UNSUPPORTED",
+                        f"V2 sound-effect {_field(pointer)} setting",
+                        "migration report",
+                        "Record without inventing an audio asset or timing event.",
+                        notes=(
+                            "V2 SFX configuration has no Phase 1 canonical "
+                            "asset/provenance contract."
+                        ),
+                    )
+                    continue
+                if (
+                    len(parts) >= 5
+                    and parts[2] == "visuals"
+                    and parts[4] != "sfx"
+                ):
                     visual_field = parts[4]
                     if visual_field in VISUAL_FIELDS:
                         classification = (
@@ -1647,10 +1670,14 @@ class V2ToV3Migrator:
             else "SUCCESS"
         )
         target_fingerprint = (
-            canonical_fingerprint(workspace) if workspace is not None else None
+            canonical_fingerprint(workspace)
+            if not failed and workspace is not None
+            else None
         )
         workspace_id = (
-            str(workspace["workspace_id"]) if workspace is not None else None
+            str(workspace["workspace_id"])
+            if not failed and workspace is not None
+            else None
         )
         unknown_fields = sorted(
             {
@@ -1690,9 +1717,11 @@ class V2ToV3Migrator:
             },
             "mappings": mappings,
             "validation": {
-                "workspace_schema_valid": workspace is not None
+                "workspace_schema_valid": not failed
+                and workspace is not None
                 and not target_issues,
-                "workspace_loader_valid": workspace is not None
+                "workspace_loader_valid": not failed
+                and workspace is not None
                 and not target_issues,
                 "migration_result_schema_valid": True,
                 "target_issues": target_issues,

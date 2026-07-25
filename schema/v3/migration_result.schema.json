@@ -405,6 +405,31 @@
       ]
     }
   ],
+  "allOf": [
+    {
+      "if": {
+        "required": [
+          "migration_version",
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "const": "FAILED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "target_fingerprint": {
+            "type": "null"
+          },
+          "workspace_id": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "classification": {
       "enum": [

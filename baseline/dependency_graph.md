@@ -258,3 +258,27 @@ python -B -m engine.migration.cli migrate
 filesystem, network, wall-clock veya random UUID kullanmaz. V2 field inventory
 `baseline/v2_2_schema_snapshot.json`, `v2/models.py`, `v2/main.py`, V2 testleri
 ve Faz 0 production fixture'ina dayanir.
+
+## Faz 1 migrator security boundary
+
+```text
+untrusted V2 source leaf
+-> engine.migration.security.inspect_source_value
+   |-- field-name credential family
+   |-- URI user-info
+   |-- sensitive query/fragment key
+   |-- malformed credential-like URI
+   `-- control character
+-> safe reference: normal origin/URN mapping
+   or secret finding:
+      MIGRATION_SECRET_REDACTED / ERROR
+      -> FAILED
+      -> target fingerprint/workspace ID null
+      -> no workspace.json
+```
+
+`write_outcome` her dosya icin atomic replace kullanir, fakat workspace/result/
+report/summary seti transaction degildir. WorkspaceStore staged revision,
+artifact hash verification, revision manifest, durability, commit marker veya
+active-revision switch, crash recovery, previous-valid-revision preservation ve
+partial staging cleanup saglamadan production persistence kabul edilmez.
