@@ -1,0 +1,4 @@
+/.gitattributes text eol=lf
+/studio-api/** text eol=lf
+/studio-ui/** text eol=lf
+/baseline/phase1_control_plane_toolchain_report.md text eol=lf
