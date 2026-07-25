@@ -1,12 +1,11 @@
 # Known Limitations
 
-Son guncelleme: 24 Temmuz 2026
+Son guncelleme: 25 Temmuz 2026
 
-## Faz 0 blocker'lari
+## Known limitations ve follow-up'lar
 
-1. Provider revoke/rotation durumu **NOT CONFIRMED** olarak kalir.
+1. Provider revoke/rotation durumu **NOT CONFIRMED** olarak ayri security follow-up olarak kalir.
 2. Varsayilan Fontconfig font discovery bu Windows ortaminda calismaz; `drawtext` yalniz explicit `fontfile` ile dogrulanmistir.
-3. `stage3-development-baseline` tag'i yoktur.
 
 ## Security sinirlari
 
@@ -21,3 +20,7 @@ Son guncelleme: 24 Temmuz 2026
 - Edge TTS, YouTube, web capture ve benzeri yollar ag bagimliligi tasir.
 - Closure fixture render'i `phase0_block_01` icin `159.5 WPM` warning'i ile `success_with_warnings` dondurur; decoded fingerprint, A/V drift ve output validity gate'leri yine de PASS durumundadir.
 - `v2/audio_engine_debug.py` ve `v2/audio_engine_debug2.py` bilinen debug debt olarak disarida tutulur.
+
+## Faz 0 status note
+
+- Bu limitation ve security follow-up'lar Faz 0'i tekrar OPEN yapan teknik blocker olarak siniflandirilmaz.

@@ -1,8 +1,8 @@
 {
-  "manifest_version": "1.7.0",
-  "captured_at": "2026-07-24",
-  "phase": "phase_00_offline_isolated_render_closed",
-  "verification_status": "phase0_technical_gates_closed_baseline_tag_pending",
+  "manifest_version": "1.8.0",
+  "captured_at": "2026-07-25",
+  "phase": "phase_00_closed_development_baseline",
+  "verification_status": "phase0_closed_stage3_development_baseline",
   "authoritative_repository": {
     "path": "C:\\Users\\user\\Documents\\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304",
     "branch": "main",
@@ -48,8 +48,9 @@
     "repository_output_isolation": "pass",
     "full_suite_regression": "pass_56_passed",
     "phase0_technical_acceptance_gates": "pass",
-    "general_phase0": "open_pending_final_closure_tag_decision",
-    "baseline_tag": "pending"
+    "phase0_management_closure": "pass",
+    "general_phase0": "closed",
+    "baseline_tag": "stage3-development-baseline"
   },
   "offline_isolated_full_render": {
     "repository_revision": "7f877a311bb6ab1f02c24bf35cdfa90cc14928e7",
@@ -67,6 +68,16 @@
     "output_isolation": "pass",
     "full_pytest": "56 passed",
     "final_decision": "pass"
+  },
+  "phase0_final_closure": {
+    "closure_date": "2026-07-25",
+    "closure_source_revision": "d1cac1ef27ad1c3977c62aed7a9de3691dc81223",
+    "closure_commit": "this commit",
+    "baseline_tag": "stage3-development-baseline",
+    "baseline_tag_target": "this commit",
+    "management_closure": "pass",
+    "phase0_status": "closed",
+    "next_phase": "Faz 1 - Editorial Domain Model ve V3 Workspace Schema"
   },
   "drawtext_gate": {
     "decision": "DRAWTEXT_OPERATIONAL_WITH_EXPLICIT_FONTFILE",

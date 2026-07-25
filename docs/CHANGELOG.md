@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-07-25 - Faz 0 final baseline closure
+
+- Final preflight temiz dogrulandi: branch `main`, local/remote HEAD `d1cac1ef27ad1c3977c62aed7a9de3691dc81223`, local/remote `stage3-development-baseline` yok, parentless sanitized root zinciri korundu
+- Existing Phase 0 evidence artifacts birbirleriyle tutarli dogrulandi
+- Final quality gate tekrarlandi: `56 passed`, JSON parse PASS, `git diff --check` PASS, `git fsck --full` clean, current/reachable Freesound/Pexels/generic secret scan `0`
+- Final closure report `baseline/phase0_final_closure_report.md` eklendi
+- Faz 0 technical acceptance: PASS
+- Faz 0 management closure: PASS
+- Faz 0 status: CLOSED
+- Provider revoke/rotation: **NOT CONFIRMED** ve ayri security follow-up olarak korundu
+- Siradaki ana faz: `Faz 1 - Editorial Domain Model ve V3 Workspace Schema`
+
 ## 2026-07-24 - Faz 0 offline isolated full-render closure
 
 - Canonical closure fixture `baseline/fixtures/phase0_offline_full_render.json` eklendi

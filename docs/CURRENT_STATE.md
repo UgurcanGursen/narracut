@@ -1,7 +1,7 @@
 # Current State
 
-Son guncelleme: 24 Temmuz 2026
-Aktif faz: **Faz 0 - Offline Isolated Full-Render Closure**
+Son guncelleme: 25 Temmuz 2026
+Aktif faz: **Faz 0 CLOSED / Faz 1 siradaki ana faz**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
@@ -37,12 +37,16 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Repository/output isolation: PASS
 - Full-suite regression: `56 passed`
 - Faz 0 technical acceptance gates: PASS
-- General Phase 0: OPEN pending final closure/tag decision
+- Faz 0 management closure: PASS
+- Faz 0 status: CLOSED
+- Closure date: `2026-07-25`
+- Closure commit: `this commit`
+- Baseline tag: `stage3-development-baseline` -> `this commit`
+- Next main phase: `Faz 1 - Editorial Domain Model ve V3 Workspace Schema`
 
 ## Current next move
 
-This repository remains the authoritative sanitized root. Technical Faz 0
-render gates are now closed through the accepted offline isolated
-reproducibility proof; the remaining Faz 0 item is the final baseline
-tag/closure decision, while provider revoke/rotation remains a separate
-NOT CONFIRMED security follow-up.
+Authoritative sanitized root is now the closed Phase 0 development baseline.
+Provider revoke/rotation remains a separate NOT CONFIRMED security follow-up,
+and the next main phase is Faz 1 - Editorial Domain Model ve V3 Workspace
+Schema.

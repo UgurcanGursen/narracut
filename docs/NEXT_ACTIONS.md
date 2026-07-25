@@ -1,11 +1,11 @@
 # Next Actions
 
-Aktif faz: Faz 0 technical gates closed / baseline tag pending. Ayni anda en fazla bes is.
+Aktif faz: Faz 0 closed. Siradaki ana faz Faz 1 - Editorial Domain Model ve V3 Workspace Schema. Ayni anda en fazla bes is.
 
-1. **NEXT RECOMMENDED TASK - final baseline closure decision:** `stage3-development-baseline` olusturma/olmama kararini kanit dosyalari uzerinden ver ve Faz 0'i yonetimsel olarak kapat.
-2. Stock local-fallback path'i korunacaksa `v2.asset_manager.py` drawtext call-site icin explicit font contract hardening'i planla.
+1. **NEXT RECOMMENDED TASK - Faz 1:** Editorial Domain Model ve V3 Workspace Schema implementation baslangicini ac.
+2. Stock local-fallback path'i korunacaksa `v2.asset_manager.py` drawtext call-site icin explicit font contract hardening'i Faz 1 backlog'unda planla.
 3. Provider revoke/rotation durumunu repo history replacement'tan ayri bir security takip maddesi olarak guncel tut.
 
 ## Faz 1 readiness
 
-**Hazir degil.** Teknik Faz 0 render gate'leri kapanmistir; ancak `stage3-development-baseline` tag'i henuz yoktur ve provider revoke/rotation ayri security takip maddesi olarak aciktir. Faz 1 implementation baslatilmamalidir.
+**Hazir.** Faz 0 teknik acceptance ve management closure PASS durumundadir. Faz 1 implementation bu gorevde baslatilmamis olsa da siradaki ana calisma Faz 1 - Editorial Domain Model ve V3 Workspace Schema'dir.
