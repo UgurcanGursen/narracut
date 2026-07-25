@@ -76,9 +76,15 @@ Full video render calistirilmadi.
 
 ## Faz ve kalan teknik borc
 
+- Post-hardening independent audit'in buldugu public artifact/retention raw
+  Mapping schema bypass'i
+  `baseline/phase1_public_validation_boundary_report.md` kapsaminda kapatildi.
+- Public validation boundary: PASS (`85 passed, 1 skipped` targeted;
+  `143 passed, 1 skipped` full suite).
 - Faz 0: CLOSED
 - Faz 1 contract foundation: PASS
 - Contract integrity hardening: PASS
+- Public validation boundary: PASS
 - Faz 1 geneli: OPEN / IN_PROGRESS
 - Migrator entry gate: READY
 

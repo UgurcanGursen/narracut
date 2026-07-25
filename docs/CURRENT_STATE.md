@@ -45,6 +45,7 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Faz 0 status: CLOSED
 - Faz 1 V3 contract foundation: PASS
 - Faz 1 contract integrity hardening: PASS
+- Faz 1 public validation boundary: PASS
 - Migrator entry gate: READY
 - Closure date: `2026-07-25`
 - Closure commit: `this commit`
@@ -56,7 +57,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 Authoritative sanitized root is now the closed Phase 0 development baseline.
 Provider revoke/rotation remains a separate NOT CONFIRMED security follow-up,
 and the next main phase is Faz 1 - Editorial Domain Model ve V3 Workspace
-Schema. V3 contract foundation ve contract integrity hardening PASS
-durumundadir. Domain-pack loader registry olmadan fail-closed, core-only mod ise
-acik contract degeriyle kontrolludur. Faz 1 genelinin sonraki isi
-V2ToV3Migrator ve migration-loss reporting implementation'dir.
+Schema. V3 contract foundation, contract integrity hardening ve public
+artifact/retention validation boundary PASS durumundadir. Domain-pack loader
+registry olmadan fail-closed, core-only mod ise acik contract degeriyle
+kontrolludur. Faz 1 genelinin sonraki isi V2ToV3Migrator ve migration-loss
+reporting implementation'dir.

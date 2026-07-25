@@ -30,6 +30,26 @@ WorkspaceLoader
   -> private schema-validated typed Workspace view
 ```
 
+Public artifact/retention validation boundary:
+
+```text
+raw Artifact Mapping[]
+  -> caller-provided SchemaCatalog
+  -> artifact.schema.json
+  -> private typed construction
+  -> artifact graph invariants
+
+raw Retention Mapping
+  -> caller-provided SchemaCatalog
+  -> retention_policy.schema.json
+  -> private typed construction
+  -> retention invariants
+```
+
+Raw Mapping ile public validator cagrilari catalog dependency'si olmadan
+calismaz. WorkspaceLoader kendi catalog instance'ini artifact graph validator'a
+aktarir.
+
 ## Entrypoint ve delegation
 
 ```text

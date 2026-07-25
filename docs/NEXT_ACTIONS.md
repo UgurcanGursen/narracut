@@ -9,6 +9,7 @@ Aktif faz: Faz 0 closed. Faz 1 - Editorial Domain Model ve V3 Workspace Schema I
 
 ## Faz 1 readiness
 
-**CONTRACT FOUNDATION PASS / INTEGRITY HARDENING PASS / MIGRATOR ENTRY GATE
-READY.** Faz 0 teknik acceptance ve management closure PASS durumundadir. Faz 1
-genel kapsaminda migration, persistence, timing ve renderer isleri aciktir.
+**CONTRACT FOUNDATION PASS / INTEGRITY HARDENING PASS / PUBLIC VALIDATION
+BOUNDARY PASS / MIGRATOR ENTRY GATE READY.** Faz 0 teknik acceptance ve
+management closure PASS durumundadir. Faz 1 genel kapsaminda migration,
+persistence, timing ve renderer isleri aciktir.

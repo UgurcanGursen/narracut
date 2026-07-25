@@ -49,6 +49,7 @@
         "full_suite_regression": "pass_56_passed",
         "phase1_contract_foundation": "pass",
         "phase1_contract_integrity_hardening": "pass",
+        "phase1_public_validation_boundary": "pass",
         "phase1_migrator_entry_gate": "ready",
         "phase0_technical_acceptance_gates": "pass",
         "phase0_management_closure": "pass",
@@ -113,6 +114,23 @@
         "secret_scan_current": 0,
         "secret_scan_reachable": 0,
         "v2_production_mutation": 0,
+        "migrator_entry_gate": "ready"
+    },
+    "phase1_public_validation_boundary": {
+        "date": "2026-07-25",
+        "source_revision": "071343951d284f8251ab4cebb549e1d9746d9dcc",
+        "report_path": "baseline/phase1_public_validation_boundary_report.md",
+        "artifact_raw_mapping_schema_gate": "pass",
+        "retention_raw_mapping_schema_gate": "pass",
+        "explicit_schema_catalog_dependency": "pass",
+        "structured_schema_issues": "pass",
+        "artifact_semantic_invariants": "pass",
+        "retention_semantic_invariants": "pass",
+        "resolver_rehashed_forgery_regression": "pass",
+        "targeted_pytest": "85 passed, 1 skipped",
+        "full_pytest": "143 passed, 1 skipped",
+        "v2_production_mutation": 0,
+        "requirements_mutation": 0,
         "migrator_entry_gate": "ready"
     },
     "drawtext_gate": {

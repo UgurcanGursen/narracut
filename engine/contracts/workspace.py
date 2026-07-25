@@ -591,6 +591,7 @@ class WorkspaceLoader:
 
         graph_result = validate_artifact_graph(
             artifacts,
+            catalog=self.catalog,
             source_file=str(root_path),
             project_ids={expected_project_id},
             sequence_ids=sequence_ids,

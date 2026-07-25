@@ -47,12 +47,13 @@ Genel durum: PASS / Faz 1 geneli OPEN
 | Event ve base-shot track routing | PASS |
 | Chapter-beat-sequence integrity | PASS |
 | Public typed-view construction boundary | PASS |
+| Public artifact/retention raw Mapping schema boundary | PASS |
 | Duplicate stable-ID rejection | PASS |
 | Typed event target resolution/compatibility | PASS |
 | Minimal, business-tech, split sample validation | PASS |
-| Targeted/full regression | PASS (`70 passed, 1 skipped`; `128 passed, 1 skipped`) |
+| Targeted/full regression | PASS (`85 passed, 1 skipped`; `143 passed, 1 skipped`) |
 | V2 production regression | PASS |
 
-Contract foundation: PASS. Contract integrity hardening: PASS. Faz 1 geneli
-OPEN/IN_PROGRESS ve migrator entry gate READY'dir. Sonraki Faz 1 isi
-V2ToV3Migrator ve migration-loss reporting implementation'dir.
+Contract foundation: PASS. Contract integrity hardening: PASS. Public validation
+boundary: PASS. Faz 1 geneli OPEN/IN_PROGRESS ve migrator entry gate READY'dir.
+Sonraki Faz 1 isi V2ToV3Migrator ve migration-loss reporting implementation'dir.

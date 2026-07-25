@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-07-25 - Faz 1 public validation boundary
+
+- Public artifact ve retention raw Mapping inputlari icin explicit SchemaCatalog dependency zorunlu oldu
+- Schema-invalid input private construction ve semantic validation'dan once fail-closed durduruluyor
+- Schema issue code/source/message ve JSON pointer bilgisi korunuyor
+- WorkspaceLoader artifact graph cagrisi mevcut catalog dependency'sini aktariyor
+- Rehashed forged snapshot'in gercek registry resolver parity kontrolunde reddi focused testle sabitlendi
+- Hedefli suite: `85 passed, 1 skipped`
+- Full suite: `143 passed, 1 skipped`
+- Public validation boundary: PASS; migrator entry gate: READY
+
 ## 2026-07-25 - Faz 1 V3 contract integrity hardening
 
 - Explicit `core_only` / `domain_pack` resolution mode contract'i eklendi

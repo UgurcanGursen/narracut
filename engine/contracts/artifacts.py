@@ -6,7 +6,7 @@ from collections.abc import Iterable, Mapping
 from typing import Any
 
 from .models import ArtifactRecord, RetentionPolicy
-from .validation import ValidationIssue, ValidationResult
+from .validation import SchemaCatalog, ValidationIssue, ValidationResult
 
 
 PROTECTED_RETENTION_CLASSES = frozenset(
@@ -27,20 +27,78 @@ ALL_RETENTION_CLASSES = frozenset(
 )
 
 
-def _record(value: ArtifactRecord | Mapping[str, Any]) -> ArtifactRecord:
-    if isinstance(value, ArtifactRecord):
-        return value
-    return ArtifactRecord._from_validated_dict(value)
+def _prefixed_schema_issues(
+    result: ValidationResult,
+    pointer_prefix: str,
+) -> tuple[ValidationIssue, ...]:
+    return tuple(
+        ValidationIssue(
+            issue.source_file,
+            pointer_prefix + issue.json_pointer,
+            issue.code,
+            issue.message,
+        )
+        for issue in result.issues
+    )
+
+
+def _raw_catalog_required(api_name: str) -> TypeError:
+    return TypeError(
+        f"{api_name} requires catalog=SchemaCatalog(...) for raw Mapping "
+        "input; schema validation cannot be bypassed."
+    )
 
 
 def validate_artifact_graph(
     values: Iterable[ArtifactRecord | Mapping[str, Any]],
     *,
+    catalog: SchemaCatalog | None = None,
     source_file: str = "<artifact-manifest>",
     project_ids: set[str] | None = None,
     sequence_ids: set[str] | None = None,
 ) -> ValidationResult:
-    records = tuple(_record(value) for value in values)
+    """Validate schema first for raw mappings, then artifact graph invariants.
+
+    ArtifactRecord inputs are treated as already schema-validated typed views.
+    Raw Mapping inputs require the caller's explicit SchemaCatalog dependency.
+    """
+    raw_values = tuple(values)
+    schema_issues: list[ValidationIssue] = []
+    for index, value in enumerate(raw_values):
+        if isinstance(value, ArtifactRecord):
+            continue
+        if not isinstance(value, Mapping):
+            raise TypeError(
+                "validate_artifact_graph accepts only ArtifactRecord or "
+                "Mapping values."
+            )
+        if catalog is None:
+            raise _raw_catalog_required("validate_artifact_graph")
+        result = catalog.validate(value, "artifact.schema.json", source_file)
+        schema_issues.extend(
+            _prefixed_schema_issues(result, f"/artifacts/{index}")
+        )
+    if schema_issues:
+        return ValidationResult(tuple(schema_issues))
+
+    try:
+        records = tuple(
+            value
+            if isinstance(value, ArtifactRecord)
+            else ArtifactRecord._from_validated_dict(value)
+            for value in raw_values
+        )
+    except (KeyError, TypeError, ValueError) as exc:
+        return ValidationResult(
+            (
+                ValidationIssue(
+                    source_file,
+                    "/artifacts",
+                    "CONTRACT_CONSTRUCTION_ERROR",
+                    f"Schema-valid artifact construction failed: {exc}",
+                ),
+            )
+        )
     issues: list[ValidationIssue] = []
     by_id: dict[str, ArtifactRecord] = {}
 
@@ -175,13 +233,44 @@ def validate_artifact_graph(
 def validate_retention_policy(
     value: RetentionPolicy | Mapping[str, Any],
     *,
+    catalog: SchemaCatalog | None = None,
     source_file: str = "<retention-policy>",
 ) -> ValidationResult:
-    policy = (
-        value
-        if isinstance(value, RetentionPolicy)
-        else RetentionPolicy._from_validated_dict(value)
-    )
+    """Validate schema first for a raw mapping, then retention invariants.
+
+    RetentionPolicy input is treated as an already schema-validated typed view.
+    Raw Mapping input requires the caller's explicit SchemaCatalog dependency.
+    """
+    if not isinstance(value, (RetentionPolicy, Mapping)):
+        raise TypeError(
+            "validate_retention_policy accepts only RetentionPolicy or "
+            "Mapping input."
+        )
+    if isinstance(value, Mapping):
+        if catalog is None:
+            raise _raw_catalog_required("validate_retention_policy")
+        schema_result = catalog.validate(
+            value,
+            "retention_policy.schema.json",
+            source_file,
+        )
+        if not schema_result.is_valid:
+            return schema_result
+        try:
+            policy = RetentionPolicy._from_validated_dict(value)
+        except (KeyError, TypeError, ValueError) as exc:
+            return ValidationResult(
+                (
+                    ValidationIssue(
+                        source_file,
+                        "",
+                        "CONTRACT_CONSTRUCTION_ERROR",
+                        f"Schema-valid retention policy construction failed: {exc}",
+                    ),
+                )
+            )
+    else:
+        policy = value
     issues: list[ValidationIssue] = []
     seen: set[str] = set()
 

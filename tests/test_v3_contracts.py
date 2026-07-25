@@ -9,10 +9,12 @@ import pytest
 from jsonschema import Draft202012Validator
 
 from engine.contracts import (
+    ArtifactRecord,
     DomainPackError,
     DomainPackRegistry,
     DomainPolicyResolver,
     EditorialSequence,
+    RetentionPolicy,
     SchemaCatalog,
     Workspace,
     WorkspaceLoader,
@@ -256,33 +258,37 @@ def artifact(
     return value
 
 
-def artifact_codes(values: list[dict]) -> set[str]:
+def artifact_codes(values: list[dict], catalog: SchemaCatalog) -> set[str]:
     result = validate_artifact_graph(
         values,
+        catalog=catalog,
         project_ids={"prj_artifact_test"},
         sequence_ids={"seq_artifact_test"},
     )
     return {issue.code for issue in result.issues}
 
 
-def test_missing_artifact_dependency_is_rejected() -> None:
+def test_missing_artifact_dependency_is_rejected(
+    catalog: SchemaCatalog,
+) -> None:
     assert "ARTIFACT_MISSING_DEPENDENCY" in artifact_codes(
-        [artifact("art_test_one", ["art_missing_dep"])]
+        [artifact("art_test_one", ["art_missing_dep"])], catalog
     )
 
 
-def test_self_dependency_is_rejected() -> None:
+def test_self_dependency_is_rejected(catalog: SchemaCatalog) -> None:
     assert "ARTIFACT_SELF_DEPENDENCY" in artifact_codes(
-        [artifact("art_test_self", ["art_test_self"])]
+        [artifact("art_test_self", ["art_test_self"])], catalog
     )
 
 
-def test_dependency_cycle_is_rejected() -> None:
+def test_dependency_cycle_is_rejected(catalog: SchemaCatalog) -> None:
     assert "ARTIFACT_DEPENDENCY_CYCLE" in artifact_codes(
         [
             artifact("art_cycle_one", ["art_cycle_two"]),
             artifact("art_cycle_two", ["art_cycle_one"]),
-        ]
+        ],
+        catalog,
     )
 
 
@@ -298,32 +304,179 @@ def test_dependency_cycle_is_rejected() -> None:
         },
     ],
 )
-def test_protected_artifact_cleanup_is_rejected(overrides: dict) -> None:
+def test_protected_artifact_cleanup_is_rejected(
+    overrides: dict, catalog: SchemaCatalog
+) -> None:
     assert "ARTIFACT_PROTECTED_FROM_CLEANUP" in artifact_codes(
-        [artifact("art_protected_one", **overrides)]
+        [artifact("art_protected_one", **overrides)], catalog
     )
 
 
-def test_orphan_output_is_rejected() -> None:
+def test_orphan_output_is_rejected(catalog: SchemaCatalog) -> None:
     assert "ORPHAN_OUTPUT" in artifact_codes(
-        [artifact("art_output_one", artifact_type="output")]
+        [artifact("art_output_one", artifact_type="output")], catalog
     )
 
 
-def test_orphan_sequence_reference_is_rejected() -> None:
+def test_orphan_sequence_reference_is_rejected(
+    catalog: SchemaCatalog,
+) -> None:
     assert "ORPHAN_ARTIFACT" in artifact_codes(
-        [artifact("art_orphan_one", sequence_id="seq_unknown_value")]
+        [artifact("art_orphan_one", sequence_id="seq_unknown_value")],
+        catalog,
     )
 
 
-def test_protected_retention_ttl_is_rejected() -> None:
+def test_protected_retention_ttl_is_rejected(
+    catalog: SchemaCatalog,
+) -> None:
     policy = load_json(SAMPLE_ROOT / "retention_policy.json")
     policy["rules"][4]["ttl_days"] = 10
     policy["rules"][4]["cleanup_eligible"] = True
-    result = validate_retention_policy(policy)
+    result = validate_retention_policy(policy, catalog=catalog)
     assert "RETENTION_PROTECTED_TTL" in {
         issue.code for issue in result.issues
     }
+
+
+def test_valid_raw_artifact_graph_uses_schema_and_semantic_validation(
+    catalog: SchemaCatalog,
+) -> None:
+    result = validate_artifact_graph(
+        [artifact("art_valid_raw")],
+        catalog=catalog,
+        source_file="artifact-manifest.json",
+        project_ids={"prj_artifact_test"},
+        sequence_ids={"seq_artifact_test"},
+    )
+    assert result.is_valid, result.issues
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_code", "expected_pointer"),
+    [
+        (
+            lambda value: value.update(artifact_id="invalid"),
+            "SCHEMA_PATTERN",
+            "/artifacts/0/artifact_id",
+        ),
+        (
+            lambda value: value.update(content_hash="invalid"),
+            "SCHEMA_PATTERN",
+            "/artifacts/0/content_hash",
+        ),
+        (
+            lambda value: value.pop("producer"),
+            "SCHEMA_REQUIRED",
+            "/artifacts/0",
+        ),
+        (
+            lambda value: value.update(status="invalid"),
+            "SCHEMA_ENUM",
+            "/artifacts/0/status",
+        ),
+    ],
+)
+def test_schema_invalid_raw_artifact_is_rejected_before_semantics(
+    catalog: SchemaCatalog,
+    mutation,
+    expected_code: str,
+    expected_pointer: str,
+) -> None:
+    value = artifact("art_schema_invalid", artifact_type="output")
+    mutation(value)
+    result = validate_artifact_graph(
+        [value],
+        catalog=catalog,
+        source_file="artifact-manifest.json",
+    )
+    issue = next(item for item in result.issues if item.code == expected_code)
+    assert issue.source_file == "artifact-manifest.json"
+    assert issue.json_pointer == expected_pointer
+    assert "ORPHAN_OUTPUT" not in {item.code for item in result.issues}
+
+
+def test_raw_artifact_graph_requires_explicit_schema_catalog() -> None:
+    with pytest.raises(TypeError, match="requires catalog=SchemaCatalog"):
+        validate_artifact_graph([artifact("art_catalog_required")])
+
+
+def test_valid_raw_retention_policy_passes_schema_and_semantics(
+    catalog: SchemaCatalog,
+) -> None:
+    policy = load_json(SAMPLE_ROOT / "retention_policy.json")
+    result = validate_retention_policy(
+        policy,
+        catalog=catalog,
+        source_file="retention-policy.json",
+    )
+    assert result.is_valid, result.issues
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_code", "expected_pointer"),
+    [
+        (
+            lambda value: value.update(schema_version="2.0.0"),
+            "SCHEMA_CONST",
+            "/schema_version",
+        ),
+        (
+            lambda value: value.update(version=0),
+            "SCHEMA_MINIMUM",
+            "/version",
+        ),
+        (
+            lambda value: value.update(status="invalid"),
+            "SCHEMA_ENUM",
+            "/status",
+        ),
+        (
+            lambda value: value.pop("policy_id"),
+            "SCHEMA_REQUIRED",
+            "",
+        ),
+        (
+            lambda value: value["rules"][0].update(
+                retention_class="invalid"
+            ),
+            "SCHEMA_ENUM",
+            "/rules/0/retention_class",
+        ),
+    ],
+)
+def test_schema_invalid_raw_retention_is_rejected_before_semantics(
+    catalog: SchemaCatalog,
+    mutation,
+    expected_code: str,
+    expected_pointer: str,
+) -> None:
+    policy = load_json(SAMPLE_ROOT / "retention_policy.json")
+    policy["rules"][4]["ttl_days"] = 10
+    policy["rules"][4]["cleanup_eligible"] = True
+    mutation(policy)
+    result = validate_retention_policy(
+        policy,
+        catalog=catalog,
+        source_file="retention-policy.json",
+    )
+    issue = next(item for item in result.issues if item.code == expected_code)
+    assert issue.source_file == "retention-policy.json"
+    assert issue.json_pointer == expected_pointer
+    assert "RETENTION_PROTECTED_TTL" not in {
+        item.code for item in result.issues
+    }
+
+
+def test_raw_retention_policy_requires_explicit_schema_catalog() -> None:
+    policy = load_json(SAMPLE_ROOT / "retention_policy.json")
+    with pytest.raises(TypeError, match="requires catalog=SchemaCatalog"):
+        validate_retention_policy(policy)
+
+
+def test_private_artifact_factories_are_not_public_ingestion_api() -> None:
+    assert not hasattr(ArtifactRecord, "from_dict")
+    assert not hasattr(RetentionPolicy, "from_dict")
 
 
 def test_negative_size_has_structured_error(catalog: SchemaCatalog) -> None:
@@ -776,6 +929,43 @@ def test_self_consistent_forged_snapshot_cannot_bypass_registry(
     codes = {issue.code for issue in loaded.validation.issues}
     assert "DOMAIN_REGISTRY_REQUIRED" in codes
     assert "WORKSPACE_SNAPSHOT_HASH_MISMATCH" not in codes
+
+
+def test_rehashed_forged_snapshot_fails_registry_resolver_parity(
+    catalog: SchemaCatalog,
+    domain_registry: DomainPackRegistry,
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "business-tech-forged-registry"
+    shutil.copytree(SAMPLE_ROOT / "business-tech", root)
+    workspace_path = root / "workspace.json"
+    workspace = load_json(workspace_path)
+    snapshot = workspace["domain"]["policy_snapshot"]
+    snapshot["resolved_policy"]["overrides"] = {
+        "business-tech:tone.level": "forged"
+    }
+    canonical_hash = policy_snapshot_hash(snapshot)
+    snapshot_id = "dps_" + canonical_hash.removeprefix("sha256:")[:20]
+    snapshot["canonical_hash"] = canonical_hash
+    snapshot["snapshot_id"] = snapshot_id
+    workspace["domain"]["policy_snapshot_id"] = snapshot_id
+    workspace["project"]["policy_snapshot_id"] = snapshot_id
+    write_json(root / "domain" / "policy_snapshot.json", snapshot)
+    write_json(workspace_path, workspace)
+
+    loaded = WorkspaceLoader(catalog, registry=domain_registry).load(
+        workspace_path
+    )
+    issue = next(
+        item
+        for item in loaded.validation.issues
+        if item.code == "POLICY_SNAPSHOT_RESOLUTION_MISMATCH"
+        and item.json_pointer == "/domain/policy_snapshot"
+    )
+    assert issue.source_file == str(workspace_path.resolve())
+    assert "WORKSPACE_SNAPSHOT_HASH_MISMATCH" not in {
+        item.code for item in loaded.validation.issues
+    }
 
 
 def test_domain_pack_workspace_passes_with_correct_registry(
