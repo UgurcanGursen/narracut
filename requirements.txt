@@ -21,3 +21,4 @@ opencv-python-headless
 num2words
 rich>=13.7.0
 psutil>=5.9.0
+jsonschema[format]==4.26.0

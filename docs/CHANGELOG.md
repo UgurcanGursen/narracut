@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-07-25 - Faz 1 JSON Schema validator dependency provisioning
+
+- `jsonschema[format]==4.26.0` canonical dependency olarak `requirements.txt`'ye eklendi
+- Aktif Python ortaminda `python -m pip install "jsonschema[format]==4.26.0"` PASS
+- `python -m pip check` PASS
+- `Draft202012Validator.check_schema` ve `FormatChecker` runtime dogrulamasi PASS
+- Yeni smoke test `tests/test_jsonschema_dependency.py` eklendi
+- Hedefli test: `2 passed`
+- Full suite: `58 passed`
+- Faz 1 contract-foundation blocker: READY_TO_RESUME
+- Faz 0 status: CLOSED
+
 ## 2026-07-25 - Faz 0 final baseline closure
 
 - Final preflight temiz dogrulandi: branch `main`, local/remote HEAD `d1cac1ef27ad1c3977c62aed7a9de3691dc81223`, local/remote `stage3-development-baseline` yok, parentless sanitized root zinciri korundu

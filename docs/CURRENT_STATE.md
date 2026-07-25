@@ -30,15 +30,20 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Canonical engine entrypoint: `v2/main.py`
 - Ana orchestration fonksiyonu: `v2.main.process_timeline`
 - FFmpeg paired runtime: VERIFIED
+- `jsonschema[format]==4.26.0`: installed and runtime-verified
+- `python -m pip check`: PASS
+- `Draft202012Validator.check_schema` and `FormatChecker`: PASS
+- `tests/test_jsonschema_dependency.py`: `2 passed`
+- Full-suite regression after dependency provisioning: `58 passed`
 - Drawtext operational gate: PASS with explicit fontfile / default Fontconfig known limitation
 - Offline isolated full render: PASS
 - Fail-closed provider/network gate: PASS
 - Two-run decoded-content reproducibility: PASS
 - Repository/output isolation: PASS
-- Full-suite regression: `56 passed`
 - Faz 0 technical acceptance gates: PASS
 - Faz 0 management closure: PASS
 - Faz 0 status: CLOSED
+- Faz 1 contract-foundation blocker: cleared, READY_TO_RESUME
 - Closure date: `2026-07-25`
 - Closure commit: `this commit`
 - Baseline tag: `stage3-development-baseline` -> `this commit`
@@ -49,4 +54,5 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 Authoritative sanitized root is now the closed Phase 0 development baseline.
 Provider revoke/rotation remains a separate NOT CONFIRMED security follow-up,
 and the next main phase is Faz 1 - Editorial Domain Model ve V3 Workspace
-Schema.
+Schema. Faz 1 contract-foundation dependency blocker is cleared and the task is
+READY_TO_RESUME.
