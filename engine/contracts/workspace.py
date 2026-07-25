@@ -195,7 +195,7 @@ class WorkspaceLoader:
             issues,
             snapshot_from_ref=snapshot_from_ref,
         )
-        model = Workspace.from_validated_dict(root_data) if not issues else None
+        model = Workspace._from_validated_dict(root_data) if not issues else None
         return LoadedWorkspace(
             root_path,
             model,
@@ -409,15 +409,58 @@ class WorkspaceLoader:
                     )
                 )
 
-        chapter_ids = {item["chapter_id"] for item in chapters}
-        beat_ids = {item["beat_id"] for item in beats}
-        sequence_ids = {item["sequence_id"] for item in sequences}
-        asset_ids = {item["asset_id"] for item in assets}
-        track_map = {
-            item["track_id"]: item
-            for item in (tracks_document or {}).get("tracks", [])
-        }
-        artifact_ids = {item["artifact_id"] for item in artifacts}
+        chapter_map = self._unique_index(
+            root_path,
+            chapters,
+            "chapter_id",
+            "/story/chapters",
+            "DUPLICATE_CHAPTER_ID",
+            issues,
+        )
+        beat_map = self._unique_index(
+            root_path,
+            beats,
+            "beat_id",
+            "/story/beats",
+            "DUPLICATE_BEAT_ID",
+            issues,
+        )
+        sequence_map = self._unique_index(
+            root_path,
+            sequences,
+            "sequence_id",
+            "/sequences",
+            "DUPLICATE_SEQUENCE_ID",
+            issues,
+        )
+        asset_map = self._unique_index(
+            root_path,
+            assets,
+            "asset_id",
+            "/assets",
+            "DUPLICATE_ASSET_ID",
+            issues,
+        )
+        artifact_map = self._unique_index(
+            root_path,
+            artifacts,
+            "artifact_id",
+            "/artifacts",
+            "DUPLICATE_ARTIFACT_ID",
+            issues,
+        )
+        tracks = list((tracks_document or {}).get("tracks", []))
+        track_map = self._unique_index(
+            root_path,
+            tracks,
+            "track_id",
+            "/tracks/tracks",
+            "DUPLICATE_TRACK_ID",
+            issues,
+        )
+        sequence_ids = set(sequence_map)
+        asset_ids = set(asset_map)
+        artifact_ids = set(artifact_map)
         declared_event_types = {
             item["name"]
             for item in (snapshot or {})
@@ -438,36 +481,40 @@ class WorkspaceLoader:
             for claim_id in sequence["claim_ids"]
         }
 
-        for sequence in sequences:
-            if sequence["chapter_id"] not in chapter_ids:
-                issues.append(
-                    self._reference_issue(
-                        root_path,
-                        "WORKSPACE_UNKNOWN_CHAPTER",
-                        sequence["chapter_id"],
-                    )
-                )
-            if sequence["beat_id"] not in beat_ids:
-                issues.append(
-                    self._reference_issue(
-                        root_path,
-                        "WORKSPACE_UNKNOWN_BEAT",
-                        sequence["beat_id"],
-                    )
-                )
+        self._validate_hierarchy_integrity(
+            root_path,
+            chapters,
+            beats,
+            sequences,
+            chapter_map,
+            beat_map,
+            sequence_map,
+            issues,
+        )
+
+        for sequence_index, sequence in enumerate(sequences):
             if sequence["base_shot"]["asset_ref"] not in asset_ids:
                 issues.append(
-                    self._reference_issue(
-                        root_path,
+                    ValidationIssue(
+                        str(root_path),
+                        f"/sequences/{sequence_index}/base_shot/asset_ref",
                         "WORKSPACE_UNKNOWN_ASSET",
-                        sequence["base_shot"]["asset_ref"],
+                        f"Unknown workspace reference: "
+                        f"{sequence['base_shot']['asset_ref']}",
                     )
                 )
-            for track_ref in sequence["track_refs"]:
+            self._validate_base_shot_track(
+                root_path, sequence_index, sequence, track_map, issues
+            )
+            for track_ref_index, track_ref in enumerate(sequence["track_refs"]):
                 if track_ref not in track_map:
                     issues.append(
-                        self._reference_issue(
-                            root_path, "WORKSPACE_UNKNOWN_TRACK", track_ref
+                        ValidationIssue(
+                            str(root_path),
+                            f"/sequences/{sequence_index}/track_refs/"
+                            f"{track_ref_index}",
+                            "WORKSPACE_UNKNOWN_TRACK",
+                            f"Unknown workspace reference: {track_ref}",
                         )
                     )
             event_groups = (
@@ -476,16 +523,21 @@ class WorkspaceLoader:
                 ("text_emphasis_events", sequence["text_emphasis_events"]),
                 ("audio_events", sequence["audio_events"]),
             )
+            self._validate_duplicate_event_ids(
+                root_path, sequence_index, event_groups, issues
+            )
             for group_name, group in event_groups:
                 for event_index, event in enumerate(group):
-                    if event["track_ref"] not in track_map:
-                        issues.append(
-                            self._reference_issue(
-                                root_path,
-                                "WORKSPACE_UNKNOWN_TRACK",
-                                event["track_ref"],
-                            )
-                        )
+                    self._validate_event_track_routing(
+                        root_path,
+                        sequence_index,
+                        sequence,
+                        group_name,
+                        event_index,
+                        event,
+                        track_map,
+                        issues,
+                    )
                     if ":" in event["event_type"]:
                         namespace, event_name = event["event_type"].split(":", 1)
                         parameter_namespace = event["parameters"].get("namespace")
@@ -513,6 +565,7 @@ class WorkspaceLoader:
                             )
                     self._validate_event_target(
                         root_path,
+                        sequence_index,
                         group_name,
                         event_index,
                         event,
@@ -615,7 +668,18 @@ class WorkspaceLoader:
         snapshot: Mapping[str, Any],
         issues: list[ValidationIssue],
     ) -> None:
+        if domain["resolution_mode"] == "core_only":
+            return
         if self.registry is None or self.resolver is None:
+            issues.append(
+                ValidationIssue(
+                    str(root_path),
+                    "/domain/resolution_mode",
+                    "DOMAIN_REGISTRY_REQUIRED",
+                    "Domain-pack workspaces require a DomainPackRegistry-backed "
+                    "resolver to verify the policy snapshot.",
+                )
+            )
             return
         try:
             pack = self.registry.get(
@@ -636,8 +700,263 @@ class WorkspaceLoader:
             )
 
     @staticmethod
+    def _validate_hierarchy_integrity(
+        root_path: Path,
+        chapters: list[Mapping[str, Any]],
+        beats: list[Mapping[str, Any]],
+        sequences: list[Mapping[str, Any]],
+        chapter_map: Mapping[str, Mapping[str, Any]],
+        beat_map: Mapping[str, Mapping[str, Any]],
+        sequence_map: Mapping[str, Mapping[str, Any]],
+        issues: list[ValidationIssue],
+    ) -> None:
+        for chapter_index, chapter in enumerate(chapters):
+            chapter_id = chapter["chapter_id"]
+            for beat_ref_index, beat_id in enumerate(chapter["beat_ids"]):
+                beat = beat_map.get(beat_id)
+                if beat is None or beat["chapter_id"] != chapter_id:
+                    issues.append(
+                        ValidationIssue(
+                            str(root_path),
+                            f"/story/chapters/{chapter_index}/beat_ids/"
+                            f"{beat_ref_index}",
+                            "CHAPTER_BEAT_MEMBERSHIP_MISMATCH",
+                            f"Chapter {chapter_id!r} lists beat {beat_id!r}, but "
+                            "that beat is missing or belongs to another chapter.",
+                        )
+                    )
+
+        for beat_index, beat in enumerate(beats):
+            chapter = chapter_map.get(beat["chapter_id"])
+            if chapter is None or beat["beat_id"] not in chapter["beat_ids"]:
+                issues.append(
+                    ValidationIssue(
+                        str(root_path),
+                        f"/story/beats/{beat_index}/chapter_id",
+                        "CHAPTER_BEAT_MEMBERSHIP_MISMATCH",
+                        f"Beat {beat['beat_id']!r} is not listed by its declared "
+                        f"chapter {beat['chapter_id']!r}.",
+                    )
+                )
+            for sequence_ref_index, sequence_id in enumerate(
+                beat["sequence_ids"]
+            ):
+                sequence = sequence_map.get(sequence_id)
+                if (
+                    sequence is None
+                    or sequence["beat_id"] != beat["beat_id"]
+                    or sequence["chapter_id"] != beat["chapter_id"]
+                ):
+                    issues.append(
+                        ValidationIssue(
+                            str(root_path),
+                            f"/story/beats/{beat_index}/sequence_ids/"
+                            f"{sequence_ref_index}",
+                            "BEAT_SEQUENCE_MEMBERSHIP_MISMATCH",
+                            f"Beat {beat['beat_id']!r} lists sequence "
+                            f"{sequence_id!r}, but the sequence is missing or "
+                            "declares a different beat/chapter.",
+                        )
+                    )
+
+        for sequence_index, sequence in enumerate(sequences):
+            chapter = chapter_map.get(sequence["chapter_id"])
+            beat = beat_map.get(sequence["beat_id"])
+            if chapter is None:
+                issues.append(
+                    ValidationIssue(
+                        str(root_path),
+                        f"/sequences/{sequence_index}/chapter_id",
+                        "SEQUENCE_CHAPTER_NOT_FOUND",
+                        f"Sequence {sequence['sequence_id']!r} references missing "
+                        f"chapter {sequence['chapter_id']!r}.",
+                    )
+                )
+            if beat is None:
+                issues.append(
+                    ValidationIssue(
+                        str(root_path),
+                        f"/sequences/{sequence_index}/beat_id",
+                        "SEQUENCE_BEAT_NOT_FOUND",
+                        f"Sequence {sequence['sequence_id']!r} references missing "
+                        f"beat {sequence['beat_id']!r}.",
+                    )
+                )
+            if (
+                chapter is not None
+                and beat is not None
+                and (
+                    beat["chapter_id"] != sequence["chapter_id"]
+                    or beat["beat_id"] not in chapter["beat_ids"]
+                )
+            ):
+                issues.append(
+                    ValidationIssue(
+                        str(root_path),
+                        f"/sequences/{sequence_index}/beat_id",
+                        "SEQUENCE_BEAT_CHAPTER_MISMATCH",
+                        f"Sequence {sequence['sequence_id']!r} pairs chapter "
+                        f"{sequence['chapter_id']!r} with beat "
+                        f"{sequence['beat_id']!r}, but that beat does not belong "
+                        "to the chapter.",
+                    )
+                )
+            if (
+                beat is not None
+                and sequence["sequence_id"] not in beat["sequence_ids"]
+            ):
+                issues.append(
+                    ValidationIssue(
+                        str(root_path),
+                        f"/sequences/{sequence_index}/beat_id",
+                        "BEAT_SEQUENCE_MEMBERSHIP_MISMATCH",
+                        f"Sequence {sequence['sequence_id']!r} is not listed by "
+                        f"its declared beat {sequence['beat_id']!r}.",
+                    )
+                )
+
+    @staticmethod
+    def _validate_base_shot_track(
+        root_path: Path,
+        sequence_index: int,
+        sequence: Mapping[str, Any],
+        track_map: Mapping[str, Mapping[str, Any]],
+        issues: list[ValidationIssue],
+    ) -> None:
+        base_track_ref = sequence["base_shot"]["track_ref"]
+        base_track = track_map.get(base_track_ref)
+        pointer = f"/sequences/{sequence_index}/base_shot/track_ref"
+        if base_track is None:
+            issues.append(
+                ValidationIssue(
+                    str(root_path),
+                    pointer,
+                    "WORKSPACE_UNKNOWN_TRACK",
+                    f"Unknown workspace reference: {base_track_ref}",
+                )
+            )
+        elif base_track["track_type"] != "video":
+            issues.append(
+                ValidationIssue(
+                    str(root_path),
+                    pointer,
+                    "BASE_SHOT_TRACK_TYPE_MISMATCH",
+                    f"Base shot for sequence {sequence['sequence_id']!r} "
+                    f"references {base_track_ref!r}, a "
+                    f"{base_track['track_type']!r} track; expected 'video'.",
+                )
+            )
+
+    @staticmethod
+    def _validate_event_track_routing(
+        root_path: Path,
+        sequence_index: int,
+        sequence: Mapping[str, Any],
+        group_name: str,
+        event_index: int,
+        event: Mapping[str, Any],
+        track_map: Mapping[str, Mapping[str, Any]],
+        issues: list[ValidationIssue],
+    ) -> None:
+        track_ref = event["track_ref"]
+        track = track_map.get(track_ref)
+        pointer = (
+            f"/sequences/{sequence_index}/{group_name}/{event_index}/track_ref"
+        )
+        if track is None:
+            issues.append(
+                ValidationIssue(
+                    str(root_path),
+                    pointer,
+                    "WORKSPACE_UNKNOWN_TRACK",
+                    f"Unknown workspace reference: {track_ref}",
+                )
+            )
+            return
+        expected_track_type = (
+            "audio" if group_name == "audio_events" else "video"
+        )
+        if track["track_type"] != expected_track_type:
+            issues.append(
+                ValidationIssue(
+                    str(root_path),
+                    pointer,
+                    "EVENT_TRACK_TYPE_MISMATCH",
+                    f"Sequence {sequence['sequence_id']!r} event "
+                    f"{event['event_id']!r} in {group_name} references "
+                    f"{track_ref!r}, a {track['track_type']!r} track; "
+                    f"expected {expected_track_type!r}.",
+                )
+            )
+
+    @staticmethod
+    def _unique_index(
+        root_path: Path,
+        items: list[Mapping[str, Any]],
+        id_field: str,
+        pointer_root: str,
+        code: str,
+        issues: list[ValidationIssue],
+    ) -> dict[str, Mapping[str, Any]]:
+        index: dict[str, Mapping[str, Any]] = {}
+        first_paths: dict[str, str] = {}
+        for item_index, item in enumerate(items):
+            item_id = item[id_field]
+            pointer = f"{pointer_root}/{item_index}/{id_field}"
+            if item_id in index:
+                collection_type = (
+                    code.removeprefix("DUPLICATE_")
+                    .removesuffix("_ID")
+                    .lower()
+                )
+                issues.append(
+                    ValidationIssue(
+                        str(root_path),
+                        pointer,
+                        code,
+                        f"Duplicate {collection_type} ID {item_id!r}; "
+                        "first occurrence at "
+                        f"{first_paths[item_id]}, second occurrence at {pointer}.",
+                    )
+                )
+                continue
+            index[item_id] = item
+            first_paths[item_id] = pointer
+        return index
+
+    @staticmethod
+    def _validate_duplicate_event_ids(
+        root_path: Path,
+        sequence_index: int,
+        event_groups: tuple[tuple[str, list[Mapping[str, Any]]], ...],
+        issues: list[ValidationIssue],
+    ) -> None:
+        first_paths: dict[str, str] = {}
+        for group_name, group in event_groups:
+            for event_index, event in enumerate(group):
+                event_id = event["event_id"]
+                pointer = (
+                    f"/sequences/{sequence_index}/{group_name}/"
+                    f"{event_index}/event_id"
+                )
+                if event_id in first_paths:
+                    issues.append(
+                        ValidationIssue(
+                            str(root_path),
+                            pointer,
+                            "DUPLICATE_EVENT_ID",
+                            f"Duplicate event ID {event_id!r} within sequence; "
+                            f"first occurrence at {first_paths[event_id]}, "
+                            f"second occurrence at {pointer}.",
+                        )
+                    )
+                    continue
+                first_paths[event_id] = pointer
+
+    @staticmethod
     def _validate_event_target(
         root_path: Path,
+        sequence_index: int,
         group_name: str,
         event_index: int,
         event: Mapping[str, Any],
@@ -664,7 +983,9 @@ class WorkspaceLoader:
                     if namespace == domain_id
                     else ""
                 )
-        pointer = f"/sequences/{sequence['sequence_id']}/{group_name}/{event_index}/target"
+        pointer = (
+            f"/sequences/{sequence_index}/{group_name}/{event_index}/target"
+        )
         if not effective_type:
             issues.append(
                 ValidationIssue(

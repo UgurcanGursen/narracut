@@ -34,6 +34,14 @@ Tarih: 25 Temmuz 2026
 
 ## Sinirlar ve sonraki is
 
+Post-commit bagimsiz audit'in migrator-oncesi blocker'lari
+`baseline/phase1_contract_integrity_hardening_report.md` kapsaminda kapatildi.
+Registry-required domain-pack loading, explicit core-only modu, event/base-shot
+track routing, chapter-beat-sequence integrity, private typed-view construction
+ve duplicate-ID rejection PASS durumundadir. Hedefli suite
+`70 passed, 1 skipped`; full suite `128 passed, 1 skipped` sonucunu verdi.
+
 Bu foundation migration, persistence, timing, renderer veya V2 production
-refactor icermez. Faz 1 genel olarak OPEN/IN_PROGRESS kalir. Sonraki is:
-`V2ToV3Migrator` ve migration-loss reporting implementation.
+refactor icermez. Faz 1 genel olarak OPEN/IN_PROGRESS kalir; migrator entry gate
+READY'dir. Sonraki is: `V2ToV3Migrator` ve migration-loss reporting
+implementation.

@@ -27,6 +27,10 @@ Son guncelleme: 25 Temmuz 2026
 
 ## Faz 1 status note
 
-- V3 contract foundation PASS durumundadir; V2ToV3Migrator ve structured
-  migration-loss reporting sonraki Faz 1 isidir.
+- V3 contract foundation ve contract integrity hardening PASS durumundadir;
+  migrator entry gate READY'dir. V2ToV3Migrator ve structured migration-loss
+  reporting sonraki Faz 1 isidir.
 - Faz 1 persistence, timing, renderer ve Studio API kapsamlarini henuz acmaz.
+- `engine/contracts/workspace.py` modul boyutu LOW/non-blocking teknik borctur;
+  yeni integrity kontrolleri private helper'lara ayrilmis, genis bolme/refactor
+  ertelenmistir.

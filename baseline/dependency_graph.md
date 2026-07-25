@@ -15,6 +15,21 @@ Split workspaces manifest kind/content, profile/snapshot reference and resolver
 parity kontrollerinden fail-closed olarak gecer. Bu boundary V2 production
 pipeline'ina import veya runtime side effect eklemez.
 
+Domain resolution artik explicit `core_only` veya `domain_pack` modundadir.
+Domain-pack yolu registry + resolver parity olmadan fail-closed olur. Loader
+devaminda duplicate stable-ID, chapter-beat-sequence membership, event
+track-routing ve base-shot video-track integrity kapilarindan gecer:
+
+```text
+WorkspaceLoader
+  -> SchemaCatalog
+  -> core_only | DomainPackRegistry + DomainPolicyResolver
+  -> duplicate identity gate
+  -> story hierarchy gate
+  -> event/base-shot track routing gate
+  -> private schema-validated typed Workspace view
+```
+
 ## Entrypoint ve delegation
 
 ```text

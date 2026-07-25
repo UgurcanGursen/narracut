@@ -100,7 +100,7 @@ class DomainPackRegistry:
                     f"Invalid domain manifest: {manifest_path}", result.issues
                 )
 
-            model = DomainPackManifest.from_dict(raw)
+            model = DomainPackManifest._from_validated_dict(raw)
             key = (model.domain_id, model.domain_pack_version)
             if key in discovered:
                 issue = ValidationIssue(
@@ -172,7 +172,7 @@ class DomainPolicyResolver:
         if not result.is_valid:
             raise DomainPackError("Invalid domain profile", result.issues)
 
-        profile = DomainProfile.from_dict(profile_data)
+        profile = DomainProfile._from_validated_dict(profile_data)
         manifest = pack.manifest
         if (
             profile.domain_id != manifest.domain_id
@@ -242,4 +242,7 @@ class DomainPolicyResolver:
             raise DomainPackError(
                 "Resolved policy snapshot is invalid", snapshot_result.issues
             )
-        return DomainPolicySnapshot.from_dict(snapshot_data), snapshot_data
+        return (
+            DomainPolicySnapshot._from_validated_dict(snapshot_data),
+            snapshot_data,
+        )

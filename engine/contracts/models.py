@@ -31,7 +31,7 @@ class Project:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "Project":
+    def _from_validated_dict(cls, data: Mapping[str, Any]) -> "Project":
         _require(
             data,
             "project_id",
@@ -58,7 +58,7 @@ class Chapter:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "Chapter":
+    def _from_validated_dict(cls, data: Mapping[str, Any]) -> "Chapter":
         _require(data, *cls.__dataclass_fields__)
         return cls(
             schema_version=data["schema_version"],
@@ -87,7 +87,7 @@ class Beat:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "Beat":
+    def _from_validated_dict(cls, data: Mapping[str, Any]) -> "Beat":
         _require(data, *cls.__dataclass_fields__)
         return cls(
             schema_version=data["schema_version"],
@@ -117,7 +117,7 @@ class EventEnvelope:
     extension_metadata: Mapping[str, Any]
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "EventEnvelope":
+    def _from_validated_dict(cls, data: Mapping[str, Any]) -> "EventEnvelope":
         _require(data, *cls.__dataclass_fields__)
         return cls(*(data[field] for field in cls.__dataclass_fields__))
 
@@ -145,7 +145,9 @@ class EditorialSequence:
     track_refs: tuple[str, ...]
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "EditorialSequence":
+    def _from_validated_dict(
+        cls, data: Mapping[str, Any]
+    ) -> "EditorialSequence":
         _require(data, *cls.__dataclass_fields__)
         return cls(
             schema_version=data["schema_version"],
@@ -159,17 +161,20 @@ class EditorialSequence:
             end_cue=data["end_cue"],
             base_shot=data["base_shot"],
             edit_events=tuple(
-                EventEnvelope.from_dict(item) for item in data["edit_events"]
+                EventEnvelope._from_validated_dict(item)
+                for item in data["edit_events"]
             ),
             overlay_events=tuple(
-                EventEnvelope.from_dict(item) for item in data["overlay_events"]
+                EventEnvelope._from_validated_dict(item)
+                for item in data["overlay_events"]
             ),
             text_emphasis_events=tuple(
-                EventEnvelope.from_dict(item)
+                EventEnvelope._from_validated_dict(item)
                 for item in data["text_emphasis_events"]
             ),
             audio_events=tuple(
-                EventEnvelope.from_dict(item) for item in data["audio_events"]
+                EventEnvelope._from_validated_dict(item)
+                for item in data["audio_events"]
             ),
             continuity_constraints=data["continuity_constraints"],
             fallback_policy=data["fallback_policy"],
@@ -195,7 +200,7 @@ class Asset:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "Asset":
+    def _from_validated_dict(cls, data: Mapping[str, Any]) -> "Asset":
         _require(data, *cls.__dataclass_fields__)
         return cls(*(data[field] for field in cls.__dataclass_fields__))
 
@@ -224,7 +229,9 @@ class ArtifactRecord:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "ArtifactRecord":
+    def _from_validated_dict(
+        cls, data: Mapping[str, Any]
+    ) -> "ArtifactRecord":
         _require(data, *cls.__dataclass_fields__)
         values = dict(data)
         values["dependency_ids"] = tuple(values["dependency_ids"])
@@ -240,7 +247,9 @@ class RetentionPolicy:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "RetentionPolicy":
+    def _from_validated_dict(
+        cls, data: Mapping[str, Any]
+    ) -> "RetentionPolicy":
         _require(data, *cls.__dataclass_fields__)
         return cls(
             schema_version=data["schema_version"],
@@ -266,7 +275,9 @@ class DomainPackManifest:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "DomainPackManifest":
+    def _from_validated_dict(
+        cls, data: Mapping[str, Any]
+    ) -> "DomainPackManifest":
         _require(data, *cls.__dataclass_fields__)
         return cls(
             schema_version=data["schema_version"],
@@ -295,7 +306,9 @@ class DomainProfile:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "DomainProfile":
+    def _from_validated_dict(
+        cls, data: Mapping[str, Any]
+    ) -> "DomainProfile":
         _require(data, *cls.__dataclass_fields__)
         return cls(
             schema_version=data["schema_version"],
@@ -324,7 +337,9 @@ class DomainPolicySnapshot:
     version: int
 
     @classmethod
-    def from_dict(cls, data: Mapping[str, Any]) -> "DomainPolicySnapshot":
+    def _from_validated_dict(
+        cls, data: Mapping[str, Any]
+    ) -> "DomainPolicySnapshot":
         _require(data, *cls.__dataclass_fields__)
         return cls(*(data[field] for field in cls.__dataclass_fields__))
 
@@ -342,7 +357,7 @@ class Workspace:
     version: int
 
     @classmethod
-    def from_validated_dict(cls, data: Mapping[str, Any]) -> "Workspace":
+    def _from_validated_dict(cls, data: Mapping[str, Any]) -> "Workspace":
         _require(data, *cls.__dataclass_fields__)
         return cls(
             schema_version=data["schema_version"],

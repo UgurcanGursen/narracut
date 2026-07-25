@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-07-25 - Faz 1 V3 contract integrity hardening
+
+- Explicit `core_only` / `domain_pack` resolution mode contract'i eklendi
+- Domain-pack workspace registry olmadan `DOMAIN_REGISTRY_REQUIRED` ile kapatildi
+- Event ve base-shot track type routing fail-closed dogrulamasi eklendi
+- Aggregate/split chapter-beat-sequence membership integrity eklendi
+- Public raw dataclass mapping factory'leri private construction sinirina alindi
+- Chapter, beat, sequence, asset, artifact, track ve event duplicate ID kontrolu eklendi
+- Hedefli suite: `70 passed, 1 skipped`
+- Full suite: `128 passed, 1 skipped`
+- Contract integrity hardening: PASS; migrator entry gate: READY
+
 ## 2026-07-25 - Faz 1 V3 contract foundation
 
 - Interrupted V3 contract calismasi recovery parity ile korunarak salvage edildi

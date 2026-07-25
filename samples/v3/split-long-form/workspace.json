@@ -7,6 +7,7 @@
     "title": "Split Long-Form Workspace"
   },
   "domain": {
+    "resolution_mode": "domain_pack",
     "domain_id": "business-tech",
     "domain_pack_version": "0.1.0",
     "profile_id": "dpf_split_business",

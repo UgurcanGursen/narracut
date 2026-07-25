@@ -156,6 +156,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "resolution_mode",
         "domain_id",
         "domain_pack_version",
         "profile_id",
@@ -163,6 +164,12 @@
         "policy_snapshot_ref"
       ],
       "properties": {
+        "resolution_mode": {
+          "enum": [
+            "core_only",
+            "domain_pack"
+          ]
+        },
         "domain_id": {
           "$ref": "common.schema.json#/$defs/domainId"
         },
@@ -186,7 +193,31 @@
         "policy_snapshot": {
           "$ref": "domain_policy_snapshot.schema.json"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "resolution_mode": {
+                "const": "core_only"
+              }
+            },
+            "required": [
+              "resolution_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "domain_id": {
+                "const": "core-generic"
+              },
+              "domain_pack_version": {
+                "const": "0.0.0"
+              }
+            }
+          }
+        }
+      ]
     },
     "research": {
       "type": "object",

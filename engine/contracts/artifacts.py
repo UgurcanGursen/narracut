@@ -30,7 +30,7 @@ ALL_RETENTION_CLASSES = frozenset(
 def _record(value: ArtifactRecord | Mapping[str, Any]) -> ArtifactRecord:
     if isinstance(value, ArtifactRecord):
         return value
-    return ArtifactRecord.from_dict(value)
+    return ArtifactRecord._from_validated_dict(value)
 
 
 def validate_artifact_graph(
@@ -177,7 +177,11 @@ def validate_retention_policy(
     *,
     source_file: str = "<retention-policy>",
 ) -> ValidationResult:
-    policy = value if isinstance(value, RetentionPolicy) else RetentionPolicy.from_dict(value)
+    policy = (
+        value
+        if isinstance(value, RetentionPolicy)
+        else RetentionPolicy._from_validated_dict(value)
+    )
     issues: list[ValidationIssue] = []
     seen: set[str] = set()
 

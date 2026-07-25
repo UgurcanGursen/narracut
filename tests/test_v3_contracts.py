@@ -17,6 +17,7 @@ from engine.contracts import (
     Workspace,
     WorkspaceLoader,
     canonical_json,
+    policy_snapshot_hash,
     validate_artifact_graph,
     validate_retention_policy,
 )
@@ -158,9 +159,13 @@ def test_policy_snapshot_is_deterministic(catalog: SchemaCatalog) -> None:
     )
 
 
-def test_pack_version_is_preserved_in_workspace(catalog: SchemaCatalog) -> None:
+def test_pack_version_is_preserved_in_workspace(
+    catalog: SchemaCatalog, domain_registry: DomainPackRegistry
+) -> None:
     data = load_json(sample_path("business-tech"))
-    assert WorkspaceLoader(catalog).load(sample_path("business-tech")).validation.is_valid
+    assert WorkspaceLoader(catalog, registry=domain_registry).load(
+        sample_path("business-tech")
+    ).validation.is_valid
     data["project"]["domain_pack_version"] = "9.9.9"
     schema_result = catalog.validate(
         data, "workspace.schema.json", "<version-mismatch>"
@@ -190,8 +195,7 @@ def test_policy_snapshot_tampering_is_rejected(catalog: SchemaCatalog) -> None:
 def test_editorial_sequence_supports_multiple_edit_events() -> None:
     data = load_json(sample_path("business-tech"))
     sequence_data = data["sequences"][0]
-    model = EditorialSequence.from_dict(sequence_data)
-    assert len(model.edit_events) >= 2
+    assert len(sequence_data["edit_events"]) >= 2
 
 
 def test_sequence_supports_multiple_video_and_audio_tracks() -> None:
@@ -727,3 +731,264 @@ def test_workspace_typed_view_requires_validation(
     )
     assert loaded.workspace is not None
     assert loaded.workspace.schema_version == "3.0.0"
+
+
+def test_core_only_workspace_loads_without_domain_registry(
+    catalog: SchemaCatalog,
+) -> None:
+    loaded = WorkspaceLoader(catalog).load(sample_path("minimal"))
+    assert loaded.validation.is_valid, loaded.validation.issues
+    assert loaded.data["domain"]["resolution_mode"] == "core_only"
+
+
+def test_domain_pack_workspace_requires_registry(catalog: SchemaCatalog) -> None:
+    loaded = WorkspaceLoader(catalog).load(sample_path("business-tech"))
+    issue = next(
+        item
+        for item in loaded.validation.issues
+        if item.code == "DOMAIN_REGISTRY_REQUIRED"
+    )
+    assert issue.json_pointer == "/domain/resolution_mode"
+    assert loaded.workspace is None
+
+
+def test_self_consistent_forged_snapshot_cannot_bypass_registry(
+    catalog: SchemaCatalog, tmp_path: Path
+) -> None:
+    root = tmp_path / "business-tech"
+    shutil.copytree(SAMPLE_ROOT / "business-tech", root)
+    workspace_path = root / "workspace.json"
+    workspace = load_json(workspace_path)
+    snapshot = workspace["domain"]["policy_snapshot"]
+    snapshot["resolved_policy"]["overrides"] = {
+        "business-tech:tone.level": "forged"
+    }
+    canonical_hash = policy_snapshot_hash(snapshot)
+    snapshot_id = "dps_" + canonical_hash.removeprefix("sha256:")[:20]
+    snapshot["canonical_hash"] = canonical_hash
+    snapshot["snapshot_id"] = snapshot_id
+    workspace["domain"]["policy_snapshot_id"] = snapshot_id
+    workspace["project"]["policy_snapshot_id"] = snapshot_id
+    write_json(root / "domain" / "policy_snapshot.json", snapshot)
+    write_json(workspace_path, workspace)
+
+    loaded = WorkspaceLoader(catalog).load(workspace_path)
+    codes = {issue.code for issue in loaded.validation.issues}
+    assert "DOMAIN_REGISTRY_REQUIRED" in codes
+    assert "WORKSPACE_SNAPSHOT_HASH_MISMATCH" not in codes
+
+
+def test_domain_pack_workspace_passes_with_correct_registry(
+    catalog: SchemaCatalog, domain_registry: DomainPackRegistry
+) -> None:
+    loaded = WorkspaceLoader(catalog, registry=domain_registry).load(
+        sample_path("business-tech")
+    )
+    assert loaded.validation.is_valid, loaded.validation.issues
+
+
+@pytest.mark.parametrize(
+    ("group_name", "wrong_track"),
+    [
+        ("edit_events", "trk_audio_business_effects"),
+        ("overlay_events", "trk_audio_business_effects"),
+        ("text_emphasis_events", "trk_audio_business_effects"),
+        ("audio_events", "trk_video_business_base"),
+    ],
+)
+def test_event_group_track_routing_is_enforced(
+    catalog: SchemaCatalog,
+    domain_registry: DomainPackRegistry,
+    tmp_path: Path,
+    group_name: str,
+    wrong_track: str,
+) -> None:
+    root = tmp_path / group_name
+    shutil.copytree(SAMPLE_ROOT / "business-tech", root)
+    workspace_path = root / "workspace.json"
+    workspace = load_json(workspace_path)
+    sequence = workspace["sequences"][0]
+    if group_name == "text_emphasis_events":
+        text_event = copy.deepcopy(sequence["overlay_events"][0])
+        text_event["event_id"] = "evt_business_text_emphasis"
+        sequence[group_name].append(text_event)
+    sequence[group_name][0]["track_ref"] = wrong_track
+    write_json(workspace_path, workspace)
+
+    issues = WorkspaceLoader(catalog, registry=domain_registry).load(
+        workspace_path
+    ).validation.issues
+    issue = next(
+        item for item in issues if item.code == "EVENT_TRACK_TYPE_MISMATCH"
+    )
+    assert issue.json_pointer.endswith(f"/{group_name}/0/track_ref")
+    assert wrong_track in issue.message
+
+
+def test_base_shot_requires_video_track(
+    catalog: SchemaCatalog,
+    domain_registry: DomainPackRegistry,
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "base-shot"
+    shutil.copytree(SAMPLE_ROOT / "business-tech", root)
+    workspace_path = root / "workspace.json"
+    workspace = load_json(workspace_path)
+    workspace["sequences"][0]["base_shot"][
+        "track_ref"
+    ] = "trk_audio_business_narration"
+    write_json(workspace_path, workspace)
+
+    issues = WorkspaceLoader(catalog, registry=domain_registry).load(
+        workspace_path
+    ).validation.issues
+    issue = next(
+        item
+        for item in issues
+        if item.code == "BASE_SHOT_TRACK_TYPE_MISMATCH"
+    )
+    assert issue.json_pointer == "/sequences/0/base_shot/track_ref"
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_code", "expected_pointer"),
+    [
+        (
+            "missing_chapter",
+            "SEQUENCE_CHAPTER_NOT_FOUND",
+            "/sequences/0/chapter_id",
+        ),
+        (
+            "missing_beat",
+            "SEQUENCE_BEAT_NOT_FOUND",
+            "/sequences/0/beat_id",
+        ),
+        (
+            "wrong_chapter_beat",
+            "SEQUENCE_BEAT_CHAPTER_MISMATCH",
+            "/sequences/0/beat_id",
+        ),
+        (
+            "chapter_membership",
+            "CHAPTER_BEAT_MEMBERSHIP_MISMATCH",
+            "/story/chapters/0/beat_ids/0",
+        ),
+    ],
+)
+def test_split_story_hierarchy_is_enforced(
+    catalog: SchemaCatalog,
+    domain_registry: DomainPackRegistry,
+    tmp_path: Path,
+    mutation: str,
+    expected_code: str,
+    expected_pointer: str,
+) -> None:
+    root = copy_split_workspace(tmp_path)
+    sequence_path = root / "sequences" / "sequence_01.json"
+    sequence = load_json(sequence_path)
+    if mutation == "missing_chapter":
+        sequence["chapter_id"] = "chp_split_missing"
+        write_json(sequence_path, sequence)
+    elif mutation == "missing_beat":
+        sequence["beat_id"] = "beat_split_missing"
+        write_json(sequence_path, sequence)
+    elif mutation == "wrong_chapter_beat":
+        sequence["beat_id"] = "beat_split_effect"
+        write_json(sequence_path, sequence)
+    else:
+        chapter_path = root / "story" / "chapters" / "chapter_01.json"
+        chapter = load_json(chapter_path)
+        chapter["beat_ids"][0] = "beat_split_effect"
+        write_json(chapter_path, chapter)
+
+    issues = load_split_copy(
+        catalog, domain_registry, root
+    ).validation.issues
+    issue = next(item for item in issues if item.code == expected_code)
+    assert issue.json_pointer == expected_pointer
+
+
+def test_beat_sequence_membership_is_enforced(
+    catalog: SchemaCatalog,
+    domain_registry: DomainPackRegistry,
+    tmp_path: Path,
+) -> None:
+    root = copy_split_workspace(tmp_path)
+    beat_path = root / "story" / "beats" / "beat_01.json"
+    beat = load_json(beat_path)
+    beat["sequence_ids"][0] = "seq_split_consequence"
+    write_json(beat_path, beat)
+    issues = load_split_copy(
+        catalog, domain_registry, root
+    ).validation.issues
+    assert any(
+        issue.code == "BEAT_SEQUENCE_MEMBERSHIP_MISMATCH"
+        and issue.json_pointer == "/story/beats/0/sequence_ids/0"
+        for issue in issues
+    )
+
+
+def test_public_raw_editorial_sequence_factory_is_unavailable() -> None:
+    invalid_sequence = {
+        "sequence_id": "invalid",
+        "chapter_id": "missing",
+    }
+    assert not hasattr(EditorialSequence, "from_dict")
+    with pytest.raises(AttributeError):
+        getattr(EditorialSequence, "from_dict")(invalid_sequence)
+
+
+def test_duplicate_workspace_ids_are_rejected_with_structured_codes(
+    catalog: SchemaCatalog,
+    domain_registry: DomainPackRegistry,
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "duplicates"
+    shutil.copytree(SAMPLE_ROOT / "business-tech", root)
+    workspace_path = root / "workspace.json"
+    workspace = load_json(workspace_path)
+
+    duplicate_chapter = copy.deepcopy(workspace["story"]["chapters"][0])
+    duplicate_chapter["title"] = "Duplicate chapter"
+    workspace["story"]["chapters"].append(duplicate_chapter)
+    duplicate_beat = copy.deepcopy(workspace["story"]["beats"][0])
+    duplicate_beat["narrative_goal"] = "Duplicate beat"
+    workspace["story"]["beats"].append(duplicate_beat)
+    duplicate_sequence = copy.deepcopy(workspace["sequences"][0])
+    duplicate_sequence["narrative_goal"] = "Duplicate sequence"
+    workspace["sequences"].append(duplicate_sequence)
+    duplicate_asset = copy.deepcopy(workspace["assets"][0])
+    duplicate_asset["editorial_role"] = "duplicate"
+    workspace["assets"].append(duplicate_asset)
+    duplicate_artifact = copy.deepcopy(workspace["artifacts"][0])
+    duplicate_artifact["size_bytes"] += 1
+    workspace["artifacts"].append(duplicate_artifact)
+    duplicate_track = copy.deepcopy(workspace["tracks"]["tracks"][0])
+    duplicate_track["role"] = "duplicate"
+    workspace["tracks"]["tracks"].append(duplicate_track)
+    duplicate_event = copy.deepcopy(
+        workspace["sequences"][0]["audio_events"][0]
+    )
+    duplicate_event["parameters"]["values"]["intensity"] = "duplicate"
+    workspace["sequences"][0]["audio_events"].append(duplicate_event)
+    write_json(workspace_path, workspace)
+
+    issues = WorkspaceLoader(catalog, registry=domain_registry).load(
+        workspace_path
+    ).validation.issues
+    codes = {issue.code for issue in issues}
+    assert {
+        "DUPLICATE_CHAPTER_ID",
+        "DUPLICATE_BEAT_ID",
+        "DUPLICATE_SEQUENCE_ID",
+        "DUPLICATE_ASSET_ID",
+        "DUPLICATE_ARTIFACT_ID",
+        "DUPLICATE_TRACK_ID",
+        "DUPLICATE_EVENT_ID",
+    } <= codes
+    duplicate_issue = next(
+        issue for issue in issues if issue.code == "DUPLICATE_TRACK_ID"
+    )
+    assert duplicate_issue.json_pointer == "/tracks/tracks/4/track_id"
+    assert "first occurrence" in duplicate_issue.message
+    assert "second occurrence" in duplicate_issue.message
