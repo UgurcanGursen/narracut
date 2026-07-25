@@ -49,6 +49,7 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Faz 1 V2ToV3Migrator: PASS
 - Faz 1 structured migration-loss reporting: PASS
 - Faz 1 migrator security hardening: PASS
+- Faz 1 secondary provenance URI hardening: PASS
 - WorkspaceStore entry gate: PENDING_INDEPENDENT_REAUDIT
 - Closure date: `2026-07-25`
 - Closure commit: `f0d7a3100b0855a84432f09ca22001d0913aa1aa`
@@ -64,7 +65,7 @@ and the next main phase is Faz 1 - Editorial Domain Model ve V3 Workspace
 Schema. V3 contract foundation, contract integrity hardening ve public
 artifact/retention validation boundary PASS durumundadir. Domain-pack loader
 registry olmadan fail-closed, core-only mod ise acik contract degeriyle
-kontrolludur. V2ToV3Migrator, structured migration-loss reporting ve migrator
-security hardening PASS durumundadir. WorkspaceStore entry gate
-PENDING_INDEPENDENT_REAUDIT durumundadir. Sonraki tek is migrator security
-hardening post-commit independent audit'idir.
+kontrolludur. V2ToV3Migrator, structured migration-loss reporting, migrator
+security hardening ve secondary provenance URI hardening PASS durumundadir.
+WorkspaceStore entry gate PENDING_INDEPENDENT_REAUDIT durumundadir. Sonraki tek
+is secondary URI security fix post-commit independent audit'idir.

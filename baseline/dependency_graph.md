@@ -282,3 +282,16 @@ report/summary seti transaction degildir. WorkspaceStore staged revision,
 artifact hash verification, revision manifest, durability, commit marker veya
 active-revision switch, crash recovery, previous-valid-revision preservation ve
 partial staging cleanup saglamadan production persistence kabul edilmez.
+
+Secondary/non-selected provenance source leaf'leri de ayni security boundary'yi
+kullanir:
+
+```text
+source JSON pointer
+-> exact visual/extra URI-provenance field inventory
+-> inspect_source_value(..., uri_reference=True)
+-> safe: normal coverage/mapping
+   or credential: MIGRATION_SECRET_REDACTED / ERROR / FAILED
+```
+
+Bu context target icin secilen primary candidate'tan bagimsizdir.

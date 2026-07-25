@@ -61,17 +61,19 @@ Genel durum: PASS / Faz 1 geneli OPEN
 | FAILED unpublished target metadata semantics | PASS |
 | BGM/SFX exact allowlist and unknown fail-closed | PASS |
 | Migrator security hardening | PASS |
+| Secondary/non-selected provenance URI fail-closed | PASS |
 | Duplicate stable-ID rejection | PASS |
 | Typed event target resolution/compatibility | PASS |
 | Minimal, business-tech, split sample validation | PASS |
-| Targeted/full regression | PASS (`198 passed, 1 skipped`; `254 passed, 1 skipped`) |
+| Targeted/full regression | PASS (`213 passed, 1 skipped`; `269 passed, 1 skipped`) |
 | V2 production regression | PASS |
 
 Contract foundation: PASS. Contract integrity hardening: PASS. Public validation
-boundary: PASS. V2ToV3Migrator, structured migration-loss reporting ve
-migrator security hardening: PASS. Faz 1 geneli OPEN/IN_PROGRESS ve
+boundary: PASS. V2ToV3Migrator, structured migration-loss reporting, migrator
+security hardening ve secondary provenance URI hardening: PASS. Faz 1 geneli
+OPEN/IN_PROGRESS ve
 WorkspaceStore entry gate PENDING_INDEPENDENT_REAUDIT durumundadir. Sonraki tek
-is migrator security hardening post-commit independent audit'idir.
+is secondary URI security fix post-commit independent audit'idir.
 
 WorkspaceStore production persistence acceptance'i staged revision directory,
 butun artifact hash dogrulamasi, revision manifest, file close/fsync, commit

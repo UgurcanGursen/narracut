@@ -29,8 +29,9 @@ Son guncelleme: 25 Temmuz 2026
 
 - V3 contract foundation, contract integrity hardening ve public validation
   boundary PASS durumundadir. V2ToV3Migrator ve structured migration-loss
-  reporting ile migrator security hardening PASS'tir; WorkspaceStore entry
-  gate PENDING_INDEPENDENT_REAUDIT durumundadir.
+  reporting, migrator security hardening ve secondary provenance URI hardening
+  PASS'tir; WorkspaceStore entry gate PENDING_INDEPENDENT_REAUDIT
+  durumundadir.
 - V2 audio file, BGM/SFX, pause, frame-duration, subtitle ve renderer-specific
   visual ayarlari Phase 1 canonical workspace'te birebir temsil edilmez.
   Migrator bunlari structured loss olarak raporlar; strict mod yayinlamaz.

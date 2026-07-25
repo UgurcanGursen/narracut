@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-07-25 - Faz 1 secondary provenance URI security fix
+
+- Primary target secimi ile source security acceptance birbirinden ayrildi
+- Exact visual/extra URI-provenance field inventory'si `_account_remaining`
+  yoluna deterministic URI context sagliyor
+- Scheme-less, username-only, whitespace-obfuscated ve percent-encoded
+  user-info URI context'inde fail-closed yapildi
+- Dort affected field x strict/permissive gercek migrator+CLI no-leak matrix'i
+  eklendi
+- Narration email/colon ve guvenli secondary URI/local-path false-positive
+  regression testleri eklendi
+- Migrator suite: `126 passed`
+- Combined suite: `213 passed, 1 skipped`
+- Full suite: `269 passed, 1 skipped`
+- Demo A/B/committed expected dort artifact byte equality: PASS
+- 16 schema/159 ref, demo result/WorkspaceLoader ve
+  minimal/business-tech/split-long-form loader kalite kapilari: PASS
+- Secondary provenance URI hardening: PASS
+- WorkspaceStore entry gate: PENDING_INDEPENDENT_REAUDIT
+
 ## 2026-07-25 - Faz 1 migrator security hardening
 
 - URI user-info, sensitive query/fragment, signed-URL ve control-character

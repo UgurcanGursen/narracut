@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import parse_qsl, unquote_plus, urlsplit
+from urllib.parse import parse_qsl, unquote, unquote_plus, urlsplit
 
 
 _SENSITIVE_KEYS = frozenset(
@@ -63,6 +63,7 @@ _SECRET_VALUE = re.compile(
 _USERINFO_LIKE = re.compile(
     r"(?i)(?:[a-z][a-z0-9+.-]*:)?/{1,2}[^/?#@\s]+@"
     r"|[^/?#@\s:]+:[^/?#@\s]+@"
+    r"|^[^/?#@\s:]+@[^/?#@\s]+(?:/|$)"
 )
 _CONTROL_CHARACTER = re.compile(r"[\x00-\x1f\x7f]")
 
@@ -109,15 +110,17 @@ def inspect_uri_reference(value: str) -> SensitiveValueFinding | None:
         return SensitiveValueFinding("control_character")
     if _SECRET_VALUE.search(value):
         return SensitiveValueFinding("credential_pattern")
-    if _USERINFO_LIKE.search(value):
-        return SensitiveValueFinding("uri_user_info")
+    decoded = unquote(value)
+    compacted = re.sub(r"\s+", "", decoded)
+    for candidate in (value, decoded, compacted):
+        if _USERINFO_LIKE.search(candidate):
+            return SensitiveValueFinding("uri_user_info")
 
     try:
         parsed = urlsplit(value)
         if parsed.username is not None or parsed.password is not None:
             return SensitiveValueFinding("uri_user_info")
     except ValueError:
-        decoded = unquote_plus(value)
         if _USERINFO_LIKE.search(decoded) or _SECRET_VALUE.search(decoded):
             return SensitiveValueFinding("malformed_credential_uri")
         return None

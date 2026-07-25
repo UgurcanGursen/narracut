@@ -1051,6 +1051,162 @@ def test_failed_secret_cli_has_no_artifact_or_console_leakage(
     assert secret_value not in combined
 
 
+@pytest.mark.parametrize("mode", ["strict", "permissive"])
+@pytest.mark.parametrize(
+    ("field", "pointer"),
+    [
+        (
+            "selected_asset_url",
+            "/blocks/0/visuals/0/selected_asset_url",
+        ),
+        (
+            "extra.resolved_path",
+            "/blocks/0/visuals/0/extra/resolved_path",
+        ),
+        ("logo_url", "/blocks/0/visuals/0/logo_url"),
+        (
+            "extra.provider_uri",
+            "/blocks/0/visuals/0/extra/provider_uri",
+        ),
+    ],
+)
+def test_secondary_provenance_credentials_fail_closed(
+    catalog: SchemaCatalog,
+    valid_source: dict,
+    tmp_path: Path,
+    mode: str,
+    field: str,
+    pointer: str,
+) -> None:
+    marker = "synthetic-secondary-credential"
+    value = f"audit-user:{marker}@example.invalid/path"
+    visual = valid_source["blocks"][0]["visuals"][0]
+    visual["url"] = "https://example.invalid/safe-primary"
+    if field.startswith("extra."):
+        visual["extra"][field.removeprefix("extra.")] = value
+    else:
+        visual[field] = value
+
+    outcome = V2ToV3Migrator(catalog).migrate(
+        valid_source, MigrationOptions(mode=mode)
+    )
+    issue = issue_for(outcome, "MIGRATION_SECRET_REDACTED")
+    rendered = json.dumps(
+        {
+            "workspace": outcome.workspace,
+            "result": outcome.result,
+            "report": render_migration_report(outcome),
+            "summary": render_inspection_summary(outcome),
+        },
+        sort_keys=True,
+    )
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert issue["severity"] == "ERROR"
+    assert issue["source_pointer"] == pointer
+    assert value not in rendered
+    assert marker not in rendered
+    assert outcome.result["target_fingerprint"] is None
+    assert outcome.result["workspace_id"] is None
+    assert "target_workspace_id: not_published" in rendered
+
+    source = tmp_path / f"{field.replace('.', '-')}-{mode}.json"
+    source.write_text(json.dumps(valid_source), encoding="utf-8")
+    output = tmp_path / f"{field.replace('.', '-')}-{mode}-output"
+    process = run_cli(
+        source,
+        output,
+        "--mode",
+        mode,
+        "--resolution-mode",
+        "core_only",
+    )
+    artifacts = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(output.iterdir())
+        if path.is_file()
+    )
+    combined = process.stdout + process.stderr + artifacts
+    cli_result = load_json(output / "migration_result.json")
+    cli_issue = next(
+        item
+        for item in cli_result["issues"]
+        if item["code"] == "MIGRATION_SECRET_REDACTED"
+    )
+    assert process.returncode == 3
+    assert cli_result["status"] == "FAILED"
+    assert cli_issue["source_pointer"] == pointer
+    assert cli_issue["severity"] == "ERROR"
+    assert not (output / "workspace.json").exists()
+    assert cli_result["target_fingerprint"] is None
+    assert cli_result["workspace_id"] is None
+    assert "target_workspace_id: not_published" in artifacts
+    assert "workspace.json" not in render_inspection_summary(outcome)
+    assert value not in combined
+    assert marker not in combined
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "audit-user:synthetic-password@example.invalid/path",
+        "audit-user@example.invalid/path",
+        "//audit-user:synthetic-password@example.invalid/path",
+        "audit-user : synthetic-password @ example.invalid/path",
+        "audit-user%3Asynthetic-password%40example.invalid/path",
+    ],
+)
+def test_uri_context_rejects_scheme_less_user_info_variants(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+    value: str,
+) -> None:
+    visual = valid_source["blocks"][0]["visuals"][0]
+    visual["url"] = "https://example.invalid/safe-primary"
+    visual["selected_asset_url"] = value
+    outcome = migrator.migrate(valid_source, permissive())
+    issue = issue_for(outcome, "MIGRATION_SECRET_REDACTED")
+    rendered = json.dumps(
+        {"workspace": outcome.workspace, "result": outcome.result},
+        sort_keys=True,
+    )
+    assert outcome.status == "FAILED"
+    assert outcome.workspace is None
+    assert issue["source_pointer"] == (
+        "/blocks/0/visuals/0/selected_asset_url"
+    )
+    assert value not in rendered
+
+
+def test_normal_text_email_and_colon_are_not_uri_false_positives(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+) -> None:
+    valid_source["blocks"][0]["narration"] = (
+        "Contact editor@example.invalid; label:value remains editorial text."
+    )
+    outcome = migrator.migrate(valid_source, strict())
+    assert outcome.status == "SUCCESS"
+    assert outcome.workspace is not None
+    assert "MIGRATION_SECRET_REDACTED" not in issue_codes(outcome)
+
+
+def test_safe_secondary_provenance_values_do_not_trigger_security_error(
+    migrator: V2ToV3Migrator,
+    valid_source: dict,
+) -> None:
+    visual = valid_source["blocks"][0]["visuals"][0]
+    visual["url"] = "https://example.invalid/safe-primary"
+    visual["selected_asset_url"] = "https://cdn.example.invalid/safe-secondary"
+    visual["logo_url"] = "https://cdn.example.invalid/logo.png"
+    visual["extra"]["resolved_path"] = r"C:\media\safe-clip.mp4"
+    visual["extra"]["provider_uri"] = "provider.example.invalid/resource"
+    outcome = migrator.migrate(valid_source, permissive())
+    assert outcome.status == "SUCCESS_WITH_LOSS"
+    assert outcome.workspace is not None
+    assert "MIGRATION_SECRET_REDACTED" not in issue_codes(outcome)
+
+
 def test_absolute_source_path_is_portably_encoded(
     migrator: V2ToV3Migrator, valid_source: dict
 ) -> None:

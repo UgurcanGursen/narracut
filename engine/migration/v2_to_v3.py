@@ -108,6 +108,22 @@ VISUAL_FIELDS = frozenset(
         "sfx",
     }
 )
+VISUAL_URI_PROVENANCE_FIELDS = frozenset(
+    {"url", "selected_asset_url", "logo_url", "query"}
+)
+EXTRA_URI_PROVENANCE_FIELDS = frozenset(
+    {
+        "uri",
+        "url",
+        "source_url",
+        "provider_uri",
+        "origin_uri",
+        "resolved_path",
+        "selected_asset_url",
+        "logo_url",
+        "query",
+    }
+)
 LOSS_CODES = {
     "DEFAULTED": "MIGRATION_FIELD_DEFAULTED",
     "DROPPED": "MIGRATION_FIELD_DROPPED",
@@ -164,6 +180,23 @@ def source_leaf_pointers(value: Any) -> tuple[str, ...]:
 
 def _field(pointer: str) -> str:
     return pointer.rsplit("/", 1)[-1].replace("~1", "/").replace("~0", "~")
+
+
+def _is_uri_provenance_pointer(pointer: str) -> bool:
+    parts = pointer.strip("/").split("/")
+    if (
+        len(parts) < 5
+        or parts[0] != "blocks"
+        or parts[2] != "visuals"
+    ):
+        return False
+    visual_field = parts[4].replace("~1", "/").replace("~0", "~")
+    if visual_field in VISUAL_URI_PROVENANCE_FIELDS:
+        return True
+    if visual_field != "extra" or len(parts) < 6:
+        return False
+    extra_field = parts[5].replace("~1", "/").replace("~0", "~")
+    return extra_field in EXTRA_URI_PROVENANCE_FIELDS
 
 
 def _slug(value: str) -> str:
@@ -1441,7 +1474,11 @@ class V2ToV3Migrator:
         for pointer, value in _leaf_items(source):
             if pointer in builder.accounted:
                 continue
-            if inspect_source_value(pointer, value) is not None:
+            if inspect_source_value(
+                pointer,
+                value,
+                uri_reference=_is_uri_provenance_pointer(pointer),
+            ) is not None:
                 builder.account(
                     pointer,
                     value,

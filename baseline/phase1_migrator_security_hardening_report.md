@@ -103,3 +103,19 @@ For split workspaces it remains a real external document reference.
 The migration mapping module remains large. A broad mapping/ID/coverage refactor
 is deliberately deferred. WorkspaceStore transaction semantics and independent
 post-commit re-audit remain open.
+
+## Secondary provenance follow-up
+
+Post-commit re-audit'te bulunan non-selected/scheme-less user-info bypass'i
+exact URI/provenance pointer context'i ile kapatildi. Primary candidate secimi
+artik secondary source security inspection'ini etkilemez. Dort affected field
+strict/permissive public migrator ve CLI matrix'i, no-leak ve false-positive
+regression'lariyla sabitlendi.
+
+Secondary provenance URI hardening: PASS. WorkspaceStore entry gate:
+PENDING_INDEPENDENT_REAUDIT.
+
+Focused suite `126 passed`, combined contract/migrator suite
+`213 passed, 1 skipped` ve full suite `269 passed, 1 skipped` sonucuyla
+tamamlandi. Demo A/B ve committed expected dort artifact icin byte-identical
+kalmistir.
