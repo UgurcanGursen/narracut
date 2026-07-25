@@ -1,0 +1,11 @@
+{
+  "schema_version": "3.0.0",
+  "manifest_type": "research_manifest",
+  "source_refs": [
+    "sources/source_001.json"
+  ],
+  "claim_refs": [
+    "claims/claims.jsonl"
+  ],
+  "chronology_ref": "chronology.json"
+}

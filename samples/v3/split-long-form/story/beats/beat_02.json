@@ -1,0 +1,16 @@
+{
+  "schema_version": "3.0.0",
+  "beat_id": "beat_split_effect",
+  "chapter_id": "chp_split_effect",
+  "narrative_goal": "Connect evidence to consequence.",
+  "editorial_role": "consequence",
+  "claim_ids": [
+    "clm_split_effect"
+  ],
+  "order": 1,
+  "sequence_ids": [
+    "seq_split_effect"
+  ],
+  "status": "ready",
+  "version": 1
+}

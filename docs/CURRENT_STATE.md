@@ -1,7 +1,7 @@
 # Current State
 
 Son guncelleme: 25 Temmuz 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 siradaki ana faz**
+Aktif faz: **Faz 0 CLOSED / Faz 1 IN_PROGRESS**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
@@ -43,16 +43,16 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Faz 0 technical acceptance gates: PASS
 - Faz 0 management closure: PASS
 - Faz 0 status: CLOSED
-- Faz 1 contract-foundation blocker: cleared, READY_TO_RESUME
+- Faz 1 V3 contract foundation: PASS
 - Closure date: `2026-07-25`
 - Closure commit: `this commit`
 - Baseline tag: `stage3-development-baseline` -> `this commit`
-- Next main phase: `Faz 1 - Editorial Domain Model ve V3 Workspace Schema`
+- Faz 1 genel durumu: OPEN / IN_PROGRESS
 
 ## Current next move
 
 Authoritative sanitized root is now the closed Phase 0 development baseline.
 Provider revoke/rotation remains a separate NOT CONFIRMED security follow-up,
 and the next main phase is Faz 1 - Editorial Domain Model ve V3 Workspace
-Schema. Faz 1 contract-foundation dependency blocker is cleared and the task is
-READY_TO_RESUME.
+Schema. V3 contract foundation PASS durumundadir; Faz 1 genelinin sonraki isi
+V2ToV3Migrator ve migration-loss reporting implementation'dir.

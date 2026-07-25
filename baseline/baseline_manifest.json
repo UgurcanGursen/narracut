@@ -47,7 +47,7 @@
     "two_run_decoded_content_reproducibility": "pass",
         "repository_output_isolation": "pass",
         "full_suite_regression": "pass_56_passed",
-        "phase1_contract_foundation": "ready_to_resume",
+        "phase1_contract_foundation": "pass",
         "phase0_technical_acceptance_gates": "pass",
         "phase0_management_closure": "pass",
         "general_phase0": "closed",
@@ -90,8 +90,9 @@
         "full_pytest": "58 passed",
         "secret_scan_current": 0,
         "secret_scan_reachable": 0,
-        "phase1_contract_foundation": "ready_to_resume",
-        "implementation_started": false
+        "phase1_contract_foundation": "pass",
+        "implementation_started": true,
+        "next_phase1_task": "V2ToV3Migrator and migration-loss reporting"
     },
     "drawtext_gate": {
         "decision": "DRAWTEXT_OPERATIONAL_WITH_EXPLICIT_FONTFILE",

@@ -1,0 +1,96 @@
+{
+  "schema_version": "3.0.0",
+  "workspace_id": "wsp_split_long_form",
+  "layout": "split",
+  "project_metadata": {
+    "project_id": "prj_split_long_form",
+    "title": "Split Long-Form Workspace"
+  },
+  "domain": {
+    "domain_id": "business-tech",
+    "domain_pack_version": "0.1.0",
+    "profile_id": "dpf_split_business",
+    "policy_snapshot_id": "dps_78c38428bdcf80269271",
+    "policy_snapshot_ref": "domain/policy_snapshot.json"
+  },
+  "documents": [
+    {
+      "document_id": "doc_project_main",
+      "kind": "project",
+      "path": "project.json"
+    },
+    {
+      "document_id": "doc_domain_profile",
+      "kind": "domain_profile",
+      "path": "domain/profile.json"
+    },
+    {
+      "document_id": "doc_domain_snapshot",
+      "kind": "domain_policy_snapshot",
+      "path": "domain/policy_snapshot.json"
+    },
+    {
+      "document_id": "doc_research_manifest",
+      "kind": "research_manifest",
+      "path": "research/manifest.json"
+    },
+    {
+      "document_id": "doc_timing_manifest",
+      "kind": "timing_manifest",
+      "path": "timing/manifest.json"
+    },
+    {
+      "document_id": "doc_track_manifest",
+      "kind": "track_manifest",
+      "path": "tracks/manifest.json"
+    },
+    {
+      "document_id": "doc_chapter_one",
+      "kind": "chapter",
+      "path": "story/chapters/chapter_01.json"
+    },
+    {
+      "document_id": "doc_chapter_two",
+      "kind": "chapter",
+      "path": "story/chapters/chapter_02.json"
+    },
+    {
+      "document_id": "doc_beat_one",
+      "kind": "beat",
+      "path": "story/beats/beat_01.json"
+    },
+    {
+      "document_id": "doc_beat_two",
+      "kind": "beat",
+      "path": "story/beats/beat_02.json"
+    },
+    {
+      "document_id": "doc_sequence_one",
+      "kind": "sequence",
+      "path": "sequences/sequence_01.json"
+    },
+    {
+      "document_id": "doc_sequence_two",
+      "kind": "sequence",
+      "path": "sequences/sequence_02.json"
+    },
+    {
+      "document_id": "doc_asset_manifest",
+      "kind": "asset_manifest",
+      "path": "assets/manifest.json"
+    },
+    {
+      "document_id": "doc_artifact_manifest",
+      "kind": "artifact_manifest",
+      "path": "artifacts/manifest.json"
+    }
+  ],
+  "render_profile": {
+    "profile_id": "rnd_split_full_hd",
+    "aspect_ratio": "16:9",
+    "resolution_preset": "full_hd",
+    "audio_layout": "stereo"
+  },
+  "status": "ready",
+  "version": 1
+}

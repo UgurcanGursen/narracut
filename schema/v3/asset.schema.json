@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/asset.schema.json",
+  "title": "Kurgu V3 Asset",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "asset_id",
+    "asset_type",
+    "editorial_role",
+    "provenance",
+    "content_hash",
+    "media_metadata",
+    "availability",
+    "review_state",
+    "artifact_ref",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "asset_id": {
+      "$ref": "common.schema.json#/$defs/assetId"
+    },
+    "asset_type": {
+      "enum": [
+        "image",
+        "video",
+        "audio",
+        "document",
+        "chart_data",
+        "logo",
+        "font",
+        "generated_media"
+      ]
+    },
+    "editorial_role": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_ref",
+        "origin_uri",
+        "license_state"
+      ],
+      "properties": {
+        "source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "origin_uri": {
+          "type": "string",
+          "format": "uri"
+        },
+        "license_state": {
+          "enum": [
+            "unknown",
+            "internal",
+            "licensed",
+            "public_domain",
+            "fair_use_review_required"
+          ]
+        }
+      }
+    },
+    "content_hash": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "media_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mime_type"
+      ],
+      "properties": {
+        "mime_type": {
+          "type": "string",
+          "pattern": "^[a-z0-9.+-]+/[a-z0-9.+-]+$"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "duration_hint": {
+          "enum": [
+            "instant",
+            "short",
+            "medium",
+            "long",
+            "unknown"
+          ]
+        },
+        "has_audio": {
+          "type": "boolean"
+        }
+      }
+    },
+    "availability": {
+      "enum": [
+        "local",
+        "remote",
+        "missing",
+        "blocked"
+      ]
+    },
+    "review_state": {
+      "enum": [
+        "unreviewed",
+        "needs_review",
+        "approved",
+        "rejected"
+      ]
+    },
+    "artifact_ref": {
+      "$ref": "common.schema.json#/$defs/artifactId"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/extensionReference"
+      }
+    }
+  }
+}

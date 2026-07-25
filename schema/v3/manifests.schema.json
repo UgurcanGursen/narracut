@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/manifests.schema.json",
+  "title": "Kurgu V3 Split Workspace Manifests",
+  "x-schema-version": "3.0.0",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/assetManifest"
+    },
+    {
+      "$ref": "#/$defs/artifactManifest"
+    },
+    {
+      "$ref": "#/$defs/researchManifest"
+    },
+    {
+      "$ref": "#/$defs/timingManifest"
+    }
+  ],
+  "$defs": {
+    "assetManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "manifest_type",
+        "assets"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/schemaVersion"
+        },
+        "manifest_type": {
+          "const": "asset_manifest"
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "$ref": "asset.schema.json"
+          }
+        }
+      }
+    },
+    "artifactManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "manifest_type",
+        "artifacts"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/schemaVersion"
+        },
+        "manifest_type": {
+          "const": "artifact_manifest"
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "artifact.schema.json"
+          }
+        }
+      }
+    },
+    "researchManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "manifest_type",
+        "source_refs",
+        "claim_refs",
+        "chronology_ref"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/schemaVersion"
+        },
+        "manifest_type": {
+          "const": "research_manifest"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/relativePath"
+          }
+        },
+        "claim_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/relativePath"
+          }
+        },
+        "chronology_ref": {
+          "$ref": "common.schema.json#/$defs/relativePath"
+        }
+      }
+    },
+    "timingManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "manifest_type",
+        "narration_ref",
+        "cue_catalog_ref"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/schemaVersion"
+        },
+        "manifest_type": {
+          "const": "timing_manifest"
+        },
+        "narration_ref": {
+          "$ref": "common.schema.json#/$defs/relativePath"
+        },
+        "cue_catalog_ref": {
+          "$ref": "common.schema.json#/$defs/relativePath"
+        }
+      }
+    }
+  }
+}

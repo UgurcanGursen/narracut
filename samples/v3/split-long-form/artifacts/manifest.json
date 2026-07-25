@@ -1,0 +1,28 @@
+{
+  "schema_version": "3.0.0",
+  "manifest_type": "artifact_manifest",
+  "artifacts": [
+    {
+      "schema_version": "3.0.0",
+      "artifact_id": "art_split_document",
+      "artifact_type": "source_document",
+      "project_id": "prj_split_long_form",
+      "sequence_id": null,
+      "created_at": "2026-07-25T00:00:00Z",
+      "last_accessed_at": "2026-07-25T00:00:00Z",
+      "content_hash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "size_bytes": 8192,
+      "retention_class": "provenance",
+      "dependency_ids": [],
+      "locked": false,
+      "pinned": false,
+      "approved": true,
+      "cleanup_candidate": false,
+      "producer": "sample-fixture",
+      "producer_version": "1.0.0",
+      "job_id": null,
+      "status": "approved",
+      "version": 1
+    }
+  ]
+}

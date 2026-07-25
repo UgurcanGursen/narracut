@@ -1,0 +1,250 @@
+{
+  "schema_version": "3.0.0",
+  "workspace_id": "wsp_minimal_generic",
+  "layout": "aggregate",
+  "project_metadata": {
+    "project_id": "prj_minimal_generic",
+    "title": "Minimal Generic Workspace"
+  },
+  "domain": {
+    "domain_id": "core-generic",
+    "domain_pack_version": "0.0.0",
+    "profile_id": "dpf_core_default",
+    "policy_snapshot_id": "dps_0795030caf1ff575a949",
+    "policy_snapshot_ref": "domain/policy_snapshot.json",
+    "profile": {
+      "schema_version": "3.0.0",
+      "profile_id": "dpf_core_default",
+      "domain_id": "core-generic",
+      "domain_pack_version": "0.0.0",
+      "enabled_extensions": [],
+      "policy_overrides": {},
+      "status": "ready",
+      "version": 1
+    },
+    "policy_snapshot": {
+      "schema_version": "3.0.0",
+      "snapshot_id": "dps_0795030caf1ff575a949",
+      "domain_id": "core-generic",
+      "domain_pack_version": "0.0.0",
+      "profile_id": "dpf_core_default",
+      "manifest_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "resolved_policy": {},
+      "canonical_hash": "sha256:0795030caf1ff575a949688e63beaf4e33e3bd5ad382156da64f697279a8ff01",
+      "immutable": true,
+      "created_at": "2026-07-25T00:00:00Z",
+      "version": 1
+    }
+  },
+  "documents": [],
+  "render_profile": {
+    "profile_id": "rnd_minimal_hd",
+    "aspect_ratio": "16:9",
+    "resolution_preset": "hd",
+    "audio_layout": "stereo"
+  },
+  "status": "ready",
+  "version": 1,
+  "project": {
+    "schema_version": "3.0.0",
+    "project_id": "prj_minimal_generic",
+    "title": "Minimal Generic Workspace",
+    "created_at": "2026-07-25T00:00:00Z",
+    "updated_at": "2026-07-25T00:00:00Z",
+    "domain_id": "core-generic",
+    "domain_pack_version": "0.0.0",
+    "policy_snapshot_id": "dps_0795030caf1ff575a949",
+    "status": "ready",
+    "version": 1
+  },
+  "research": {
+    "source_refs": [
+      "src_local_metadata"
+    ],
+    "claim_refs": [
+      "clm_generic_example"
+    ],
+    "chronology_ref": "chronology_generic"
+  },
+  "story": {
+    "outline_ref": "outline_generic",
+    "chapters": [
+      {
+        "schema_version": "3.0.0",
+        "chapter_id": "chp_minimal_intro",
+        "project_id": "prj_minimal_generic",
+        "title": "Introduction",
+        "narrative_goal": "Introduce one generic claim.",
+        "order": 0,
+        "beat_ids": [
+          "beat_minimal_claim"
+        ],
+        "status": "ready",
+        "version": 1
+      }
+    ],
+    "beats": [
+      {
+        "schema_version": "3.0.0",
+        "beat_id": "beat_minimal_claim",
+        "chapter_id": "chp_minimal_intro",
+        "narrative_goal": "State and contextualize the claim.",
+        "editorial_role": "context",
+        "claim_ids": [
+          "clm_generic_example"
+        ],
+        "order": 0,
+        "sequence_ids": [
+          "seq_minimal_claim"
+        ],
+        "status": "ready",
+        "version": 1
+      }
+    ]
+  },
+  "sequences": [
+    {
+      "schema_version": "3.0.0",
+      "sequence_id": "seq_minimal_claim",
+      "chapter_id": "chp_minimal_intro",
+      "beat_id": "beat_minimal_claim",
+      "narrative_goal": "Present local metadata as context.",
+      "editorial_role": "context",
+      "claim_ids": [
+        "clm_generic_example"
+      ],
+      "start_cue": {
+        "cue_id": "cue_minimal_start",
+        "anchor_type": "narration_phrase",
+        "anchor_ref": "phrase_minimal_open",
+        "relation": "at"
+      },
+      "end_cue": {
+        "cue_id": "cue_minimal_end",
+        "anchor_type": "narration_phrase",
+        "anchor_ref": "phrase_minimal_close",
+        "relation": "after"
+      },
+      "base_shot": {
+        "asset_ref": "ast_minimal_image",
+        "track_ref": "trk_video_base",
+        "editorial_purpose": "Provide local context."
+      },
+      "edit_events": [
+        {
+          "schema_version": "3.0.0",
+          "event_id": "evt_minimal_cut",
+          "event_type": "cut",
+          "timing_ref": {
+            "cue_id": "cue_minimal_cut",
+            "anchor_type": "narration_phrase",
+            "anchor_ref": "phrase_minimal_open",
+            "relation": "at"
+          },
+          "track_ref": "trk_video_base",
+          "target": {
+            "target_type": "asset",
+            "target_id": "ast_minimal_image"
+          },
+          "status": "ready",
+          "version": 1,
+          "parameters": {},
+          "extension_metadata": {}
+        }
+      ],
+      "overlay_events": [],
+      "text_emphasis_events": [],
+      "audio_events": [],
+      "continuity_constraints": {
+        "preserve_screen_direction": false,
+        "avoid_visual_family_refs": []
+      },
+      "fallback_policy": {
+        "mode": "fail_closed",
+        "on_missing_asset": "error"
+      },
+      "status": "ready",
+      "version": 1,
+      "track_refs": [
+        "trk_video_base",
+        "trk_audio_narration"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "schema_version": "3.0.0",
+      "asset_id": "ast_minimal_image",
+      "asset_type": "image",
+      "editorial_role": "context",
+      "provenance": {
+        "source_ref": "src_local_metadata",
+        "origin_uri": "urn:kurgu:local-metadata:minimal-image",
+        "license_state": "internal"
+      },
+      "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "media_metadata": {
+        "mime_type": "image/png",
+        "width": 1280,
+        "height": 720,
+        "duration_hint": "unknown",
+        "has_audio": false
+      },
+      "availability": "local",
+      "review_state": "approved",
+      "artifact_ref": "art_minimal_image",
+      "status": "approved",
+      "version": 1
+    }
+  ],
+  "artifacts": [
+    {
+      "schema_version": "3.0.0",
+      "artifact_id": "art_minimal_image",
+      "artifact_type": "source_media",
+      "project_id": "prj_minimal_generic",
+      "sequence_id": "seq_minimal_claim",
+      "created_at": "2026-07-25T00:00:00Z",
+      "last_accessed_at": "2026-07-25T00:00:00Z",
+      "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "size_bytes": 1024,
+      "retention_class": "provenance",
+      "dependency_ids": [],
+      "locked": false,
+      "pinned": false,
+      "approved": true,
+      "cleanup_candidate": false,
+      "producer": "sample-fixture",
+      "producer_version": "1.0.0",
+      "job_id": null,
+      "status": "approved",
+      "version": 1
+    }
+  ],
+  "timing": {
+    "narration_ref": "timing/narration.txt",
+    "cue_catalog_ref": "timing/cues.json",
+    "timing_contract_status": "semantic_references_only"
+  },
+  "tracks": {
+    "schema_version": "3.0.0",
+    "tracks": [
+      {
+        "track_id": "trk_video_base",
+        "track_type": "video",
+        "role": "base",
+        "layer": 0,
+        "status": "ready",
+        "version": 1
+      },
+      {
+        "track_id": "trk_audio_narration",
+        "track_type": "audio",
+        "role": "narration",
+        "layer": 0,
+        "status": "ready",
+        "version": 1
+      }
+    ]
+  }
+}

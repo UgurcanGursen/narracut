@@ -1,0 +1,22 @@
+{
+  "schema_version": "3.0.0",
+  "domain_id": "true-crime-legal",
+  "domain_pack_version": "0.0.1-contract",
+  "display_name": "True Crime and Legal Contract Example",
+  "published_at": "2026-07-25T00:00:00Z",
+  "contract_status": "contract_example",
+  "policy_bundle_refs": [],
+  "prompt_bundle_refs": [],
+  "extensions": {
+    "editorial_roles": [],
+    "claim_taxonomies": [],
+    "entity_roles": [],
+    "narrative_patterns": [],
+    "visual_grammars": [],
+    "event_types": [],
+    "safety_rules": [],
+    "validation_rules": []
+  },
+  "status": "draft",
+  "version": 1
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "3.0.0",
+  "profile_id": "dpf_core_default",
+  "domain_id": "core-generic",
+  "domain_pack_version": "0.0.0",
+  "enabled_extensions": [],
+  "policy_overrides": {},
+  "status": "ready",
+  "version": 1
+}

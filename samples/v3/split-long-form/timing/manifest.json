@@ -1,0 +1,6 @@
+{
+  "schema_version": "3.0.0",
+  "manifest_type": "timing_manifest",
+  "narration_ref": "narration.txt",
+  "cue_catalog_ref": "cues.json"
+}

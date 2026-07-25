@@ -2,6 +2,19 @@
 
 Tarih: 24 Temmuz 2026
 
+## Faz 1 V3 contract boundary
+
+```text
+schema/v3/ + SchemaCatalog
+        -> WorkspaceLoader
+        -> DomainPackRegistry + DomainPolicyResolver
+        -> typed read-only Workspace view
+```
+
+Split workspaces manifest kind/content, profile/snapshot reference and resolver
+parity kontrollerinden fail-closed olarak gecer. Bu boundary V2 production
+pipeline'ina import veya runtime side effect eklemez.
+
 ## Entrypoint ve delegation
 
 ```text

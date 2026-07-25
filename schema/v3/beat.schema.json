@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/beat.schema.json",
+  "title": "Kurgu V3 Beat",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "beat_id",
+    "chapter_id",
+    "narrative_goal",
+    "editorial_role",
+    "claim_ids",
+    "order",
+    "sequence_ids",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "beat_id": {
+      "$ref": "common.schema.json#/$defs/beatId"
+    },
+    "chapter_id": {
+      "$ref": "common.schema.json#/$defs/chapterId"
+    },
+    "narrative_goal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "editorial_role": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^clm_[a-z0-9][a-z0-9_-]{2,63}$"
+      },
+      "uniqueItems": true
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sequence_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/sequenceId"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/extensionReference"
+      }
+    }
+  }
+}

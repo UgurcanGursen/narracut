@@ -24,3 +24,9 @@ Son guncelleme: 25 Temmuz 2026
 ## Faz 0 status note
 
 - Bu limitation ve security follow-up'lar Faz 0'i tekrar OPEN yapan teknik blocker olarak siniflandirilmaz.
+
+## Faz 1 status note
+
+- V3 contract foundation PASS durumundadir; V2ToV3Migrator ve structured
+  migration-loss reporting sonraki Faz 1 isidir.
+- Faz 1 persistence, timing, renderer ve Studio API kapsamlarini henuz acmaz.

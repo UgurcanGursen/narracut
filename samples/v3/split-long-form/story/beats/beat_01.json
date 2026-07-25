@@ -1,0 +1,16 @@
+{
+  "schema_version": "3.0.0",
+  "beat_id": "beat_split_origin",
+  "chapter_id": "chp_split_origin",
+  "narrative_goal": "Introduce the evidence source.",
+  "editorial_role": "context",
+  "claim_ids": [
+    "clm_split_origin"
+  ],
+  "order": 0,
+  "sequence_ids": [
+    "seq_split_origin"
+  ],
+  "status": "ready",
+  "version": 1
+}

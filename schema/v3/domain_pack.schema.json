@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/domain_pack.schema.json",
+  "title": "Kurgu V3 DomainPackManifest",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "domain_id",
+    "domain_pack_version",
+    "display_name",
+    "published_at",
+    "contract_status",
+    "policy_bundle_refs",
+    "prompt_bundle_refs",
+    "extensions",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/domainId"
+    },
+    "domain_pack_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "published_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "contract_status": {
+      "enum": [
+        "production_target",
+        "skeleton",
+        "contract_example",
+        "test_fixture"
+      ]
+    },
+    "policy_bundle_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/relativePath"
+      },
+      "uniqueItems": true
+    },
+    "prompt_bundle_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/relativePath"
+      },
+      "uniqueItems": true
+    },
+    "extensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "editorial_roles",
+        "claim_taxonomies",
+        "entity_roles",
+        "narrative_patterns",
+        "visual_grammars",
+        "event_types",
+        "safety_rules",
+        "validation_rules"
+      ],
+      "properties": {
+        "editorial_roles": {
+          "$ref": "#/$defs/extensions"
+        },
+        "claim_taxonomies": {
+          "$ref": "#/$defs/extensions"
+        },
+        "entity_roles": {
+          "$ref": "#/$defs/extensions"
+        },
+        "narrative_patterns": {
+          "$ref": "#/$defs/extensions"
+        },
+        "visual_grammars": {
+          "$ref": "#/$defs/extensions"
+        },
+        "event_types": {
+          "$ref": "#/$defs/extensions"
+        },
+        "target_types": {
+          "$ref": "#/$defs/targetTypeExtensions"
+        },
+        "safety_rules": {
+          "$ref": "#/$defs/extensions"
+        },
+        "validation_rules": {
+          "$ref": "#/$defs/extensions"
+        }
+      }
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  },
+  "$defs": {
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "version",
+          "description"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "version": {
+            "$ref": "common.schema.json#/$defs/semver"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "targetTypeExtensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "version",
+          "description",
+          "base_target_type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "version": {
+            "$ref": "common.schema.json#/$defs/semver"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "base_target_type": {
+            "enum": [
+              "asset",
+              "video_track",
+              "audio_track",
+              "overlay_track",
+              "sequence",
+              "base_shot",
+              "claim"
+            ]
+          }
+        }
+      },
+      "uniqueItems": true
+    }
+  }
+}

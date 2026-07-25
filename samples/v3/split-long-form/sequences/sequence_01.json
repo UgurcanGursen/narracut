@@ -1,0 +1,67 @@
+{
+  "schema_version": "3.0.0",
+  "sequence_id": "seq_split_origin",
+  "chapter_id": "chp_split_origin",
+  "beat_id": "beat_split_origin",
+  "narrative_goal": "Establish the source document.",
+  "editorial_role": "source_document",
+  "claim_ids": [
+    "clm_split_origin"
+  ],
+  "start_cue": {
+    "cue_id": "cue_split_origin_start",
+    "anchor_type": "narration_phrase",
+    "anchor_ref": "phrase_split_origin",
+    "relation": "at"
+  },
+  "end_cue": {
+    "cue_id": "cue_split_origin_end",
+    "anchor_type": "beat_boundary",
+    "anchor_ref": "beat_split_origin",
+    "relation": "before"
+  },
+  "base_shot": {
+    "asset_ref": "ast_split_document",
+    "track_ref": "trk_video_split_base",
+    "editorial_purpose": "Present the source."
+  },
+  "edit_events": [
+    {
+      "schema_version": "3.0.0",
+      "event_id": "evt_split_origin_cut",
+      "event_type": "cut",
+      "timing_ref": {
+        "cue_id": "cue_split_origin_cut",
+        "anchor_type": "narration_phrase",
+        "anchor_ref": "phrase_split_origin",
+        "relation": "at"
+      },
+      "track_ref": "trk_video_split_base",
+      "target": {
+        "target_type": "asset",
+        "target_id": "ast_split_document"
+      },
+      "status": "ready",
+      "version": 1,
+      "parameters": {},
+      "extension_metadata": {}
+    }
+  ],
+  "overlay_events": [],
+  "text_emphasis_events": [],
+  "audio_events": [],
+  "continuity_constraints": {
+    "preserve_screen_direction": false,
+    "avoid_visual_family_refs": []
+  },
+  "fallback_policy": {
+    "mode": "fail_closed",
+    "on_missing_asset": "error"
+  },
+  "status": "ready",
+  "version": 1,
+  "track_refs": [
+    "trk_video_split_base",
+    "trk_audio_split_narration"
+  ]
+}

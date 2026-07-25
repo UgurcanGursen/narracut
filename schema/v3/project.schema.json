@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/project.schema.json",
+  "title": "Kurgu V3 Project",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project_id",
+    "title",
+    "created_at",
+    "updated_at",
+    "domain_id",
+    "domain_pack_version",
+    "policy_snapshot_id",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/projectId"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 240
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/domainId"
+    },
+    "domain_pack_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "policy_snapshot_id": {
+      "type": "string",
+      "pattern": "^dps_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  }
+}

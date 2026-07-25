@@ -1,0 +1,21 @@
+{
+  "schema_version": "3.0.0",
+  "tracks": [
+    {
+      "track_id": "trk_video_split_base",
+      "track_type": "video",
+      "role": "base",
+      "layer": 0,
+      "status": "ready",
+      "version": 1
+    },
+    {
+      "track_id": "trk_audio_split_narration",
+      "track_type": "audio",
+      "role": "narration",
+      "layer": 0,
+      "status": "ready",
+      "version": 1
+    }
+  ]
+}

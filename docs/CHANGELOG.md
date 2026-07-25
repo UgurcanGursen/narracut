@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-07-25 - Faz 1 V3 contract foundation
+
+- Interrupted V3 contract calismasi recovery parity ile korunarak salvage edildi
+- Split manifest kind/content binding, profile/snapshot integrity ve resolver parity eklendi
+- Typed event target resolution ve event-group compatibility eklendi
+- Split snapshot gercek business-tech resolver ciktisiyla yenilendi
+- Faz 1 contract foundation: PASS; Faz 1 geneli OPEN/IN_PROGRESS
+
 ## 2026-07-25 - Faz 1 JSON Schema validator dependency provisioning
 
 - `jsonschema[format]==4.26.0` canonical dependency olarak `requirements.txt`'ye eklendi

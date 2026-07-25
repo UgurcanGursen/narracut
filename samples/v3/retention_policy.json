@@ -1,0 +1,62 @@
+{
+  "schema_version": "3.0.0",
+  "policy_id": "rtp_default_contract",
+  "rules": [
+    {
+      "retention_class": "ephemeral",
+      "ttl_days": 1,
+      "cleanup_eligible": true,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "temporary",
+      "ttl_days": 7,
+      "cleanup_eligible": true,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "cache",
+      "ttl_days": 30,
+      "cleanup_eligible": true,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "review",
+      "ttl_days": 90,
+      "cleanup_eligible": true,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "approved",
+      "ttl_days": null,
+      "cleanup_eligible": false,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "final",
+      "ttl_days": null,
+      "cleanup_eligible": false,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "provenance",
+      "ttl_days": null,
+      "cleanup_eligible": false,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "baseline",
+      "ttl_days": null,
+      "cleanup_eligible": false,
+      "requires_dependency_check": true
+    },
+    {
+      "retention_class": "pinned",
+      "ttl_days": null,
+      "cleanup_eligible": false,
+      "requires_dependency_check": true
+    }
+  ],
+  "status": "ready",
+  "version": 1
+}

@@ -1,0 +1,17 @@
+{
+  "policy_version": "0.1.0",
+  "research": {
+    "source_priority": [
+      "primary_document",
+      "company_filing",
+      "reputable_reporting"
+    ]
+  },
+  "visual": {
+    "generic_stock_role": "transition_support",
+    "source_first": true
+  },
+  "safety": {
+    "require_attribution": true
+  }
+}

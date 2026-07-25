@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/common.schema.json",
+  "title": "Kurgu V3 Common Contracts",
+  "x-schema-version": "3.0.0",
+  "$defs": {
+    "schemaVersion": {
+      "const": "3.0.0"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "identifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)+$"
+    },
+    "workspaceId": {
+      "type": "string",
+      "pattern": "^wsp_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "projectId": {
+      "type": "string",
+      "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "chapterId": {
+      "type": "string",
+      "pattern": "^chp_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "beatId": {
+      "type": "string",
+      "pattern": "^beat_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "sequenceId": {
+      "type": "string",
+      "pattern": "^seq_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "assetId": {
+      "type": "string",
+      "pattern": "^ast_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "artifactId": {
+      "type": "string",
+      "pattern": "^art_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "trackId": {
+      "type": "string",
+      "pattern": "^trk_(?:video|audio)_[a-z0-9][a-z0-9_-]{1,63}$"
+    },
+    "eventId": {
+      "type": "string",
+      "pattern": "^evt_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "semver": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$)).+$"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "planned",
+        "ready",
+        "active",
+        "blocked",
+        "approved",
+        "rejected",
+        "archived"
+      ]
+    },
+    "semanticCue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cue_id",
+        "anchor_type",
+        "anchor_ref",
+        "relation"
+      ],
+      "properties": {
+        "cue_id": {
+          "type": "string",
+          "pattern": "^cue_[a-z0-9][a-z0-9_-]{2,63}$"
+        },
+        "anchor_type": {
+          "enum": [
+            "narration_phrase",
+            "semantic_marker",
+            "chapter_boundary",
+            "beat_boundary",
+            "asset_marker"
+          ]
+        },
+        "anchor_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "relation": {
+          "enum": [
+            "at",
+            "before",
+            "after"
+          ]
+        },
+        "placement_hint": {
+          "enum": [
+            "immediate",
+            "early",
+            "middle",
+            "late",
+            "end"
+          ]
+        }
+      }
+    },
+    "documentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "kind",
+        "path"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "kind": {
+          "enum": [
+            "project",
+            "domain_profile",
+            "domain_policy_snapshot",
+            "chapter",
+            "beat",
+            "sequence",
+            "asset_manifest",
+            "artifact_manifest",
+            "research_manifest",
+            "timing_manifest",
+            "track_manifest"
+          ]
+        },
+        "path": {
+          "$ref": "#/$defs/relativePath"
+        },
+        "content_hash": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "extensionReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "name",
+        "version"
+      ],
+      "properties": {
+        "namespace": {
+          "$ref": "#/$defs/domainId"
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "version": {
+          "$ref": "#/$defs/semver"
+        }
+      }
+    }
+  }
+}

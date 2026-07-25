@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/migration_result.schema.json",
+  "title": "Kurgu V2 to V3 Migration Result Boundary",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_schema_version",
+    "target_schema_version",
+    "source_path",
+    "target_path",
+    "lossy",
+    "unknown_fields",
+    "issues"
+  ],
+  "properties": {
+    "source_schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "source_path": {
+      "$ref": "common.schema.json#/$defs/relativePath"
+    },
+    "target_path": {
+      "$ref": "common.schema.json#/$defs/relativePath"
+    },
+    "lossy": {
+      "type": "boolean"
+    },
+    "unknown_fields": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "severity",
+          "code",
+          "message",
+          "source_path"
+        ],
+        "properties": {
+          "severity": {
+            "enum": [
+              "warning",
+              "error"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]+$"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "3.0.0",
+  "domain_id": "dummy-domain",
+  "domain_pack_version": "1.0.0",
+  "display_name": "Dummy Test Domain",
+  "published_at": "2026-07-25T00:00:00Z",
+  "contract_status": "test_fixture",
+  "policy_bundle_refs": [
+    "policy.json"
+  ],
+  "prompt_bundle_refs": [],
+  "extensions": {
+    "editorial_roles": [
+      {
+        "name": "dummy_role",
+        "version": "1.0.0",
+        "description": "Test-only role."
+      }
+    ],
+    "claim_taxonomies": [],
+    "entity_roles": [],
+    "narrative_patterns": [],
+    "visual_grammars": [],
+    "event_types": [],
+    "safety_rules": [],
+    "validation_rules": []
+  },
+  "status": "ready",
+  "version": 1
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "3.0.0",
+  "project_id": "prj_split_long_form",
+  "title": "Split Long-Form Workspace",
+  "created_at": "2026-07-25T00:00:00Z",
+  "updated_at": "2026-07-25T00:00:00Z",
+  "domain_id": "business-tech",
+  "domain_pack_version": "0.1.0",
+  "policy_snapshot_id": "dps_78c38428bdcf80269271",
+  "status": "ready",
+  "version": 1
+}

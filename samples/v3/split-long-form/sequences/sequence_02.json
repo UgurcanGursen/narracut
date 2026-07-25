@@ -1,0 +1,69 @@
+{
+  "schema_version": "3.0.0",
+  "sequence_id": "seq_split_effect",
+  "chapter_id": "chp_split_effect",
+  "beat_id": "beat_split_effect",
+  "narrative_goal": "Return to the source for the consequence.",
+  "editorial_role": "evidence",
+  "claim_ids": [
+    "clm_split_effect"
+  ],
+  "start_cue": {
+    "cue_id": "cue_split_effect_start",
+    "anchor_type": "narration_phrase",
+    "anchor_ref": "phrase_split_effect",
+    "relation": "at"
+  },
+  "end_cue": {
+    "cue_id": "cue_split_effect_end",
+    "anchor_type": "chapter_boundary",
+    "anchor_ref": "chp_split_effect",
+    "relation": "before"
+  },
+  "base_shot": {
+    "asset_ref": "ast_split_document",
+    "track_ref": "trk_video_split_base",
+    "editorial_purpose": "Support the consequence with evidence."
+  },
+  "edit_events": [
+    {
+      "schema_version": "3.0.0",
+      "event_id": "evt_split_effect_focus",
+      "event_type": "source_focus",
+      "timing_ref": {
+        "cue_id": "cue_split_effect_focus",
+        "anchor_type": "semantic_marker",
+        "anchor_ref": "claim_split_effect",
+        "relation": "at"
+      },
+      "track_ref": "trk_video_split_base",
+      "target": {
+        "target_type": "asset",
+        "target_id": "ast_split_document"
+      },
+      "status": "ready",
+      "version": 1,
+      "parameters": {
+        "strength": 0.7
+      },
+      "extension_metadata": {}
+    }
+  ],
+  "overlay_events": [],
+  "text_emphasis_events": [],
+  "audio_events": [],
+  "continuity_constraints": {
+    "preserve_screen_direction": true,
+    "avoid_visual_family_refs": []
+  },
+  "fallback_policy": {
+    "mode": "require_review",
+    "on_missing_asset": "block_sequence"
+  },
+  "status": "ready",
+  "version": 1,
+  "track_refs": [
+    "trk_video_split_base",
+    "trk_audio_split_narration"
+  ]
+}

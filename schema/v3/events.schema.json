@@ -1,0 +1,228 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/events.schema.json",
+  "title": "Kurgu V3 Typed Event Contracts",
+  "x-schema-version": "3.0.0",
+  "$ref": "#/$defs/eventEnvelope",
+  "$defs": {
+    "coreEventType": {
+      "enum": [
+        "cut",
+        "crop_to_target",
+        "push_in",
+        "pull_out",
+        "pan",
+        "highlight_wipe",
+        "text_reveal",
+        "metric_count",
+        "chart_draw",
+        "source_focus",
+        "split_screen",
+        "picture_in_picture",
+        "blur_background",
+        "vignette",
+        "callout",
+        "logo_reveal",
+        "chapter_reset"
+      ]
+    },
+    "extensionEventType": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*:[a-z][a-z0-9_]*$"
+    },
+    "coreParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "enum": [
+            "left",
+            "right",
+            "up",
+            "down",
+            "in",
+            "out"
+          ]
+        },
+        "strength": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "target_region": {
+          "type": "string",
+          "minLength": 1
+        },
+        "layout": {
+          "enum": [
+            "horizontal",
+            "vertical",
+            "inset",
+            "full_frame"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "metric_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "style_token": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        }
+      }
+    },
+    "extensionParameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "values"
+      ],
+      "properties": {
+        "namespace": {
+          "$ref": "common.schema.json#/$defs/domainId"
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "coreTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_type",
+        "target_id"
+      ],
+      "properties": {
+        "target_type": {
+          "enum": [
+            "asset",
+            "video_track",
+            "audio_track",
+            "overlay_track",
+            "sequence",
+            "base_shot",
+            "claim"
+          ]
+        },
+        "target_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "extensionTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_type",
+        "target_id"
+      ],
+      "properties": {
+        "target_type": {
+          "$ref": "#/$defs/extensionEventType"
+        },
+        "target_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "eventEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "event_id",
+        "event_type",
+        "timing_ref",
+        "track_ref",
+        "target",
+        "status",
+        "version",
+        "parameters",
+        "extension_metadata"
+      ],
+      "properties": {
+        "schema_version": {
+          "$ref": "common.schema.json#/$defs/schemaVersion"
+        },
+        "event_id": {
+          "$ref": "common.schema.json#/$defs/eventId"
+        },
+        "event_type": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/coreEventType"
+            },
+            {
+              "$ref": "#/$defs/extensionEventType"
+            }
+          ]
+        },
+        "timing_ref": {
+          "$ref": "common.schema.json#/$defs/semanticCue"
+        },
+        "track_ref": {
+          "$ref": "common.schema.json#/$defs/trackId"
+        },
+        "target": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/coreTarget"
+            },
+            {
+              "$ref": "#/$defs/extensionTarget"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "common.schema.json#/$defs/status"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/version"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "extension_metadata": {
+          "type": "object",
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9-]*:[a-z][a-z0-9_]*$"
+          },
+          "additionalProperties": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "$ref": "#/$defs/coreEventType"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/coreParameters"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "parameters": {
+                "$ref": "#/$defs/extensionParameters"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

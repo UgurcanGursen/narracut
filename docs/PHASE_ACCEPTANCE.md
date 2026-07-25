@@ -32,3 +32,19 @@ isolation ve two-run decoded reproducibility PASS ile teknik Faz 0 gate'leri
 kapanmistir. Final closure report ve baseline tag release flow ile yonetimsel
 kapanis da PASS kabul edilir. Provider revoke/rotation NOT CONFIRMED olarak
 ayri security takibi olmaya devam eder; Faz 0 statusu CLOSED'dur.
+
+## Faz 1 - V3 contract foundation status
+
+Genel durum: PASS / Faz 1 geneli OPEN
+
+| Kriter | Durum |
+|---|---|
+| Canonical V3 schema ve Draft 2020-12 validation | PASS |
+| Manifest kind/content fail-closed binding | PASS |
+| Profile/snapshot reference integrity | PASS |
+| Resolver snapshot parity | PASS |
+| Typed event target resolution/compatibility | PASS |
+| Minimal, business-tech, split sample validation | PASS |
+| V2 production regression | PASS |
+
+Sonraki Faz 1 isi V2ToV3Migrator ve migration-loss reporting implementation'dir.

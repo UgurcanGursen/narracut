@@ -1,0 +1,28 @@
+{
+  "schema_version": "3.0.0",
+  "manifest_type": "asset_manifest",
+  "assets": [
+    {
+      "schema_version": "3.0.0",
+      "asset_id": "ast_split_document",
+      "asset_type": "document",
+      "editorial_role": "source_document",
+      "provenance": {
+        "source_ref": "src_split_primary",
+        "origin_uri": "urn:kurgu:sample:split-document",
+        "license_state": "internal"
+      },
+      "content_hash": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "media_metadata": {
+        "mime_type": "application/pdf",
+        "duration_hint": "unknown",
+        "has_audio": false
+      },
+      "availability": "local",
+      "review_state": "approved",
+      "artifact_ref": "art_split_document",
+      "status": "approved",
+      "version": 1
+    }
+  ]
+}

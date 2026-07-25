@@ -1,0 +1,10 @@
+{
+  "schema_version": "3.0.0",
+  "profile_id": "dpf_business_default",
+  "domain_id": "business-tech",
+  "domain_pack_version": "0.1.0",
+  "enabled_extensions": [],
+  "policy_overrides": {},
+  "status": "ready",
+  "version": 1
+}

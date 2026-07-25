@@ -1,0 +1,13 @@
+{
+  "schema_version": "3.0.0",
+  "chapter_id": "chp_split_origin",
+  "project_id": "prj_split_long_form",
+  "title": "Origin",
+  "narrative_goal": "Establish the starting condition.",
+  "order": 0,
+  "beat_ids": [
+    "beat_split_origin"
+  ],
+  "status": "ready",
+  "version": 1
+}

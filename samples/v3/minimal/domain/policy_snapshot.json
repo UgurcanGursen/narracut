@@ -1,0 +1,13 @@
+{
+  "schema_version": "3.0.0",
+  "snapshot_id": "dps_0795030caf1ff575a949",
+  "domain_id": "core-generic",
+  "domain_pack_version": "0.0.0",
+  "profile_id": "dpf_core_default",
+  "manifest_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+  "resolved_policy": {},
+  "canonical_hash": "sha256:0795030caf1ff575a949688e63beaf4e33e3bd5ad382156da64f697279a8ff01",
+  "immutable": true,
+  "created_at": "2026-07-25T00:00:00Z",
+  "version": 1
+}
