@@ -46,10 +46,13 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Faz 1 V3 contract foundation: PASS
 - Faz 1 contract integrity hardening: PASS
 - Faz 1 public validation boundary: PASS
-- Migrator entry gate: READY
+- Faz 1 V2ToV3Migrator: PASS
+- Faz 1 structured migration-loss reporting: PASS
+- WorkspaceStore entry gate: READY
 - Closure date: `2026-07-25`
-- Closure commit: `this commit`
-- Baseline tag: `stage3-development-baseline` -> `this commit`
+- Closure commit: `f0d7a3100b0855a84432f09ca22001d0913aa1aa`
+- Baseline tag: `stage3-development-baseline` peeled target ->
+  `f0d7a3100b0855a84432f09ca22001d0913aa1aa`
 - Faz 1 genel durumu: OPEN / IN_PROGRESS
 
 ## Current next move
@@ -60,5 +63,6 @@ and the next main phase is Faz 1 - Editorial Domain Model ve V3 Workspace
 Schema. V3 contract foundation, contract integrity hardening ve public
 artifact/retention validation boundary PASS durumundadir. Domain-pack loader
 registry olmadan fail-closed, core-only mod ise acik contract degeriyle
-kontrolludur. Faz 1 genelinin sonraki isi V2ToV3Migrator ve migration-loss
-reporting implementation'dir.
+kontrolludur. V2ToV3Migrator ve structured migration-loss reporting PASS
+durumundadir. Faz 1 genelinin sonraki isi V3 WorkspaceStore versioned
+persistence, atomic save/load ve migration output revision management'tir.

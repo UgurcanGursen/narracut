@@ -1,0 +1,20 @@
+{
+  "version": "2.2",
+  "blocks": [
+    {
+      "block_id": "unsupported_intro",
+      "narration": "A safe renderer-only setting is reported explicitly.",
+      "visuals": [
+        {
+          "type": "stock",
+          "fit_mode": "cover",
+          "extra": {
+            "asset_id": "unsupported_intro_visual",
+            "resolved_path": "assets/video/unsupported_intro.mp4",
+            "expected_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        }
+      ]
+    }
+  ]
+}

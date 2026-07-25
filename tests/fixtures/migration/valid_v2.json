@@ -1,0 +1,19 @@
+{
+  "version": "2.2",
+  "blocks": [
+    {
+      "block_id": "clean_intro",
+      "narration": "A deterministic V2 narration block.",
+      "visuals": [
+        {
+          "type": "stock",
+          "extra": {
+            "asset_id": "clean_intro_visual",
+            "resolved_path": "assets/video/clean_intro.mp4",
+            "expected_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -28,9 +28,19 @@ Son guncelleme: 25 Temmuz 2026
 ## Faz 1 status note
 
 - V3 contract foundation, contract integrity hardening ve public validation
-  boundary PASS durumundadir; migrator entry gate READY'dir. V2ToV3Migrator ve
-  structured migration-loss reporting sonraki Faz 1 isidir.
-- Faz 1 persistence, timing, renderer ve Studio API kapsamlarini henuz acmaz.
+  boundary PASS durumundadir. V2ToV3Migrator ve structured migration-loss
+  reporting de PASS'tir; WorkspaceStore entry gate READY'dir.
+- V2 audio file, BGM/SFX, pause, frame-duration, subtitle ve renderer-specific
+  visual ayarlari Phase 1 canonical workspace'te birebir temsil edilmez.
+  Migrator bunlari structured loss olarak raporlar; strict mod yayinlamaz.
+- Descriptor fingerprint, source media hash'i bulunmadiginda yalniz
+  deterministic review placeholder'idir; media-byte hash'i oldugu iddia
+  edilmez ve manual verification gerekir.
+- Aggregate migration output embedded policy snapshot kullanir. Split
+  workspace persistence ve external document revision management
+  WorkspaceStore kapsaminda aciktir.
+- Faz 1 production persistence, timing/frame, renderer integration ve Studio
+  API/UI kapsamlarini henuz tamamlamaz.
 - `engine/contracts/workspace.py` modul boyutu LOW/non-blocking teknik borctur;
   yeni integrity kontrolleri private helper'lara ayrilmis, genis bolme/refactor
   ertelenmistir.

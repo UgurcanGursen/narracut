@@ -21,7 +21,7 @@ Genel durum: PASS / TECHNICAL ACCEPTANCE PASS / MANAGEMENT CLOSURE PASS / CLOSED
 | Full-suite regression | PASS | `56 passed` |
 | Faz 0 technical acceptance gates | PASS | tum teknik render gate'leri kapandi |
 | Faz 0 management closure | PASS | final closure report, clean preflight ve normal release flow kabul edildi |
-| Baseline tag | PASS | annotated `stage3-development-baseline` target: `this commit` |
+| Baseline tag | PASS | annotated `stage3-development-baseline` peeled target: `f0d7a3100b0855a84432f09ca22001d0913aa1aa` |
 | General Phase 0 | CLOSED | teknik ve yonetimsel kapanis PASS |
 
 ### Sonuc
@@ -48,12 +48,22 @@ Genel durum: PASS / Faz 1 geneli OPEN
 | Chapter-beat-sequence integrity | PASS |
 | Public typed-view construction boundary | PASS |
 | Public artifact/retention raw Mapping schema boundary | PASS |
+| Deterministic V2ToV3Migrator | PASS |
+| Structured migration-loss reporting | PASS |
+| Source leaf coverage / no silent loss | PASS |
+| Strict/permissive fail-closed policy | PASS |
+| Deterministic ID collision handling | PASS |
+| Core-only/domain-pack migration resolution | PASS |
+| Safe deterministic CLI output | PASS |
+| Real Phase 0 demo migration | PASS |
 | Duplicate stable-ID rejection | PASS |
 | Typed event target resolution/compatibility | PASS |
 | Minimal, business-tech, split sample validation | PASS |
-| Targeted/full regression | PASS (`85 passed, 1 skipped`; `143 passed, 1 skipped`) |
+| Targeted/full regression | PASS (`147 passed, 1 skipped`; `203 passed, 1 skipped`) |
 | V2 production regression | PASS |
 
 Contract foundation: PASS. Contract integrity hardening: PASS. Public validation
-boundary: PASS. Faz 1 geneli OPEN/IN_PROGRESS ve migrator entry gate READY'dir.
-Sonraki Faz 1 isi V2ToV3Migrator ve migration-loss reporting implementation'dir.
+boundary: PASS. V2ToV3Migrator ve structured migration-loss reporting: PASS.
+Faz 1 geneli OPEN/IN_PROGRESS ve WorkspaceStore entry gate READY'dir. Sonraki
+Faz 1 isi V3 WorkspaceStore versioned persistence, atomic save/load ve migration
+output revision management'tir.

@@ -1,0 +1,9 @@
+input: input_v2.json
+source_fingerprint: sha256:bf4527509e69d7425a0100437444d4f48948d296edc178f5f33773c041a7aa21
+status: SUCCESS_WITH_LOSS
+target_workspace_id: wsp_bf4527509e69d7425a01
+counts: chapters=1, beats=2, sequences=2, assets=4, artifacts=4, tracks=2, events=4
+warnings: 22
+errors: 0
+output_files: workspace.json, migration_result.json, migration_report.md, inspection_summary.txt
+manual_review_required: yes

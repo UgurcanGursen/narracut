@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-07-25 - Faz 1 V2ToV3Migrator
+
+- Gercek V2 `TimelineV2`/production fixture contract'i field-by-field
+  migration matrix ile envanterlendi
+- Pure deterministic `engine.migration` paketi, strict/permissive policy,
+  source-leaf coverage ve collision handling eklendi
+- Canonical `migration_result.schema.json` legacy boundary korunarak structured
+  mapping/loss, counts, fingerprint ve validation alanlariyla genisletildi
+- Core-only ve gercek registry/resolver domain-pack migration modlari eklendi
+- Safe atomic output IO ve thin CLI eklendi
+- Faz 0 fixture'iyle byte-identical demo input ve incelenebilir dort expected
+  artifact eklendi
+- Yeni migrator suite: `60 passed`
+- Hedefli suite: `147 passed, 1 skipped`
+- Full suite: `203 passed, 1 skipped`
+- V2ToV3Migrator: PASS; structured migration-loss reporting: PASS
+- Faz 1 geneli OPEN/IN_PROGRESS; WorkspaceStore entry gate READY
+
 ## 2026-07-25 - Faz 1 public validation boundary
 
 - Public artifact ve retention raw Mapping inputlari icin explicit SchemaCatalog dependency zorunlu oldu

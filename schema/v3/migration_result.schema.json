@@ -54,7 +54,10 @@
           "severity": {
             "enum": [
               "warning",
-              "error"
+              "error",
+              "INFO",
+              "WARNING",
+              "ERROR"
             ]
           },
           "code": {
@@ -68,9 +71,356 @@
           "source_path": {
             "type": "string",
             "minLength": 1
+          },
+          "issue_id": {
+            "type": "string",
+            "pattern": "^mig_[0-9a-f]{20}$"
+          },
+          "source_pointer": {
+            "type": "string",
+            "pattern": "^(|/.*)$"
+          },
+          "destination_pointer": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^/.*$"
+          },
+          "classification": {
+            "$ref": "#/$defs/classification"
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
           }
         }
       }
+    },
+    "migration_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "migration_id": {
+      "type": "string",
+      "pattern": "^mig_[0-9a-f]{20}$"
+    },
+    "source_format": {
+      "const": "kurgu-v2-timeline"
+    },
+    "target_format": {
+      "const": "kurgu-v3-workspace"
+    },
+    "mode": {
+      "enum": [
+        "strict",
+        "permissive"
+      ]
+    },
+    "resolution_mode": {
+      "enum": [
+        "core_only",
+        "domain_pack"
+      ]
+    },
+    "source_fingerprint": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "target_fingerprint": {
+      "oneOf": [
+        {
+          "$ref": "common.schema.json#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "SUCCESS",
+        "SUCCESS_WITH_LOSS",
+        "FAILED"
+      ]
+    },
+    "workspace_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^wsp_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "classifications",
+        "severities"
+      ],
+      "properties": {
+        "classifications": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "EXACT",
+            "RENAMED",
+            "NORMALIZED",
+            "SPLIT",
+            "MERGED",
+            "DEFAULTED",
+            "DERIVED",
+            "PRESERVED_AS_EXTENSION",
+            "DROPPED",
+            "UNSUPPORTED",
+            "AMBIGUOUS",
+            "INVALID_SOURCE"
+          ],
+          "properties": {
+            "EXACT": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "RENAMED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "NORMALIZED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "SPLIT": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "MERGED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "DEFAULTED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "DERIVED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "PRESERVED_AS_EXTENSION": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "DROPPED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "UNSUPPORTED": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "AMBIGUOUS": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "INVALID_SOURCE": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "severities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "INFO",
+            "WARNING",
+            "ERROR"
+          ],
+          "properties": {
+            "INFO": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "WARNING": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "ERROR": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mapping_id",
+          "source_pointer",
+          "source_field",
+          "source_type",
+          "source_semantics",
+          "destination_pointer",
+          "destination_concept",
+          "classification",
+          "transformation",
+          "loss_severity",
+          "notes"
+        ],
+        "properties": {
+          "mapping_id": {
+            "type": "string",
+            "pattern": "^map_[0-9a-f]{20}$"
+          },
+          "source_pointer": {
+            "type": "string",
+            "pattern": "^(|/.*)$"
+          },
+          "source_field": {
+            "type": "string"
+          },
+          "source_type": {
+            "enum": [
+              "null",
+              "boolean",
+              "integer",
+              "number",
+              "string",
+              "array",
+              "object",
+              "derived"
+            ]
+          },
+          "source_semantics": {
+            "type": "string",
+            "minLength": 1
+          },
+          "destination_pointer": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^/.*$"
+          },
+          "destination_concept": {
+            "type": "string",
+            "minLength": 1
+          },
+          "classification": {
+            "$ref": "#/$defs/classification"
+          },
+          "transformation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "loss_severity": {
+            "enum": [
+              "NONE",
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workspace_schema_valid",
+        "workspace_loader_valid",
+        "migration_result_schema_valid",
+        "target_issues"
+      ],
+      "properties": {
+        "workspace_schema_valid": {
+          "type": "boolean"
+        },
+        "workspace_loader_valid": {
+          "type": "boolean"
+        },
+        "migration_result_schema_valid": {
+          "type": "boolean"
+        },
+        "target_issues": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "code",
+              "pointer",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pointer": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "not": {
+        "required": [
+          "migration_version"
+        ]
+      }
+    },
+    {
+      "required": [
+        "migration_version",
+        "migration_id",
+        "source_format",
+        "target_format",
+        "mode",
+        "resolution_mode",
+        "source_fingerprint",
+        "target_fingerprint",
+        "status",
+        "workspace_id",
+        "counts",
+        "mappings",
+        "validation"
+      ]
+    }
+  ],
+  "$defs": {
+    "classification": {
+      "enum": [
+        "EXACT",
+        "RENAMED",
+        "NORMALIZED",
+        "SPLIT",
+        "MERGED",
+        "DEFAULTED",
+        "DERIVED",
+        "PRESERVED_AS_EXTENSION",
+        "DROPPED",
+        "UNSUPPORTED",
+        "AMBIGUOUS",
+        "INVALID_SOURCE"
+      ]
     }
   }
 }

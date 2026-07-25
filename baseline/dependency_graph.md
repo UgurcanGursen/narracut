@@ -224,3 +224,37 @@ render-path, phase timing, fixture matrix ve completion status raporları.
 
 Verification script'leri full render ve output yazımı yapar; Faz 0'da ağ ve
 mevcut output overwrite riski nedeniyle çalıştırılmadı.
+
+## Faz 1 V2ToV3Migrator graph
+
+```text
+V2 JSON Mapping
+-> V2ToV3Migrator.migrate
+   -> canonical source fingerprint
+   -> deterministic source leaf pointer inventory
+   -> stable ID normalization/derivation + collision gate
+   -> core_only profile/snapshot
+      or DomainPackRegistry + DomainPolicyResolver
+   -> aggregate canonical V3 workspace construction
+   -> WorkspaceLoader.validate_data
+   -> canonical migration_result.schema.json validation
+-> MigrationOutcome
+```
+
+```text
+python -B -m engine.migration.cli migrate
+-> safe input JSON read
+-> explicit strict|permissive + core_only|domain_pack options
+-> public V2ToV3Migrator
+-> public WorkspaceLoader candidate validation
+-> target-directory temporary files + atomic replace
+   |-- workspace.json (yalniz basarili migration)
+   |-- migration_result.json
+   |-- migration_report.md
+   `-- inspection_summary.txt
+```
+
+`engine/migration` V2 production modullerini import etmez ve renderer,
+filesystem, network, wall-clock veya random UUID kullanmaz. V2 field inventory
+`baseline/v2_2_schema_snapshot.json`, `v2/models.py`, `v2/main.py`, V2 testleri
+ve Faz 0 production fixture'ina dayanir.

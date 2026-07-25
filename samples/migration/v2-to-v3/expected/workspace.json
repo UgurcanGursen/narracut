@@ -1,0 +1,506 @@
+{
+  "artifacts": [
+    {
+      "approved": true,
+      "artifact_id": "art_shot_market_establish",
+      "artifact_type": "source_media",
+      "cleanup_candidate": false,
+      "content_hash": "sha256:bac0b41d934e4393c76079efa946f3376725e20a16a6a9cc4635485e27b58ebf",
+      "created_at": "1970-01-01T00:00:00Z",
+      "dependency_ids": [],
+      "job_id": null,
+      "last_accessed_at": "1970-01-01T00:00:00Z",
+      "locked": true,
+      "pinned": false,
+      "producer": "v2-to-v3-migrator",
+      "producer_version": "1.0.0",
+      "project_id": "prj_bf4527509e69d7425a01",
+      "retention_class": "provenance",
+      "schema_version": "3.0.0",
+      "sequence_id": "seq_phase0_block_01",
+      "size_bytes": 0,
+      "status": "approved",
+      "version": 1
+    },
+    {
+      "approved": true,
+      "artifact_id": "art_shot_earnings_call_broll",
+      "artifact_type": "source_media",
+      "cleanup_candidate": false,
+      "content_hash": "sha256:e52ea1b21317595757f681faa5d5a80f6b95dfaf022ef248b3794e0c93ae694c",
+      "created_at": "1970-01-01T00:00:00Z",
+      "dependency_ids": [],
+      "job_id": null,
+      "last_accessed_at": "1970-01-01T00:00:00Z",
+      "locked": true,
+      "pinned": false,
+      "producer": "v2-to-v3-migrator",
+      "producer_version": "1.0.0",
+      "project_id": "prj_bf4527509e69d7425a01",
+      "retention_class": "provenance",
+      "schema_version": "3.0.0",
+      "sequence_id": "seq_phase0_block_01",
+      "size_bytes": 0,
+      "status": "approved",
+      "version": 1
+    },
+    {
+      "approved": true,
+      "artifact_id": "art_shot_datacenter_establish",
+      "artifact_type": "source_media",
+      "cleanup_candidate": false,
+      "content_hash": "sha256:6c7896c65708e3e7b804179ad04677c5a8607b4f0b07429512d2e27c9d442c55",
+      "created_at": "1970-01-01T00:00:00Z",
+      "dependency_ids": [],
+      "job_id": null,
+      "last_accessed_at": "1970-01-01T00:00:00Z",
+      "locked": true,
+      "pinned": false,
+      "producer": "v2-to-v3-migrator",
+      "producer_version": "1.0.0",
+      "project_id": "prj_bf4527509e69d7425a01",
+      "retention_class": "provenance",
+      "schema_version": "3.0.0",
+      "sequence_id": "seq_phase0_block_02",
+      "size_bytes": 0,
+      "status": "approved",
+      "version": 1
+    },
+    {
+      "approved": true,
+      "artifact_id": "art_shot_supply_chain_broll",
+      "artifact_type": "source_media",
+      "cleanup_candidate": false,
+      "content_hash": "sha256:5825c009ae8f88c1578f839de8e395b83640cd46ef3c099692a56a47cfd1eeb0",
+      "created_at": "1970-01-01T00:00:00Z",
+      "dependency_ids": [],
+      "job_id": null,
+      "last_accessed_at": "1970-01-01T00:00:00Z",
+      "locked": true,
+      "pinned": false,
+      "producer": "v2-to-v3-migrator",
+      "producer_version": "1.0.0",
+      "project_id": "prj_bf4527509e69d7425a01",
+      "retention_class": "provenance",
+      "schema_version": "3.0.0",
+      "sequence_id": "seq_phase0_block_02",
+      "size_bytes": 0,
+      "status": "approved",
+      "version": 1
+    }
+  ],
+  "assets": [
+    {
+      "artifact_ref": "art_shot_market_establish",
+      "asset_id": "ast_shot_market_establish",
+      "asset_type": "video",
+      "availability": "local",
+      "content_hash": "sha256:bac0b41d934e4393c76079efa946f3376725e20a16a6a9cc4635485e27b58ebf",
+      "editorial_role": "visual_support",
+      "media_metadata": {
+        "duration_hint": "unknown",
+        "has_audio": false,
+        "mime_type": "video/mp4"
+      },
+      "provenance": {
+        "license_state": "internal",
+        "origin_uri": "urn:kurgu:v2-local:assets/video/shot_market_establish.mp4",
+        "source_ref": "src_4275d42a43a16ba5cb39"
+      },
+      "review_state": "approved",
+      "schema_version": "3.0.0",
+      "status": "approved",
+      "version": 1
+    },
+    {
+      "artifact_ref": "art_shot_earnings_call_broll",
+      "asset_id": "ast_shot_earnings_call_broll",
+      "asset_type": "video",
+      "availability": "local",
+      "content_hash": "sha256:e52ea1b21317595757f681faa5d5a80f6b95dfaf022ef248b3794e0c93ae694c",
+      "editorial_role": "visual_support",
+      "media_metadata": {
+        "duration_hint": "unknown",
+        "has_audio": false,
+        "mime_type": "video/mp4"
+      },
+      "provenance": {
+        "license_state": "internal",
+        "origin_uri": "urn:kurgu:v2-local:assets/video/shot_earnings_call_broll.mp4",
+        "source_ref": "src_476a394e9b4f86985443"
+      },
+      "review_state": "approved",
+      "schema_version": "3.0.0",
+      "status": "approved",
+      "version": 1
+    },
+    {
+      "artifact_ref": "art_shot_datacenter_establish",
+      "asset_id": "ast_shot_datacenter_establish",
+      "asset_type": "video",
+      "availability": "local",
+      "content_hash": "sha256:6c7896c65708e3e7b804179ad04677c5a8607b4f0b07429512d2e27c9d442c55",
+      "editorial_role": "visual_support",
+      "media_metadata": {
+        "duration_hint": "unknown",
+        "has_audio": false,
+        "mime_type": "video/mp4"
+      },
+      "provenance": {
+        "license_state": "internal",
+        "origin_uri": "urn:kurgu:v2-local:assets/video/shot_datacenter_establish.mp4",
+        "source_ref": "src_8118a60cbb4d838ca2db"
+      },
+      "review_state": "approved",
+      "schema_version": "3.0.0",
+      "status": "approved",
+      "version": 1
+    },
+    {
+      "artifact_ref": "art_shot_supply_chain_broll",
+      "asset_id": "ast_shot_supply_chain_broll",
+      "asset_type": "video",
+      "availability": "local",
+      "content_hash": "sha256:5825c009ae8f88c1578f839de8e395b83640cd46ef3c099692a56a47cfd1eeb0",
+      "editorial_role": "visual_support",
+      "media_metadata": {
+        "duration_hint": "unknown",
+        "has_audio": false,
+        "mime_type": "video/mp4"
+      },
+      "provenance": {
+        "license_state": "internal",
+        "origin_uri": "urn:kurgu:v2-local:assets/video/shot_supply_chain_broll.mp4",
+        "source_ref": "src_06104181361bbe18a1c6"
+      },
+      "review_state": "approved",
+      "schema_version": "3.0.0",
+      "status": "approved",
+      "version": 1
+    }
+  ],
+  "documents": [],
+  "domain": {
+    "domain_id": "core-generic",
+    "domain_pack_version": "0.0.0",
+    "policy_snapshot": {
+      "canonical_hash": "sha256:d3350fafbf4f97f452627df24be78519740a40408b42c7eb81bd9e15eafd0869",
+      "created_at": "1970-01-01T00:00:00Z",
+      "domain_id": "core-generic",
+      "domain_pack_version": "0.0.0",
+      "immutable": true,
+      "manifest_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "profile_id": "dpf_core_migrated",
+      "resolved_policy": {},
+      "schema_version": "3.0.0",
+      "snapshot_id": "dps_d3350fafbf4f97f45262",
+      "version": 1
+    },
+    "policy_snapshot_id": "dps_d3350fafbf4f97f45262",
+    "policy_snapshot_ref": "domain/policy_snapshot.json",
+    "profile": {
+      "domain_id": "core-generic",
+      "domain_pack_version": "0.0.0",
+      "enabled_extensions": [],
+      "policy_overrides": {},
+      "profile_id": "dpf_core_migrated",
+      "schema_version": "3.0.0",
+      "status": "ready",
+      "version": 1
+    },
+    "profile_id": "dpf_core_migrated",
+    "resolution_mode": "core_only"
+  },
+  "layout": "aggregate",
+  "project": {
+    "created_at": "1970-01-01T00:00:00Z",
+    "domain_id": "core-generic",
+    "domain_pack_version": "0.0.0",
+    "policy_snapshot_id": "dps_d3350fafbf4f97f45262",
+    "project_id": "prj_bf4527509e69d7425a01",
+    "schema_version": "3.0.0",
+    "status": "ready",
+    "title": "Migrated V2 Timeline",
+    "updated_at": "1970-01-01T00:00:00Z",
+    "version": 1
+  },
+  "project_metadata": {
+    "project_id": "prj_bf4527509e69d7425a01",
+    "title": "Migrated V2 Timeline"
+  },
+  "render_profile": {
+    "aspect_ratio": "16:9",
+    "audio_layout": "stereo",
+    "profile_id": "rnd_migrated_full_hd",
+    "resolution_preset": "full_hd"
+  },
+  "research": {
+    "chronology_ref": "chronology_5f2b06b74ceb6c1c",
+    "claim_refs": [
+      "clm_phase0_block_01",
+      "clm_phase0_block_02"
+    ],
+    "source_refs": [
+      "src_5f2b06b74ceb6c1c913d"
+    ]
+  },
+  "schema_version": "3.0.0",
+  "sequences": [
+    {
+      "audio_events": [],
+      "base_shot": {
+        "asset_ref": "ast_shot_market_establish",
+        "editorial_purpose": "Preserve the first V2 visual as the sequence base shot.",
+        "track_ref": "trk_video_migrated_base"
+      },
+      "beat_id": "beat_phase0_block_01",
+      "chapter_id": "chp_migrated_timeline",
+      "claim_ids": [
+        "clm_phase0_block_01"
+      ],
+      "continuity_constraints": {
+        "avoid_visual_family_refs": [],
+        "preserve_screen_direction": false
+      },
+      "edit_events": [
+        {
+          "event_id": "evt_bd9c7e51983c664fc3b8",
+          "event_type": "cut",
+          "extension_metadata": {},
+          "parameters": {},
+          "schema_version": "3.0.0",
+          "status": "ready",
+          "target": {
+            "target_id": "ast_shot_market_establish",
+            "target_type": "asset"
+          },
+          "timing_ref": {
+            "anchor_ref": "v2-offset:0",
+            "anchor_type": "semantic_marker",
+            "cue_id": "cue_visual_778f3b7da5524052",
+            "relation": "at"
+          },
+          "track_ref": "trk_video_migrated_base",
+          "version": 1
+        },
+        {
+          "event_id": "evt_1b27285130ae3843be38",
+          "event_type": "cut",
+          "extension_metadata": {},
+          "parameters": {},
+          "schema_version": "3.0.0",
+          "status": "ready",
+          "target": {
+            "target_id": "ast_shot_earnings_call_broll",
+            "target_type": "asset"
+          },
+          "timing_ref": {
+            "anchor_ref": "v2-offset:6",
+            "anchor_type": "semantic_marker",
+            "cue_id": "cue_visual_e87078158067f9c3",
+            "relation": "at"
+          },
+          "track_ref": "trk_video_migrated_base",
+          "version": 1
+        }
+      ],
+      "editorial_role": "context",
+      "end_cue": {
+        "anchor_ref": "v2-block:phase0_block_01:narration-end",
+        "anchor_type": "beat_boundary",
+        "cue_id": "cue_end_21d0f80da9369e55",
+        "relation": "after"
+      },
+      "fallback_policy": {
+        "mode": "fail_closed",
+        "on_missing_asset": "error"
+      },
+      "narrative_goal": "IBM warned investors before its scheduled earnings call, and the stock fell twenty five percent in a single session. Roughly sixty seven billion dollars in market value disappeared as traders questioned the durability of IBM's momentum.",
+      "overlay_events": [],
+      "schema_version": "3.0.0",
+      "sequence_id": "seq_phase0_block_01",
+      "start_cue": {
+        "anchor_ref": "v2-block:phase0_block_01:start",
+        "anchor_type": "beat_boundary",
+        "cue_id": "cue_start_21d0f80da9369e55",
+        "relation": "at"
+      },
+      "status": "ready",
+      "text_emphasis_events": [],
+      "track_refs": [
+        "trk_video_migrated_base",
+        "trk_audio_migrated_narration"
+      ],
+      "version": 1
+    },
+    {
+      "audio_events": [],
+      "base_shot": {
+        "asset_ref": "ast_shot_datacenter_establish",
+        "editorial_purpose": "Preserve the first V2 visual as the sequence base shot.",
+        "track_ref": "trk_video_migrated_base"
+      },
+      "beat_id": "beat_phase0_block_02",
+      "chapter_id": "chp_migrated_timeline",
+      "claim_ids": [
+        "clm_phase0_block_02"
+      ],
+      "continuity_constraints": {
+        "avoid_visual_family_refs": [],
+        "preserve_screen_direction": false
+      },
+      "edit_events": [
+        {
+          "event_id": "evt_2db81e1815aaad4b691c",
+          "event_type": "cut",
+          "extension_metadata": {},
+          "parameters": {},
+          "schema_version": "3.0.0",
+          "status": "ready",
+          "target": {
+            "target_id": "ast_shot_datacenter_establish",
+            "target_type": "asset"
+          },
+          "timing_ref": {
+            "anchor_ref": "v2-offset:0",
+            "anchor_type": "semantic_marker",
+            "cue_id": "cue_visual_bdde21f629660592",
+            "relation": "at"
+          },
+          "track_ref": "trk_video_migrated_base",
+          "version": 1
+        },
+        {
+          "event_id": "evt_3146a982d76866e305fb",
+          "event_type": "cut",
+          "extension_metadata": {},
+          "parameters": {},
+          "schema_version": "3.0.0",
+          "status": "ready",
+          "target": {
+            "target_id": "ast_shot_supply_chain_broll",
+            "target_type": "asset"
+          },
+          "timing_ref": {
+            "anchor_ref": "v2-offset:6",
+            "anchor_type": "semantic_marker",
+            "cue_id": "cue_visual_67f385db4499c859",
+            "relation": "at"
+          },
+          "track_ref": "trk_video_migrated_base",
+          "version": 1
+        }
+      ],
+      "editorial_role": "context",
+      "end_cue": {
+        "anchor_ref": "v2-block:phase0_block_02:narration-end",
+        "anchor_type": "beat_boundary",
+        "cue_id": "cue_end_8551af168e2e3b4f",
+        "relation": "after"
+      },
+      "fallback_policy": {
+        "mode": "fail_closed",
+        "on_missing_asset": "error"
+      },
+      "narrative_goal": "Management later said customers redirected budgets toward AI infrastructure while several large IBM deals slipped. This offline closure fixture keeps every input local and proves that the baseline production render can be reproduced without any provider or network access.",
+      "overlay_events": [],
+      "schema_version": "3.0.0",
+      "sequence_id": "seq_phase0_block_02",
+      "start_cue": {
+        "anchor_ref": "v2-block:phase0_block_02:start",
+        "anchor_type": "beat_boundary",
+        "cue_id": "cue_start_8551af168e2e3b4f",
+        "relation": "at"
+      },
+      "status": "ready",
+      "text_emphasis_events": [],
+      "track_refs": [
+        "trk_video_migrated_base",
+        "trk_audio_migrated_narration"
+      ],
+      "version": 1
+    }
+  ],
+  "status": "ready",
+  "story": {
+    "beats": [
+      {
+        "beat_id": "beat_phase0_block_01",
+        "chapter_id": "chp_migrated_timeline",
+        "claim_ids": [
+          "clm_phase0_block_01"
+        ],
+        "editorial_role": "context",
+        "narrative_goal": "IBM warned investors before its scheduled earnings call, and the stock fell twenty five percent in a single session. Roughly sixty seven billion dollars in market value disappeared as traders questioned the durability of IBM's momentum.",
+        "order": 0,
+        "schema_version": "3.0.0",
+        "sequence_ids": [
+          "seq_phase0_block_01"
+        ],
+        "status": "ready",
+        "version": 1
+      },
+      {
+        "beat_id": "beat_phase0_block_02",
+        "chapter_id": "chp_migrated_timeline",
+        "claim_ids": [
+          "clm_phase0_block_02"
+        ],
+        "editorial_role": "context",
+        "narrative_goal": "Management later said customers redirected budgets toward AI infrastructure while several large IBM deals slipped. This offline closure fixture keeps every input local and proves that the baseline production render can be reproduced without any provider or network access.",
+        "order": 1,
+        "schema_version": "3.0.0",
+        "sequence_ids": [
+          "seq_phase0_block_02"
+        ],
+        "status": "ready",
+        "version": 1
+      }
+    ],
+    "chapters": [
+      {
+        "beat_ids": [
+          "beat_phase0_block_01",
+          "beat_phase0_block_02"
+        ],
+        "chapter_id": "chp_migrated_timeline",
+        "narrative_goal": "Preserve the V2 narration-block order.",
+        "order": 0,
+        "project_id": "prj_bf4527509e69d7425a01",
+        "schema_version": "3.0.0",
+        "status": "ready",
+        "title": "Migrated V2 Timeline",
+        "version": 1
+      }
+    ],
+    "outline_ref": "outline_5f2b06b74ceb6c1c"
+  },
+  "timing": {
+    "cue_catalog_ref": "migration/semantic-cues.json",
+    "narration_ref": "migration/source-narration.txt",
+    "timing_contract_status": "semantic_references_only"
+  },
+  "tracks": {
+    "schema_version": "3.0.0",
+    "tracks": [
+      {
+        "layer": 0,
+        "role": "base",
+        "status": "ready",
+        "track_id": "trk_video_migrated_base",
+        "track_type": "video",
+        "version": 1
+      },
+      {
+        "layer": 0,
+        "role": "narration",
+        "status": "ready",
+        "track_id": "trk_audio_migrated_narration",
+        "track_type": "audio",
+        "version": 1
+      }
+    ]
+  },
+  "version": 1,
+  "workspace_id": "wsp_bf4527509e69d7425a01"
+}

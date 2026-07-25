@@ -204,6 +204,46 @@ class WorkspaceLoader:
             ValidationResult(tuple(issues)),
         )
 
+    def validate_data(
+        self,
+        root_data: Mapping[str, Any],
+        *,
+        source_file: Path | str = "<workspace>",
+    ) -> ValidationResult:
+        """Validate an in-memory aggregate workspace through loader invariants.
+
+        This entry point is intended for deterministic producers that must
+        validate before persistence. Split workspaces still require ``load()``
+        because their referenced documents are filesystem contracts.
+        """
+        source_path = Path(source_file)
+        root_result = self.catalog.validate(
+            root_data, "workspace.schema.json", source_path
+        )
+        if not root_result.is_valid:
+            return root_result
+        if root_data["layout"] != "aggregate":
+            return ValidationResult(
+                (
+                    ValidationIssue(
+                        str(source_path),
+                        "/layout",
+                        "WORKSPACE_IN_MEMORY_SPLIT_UNSUPPORTED",
+                        "In-memory validation supports aggregate workspaces only; "
+                        "use WorkspaceLoader.load() for split workspaces.",
+                    ),
+                )
+            )
+        issues: list[ValidationIssue] = []
+        self._validate_consistency(
+            source_path,
+            root_data,
+            {},
+            issues,
+            snapshot_from_ref=root_data["domain"].get("policy_snapshot"),
+        )
+        return ValidationResult(tuple(issues))
+
     def _validate_consistency(
         self,
         root_path: Path,
@@ -631,6 +671,10 @@ class WorkspaceLoader:
         root_data: Mapping[str, Any],
         issues: list[ValidationIssue],
     ) -> Mapping[str, Any] | None:
+        if root_data["layout"] == "aggregate":
+            embedded = root_data["domain"].get("policy_snapshot")
+            if isinstance(embedded, Mapping):
+                return embedded
         raw_ref = root_data["domain"]["policy_snapshot_ref"]
         try:
             snapshot_path = resolve_relative(root_path.parent, raw_ref)
