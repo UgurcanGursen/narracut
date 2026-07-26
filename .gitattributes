@@ -9,3 +9,4 @@
 /tests/test_control_plane_openapi_foundation.py text eol=lf
 /baseline/phase1_shared_schema_openapi_foundation_report.md text eol=lf
 /baseline/phase1_project_api_contract_report.md text eol=lf
+/baseline/phase1_generated_client_ui_shell_report.md text eol=lf
