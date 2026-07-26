@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createStudioApi } from './studioApi';
+import { requireLiveTestBaseUrl } from '../test/liveTestBaseUrl';
 
 describe('StudioApi live FastAPI smoke', () => {
   it('creates and reads a real process-lifetime core project', async () => {
@@ -8,7 +9,7 @@ describe('StudioApi live FastAPI smoke', () => {
     if (!baseUrl) {
       throw new Error('KURGU_STUDIO_API_BASE_URL is required for the live test.');
     }
-    const api = createStudioApi({ baseUrl });
+    const api = createStudioApi({ baseUrl: requireLiveTestBaseUrl(baseUrl) });
     const created = await api.createProject({
       title: 'Live generated client smoke',
       domain: { resolution_mode: 'core_only' },

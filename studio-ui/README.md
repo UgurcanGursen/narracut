@@ -54,7 +54,13 @@ npm run build
 ```
 
 `npm test` excludes the live test. `npm run test:live` requires
-`KURGU_STUDIO_API_BASE_URL` and a running local API.
+`KURGU_STUDIO_API_BASE_URL` and a running local API. The live test is only for a
+local FastAPI process: the URL must be loopback HTTP (`127.0.0.1`, `localhost`,
+or `[::1]`) with an explicit port, including explicit default port `:80`, and
+no path, query, fragment, or credentials. Remote endpoints are rejected before
+any project-create request is made; this live guard does not change the
+production Studio API facade's normal HTTP/HTTPS support. The test does not
+start the API server; the external harness must start Uvicorn first.
 
 ## Local development
 

@@ -34,6 +34,7 @@ PHASE0_FIXTURE = (
     REPO_ROOT / "baseline" / "fixtures" / "phase0_offline_full_render.json"
 )
 DEMO_ROOT = REPO_ROOT / "samples" / "migration" / "v2-to-v3"
+DEMO_TEXT_ARTIFACT_SUFFIXES = frozenset({".json", ".md", ".txt"})
 
 
 def load_json(path: Path) -> dict:
@@ -1383,10 +1384,16 @@ def test_demo_command_reproduces_expected_output(
     )
     assert result.returncode == 0, result.stderr
     expected = DEMO_ROOT / "expected"
-    assert {
-        item.name: hashlib.sha256(item.read_bytes()).hexdigest()
-        for item in output.iterdir()
-    } == {
-        item.name: hashlib.sha256(item.read_bytes()).hexdigest()
-        for item in expected.iterdir()
-    }
+    actual_items = {item.name: item for item in output.iterdir()}
+    expected_items = {item.name: item for item in expected.iterdir()}
+    assert actual_items.keys() == expected_items.keys()
+    for name, expected_item in expected_items.items():
+        actual_bytes = actual_items[name].read_bytes()
+        expected_bytes = expected_item.read_bytes()
+        if expected_item.suffix in DEMO_TEXT_ARTIFACT_SUFFIXES:
+            assert b"\r\n" not in actual_bytes
+            assert actual_bytes == expected_bytes.replace(b"\r\n", b"\n")
+        else:
+            assert hashlib.sha256(actual_bytes).hexdigest() == hashlib.sha256(
+                expected_bytes
+            ).hexdigest()
