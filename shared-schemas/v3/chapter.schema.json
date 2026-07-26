@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/chapter.schema.json",
+  "title": "Kurgu V3 Chapter",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "chapter_id",
+    "project_id",
+    "title",
+    "narrative_goal",
+    "order",
+    "beat_ids",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "chapter_id": {
+      "$ref": "common.schema.json#/$defs/chapterId"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/projectId"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "narrative_goal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "beat_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/beatId"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  }
+}

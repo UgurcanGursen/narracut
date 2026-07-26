@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/domain_policy_snapshot.schema.json",
+  "title": "Kurgu V3 DomainPolicySnapshot",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "domain_id",
+    "domain_pack_version",
+    "profile_id",
+    "manifest_hash",
+    "resolved_policy",
+    "canonical_hash",
+    "immutable",
+    "created_at",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^dps_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/domainId"
+    },
+    "domain_pack_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^dpf_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "manifest_hash": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "resolved_policy": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "canonical_hash": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "immutable": {
+      "const": true
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  }
+}

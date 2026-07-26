@@ -2,3 +2,9 @@
 /studio-api/** text eol=lf
 /studio-ui/** text eol=lf
 /baseline/phase1_control_plane_toolchain_report.md text eol=lf
+/schema/v3/** text eol=lf
+/shared-schemas/** text eol=lf
+/scripts/sync_shared_schemas.py text eol=lf
+/tests/test_shared_schema_distribution.py text eol=lf
+/tests/test_control_plane_openapi_foundation.py text eol=lf
+/baseline/phase1_shared_schema_openapi_foundation_report.md text eol=lf

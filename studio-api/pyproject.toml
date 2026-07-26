@@ -1,7 +1,7 @@
 [project]
 name = "kurgu-studio-api"
 version = "0.1.0"
-description = "Phase 1 thin Studio API dependency boundary for Kurgu Engine."
+description = "Phase 1 thin Studio API and deterministic OpenAPI foundation for Kurgu Engine."
 requires-python = ">=3.13,<3.14"
 dependencies = [
   "fastapi==0.140.0",
@@ -17,6 +17,6 @@ test = [
 ]
 
 [tool.kurgu-studio-api]
-phase = "phase-1-control-plane-toolchain"
-scope = "dependency-provisioning-only"
+phase = "phase-1-control-plane"
+scope = "shared-schema-openapi-foundation"
 hash_secured_lock = false

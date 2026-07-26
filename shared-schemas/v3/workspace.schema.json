@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/workspace.schema.json",
+  "title": "Kurgu Canonical V3 Workspace",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "workspace_id",
+    "layout",
+    "project_metadata",
+    "domain",
+    "documents",
+    "render_profile",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "workspace_id": {
+      "$ref": "common.schema.json#/$defs/workspaceId"
+    },
+    "layout": {
+      "enum": [
+        "aggregate",
+        "split"
+      ]
+    },
+    "project_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "title"
+      ],
+      "properties": {
+        "project_id": {
+          "$ref": "common.schema.json#/$defs/projectId"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "domain": {
+      "$ref": "#/$defs/domainResolution"
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/documentReference"
+      },
+      "uniqueItems": true
+    },
+    "render_profile": {
+      "$ref": "#/$defs/renderProfile"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "project": {
+      "$ref": "project.schema.json"
+    },
+    "research": {
+      "$ref": "#/$defs/research"
+    },
+    "story": {
+      "$ref": "#/$defs/story"
+    },
+    "sequences": {
+      "type": "array",
+      "items": {
+        "$ref": "sequence.schema.json"
+      },
+      "minItems": 1
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "$ref": "asset.schema.json"
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "$ref": "artifact.schema.json"
+      }
+    },
+    "timing": {
+      "$ref": "#/$defs/timing"
+    },
+    "tracks": {
+      "$ref": "tracks.schema.json"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "layout": {
+          "const": "aggregate"
+        }
+      },
+      "required": [
+        "project",
+        "research",
+        "story",
+        "sequences",
+        "assets",
+        "artifacts",
+        "timing",
+        "tracks"
+      ]
+    },
+    {
+      "properties": {
+        "layout": {
+          "const": "split"
+        },
+        "documents": {
+          "minItems": 1
+        }
+      },
+      "required": [
+        "documents"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "project"
+            ]
+          },
+          {
+            "required": [
+              "story"
+            ]
+          },
+          {
+            "required": [
+              "sequences"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "domainResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "resolution_mode",
+        "domain_id",
+        "domain_pack_version",
+        "profile_id",
+        "policy_snapshot_id",
+        "policy_snapshot_ref"
+      ],
+      "properties": {
+        "resolution_mode": {
+          "enum": [
+            "core_only",
+            "domain_pack"
+          ]
+        },
+        "domain_id": {
+          "$ref": "common.schema.json#/$defs/domainId"
+        },
+        "domain_pack_version": {
+          "$ref": "common.schema.json#/$defs/semver"
+        },
+        "profile_id": {
+          "type": "string",
+          "pattern": "^dpf_[a-z0-9][a-z0-9_-]{2,63}$"
+        },
+        "policy_snapshot_id": {
+          "type": "string",
+          "pattern": "^dps_[a-z0-9][a-z0-9_-]{2,63}$"
+        },
+        "policy_snapshot_ref": {
+          "$ref": "common.schema.json#/$defs/relativePath"
+        },
+        "profile": {
+          "$ref": "domain_profile.schema.json"
+        },
+        "policy_snapshot": {
+          "$ref": "domain_policy_snapshot.schema.json"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "resolution_mode": {
+                "const": "core_only"
+              }
+            },
+            "required": [
+              "resolution_mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "domain_id": {
+                "const": "core-generic"
+              },
+              "domain_pack_version": {
+                "const": "0.0.0"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "research": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_refs",
+        "claim_refs",
+        "chronology_ref"
+      ],
+      "properties": {
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^src_[a-z0-9][a-z0-9_-]{2,63}$"
+          },
+          "uniqueItems": true
+        },
+        "claim_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^clm_[a-z0-9][a-z0-9_-]{2,63}$"
+          },
+          "uniqueItems": true
+        },
+        "chronology_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "story": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outline_ref",
+        "chapters",
+        "beats"
+      ],
+      "properties": {
+        "outline_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "chapters": {
+          "type": "array",
+          "items": {
+            "$ref": "chapter.schema.json"
+          },
+          "minItems": 1
+        },
+        "beats": {
+          "type": "array",
+          "items": {
+            "$ref": "beat.schema.json"
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "narration_ref",
+        "cue_catalog_ref",
+        "timing_contract_status"
+      ],
+      "properties": {
+        "narration_ref": {
+          "$ref": "common.schema.json#/$defs/relativePath"
+        },
+        "cue_catalog_ref": {
+          "$ref": "common.schema.json#/$defs/relativePath"
+        },
+        "timing_contract_status": {
+          "const": "semantic_references_only"
+        }
+      }
+    },
+    "renderProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "aspect_ratio",
+        "resolution_preset",
+        "audio_layout"
+      ],
+      "properties": {
+        "profile_id": {
+          "type": "string",
+          "pattern": "^rnd_[a-z0-9][a-z0-9_-]{2,63}$"
+        },
+        "aspect_ratio": {
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "resolution_preset": {
+          "enum": [
+            "preview",
+            "hd",
+            "full_hd",
+            "uhd"
+          ]
+        },
+        "audio_layout": {
+          "enum": [
+            "stereo",
+            "mono"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/domain_profile.schema.json",
+  "title": "Kurgu V3 DomainProfile",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile_id",
+    "domain_id",
+    "domain_pack_version",
+    "enabled_extensions",
+    "policy_overrides",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^dpf_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "domain_id": {
+      "$ref": "common.schema.json#/$defs/domainId"
+    },
+    "domain_pack_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "enabled_extensions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/extensionReference"
+      },
+      "uniqueItems": true
+    },
+    "policy_overrides": {
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z][a-z0-9-]*:[a-z][a-z0-9_.-]*$"
+      },
+      "additionalProperties": true
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  }
+}

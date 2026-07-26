@@ -1,0 +1,120 @@
+{
+  "canonical_source": "schema/v3",
+  "distribution_root": "shared-schemas/v3",
+  "format_version": 1,
+  "schema_count": 16,
+  "schemas": [
+    {
+      "canonical_path": "schema/v3/artifact.schema.json",
+      "distribution_path": "shared-schemas/v3/artifact.schema.json",
+      "name": "artifact.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/artifact.schema.json",
+      "sha256": "9931c8f10b7d5e39a5cefc71d2a49250e11be66620f5c2835be2626b7ac07783"
+    },
+    {
+      "canonical_path": "schema/v3/asset.schema.json",
+      "distribution_path": "shared-schemas/v3/asset.schema.json",
+      "name": "asset.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/asset.schema.json",
+      "sha256": "68568999990ee97aaf2686d45383c11240511c2dcebb625e1ddb7a6fcfcc4eca"
+    },
+    {
+      "canonical_path": "schema/v3/beat.schema.json",
+      "distribution_path": "shared-schemas/v3/beat.schema.json",
+      "name": "beat.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/beat.schema.json",
+      "sha256": "092938959c688c5ec94e5ec84c063772600c78d2c8a3488d14dee77e40298c21"
+    },
+    {
+      "canonical_path": "schema/v3/chapter.schema.json",
+      "distribution_path": "shared-schemas/v3/chapter.schema.json",
+      "name": "chapter.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/chapter.schema.json",
+      "sha256": "87e40bbc0edd877d0e4db926de1f3d564e99258babefa5a34b535a22516b82a4"
+    },
+    {
+      "canonical_path": "schema/v3/common.schema.json",
+      "distribution_path": "shared-schemas/v3/common.schema.json",
+      "name": "common.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/common.schema.json",
+      "sha256": "d862c8eece5ccfc8afb80e8b1f9ca8185bf6959dfa01fdfd44ac870fd694e48c"
+    },
+    {
+      "canonical_path": "schema/v3/domain_pack.schema.json",
+      "distribution_path": "shared-schemas/v3/domain_pack.schema.json",
+      "name": "domain_pack.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/domain_pack.schema.json",
+      "sha256": "bf5d79bfa02d38ffcfa577783cab5f46328f6d4680860a424951e9f83dd9ad55"
+    },
+    {
+      "canonical_path": "schema/v3/domain_policy_snapshot.schema.json",
+      "distribution_path": "shared-schemas/v3/domain_policy_snapshot.schema.json",
+      "name": "domain_policy_snapshot.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/domain_policy_snapshot.schema.json",
+      "sha256": "a84bbea62d97b37a83167ef4a11cafacdf57566099ca9d50bf1fdc64b12a593e"
+    },
+    {
+      "canonical_path": "schema/v3/domain_profile.schema.json",
+      "distribution_path": "shared-schemas/v3/domain_profile.schema.json",
+      "name": "domain_profile.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/domain_profile.schema.json",
+      "sha256": "1bc9e7f431da6dfc0ea006607d88aca18b5a73224df364319eacba5c4b51cd78"
+    },
+    {
+      "canonical_path": "schema/v3/events.schema.json",
+      "distribution_path": "shared-schemas/v3/events.schema.json",
+      "name": "events.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/events.schema.json",
+      "sha256": "3fce0dc1836fe490427da2d287ed1d2344f54b1be65d861951b8a556ba1ef05c"
+    },
+    {
+      "canonical_path": "schema/v3/manifests.schema.json",
+      "distribution_path": "shared-schemas/v3/manifests.schema.json",
+      "name": "manifests.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/manifests.schema.json",
+      "sha256": "8ec880b6aa25d09fa0e1b1b1f831e2ad2a4f729fe32cc17ffdb6bc69ab081a50"
+    },
+    {
+      "canonical_path": "schema/v3/migration_result.schema.json",
+      "distribution_path": "shared-schemas/v3/migration_result.schema.json",
+      "name": "migration_result.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/migration_result.schema.json",
+      "sha256": "c8ee3a9f4a71e7f7525be57f4a8b9e02bc54ee90351afd7212e323da8111f91e"
+    },
+    {
+      "canonical_path": "schema/v3/project.schema.json",
+      "distribution_path": "shared-schemas/v3/project.schema.json",
+      "name": "project.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/project.schema.json",
+      "sha256": "09660e840d836546e688aae01fb5fe92ac960d8c33518a9dcee4d24c0163cf50"
+    },
+    {
+      "canonical_path": "schema/v3/retention_policy.schema.json",
+      "distribution_path": "shared-schemas/v3/retention_policy.schema.json",
+      "name": "retention_policy.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/retention_policy.schema.json",
+      "sha256": "968a872c8f1aa9711f82fb28bf09762af1b9b145c746b40814389fc1902c73c8"
+    },
+    {
+      "canonical_path": "schema/v3/sequence.schema.json",
+      "distribution_path": "shared-schemas/v3/sequence.schema.json",
+      "name": "sequence.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/sequence.schema.json",
+      "sha256": "56688f568358445adc370e3c3074bba081b555d5be6b8b2fbe63334a24502171"
+    },
+    {
+      "canonical_path": "schema/v3/tracks.schema.json",
+      "distribution_path": "shared-schemas/v3/tracks.schema.json",
+      "name": "tracks.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/tracks.schema.json",
+      "sha256": "d766b58ee3a2a5b0909c6431714189e510d94c29158f270f369c9d8d56cc3ab9"
+    },
+    {
+      "canonical_path": "schema/v3/workspace.schema.json",
+      "distribution_path": "shared-schemas/v3/workspace.schema.json",
+      "name": "workspace.schema.json",
+      "schema_id": "https://schemas.kurgu.engine/v3/workspace.schema.json",
+      "sha256": "ccc4969c3f44f67497abdd8b0a177ef2d3867270be851290257f5f85aa331c7e"
+    }
+  ]
+}

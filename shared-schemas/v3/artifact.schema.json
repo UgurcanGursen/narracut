@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/artifact.schema.json",
+  "title": "Kurgu V3 ArtifactRecord",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "artifact_type",
+    "project_id",
+    "sequence_id",
+    "created_at",
+    "last_accessed_at",
+    "content_hash",
+    "size_bytes",
+    "retention_class",
+    "dependency_ids",
+    "locked",
+    "pinned",
+    "approved",
+    "cleanup_candidate",
+    "producer",
+    "producer_version",
+    "job_id",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "artifact_id": {
+      "$ref": "common.schema.json#/$defs/artifactId"
+    },
+    "artifact_type": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "project_id": {
+      "$ref": "common.schema.json#/$defs/projectId"
+    },
+    "sequence_id": {
+      "oneOf": [
+        {
+          "$ref": "common.schema.json#/$defs/sequenceId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_accessed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "content_hash": {
+      "$ref": "common.schema.json#/$defs/sha256"
+    },
+    "size_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "retention_class": {
+      "enum": [
+        "ephemeral",
+        "temporary",
+        "cache",
+        "review",
+        "approved",
+        "final",
+        "provenance",
+        "baseline",
+        "pinned"
+      ]
+    },
+    "dependency_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/artifactId"
+      },
+      "uniqueItems": true
+    },
+    "locked": {
+      "type": "boolean"
+    },
+    "pinned": {
+      "type": "boolean"
+    },
+    "approved": {
+      "type": "boolean"
+    },
+    "cleanup_candidate": {
+      "type": "boolean"
+    },
+    "producer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "producer_version": {
+      "$ref": "common.schema.json#/$defs/semver"
+    },
+    "job_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^job_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  }
+}

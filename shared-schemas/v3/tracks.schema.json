@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/tracks.schema.json",
+  "title": "Kurgu V3 Track Contracts",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "tracks"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/track"
+      },
+      "minItems": 1
+    }
+  },
+  "$defs": {
+    "track": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "track_id",
+        "track_type",
+        "role",
+        "layer",
+        "status",
+        "version"
+      ],
+      "properties": {
+        "track_id": {
+          "$ref": "common.schema.json#/$defs/trackId"
+        },
+        "track_type": {
+          "enum": [
+            "video",
+            "audio"
+          ]
+        },
+        "role": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_-]*$"
+        },
+        "layer": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "status": {
+          "$ref": "common.schema.json#/$defs/status"
+        },
+        "version": {
+          "$ref": "common.schema.json#/$defs/version"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "track_type": {
+                "const": "video"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "track_id": {
+                "pattern": "^trk_video_"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "track_id": {
+                "pattern": "^trk_audio_"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

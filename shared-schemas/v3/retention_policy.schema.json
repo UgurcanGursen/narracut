@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/retention_policy.schema.json",
+  "title": "Kurgu V3 RetentionPolicy",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy_id",
+    "rules",
+    "status",
+    "version"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "policy_id": {
+      "type": "string",
+      "pattern": "^rtp_[a-z0-9][a-z0-9_-]{2,63}$"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      },
+      "minItems": 9
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    }
+  },
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "retention_class",
+        "ttl_days",
+        "cleanup_eligible",
+        "requires_dependency_check"
+      ],
+      "properties": {
+        "retention_class": {
+          "enum": [
+            "ephemeral",
+            "temporary",
+            "cache",
+            "review",
+            "approved",
+            "final",
+            "provenance",
+            "baseline",
+            "pinned"
+          ]
+        },
+        "ttl_days": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "cleanup_eligible": {
+          "type": "boolean"
+        },
+        "requires_dependency_check": {
+          "const": true
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kurgu.engine/v3/sequence.schema.json",
+  "title": "Kurgu V3 EditorialSequence",
+  "x-schema-version": "3.0.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sequence_id",
+    "chapter_id",
+    "beat_id",
+    "narrative_goal",
+    "editorial_role",
+    "claim_ids",
+    "start_cue",
+    "end_cue",
+    "base_shot",
+    "edit_events",
+    "overlay_events",
+    "text_emphasis_events",
+    "audio_events",
+    "continuity_constraints",
+    "fallback_policy",
+    "status",
+    "version",
+    "track_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "sequence_id": {
+      "$ref": "common.schema.json#/$defs/sequenceId"
+    },
+    "chapter_id": {
+      "$ref": "common.schema.json#/$defs/chapterId"
+    },
+    "beat_id": {
+      "$ref": "common.schema.json#/$defs/beatId"
+    },
+    "narrative_goal": {
+      "type": "string",
+      "minLength": 1
+    },
+    "editorial_role": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*$"
+    },
+    "claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^clm_[a-z0-9][a-z0-9_-]{2,63}$"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "start_cue": {
+      "$ref": "common.schema.json#/$defs/semanticCue"
+    },
+    "end_cue": {
+      "$ref": "common.schema.json#/$defs/semanticCue"
+    },
+    "base_shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_ref",
+        "track_ref",
+        "editorial_purpose"
+      ],
+      "properties": {
+        "asset_ref": {
+          "$ref": "common.schema.json#/$defs/assetId"
+        },
+        "track_ref": {
+          "$ref": "common.schema.json#/$defs/trackId"
+        },
+        "editorial_purpose": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "edit_events": {
+      "type": "array",
+      "items": {
+        "$ref": "events.schema.json#/$defs/eventEnvelope"
+      },
+      "minItems": 1
+    },
+    "overlay_events": {
+      "type": "array",
+      "items": {
+        "$ref": "events.schema.json#/$defs/eventEnvelope"
+      }
+    },
+    "text_emphasis_events": {
+      "type": "array",
+      "items": {
+        "$ref": "events.schema.json#/$defs/eventEnvelope"
+      }
+    },
+    "audio_events": {
+      "type": "array",
+      "items": {
+        "$ref": "events.schema.json#/$defs/eventEnvelope"
+      }
+    },
+    "continuity_constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preserve_screen_direction",
+        "avoid_visual_family_refs"
+      ],
+      "properties": {
+        "preserve_screen_direction": {
+          "type": "boolean"
+        },
+        "avoid_visual_family_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "incoming_state_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "outgoing_state_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "fallback_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "on_missing_asset"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "fail_closed",
+            "require_review",
+            "use_approved_alternative"
+          ]
+        },
+        "on_missing_asset": {
+          "enum": [
+            "error",
+            "block_sequence",
+            "approved_alternative_only"
+          ]
+        }
+      }
+    },
+    "status": {
+      "$ref": "common.schema.json#/$defs/status"
+    },
+    "version": {
+      "$ref": "common.schema.json#/$defs/version"
+    },
+    "track_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/trackId"
+      },
+      "minItems": 2,
+      "uniqueItems": true,
+      "contains": {
+        "pattern": "^trk_video_"
+      },
+      "minContains": 1
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.schema.json#/$defs/extensionReference"
+      }
+    }
+  }
+}

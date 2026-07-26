@@ -1,0 +1,16 @@
+{
+  "name": "@kurgu/shared-schemas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generated Kurgu V3 schema distribution and Studio API OpenAPI artifact.",
+  "files": [
+    "manifest.json",
+    "openapi",
+    "v3"
+  ],
+  "exports": {
+    "./manifest.json": "./manifest.json",
+    "./openapi/openapi.json": "./openapi/openapi.json",
+    "./v3/*": "./v3/*"
+  }
+}
