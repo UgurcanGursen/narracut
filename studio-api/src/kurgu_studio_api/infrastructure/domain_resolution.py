@@ -17,6 +17,11 @@ from ..application.models import (
     ResolvedDomainSelection,
 )
 from ..application.ports import ContractValidationPort
+from .domain_eligibility import (
+    DomainEligibilityPolicy,
+    DomainNotEligibleError,
+    DomainProfileNotEligibleError,
+)
 
 
 class EngineDomainResolutionAdapter:
@@ -26,10 +31,12 @@ class EngineDomainResolutionAdapter:
         registry: DomainPackRegistry,
         resolver: DomainPolicyResolver,
         contract_validation: ContractValidationPort,
+        eligibility: DomainEligibilityPolicy,
     ):
         self.registry = registry
         self.resolver = resolver
         self.contract_validation = contract_validation
+        self.eligibility = eligibility
 
     def resolve(
         self,
@@ -104,6 +111,16 @@ class EngineDomainResolutionAdapter:
         }
         self.contract_validation.validate_profile(profile)
         try:
+            self.eligibility.require_eligible(
+                command.domain_id,
+                command.domain_pack_version,
+                command.profile.profile_id,
+            )
+        except DomainNotEligibleError as exc:
+            raise self._unknown_domain_error() from exc
+        except DomainProfileNotEligibleError as exc:
+            raise self._profile_mismatch_error() from exc
+        try:
             pack = self.registry.get(
                 command.domain_id,
                 command.domain_pack_version,
@@ -126,19 +143,40 @@ class EngineDomainResolutionAdapter:
     def _sanitized_domain_error(exc: DomainPackError) -> ApplicationError:
         codes = {issue.code for issue in exc.issues}
         if "DOMAIN_UNKNOWN" in codes:
-            code = "DOMAIN_UNKNOWN"
-            pointer = "/domain/domain_id"
-            message = "The requested domain or version is not available."
+            return EngineDomainResolutionAdapter._unknown_domain_error()
         elif "DOMAIN_PROFILE_MISMATCH" in codes:
-            code = "DOMAIN_PROFILE_MISMATCH"
-            pointer = "/domain/profile"
-            message = "The profile does not match the selected domain pack."
-        else:
-            code = "DOMAIN_CONFIGURATION_REQUIRED"
-            pointer = "/domain"
-            message = "The domain configuration could not be resolved."
+            return EngineDomainResolutionAdapter._profile_mismatch_error()
+        code = "DOMAIN_CONFIGURATION_REQUIRED"
+        pointer = "/domain"
+        message = "The domain configuration could not be resolved."
         return ApplicationError(
             code,
             message,
             (ApplicationIssue(code, pointer, message),),
+        )
+
+    @staticmethod
+    def _unknown_domain_error() -> ApplicationError:
+        code = "DOMAIN_UNKNOWN"
+        message = "The requested domain or version is not available."
+        return ApplicationError(
+            code,
+            message,
+            (ApplicationIssue(code, "/domain/domain_id", message),),
+        )
+
+    @staticmethod
+    def _profile_mismatch_error() -> ApplicationError:
+        code = "DOMAIN_PROFILE_MISMATCH"
+        message = "The profile does not match the selected domain pack."
+        return ApplicationError(
+            code,
+            message,
+            (
+                ApplicationIssue(
+                    code,
+                    "/domain/profile/profile_id",
+                    message,
+                ),
+            ),
         )

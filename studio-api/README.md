@@ -32,6 +32,31 @@ Every successful response reports:
 {"persistence_scope": "process_lifetime"}
 ```
 
+## Public domain eligibility
+
+Domain-pack registry discovery and public Project API eligibility are separate
+boundaries. Discovery may load contract examples for internal contract
+validation; it does not make those packs available to project creation.
+
+The public API uses an immutable, application-owned allowlist. The currently
+eligible domain-pack binding is:
+
+```text
+business-tech@0.1.0
+  profile: dpf_business_default
+```
+
+Other domain/version combinations, including contract-example packs, are
+reported as `DOMAIN_UNKNOWN` so the API does not reveal whether a non-eligible
+pack was discovered. A validly formatted profile that is not bound to the
+selected eligible pack returns `DOMAIN_PROFILE_MISMATCH`. The client cannot
+extend the allowlist through request fields, environment variables, or a
+configuration path.
+
+`core_only` remains a separate supported mode using
+`core-generic@0.0.0` and `dpf_core_default`; it does not depend on the
+domain-pack eligibility allowlist.
+
 The package is imported directly from `studio-api/src`; editable installation
 is not required:
 

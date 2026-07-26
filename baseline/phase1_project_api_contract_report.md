@@ -4,6 +4,25 @@ Date: 2026-07-26
 Status: PASS
 Scope: thin project HTTP, application-service, port, and process-lifetime adapter slice
 
+## Eligibility Audit Addendum
+
+The independent post-commit audit of
+`22ae36d314fc57a8603cd888576110e3fd1476b9` found two public eligibility
+fail-open cases that the original test matrix did not cover:
+
+- a schema-valid real profile ID from another mode was accepted for
+  `business-tech`; and
+- the discovered, non-production `true-crime-legal` contract example was
+  accepted by project creation.
+
+The original implementation `PASS` below is therefore qualified with respect
+to production domain/profile eligibility. A separate bounded hardening slice
+adds an application-owned allowlist, makes `DOMAIN_PROFILE_MISMATCH` reachable
+through a real request, hides discovered-but-ineligible packs behind
+`DOMAIN_UNKNOWN`, and records its own test counts in
+`phase1_project_api_eligibility_hardening_report.md`. The historical counts
+and implementation evidence below remain scoped to the original commit.
+
 ## Revision Evidence
 
 - Implementation base SHA:

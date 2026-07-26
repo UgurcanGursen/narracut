@@ -15,6 +15,7 @@ from engine.contracts import (
 
 from ..application.project_service import ProjectApplicationService
 from .contract_adapter import EngineContractValidationAdapter
+from .domain_eligibility import PROJECT_API_DOMAIN_ELIGIBILITY
 from .domain_resolution import EngineDomainResolutionAdapter
 from .in_memory_project_repository import InMemoryProjectRepository
 
@@ -51,6 +52,7 @@ def build_runtime() -> Runtime:
         registry=registry,
         resolver=DomainPolicyResolver(catalog),
         contract_validation=contract_validation,
+        eligibility=PROJECT_API_DOMAIN_ELIGIBILITY,
     )
     repository = InMemoryProjectRepository()
     service = ProjectApplicationService(

@@ -18,6 +18,9 @@ from kurgu_studio_api.application.project_service import (
 from kurgu_studio_api.infrastructure.contract_adapter import (
     EngineContractValidationAdapter,
 )
+from kurgu_studio_api.infrastructure.domain_eligibility import (
+    PROJECT_API_DOMAIN_ELIGIBILITY,
+)
 from kurgu_studio_api.infrastructure.domain_resolution import (
     EngineDomainResolutionAdapter,
 )
@@ -57,6 +60,7 @@ def make_runtime(
         registry=registry,
         resolver=DomainPolicyResolver(catalog),
         contract_validation=validation,
+        eligibility=PROJECT_API_DOMAIN_ELIGIBILITY,
     )
     repository = InMemoryProjectRepository()
     service = ProjectApplicationService(
