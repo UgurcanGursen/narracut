@@ -1,7 +1,7 @@
 # Current State
 
-Son guncelleme: 25 Temmuz 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 IN_PROGRESS**
+Son guncelleme: 26 Temmuz 2026
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 SPECIFICATION ENTRY**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
@@ -50,22 +50,30 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Faz 1 structured migration-loss reporting: PASS
 - Faz 1 migrator security hardening: PASS
 - Faz 1 secondary provenance URI hardening: PASS
-- WorkspaceStore entry gate: PENDING_INDEPENDENT_REAUDIT
-- Closure date: `2026-07-25`
-- Closure commit: `f0d7a3100b0855a84432f09ca22001d0913aa1aa`
+- WorkspaceStore: FUTURE_PHASE; not the current next action
+- Phase 1 closure documentation date: `2026-07-26`
+- Phase 0 closure commit: `f0d7a3100b0855a84432f09ca22001d0913aa1aa`
 - Baseline tag: `stage3-development-baseline` peeled target ->
   `f0d7a3100b0855a84432f09ca22001d0913aa1aa`
-- Faz 1 genel durumu: OPEN / IN_PROGRESS
+- Faz 1 final independent closure entry: PASS_WITH_FINDINGS
+- Faz 1 closure durumu: CLOSED
 
 ## Current next move
 
-Authoritative sanitized root is now the closed Phase 0 development baseline.
-Provider revoke/rotation remains a separate NOT CONFIRMED security follow-up,
-and the next main phase is Faz 1 - Editorial Domain Model ve V3 Workspace
-Schema. V3 contract foundation, contract integrity hardening ve public
-artifact/retention validation boundary PASS durumundadir. Domain-pack loader
-registry olmadan fail-closed, core-only mod ise acik contract degeriyle
-kontrolludur. V2ToV3Migrator, structured migration-loss reporting, migrator
-security hardening ve secondary provenance URI hardening PASS durumundadir.
-WorkspaceStore entry gate PENDING_INDEPENDENT_REAUDIT durumundadir. Sonraki tek
-is secondary URI security fix post-commit independent audit'idir.
+Faz 1, V3 editorial/workspace contracts, deterministic migration ve thin
+control-plane/UI shell kapsamiyla kapatilmistir. Mevcut project catalog
+bilincli olarak process-lifetime in-memory kalir; bu persistence veya review
+studio claim'i degildir. Optional automation ve Independent Editorial Critic
+Pipeline future binding kararlaridir, uygulanmis runtime ozellikleri degildir.
+
+Current next move: Faz 2 - Temporal Annotation and Word-Level Alignment
+Contract icin read-only specification and acceptance design. WorkspaceStore,
+durable persistence, provider execution ve Critic implementation bu giris
+gorevinin kapsami disindadir.
+
+## Phase 1 closure references
+
+- Baseline tag peeled target: `f0d7a3100b0855a84432f09ca22001d0913aa1aa`
+- Last Phase 1 hardening commit: `583364d8c5b67c873689b95ea8f5349e66306784`
+- Closure documentation commit: pending at commit creation
+- Independent final closure audit: pending after commit

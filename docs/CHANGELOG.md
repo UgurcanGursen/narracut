@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-07-26 - Faz 1 closure documentation and product operating model
+
+- Faz 1, V3 contract/migrator/control-plane teslimatlari ve independent mini
+  re-audit `PASS_WITH_FINDINGS` kanitiyla CLOSED olarak kaydedildi
+- Optional automation capability execution ve Independent Editorial Critic
+  Pipeline future binding kararlar olarak kaydedildi; runtime implementation
+  eklenmedi
+- Faz 2'nin tek giris gorevi Temporal Annotation and Word-Level Alignment
+  Contract read-only specification and acceptance design olarak kesinlestirildi
+- WorkspaceStore ve durable persistence Faz 14-17 future scope'unda tutuldu
+
 ## 2026-07-25 - Faz 1 secondary provenance URI security fix
 
 - Primary target secimi ile source security acceptance birbirinden ayrildi

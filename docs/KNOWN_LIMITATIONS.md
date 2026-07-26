@@ -1,6 +1,6 @@
 # Known Limitations
 
-Son guncelleme: 25 Temmuz 2026
+Son guncelleme: 26 Temmuz 2026
 
 ## Known limitations ve follow-up'lar
 
@@ -27,11 +27,16 @@ Son guncelleme: 25 Temmuz 2026
 
 ## Faz 1 status note
 
-- V3 contract foundation, contract integrity hardening ve public validation
-  boundary PASS durumundadir. V2ToV3Migrator ve structured migration-loss
-  reporting, migrator security hardening ve secondary provenance URI hardening
-  PASS'tir; WorkspaceStore entry gate PENDING_INDEPENDENT_REAUDIT
-  durumundadir.
+- Faz 1 CLOSED durumundadir. V3 contract foundation, contract integrity,
+  public validation boundary, V2ToV3Migrator, migration-loss reporting,
+  migrator URI security, thin project API, generated client/UI shell ve
+  post-audit test hardening kanitlanmistir.
+- API project catalog process-lifetime in-memory'dir; restart sonrasi project
+  state kaybolur. WorkspaceStore, SQLite, durable persistence, upload, render
+  orchestration/progress, authentication, billing ve full review UI yoktur.
+- Studio UI thin control-plane shell'dir; temporal alignment, end-user video
+  production flow, automated provider execution veya Critic pipeline
+  implementation claim etmez.
 - V2 audio file, BGM/SFX, pause, frame-duration, subtitle ve renderer-specific
   visual ayarlari Phase 1 canonical workspace'te birebir temsil edilmez.
   Migrator bunlari structured loss olarak raporlar; strict mod yayinlamaz.
@@ -54,3 +59,25 @@ Son guncelleme: 25 Temmuz 2026
 - `engine/contracts/workspace.py` modul boyutu LOW/non-blocking teknik borctur;
   yeni integrity kontrolleri private helper'lara ayrilmis, genis bolme/refactor
   ertelenmistir.
+
+## Environment and test limitations
+
+- Legacy full Python collection, committed manifestlerde olmayan `pyloudnorm`
+  nedeniyle `v2.audio_engine` import zincirindeki uc collection'da durur.
+- Starlette/HTTPX TestClient deprecation warning'i non-blockingdir.
+- Windows symlink skip kabul edilmistir; `.pytest_cache` ve
+  `shared-schemas/.pytest_cache` permission warning'leri pre-existingdir.
+- `v2/audio_engine_debug.py` ve `v2/audio_engine_debug2.py` bilinen
+  syntax/indentation debug debt'idir; MoviePy SyntaxWarning'leri applicable
+  ortamlarda gorulebilir.
+
+## Operations and repository safety
+
+- Provider credential revoke/rotation NOT CONFIRMED olarak kalir.
+- `C:\Users\user\Documents\Kurgu_V3_Clean`,
+  `C:\Users\user\Documents\Kurgu_V3_Clean_backup_20260724_163134`,
+  `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_20260724_163134` ve
+  onceki verification/sanitized clone'lar unsafe history tasiyabilir; asla
+  authoritative development, push, sharing veya public archive icin
+  kullanilmaz. Tek authoritative repository bu dokumanda kayitli sanitized
+  Freesound repository'dir.

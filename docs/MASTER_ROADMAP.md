@@ -572,6 +572,72 @@ Yanıtı yapıştır veya JSON yükle
 Doğrula ve kabul et
 ```
 
+## 4.7.1. Optional automation and capability execution policy
+
+> Automation is optional; guidance, validation, reproducibility and cost
+> control are mandatory.
+
+Bu future binding product ilkesidir; Faz 1 CLOSED durumundadir ve bu karar Faz
+1 runtime enum'u veya schema'si degildir. Her capability destekledigi modlari
+bir capability matrix ile ilan
+eder: `LOCAL`, `MANUAL_UI`, `FREE_API`, `PAID_API`, `REPLAY`, `DISABLED`.
+Unsupported mode fail-closed olur; her capability tum modlari desteklemek
+zorunda degildir. Mevcut LLM-specific `LOCAL_MODEL`, `API`, `MANUAL_UI`,
+`REPLAY` terimleri bu dokumantasyon karariyla degismez.
+
+`MANUAL_UI`; providerdan bagimsiz task package, copyable prompt, expected
+schema/output, quality/safety rules ve technical asset requirements sunar.
+Kullanici kendi browser membership'iyle islemi yapar, sonucu geri yukler ve
+uygulama schema, integrity, source/claim, media ve cost/license metadata
+sinirlarini dogrular. Browser account automation, session-cookie alma veya web
+UI scraping yasaktir.
+
+Gelecekte provider execution global/project/capability budget, estimated and
+actual/retry cost, explicit expensive-operation approval, local-asset-first
+selection, provider failure/fallback lineage ve replay/cache korumasi
+saglamalidir. Pahali image/video generation sessizce calismaz.
+
+### Future acceptance mapping
+
+| Phase | Binding direction |
+|---|---|
+| Faz 2 | Local-first alignment; paid fallback only by explicit preference; confidence, repair and replay evidence |
+| Faz 6 | Free adapters, manual premium search tasks and user-uploaded licensed assets |
+| Faz 8 | Manual image/video/document/audio ingestion as first-class assets with local catalog and duplicate checks |
+| Faz 9-10 | `MANUAL_UI` and `PAID_API` produce equivalent contracts; prompt packages and import validation remain first-class |
+| Faz 11 | Local/free/manual/premium/optional-generative audio choices; local mix is default |
+| Faz 13 | Mode selection, task copy/import, scoped repair, approval, estimated cost and license/source review |
+| Faz 15 | Provider, mode, cost, latency, retry, failure, quality, manual intervention and output-validation observability |
+
+## 4.7.2. Independent Editorial Critic Pipeline
+
+Future script acceptance flow is:
+
+```text
+Research Bundle -> Narrative Contract -> Planner -> Writer
+-> Independent Critic Pipeline -> Scoped Repair Plan -> Writer Repair
+-> Independent Verification -> Human Approval -> Scene Planning
+```
+
+This is a binding target, not a Faz 1 implementation. Writer cannot approve
+its own output. An independent Critic produces structured issues rather than a
+full rewrite; each issue carries ID, type, severity, location, evidence,
+viewer/editorial risk, minimum repair, protected claims/content and blocker
+status. Scoped repair preserves unaffected sections and claims, then receives
+independent verification and human approval.
+
+Evidence/Factual, Narrative Continuity, Retention and Pacing, and Visual
+Feasibility are distinct critic roles. Retention is a risk estimate calibrated
+later with post-publication audience-retention data, not a promise of video
+success. Future scene-planning gates are `FACTUAL_GATE`, `CONTINUITY_GATE`,
+`RETENTION_RISK_GATE`, `VISUAL_FEASIBILITY_GATE` and `HUMAN_APPROVAL_GATE`.
+
+Critic work maps to Faz 9 (grounding input), Faz 10 (narrative contract,
+writer, structured report, repair and verification), Faz 12 (continuity and
+pacing), Faz 15 (quality gates and issue lifecycle), and Faz 16 (benchmark
+and retention calibration). YouTube Analytics integration is future API or
+manual CSV-import scope, not a Faz 1 or Faz 10 completion claim.
+
 ## 4.8. Studio UI aşamalı geliştirilecektir
 
 ```text
