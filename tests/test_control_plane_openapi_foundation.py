@@ -61,14 +61,24 @@ def _walk_keys(value: Any):
             yield from _walk_keys(nested)
 
 
-def test_create_app_returns_fresh_routes_free_fastapi_instances() -> None:
+EXPECTED_PATH_METHODS = {
+    "/api/v1/projects": {"post": "createProject"},
+    "/api/v1/projects/{project_id}/status": {"get": "getProjectStatus"},
+    "/api/v1/projects/{project_id}/artifacts": {
+        "get": "listProjectArtifacts"
+    },
+}
+
+
+def test_create_app_returns_fresh_project_api_instances() -> None:
     first = create_app()
     second = create_app()
     assert isinstance(first, FastAPI)
     assert isinstance(second, FastAPI)
     assert first is not second
-    assert first.routes == []
-    assert second.routes == []
+    assert first.state.runtime is not second.state.runtime
+    assert set(first.openapi()["paths"]) == set(EXPECTED_PATH_METHODS)
+    assert first.openapi()["paths"] == second.openapi()["paths"]
     assert first.openapi_url is None
 
 
@@ -84,7 +94,7 @@ def test_application_metadata_and_openapi_are_deterministic() -> None:
     assert _render_openapi_bytes() == _render_openapi_bytes()
 
 
-def test_committed_openapi_matches_runtime_and_contains_no_fake_endpoints() -> None:
+def test_committed_openapi_matches_runtime_and_exact_project_endpoints() -> None:
     committed = OPENAPI_PATH.read_bytes()
     runtime = _render_openapi_bytes()
     document = json.loads(committed.decode("utf-8"))
@@ -95,10 +105,23 @@ def test_committed_openapi_matches_runtime_and_contains_no_fake_endpoints() -> N
         "title": APPLICATION_TITLE,
         "version": APPLICATION_VERSION,
     }
-    assert document["paths"] == {}
+    assert set(document["paths"]) == set(EXPECTED_PATH_METHODS)
+    assert {
+        path: {
+            method: document["paths"][path][method]["operationId"]
+            for method in methods
+        }
+        for path, methods in EXPECTED_PATH_METHODS.items()
+    } == EXPECTED_PATH_METHODS
     assert "servers" not in document
     lowered = committed.lower()
-    for forbidden in (b"/health", b"/project", b"/artifacts", b"localhost"):
+    for forbidden in (
+        b"/health",
+        b"/ready",
+        b"/jobs",
+        b"/render",
+        b"localhost",
+    ):
         assert forbidden not in lowered
 
 

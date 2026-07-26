@@ -1,4 +1,4 @@
-"""Thin Kurgu Studio API application foundation."""
+"""Thin Kurgu Studio project API."""
 
 from .app import create_app
 

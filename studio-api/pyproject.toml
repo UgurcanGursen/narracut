@@ -18,5 +18,5 @@ test = [
 
 [tool.kurgu-studio-api]
 phase = "phase-1-control-plane"
-scope = "shared-schema-openapi-foundation"
+scope = "thin-project-api-contracts"
 hash_secured_lock = false

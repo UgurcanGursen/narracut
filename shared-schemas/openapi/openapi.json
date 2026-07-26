@@ -1,9 +1,714 @@
 {
+  "components": {
+    "schemas": {
+      "ArtifactDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "approved": {
+            "title": "Approved",
+            "type": "boolean"
+          },
+          "artifact_id": {
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "artifact_type": {
+            "title": "Artifact Type",
+            "type": "string"
+          },
+          "cleanup_candidate": {
+            "title": "Cleanup Candidate",
+            "type": "boolean"
+          },
+          "content_hash": {
+            "title": "Content Hash",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "dependency_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Dependency Ids",
+            "type": "array"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "last_accessed_at": {
+            "title": "Last Accessed At",
+            "type": "string"
+          },
+          "locked": {
+            "title": "Locked",
+            "type": "boolean"
+          },
+          "pinned": {
+            "title": "Pinned",
+            "type": "boolean"
+          },
+          "producer": {
+            "title": "Producer",
+            "type": "string"
+          },
+          "producer_version": {
+            "title": "Producer Version",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "retention_class": {
+            "title": "Retention Class",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "sequence_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sequence Id"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "schema_version",
+          "artifact_id",
+          "artifact_type",
+          "project_id",
+          "sequence_id",
+          "created_at",
+          "last_accessed_at",
+          "content_hash",
+          "size_bytes",
+          "retention_class",
+          "dependency_ids",
+          "locked",
+          "pinned",
+          "approved",
+          "cleanup_candidate",
+          "producer",
+          "producer_version",
+          "job_id",
+          "status",
+          "version"
+        ],
+        "title": "ArtifactDTO",
+        "type": "object"
+      },
+      "CoreOnlyDomainCreateDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "resolution_mode": {
+            "const": "core_only",
+            "title": "Resolution Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resolution_mode"
+        ],
+        "title": "CoreOnlyDomainCreateDTO",
+        "type": "object"
+      },
+      "DomainPackDomainCreateDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "domain_id": {
+            "title": "Domain Id",
+            "type": "string"
+          },
+          "domain_pack_version": {
+            "title": "Domain Pack Version",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/DomainProfileCreateDTO"
+          },
+          "resolution_mode": {
+            "const": "domain_pack",
+            "title": "Resolution Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resolution_mode",
+          "domain_id",
+          "domain_pack_version",
+          "profile"
+        ],
+        "title": "DomainPackDomainCreateDTO",
+        "type": "object"
+      },
+      "DomainProfileCreateDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled_extensions": {
+            "items": {
+              "$ref": "#/components/schemas/ExtensionReferenceDTO"
+            },
+            "title": "Enabled Extensions",
+            "type": "array"
+          },
+          "policy_overrides": {
+            "additionalProperties": true,
+            "title": "Policy Overrides",
+            "type": "object"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profile_id",
+          "enabled_extensions",
+          "policy_overrides"
+        ],
+        "title": "DomainProfileCreateDTO",
+        "type": "object"
+      },
+      "ErrorBodyDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "issues": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorIssueDTO"
+            },
+            "title": "Issues",
+            "type": "array"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "issues"
+        ],
+        "title": "ErrorBodyDTO",
+        "type": "object"
+      },
+      "ErrorEnvelopeDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBodyDTO"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorEnvelopeDTO",
+        "type": "object"
+      },
+      "ErrorIssueDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "json_pointer": {
+            "title": "Json Pointer",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "json_pointer",
+          "message"
+        ],
+        "title": "ErrorIssueDTO",
+        "type": "object"
+      },
+      "ExtensionReferenceDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "name",
+          "version"
+        ],
+        "title": "ExtensionReferenceDTO",
+        "type": "object"
+      },
+      "ProjectArtifactsResponseDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ArtifactDTO"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "persistence_scope": {
+            "const": "process_lifetime",
+            "title": "Persistence Scope",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "items",
+          "count",
+          "persistence_scope"
+        ],
+        "title": "ProjectArtifactsResponseDTO",
+        "type": "object"
+      },
+      "ProjectCreateRequestDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "domain": {
+            "discriminator": {
+              "mapping": {
+                "core_only": "#/components/schemas/CoreOnlyDomainCreateDTO",
+                "domain_pack": "#/components/schemas/DomainPackDomainCreateDTO"
+              },
+              "propertyName": "resolution_mode"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CoreOnlyDomainCreateDTO"
+              },
+              {
+                "$ref": "#/components/schemas/DomainPackDomainCreateDTO"
+              }
+            ],
+            "title": "Domain"
+          },
+          "title": {
+            "maxLength": 240,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "domain"
+        ],
+        "title": "ProjectCreateRequestDTO",
+        "type": "object"
+      },
+      "ProjectCreateResponseDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "domain": {
+            "$ref": "#/components/schemas/ResolvedDomainDTO"
+          },
+          "persistence_scope": {
+            "const": "process_lifetime",
+            "title": "Persistence Scope",
+            "type": "string"
+          },
+          "project": {
+            "$ref": "#/components/schemas/ProjectDocumentDTO"
+          }
+        },
+        "required": [
+          "project",
+          "domain",
+          "persistence_scope"
+        ],
+        "title": "ProjectCreateResponseDTO",
+        "type": "object"
+      },
+      "ProjectDocumentDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "domain_id": {
+            "title": "Domain Id",
+            "type": "string"
+          },
+          "domain_pack_version": {
+            "title": "Domain Pack Version",
+            "type": "string"
+          },
+          "policy_snapshot_id": {
+            "title": "Policy Snapshot Id",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "schema_version",
+          "project_id",
+          "title",
+          "created_at",
+          "updated_at",
+          "domain_id",
+          "domain_pack_version",
+          "policy_snapshot_id",
+          "status",
+          "version"
+        ],
+        "title": "ProjectDocumentDTO",
+        "type": "object"
+      },
+      "ProjectStatusResponseDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "domain": {
+            "$ref": "#/components/schemas/ResolvedDomainDTO"
+          },
+          "persistence_scope": {
+            "const": "process_lifetime",
+            "title": "Persistence Scope",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "project_id",
+          "status",
+          "updated_at",
+          "version",
+          "domain",
+          "persistence_scope"
+        ],
+        "title": "ProjectStatusResponseDTO",
+        "type": "object"
+      },
+      "ResolvedDomainDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "domain_id": {
+            "title": "Domain Id",
+            "type": "string"
+          },
+          "domain_pack_version": {
+            "title": "Domain Pack Version",
+            "type": "string"
+          },
+          "policy_snapshot_id": {
+            "title": "Policy Snapshot Id",
+            "type": "string"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "resolution_mode": {
+            "enum": [
+              "core_only",
+              "domain_pack"
+            ],
+            "title": "Resolution Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "resolution_mode",
+          "domain_id",
+          "domain_pack_version",
+          "profile_id",
+          "policy_snapshot_id"
+        ],
+        "title": "ResolvedDomainDTO",
+        "type": "object"
+      }
+    }
+  },
   "info": {
-    "description": "Phase 1 control-plane contract generation foundation. No application endpoints are exposed in this slice.",
+    "description": "Phase 1 thin project contract API with process-lifetime persistence.",
     "title": "Kurgu Studio API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
-  "paths": {}
+  "paths": {
+    "/api/v1/projects": {
+      "post": {
+        "operationId": "createProject",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectCreateRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectCreateResponseDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Create Project",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/artifacts": {
+      "get": {
+        "operationId": "listProjectArtifacts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectArtifactsResponseDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List Project Artifacts",
+        "tags": [
+          "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/status": {
+      "get": {
+        "operationId": "getProjectStatus",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectStatusResponseDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Get Project Status",
+        "tags": [
+          "projects"
+        ]
+      }
+    }
+  }
 }

@@ -1,20 +1,36 @@
 # Kurgu Studio API
 
-This directory contains the Phase 1 thin Studio API dependency boundary and
-the minimal application/OpenAPI generation foundation. It has a real FastAPI
-application factory, but no routes, DTOs, application services, repository
-ports, or endpoint implementation code.
+This directory contains the Phase 1 thin Studio API project contract slice.
+It has a real FastAPI application factory, strict request/response DTOs, an
+HTTP-independent application service, replaceable ports, and three endpoints:
+
+```text
+POST /api/v1/projects
+GET  /api/v1/projects/{project_id}/status
+GET  /api/v1/projects/{project_id}/artifacts
+```
 
 The dependency set is isolated from the repository root `requirements.txt`.
-It is intentionally limited to the future thin API surface and public V3
-contract validation imports. WorkspaceStore, SQLite, renderer integration, and
-durable persistence are out of scope for this provisioning gate.
+It is intentionally limited to the thin API surface and public V3 contract
+validation imports. WorkspaceStore, SQLite, renderer integration, durable
+persistence, authentication, and internet-facing deployment are not provided.
 
 ## Application factory
 
-`kurgu_studio_api.create_app()` returns a new, routes-free FastAPI instance on
-every call. Application metadata and OpenAPI 3.1 behavior are fixed rather than
-derived from the environment, current directory, hostname, time, or Git state.
+`kurgu_studio_api.create_app()` returns a new FastAPI instance and a new
+in-memory project repository on every call. Application metadata and OpenAPI
+3.1 behavior are fixed rather than derived from the environment, current
+directory, hostname, time, or Git state.
+
+Project persistence is explicitly process-lifetime only. A successful create
+can be read from the same app instance, but a new app instance or process
+restart starts with an empty catalog. There is no reopen, revision, recovery,
+atomic disk persistence, WorkspaceStore, or production persistence guarantee.
+Every successful response reports:
+
+```json
+{"persistence_scope": "process_lifetime"}
+```
 
 The package is imported directly from `studio-api/src`; editable installation
 is not required:
@@ -35,9 +51,9 @@ $env:PYTHONPATH = "$(Get-Location)\studio-api\src"
 ```
 
 The exporter accepts no app import target and no output path. It always writes
-or checks `shared-schemas/openapi/openapi.json`. The artifact currently proves
-only deterministic generation and fixed application metadata; it intentionally
-contains no project, status, artifact, health, or other endpoint contract.
+or checks `shared-schemas/openapi/openapi.json`. The artifact contains exactly
+the three project contracts above. It contains no health, job, render,
+update/delete, artifact-write, or other endpoint.
 
 ## Clean venv install
 
@@ -61,3 +77,17 @@ $env:PYTHONPATH = "$(Get-Location);$(Get-Location)\studio-api\src"
 
 The smoke checks dependency imports, versions, a minimal FastAPI/TestClient
 request, public engine contract imports, and canonical V3 schema validation.
+
+## Run the local API
+
+Using the locked environment:
+
+```powershell
+$env:PYTHONPATH = "$(Get-Location);$(Get-Location)\studio-api\src"
+& "$venv\Scripts\python.exe" -B -m uvicorn `
+  "kurgu_studio_api.app:create_app" --factory
+```
+
+This local command does not add authentication or make an internet-facing
+deployment claim. Studio UI source and a generated TypeScript client do not
+exist in this slice.
