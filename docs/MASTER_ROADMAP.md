@@ -1,8 +1,8 @@
 # Kurgu Engine — Nihai Master Geliştirme Yol Haritası
 
-> **Belge sürümü:** 2.3  
-> **Tarih:** 24 Temmuz 2026  
-> **Durum:** Mimari ana plan — geliştirme boyunca tek referans belge  
+> **Belge sürümü:** 2.3
+> **Tarih:** 24 Temmuz 2026
+> **Durum:** Mimari ana plan — geliştirme boyunca tek referans belge
 > **Ürün tanımı:** Araştırılmış bir hikâyeyi, doğrulanmış iddiaları, kaynak kanıtlarını, görsel argümanları, hareketli kompozisyonları ve kontrollü ses tasarımını kullanarak editoryal belgesele dönüştüren yarı otonom kurgu sistemi.
 >
 > **2.3 revizyonu:** v2.2 kararları korunarak çekirdek mimari `multi-domain-ready core + domain-specific intelligence packs` modeline geçirildi. Business/Technology ilk production domain’i olarak seçildi; True Crime/Legal, History/Geopolitics ve Science gibi alanların çekirdeği çatallamadan sonradan eklenebilmesi için Domain Pack Registry, ortak extension contract, domain-aware research/planner/visual/validation politikaları ve pack-specific benchmark kapıları tanımlandı. İlk geliştirmede yalnızca `business-tech` paketi uygulanacak; diğer domain’ler önceden hard-code edilmeyecek.
