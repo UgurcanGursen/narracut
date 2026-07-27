@@ -2381,13 +2381,19 @@ def _parse_spoken_form_override(
     strings: dict[str, str] = {}
     for field in ("spoken_form", "reason", "version"):
         field_pointer = f"{pointer}.{field}"
-        strings[field] = _require_nonempty_string(
+        strings[field] = _require_exact_nonempty_nfc_string(
             data[field],
             field_pointer,
         )
-        _require_nfc(strings[field], field_pointer)
+    source_value = data["source"]
+    if type(source_value) is not str:
+        _reject(
+            NarrationRejectionReason.STRUCTURE_INVALID,
+            f"{pointer}.source",
+            "Expected an exact built-in string.",
+        )
     try:
-        source = SpokenFormOverrideSource(data["source"])
+        source = SpokenFormOverrideSource(source_value)
     except (TypeError, ValueError) as exc:
         raise NarrationContractError(
             NarrationRejectionReason.UNSUPPORTED_ENUM,
@@ -2401,6 +2407,27 @@ def _parse_spoken_form_override(
         reason=strings["reason"],
         version=strings["version"],
     )
+
+
+def _require_exact_nonempty_nfc_string(
+    value: Any,
+    pointer: str,
+) -> str:
+    if type(value) is not str:
+        _reject(
+            NarrationRejectionReason.STRUCTURE_INVALID,
+            pointer,
+            "Expected an exact built-in string.",
+        )
+    _validate_unicode(value, pointer)
+    if value == "":
+        _reject(
+            NarrationRejectionReason.STRUCTURE_INVALID,
+            pointer,
+            "String cannot be empty.",
+        )
+    _require_nfc(value, pointer)
+    return value
 
 
 def _parse_lineage_node_type(

@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 from dataclasses import FrozenInstanceError, replace
+from enum import Enum
 
 import pytest
 
@@ -31,6 +32,23 @@ FX34_SOURCE_HASH = (
     "sha256:dd7aaf64a3e9ae29d44de682182fac0d9c4bd94d"
     "e36b1b30f247bb15c7a780eb"
 )
+
+
+class CustomString(str):
+    pass
+
+
+class CustomSource(str, Enum):
+    USER = "USER_LEXICON"
+
+
+class ArbitrarySource(Enum):
+    USER = "USER_LEXICON"
+
+
+class StringLike:
+    def __str__(self) -> str:
+        return "USER_LEXICON"
 
 
 def fx34_value() -> dict:
@@ -807,6 +825,48 @@ def test_unknown_override_source_uses_canonical_issue_code(source: str) -> None:
 
 @pytest.mark.parametrize(
     "source",
+    [
+        CustomString("USER_LEXICON"),
+        CustomSource.USER,
+        SpokenFormOverrideSource.USER_LEXICON,
+        ArbitrarySource.USER,
+        StringLike(),
+        b"USER_LEXICON",
+        1,
+        True,
+        ["USER_LEXICON"],
+        {"value": "USER_LEXICON"},
+        None,
+    ],
+    ids=[
+        "str-subclass",
+        "str-enum",
+        "official-enum",
+        "arbitrary-enum",
+        "string-like",
+        "bytes",
+        "int",
+        "bool",
+        "list",
+        "mapping",
+        "null",
+    ],
+)
+def test_override_source_requires_exact_builtin_string(source: object) -> None:
+    value = fx34_value()
+    value["text_tokens"][0]["spoken_form_override"] = _valid_override(
+        source=source,  # type: ignore[arg-type]
+    )
+
+    with pytest.raises(NarrationContractError) as exc_info:
+        materialize_fx34(value, refresh_lineage=False)
+
+    assert exc_info.value.reason is NarrationRejectionReason.STRUCTURE_INVALID
+    assert exc_info.value.issue_code is None
+
+
+@pytest.mark.parametrize(
+    "source",
     ["PROVIDER", "ALIGNER_TRANSCRIPT", "TTS_OBSERVATION"],
 )
 def test_observation_sources_are_not_authorized_overrides(source: str) -> None:
@@ -842,6 +902,32 @@ def test_override_strings_are_nonempty_nfc(field: str, invalid: str) -> None:
         materialize_fx34(value)
 
 
+@pytest.mark.parametrize("field", ["spoken_form", "reason", "version"])
+@pytest.mark.parametrize(
+    "invalid",
+    [
+        CustomString("valid"),
+        CustomSource.USER,
+        StringLike(),
+    ],
+    ids=["str-subclass", "str-enum", "string-like"],
+)
+def test_override_text_fields_require_exact_builtin_strings(
+    field: str,
+    invalid: object,
+) -> None:
+    value = fx34_value()
+    override = _valid_override()
+    override[field] = invalid  # type: ignore[assignment]
+    value["text_tokens"][0]["spoken_form_override"] = override
+
+    with pytest.raises(NarrationContractError) as exc_info:
+        materialize_fx34(value, refresh_lineage=False)
+
+    assert exc_info.value.reason is NarrationRejectionReason.STRUCTURE_INVALID
+    assert exc_info.value.issue_code is None
+
+
 @pytest.mark.parametrize(
     "source",
     [
@@ -850,6 +936,7 @@ def test_override_strings_are_nonempty_nfc(field: str, invalid: str) -> None:
     ],
 )
 def test_structured_spoken_form_override_is_accepted(source: str) -> None:
+    assert type(source) is str
     value = fx34_value()
     value["text_tokens"][0]["spoken_form_override"] = _valid_override(
         source=source
@@ -859,6 +946,7 @@ def test_structured_spoken_form_override_is_accepted(source: str) -> None:
     override = result.revision.text_tokens[0].spoken_form_override
 
     assert override is not None
+    assert override.source is SpokenFormOverrideSource(source)
     assert override.source.value == source
     assert override.spoken_form == "AL-fa"
     assert result.revision.source_text == FX34_SOURCE_BYTES.decode("utf-8")
