@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+from ._canonical_json import encode_canonical_json_bytes
+
 
 TRP_RAW_V1 = "TRP-RAW-V1"
 
@@ -169,7 +171,7 @@ def canonicalize_temporal_raw_package(
     """Validate and materialize one logical TRP-RAW-V1 package."""
     normalized = _normalize_value(value, "$")
     _validate_package_structure(normalized, payload_bytes)
-    canonical_bytes = _encode_value(normalized).encode("utf-8")
+    canonical_bytes = encode_canonical_json_bytes(normalized)
     digest = hashlib.sha256(canonical_bytes).hexdigest()
     return CanonicalRawPackage(canonical_bytes, f"sha256:{digest}")
 
@@ -435,45 +437,6 @@ def _validate_alignment_tokens(tokens: Any) -> None:
             pointer,
             "Alignment tokens must use strictly ascending indices.",
         )
-
-
-def _encode_value(value: Any) -> str:
-    if value is None:
-        return "null"
-    if value is True:
-        return "true"
-    if value is False:
-        return "false"
-    if isinstance(value, int):
-        return str(value)
-    if isinstance(value, str):
-        return _encode_string(value)
-    if isinstance(value, list):
-        return "[" + ",".join(_encode_value(item) for item in value) + "]"
-    return (
-        "{"
-        + ",".join(
-            f"{_encode_string(key)}:{_encode_value(value[key])}"
-            for key in sorted(value)
-        )
-        + "}"
-    )
-
-
-def _encode_string(value: str) -> str:
-    encoded = ['"']
-    for character in value:
-        codepoint = ord(character)
-        if character == '"':
-            encoded.append('\\"')
-        elif character == "\\":
-            encoded.append("\\\\")
-        elif codepoint <= 0x1F:
-            encoded.append(f"\\u{codepoint:04x}")
-        else:
-            encoded.append(character)
-    encoded.append('"')
-    return "".join(encoded)
 
 
 def _reject(
