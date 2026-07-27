@@ -6,6 +6,7 @@ import hashlib
 import math
 import re
 import unicodedata
+import weakref
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
@@ -56,6 +57,8 @@ _SENSITIVE_EXTENSION_NAMES = frozenset(
         "uri",
     }
 )
+_SECURE_AUDIO_READER_MARKER = "_kurgu_secure_audio_reader_v1"
+_MATERIALIZED_ARTIFACTS: dict[int, weakref.ReferenceType["AudioArtifact"]] = {}
 
 
 class AudioArtifactRejectionReason(str, Enum):
@@ -163,6 +166,9 @@ class AudioArtifact:
     decoded_metadata: DecodedAudioMetadata
     extensions: Mapping[str, Any]
 
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "extensions", _freeze_json(self.extensions))
+
 
 @dataclass(frozen=True)
 class NarrationRevisionBinding:
@@ -185,7 +191,9 @@ class NarrationRevisionBinding:
 
     @classmethod
     def from_validated_revision(cls, revision: Any) -> NarrationRevisionBinding:
-        if isinstance(revision, Mapping):
+        from .narration import NarrationRevision
+
+        if type(revision) is not NarrationRevision:
             raise TypeError("Validated narration revision object is required.")
         return cls(
             project_id=revision.project_id,
@@ -229,9 +237,9 @@ class AudioArtifactMaterializationRuntime:
     secure_reader: SecureAudioReader
 
     def __post_init__(self) -> None:
-        if not isinstance(self.trusted_root, TrustedRootReference):
+        if type(self.trusted_root) is not TrustedRootReference:
             raise TypeError("trusted_root must be a TrustedRootReference.")
-        if not hasattr(self.secure_reader, "open_snapshot"):
+        if not _is_secure_audio_reader(self.secure_reader):
             raise TypeError("secure_reader must implement open_snapshot.")
         for field in (
             "access_count",
@@ -313,6 +321,10 @@ def materialize_audio_artifact(
     narration_binding: NarrationRevisionBinding,
     runtime: AudioArtifactMaterializationRuntime,
 ) -> AudioArtifact:
+    if type(narration_binding) is not NarrationRevisionBinding:
+        raise TypeError("narration_binding must be NarrationRevisionBinding.")
+    if type(runtime) is not AudioArtifactMaterializationRuntime:
+        raise TypeError("runtime must be AudioArtifactMaterializationRuntime.")
     data = _parse_input(value)
     _validate_binding(data, narration_binding)
     logical_segments = _validate_logical_input(data.logical_input)
@@ -368,7 +380,7 @@ def materialize_audio_artifact(
     }
     projection_bytes = encode_canonical_json_bytes(projection)
     digest = hashlib.sha256(projection_bytes).hexdigest()
-    return AudioArtifact(
+    artifact = AudioArtifact(
         schema_version=AUDIO_ARTIFACT_V1,
         hash_scope_version=AUDIO_ARTIFACT_HASH_V1,
         audio_artifact_id="aud_" + digest[:20],
@@ -382,11 +394,15 @@ def materialize_audio_artifact(
         decoded_metadata=decoded,
         extensions=data.extensions,
     )
+    _register_materialized_artifact(artifact)
+    return artifact
 
 
 def serialize_audio_artifact(artifact: AudioArtifact) -> bytes:
-    if not isinstance(artifact, AudioArtifact):
+    if type(artifact) is not AudioArtifact:
         raise TypeError("serialize_audio_artifact requires an AudioArtifact.")
+    if not _is_materialized_artifact(artifact):
+        raise TypeError("serialize_audio_artifact requires a materialized AudioArtifact.")
     return encode_canonical_json_bytes(_artifact_to_dict(artifact))
 
 
@@ -406,7 +422,8 @@ def _parse_input(value: Mapping[str, Any]) -> AudioArtifactMaterializationInput:
         "extensions",
     }
     _require_closed_fields(data, required, required, "$")
-    if data["schema_version"] != AUDIO_ARTIFACT_INPUT_V1:
+    schema_version = _require_exact_string(data["schema_version"], "$.schema_version")
+    if schema_version != AUDIO_ARTIFACT_INPUT_V1:
         _reject(
             AudioArtifactRejectionReason.UNSUPPORTED_ENUM,
             "$.schema_version",
@@ -452,7 +469,11 @@ def _parse_secure_reference(value: Any) -> SecureAudioInputReference:
     data = _require_mapping(value, "$.logical_input")
     required = {"schema_version", "kind", "logical_path"}
     _require_closed_fields(data, required, required, "$.logical_input")
-    if data["schema_version"] != SECURE_AUDIO_INPUT_V1:
+    schema_version = _require_exact_string(
+        data["schema_version"],
+        "$.logical_input.schema_version",
+    )
+    if schema_version != SECURE_AUDIO_INPUT_V1:
         _reject(
             AudioArtifactRejectionReason.UNSUPPORTED_ENUM,
             "$.logical_input.schema_version",
@@ -481,7 +502,7 @@ def _validate_binding(
     data: AudioArtifactMaterializationInput,
     binding: NarrationRevisionBinding,
 ) -> None:
-    if not isinstance(binding, NarrationRevisionBinding):
+    if type(binding) is not NarrationRevisionBinding:
         raise TypeError("narration_binding must be NarrationRevisionBinding.")
     if (
         data.project_id != binding.project_id
@@ -697,12 +718,6 @@ def _decode_wave(source: bytes) -> DecodedAudioMetadata:
     if block_align == 0 or data_byte_length % block_align != 0:
         fail()
     sample_frame_count = data_byte_length // block_align
-    if sample_frame_count == 0:
-        return _decoded_metadata(
-            sample_rate_hz,
-            channel_count,
-            sample_frame_count,
-        )
     if (
         audio_format_tag != 1
         or channel_count not in {1, 2}
@@ -717,6 +732,12 @@ def _decode_wave(source: bytes) -> DecodedAudioMetadata:
             "$.logical_input",
             "Readable WAVE input uses an unsupported audio format.",
             issue_code="AUDIO_FORMAT_UNSUPPORTED",
+        )
+    if sample_frame_count == 0:
+        return _decoded_metadata(
+            sample_rate_hz,
+            channel_count,
+            sample_frame_count,
         )
     expected_data_length = sample_frame_count * channel_count * 2
     if data_byte_length != expected_data_length:
@@ -946,7 +967,7 @@ def _validate_unicode(value: str, pointer: str) -> None:
 
 def _validate_extensions(value: Any, pointer: str) -> Mapping[str, Any]:
     data = _require_mapping(value, pointer)
-    for key, item in data.items():
+    for index, (key, item) in enumerate(data.items()):
         if _EXTENSION_KEY_PATTERN.fullmatch(key) is None:
             _reject(
                 AudioArtifactRejectionReason.EXTENSION_INVALID,
@@ -954,8 +975,9 @@ def _validate_extensions(value: Any, pointer: str) -> Mapping[str, Any]:
                 "Extension keys must use the V1 dotted namespace form.",
                 issue_code="AUDIO_EXTENSION_SECURITY_VIOLATION",
             )
-        _scan_extension_name(key.rsplit("/", 1)[-1], f"{pointer}.{key}")
-        _validate_json_extension_value(item, f"{pointer}.{key}")
+        _validate_extension_key_security(key, pointer)
+        _scan_extension_name(key.rsplit("/", 1)[-1], pointer)
+        _validate_json_extension_value(item, f"{pointer}[{index}]")
     return _freeze_json(data)
 
 
@@ -976,13 +998,19 @@ def _validate_json_extension_value(value: Any, pointer: str) -> None:
             _validate_json_extension_value(item, f"{pointer}[{index}]")
         return
     if isinstance(value, Mapping):
-        for key, item in value.items():
+        for index, (key, item) in enumerate(value.items()):
             if type(key) is not str:
                 _extension_reject(pointer)
-            _scan_extension_name(key, f"{pointer}.{key}")
-            _validate_json_extension_value(item, f"{pointer}.{key}")
+            _validate_extension_key_security(key, pointer)
+            _scan_extension_name(key, pointer)
+            _validate_json_extension_value(item, f"{pointer}[{index}]")
         return
     _extension_reject(pointer)
+
+
+def _validate_extension_key_security(key: str, pointer: str) -> None:
+    if type(key) is not str or _extension_string_violates(key):
+        _extension_reject(pointer)
 
 
 def _scan_extension_name(name: str, pointer: str) -> None:
@@ -1040,6 +1068,25 @@ def _freeze_json(value: Any) -> Any:
     if isinstance(value, list):
         return tuple(_freeze_json(item) for item in value)
     return value
+
+
+def _is_secure_audio_reader(value: Any) -> bool:
+    return getattr(type(value), _SECURE_AUDIO_READER_MARKER, False) is True
+
+
+def _register_materialized_artifact(artifact: AudioArtifact) -> None:
+    identity = id(artifact)
+
+    def forget(reference: weakref.ReferenceType[AudioArtifact]) -> None:
+        if _MATERIALIZED_ARTIFACTS.get(identity) is reference:
+            _MATERIALIZED_ARTIFACTS.pop(identity, None)
+
+    _MATERIALIZED_ARTIFACTS[identity] = weakref.ref(artifact, forget)
+
+
+def _is_materialized_artifact(artifact: AudioArtifact) -> bool:
+    reference = _MATERIALIZED_ARTIFACTS.get(id(artifact))
+    return reference is not None and reference() is artifact
 
 
 def _thaw_json(value: Any) -> Any:

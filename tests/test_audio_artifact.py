@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import copy
+import gc
 import hashlib
 import struct
-from dataclasses import FrozenInstanceError
+import weakref
+from dataclasses import FrozenInstanceError, replace
 from enum import Enum
 from types import MappingProxyType
 
@@ -141,6 +143,8 @@ def evidence(
 
 
 class _SecurePathStub:
+    _kurgu_secure_audio_reader_v1 = True
+
     def __init__(
         self,
         source: bytes,
@@ -329,19 +333,71 @@ def test_missing_unknown_and_null_fields_fail_closed(mutate) -> None:
 
 
 @pytest.mark.parametrize(
-    ("field", "replacement"),
+    ("mutate", "replacement"),
     [
-        ("kind", CustomString("LOCAL_FILE")),
-        ("kind", StringEnum.LOCAL),
-        ("kind", ArbitraryEnum.LOCAL),
+        (lambda value, replacement: value.update(schema_version=replacement), CustomString(AUDIO_ARTIFACT_INPUT_V1)),
+        (lambda value, replacement: value.update(schema_version=replacement), StringEnum.LOCAL),
+        (lambda value, replacement: value.update(schema_version=replacement), ArbitraryEnum.LOCAL),
+        (lambda value, replacement: value.update(schema_version=replacement), object()),
+        (lambda value, replacement: value.update(schema_version=replacement), b"AUDIO-ARTIFACT-INPUT-V1"),
+        (lambda value, replacement: value.update(schema_version=replacement), 1),
+        (lambda value, replacement: value.update(schema_version=replacement), True),
+        (lambda value, replacement: value.update(schema_version=replacement), []),
+        (lambda value, replacement: value.update(schema_version=replacement), {}),
+        (lambda value, replacement: value.update(schema_version=replacement), None),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            CustomString(SECURE_AUDIO_INPUT_V1),
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            StringEnum.LOCAL,
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            ArbitraryEnum.LOCAL,
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            object(),
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            b"SECURE-AUDIO-INPUT-V1",
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            1,
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            True,
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            [],
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            {},
+        ),
+        (
+            lambda value, replacement: value["logical_input"].update(schema_version=replacement),
+            None,
+        ),
+        (lambda value, replacement: value["logical_input"].update(kind=replacement), CustomString("LOCAL_FILE")),
+        (lambda value, replacement: value["logical_input"].update(kind=replacement), StringEnum.LOCAL),
+        (lambda value, replacement: value["logical_input"].update(kind=replacement), ArbitraryEnum.LOCAL),
     ],
 )
-def test_raw_string_boundary_rejects_subclasses_and_enums(field, replacement) -> None:
+def test_raw_string_boundary_rejects_subclasses_enums_and_coercions(mutate, replacement) -> None:
     value = fx29_value()
-    value["logical_input"][field] = replacement
+    mutate(value, replacement)
 
-    with pytest.raises(AudioArtifactContractError):
+    with pytest.raises(AudioArtifactContractError) as exc_info:
         materialize(value)
+
+    assert exc_info.value.issue_code is None
 
 
 def test_bool_as_int_and_unsupported_enums_are_rejected() -> None:
@@ -431,6 +487,40 @@ def test_extension_security_recurses_names_and_string_predicates(extensions) -> 
 
 
 @pytest.mark.parametrize(
+    "sentinel",
+    [
+        "https://example.invalid/token",
+        "/host/path",
+        "C:\\secret",
+        "bad\u0000key",
+        "bad\u001fkey",
+        "bad\u007fkey",
+        "api_key",
+    ],
+)
+def test_nested_extension_keys_are_screened_without_raw_leakage(sentinel: str) -> None:
+    value = fx29_value(extensions={"kurgu.audio/meta": {"safe": {sentinel: "opaque"}}})
+
+    with pytest.raises(AudioArtifactContractError) as exc_info:
+        materialize(value)
+
+    error = exc_info.value
+    assert error.issue_code == "AUDIO_EXTENSION_SECURITY_VIOLATION"
+    visible = (error.pointer, str(error), repr(error), error.issue_code or "")
+    assert all(sentinel not in field for field in visible)
+
+
+@pytest.mark.parametrize("key", [CustomString("safe"), StringEnum.LOCAL])
+def test_nested_extension_keys_must_be_exact_builtin_strings(key) -> None:
+    value = fx29_value(extensions={"kurgu.audio/meta": {key: "opaque"}})
+
+    with pytest.raises(AudioArtifactContractError) as exc_info:
+        materialize(value)
+
+    assert exc_info.value.issue_code == "AUDIO_EXTENSION_SECURITY_VIOLATION"
+
+
+@pytest.mark.parametrize(
     ("source", "issue_code"),
     [
         (b"", "AUDIO_EMPTY"),
@@ -439,6 +529,15 @@ def test_extension_security_recurses_names_and_string_predicates(extensions) -> 
             wave_bytes(sample_rate_hz=8000, channel_count=1, sample_frame_count=8)
             + b"trail",
             "AUDIO_DECODE_FAILED",
+        ),
+        (
+            wave_bytes(
+                sample_rate_hz=8000,
+                channel_count=1,
+                sample_frame_count=0,
+                bits_per_sample=8,
+            ),
+            "AUDIO_FORMAT_UNSUPPORTED",
         ),
         (
             wave_bytes(
@@ -567,6 +666,123 @@ def test_models_are_deeply_immutable_and_extensions_excluded_from_identity() -> 
     assert serialize_audio_artifact(with_ext) != serialize_audio_artifact(base)
     assert isinstance(with_ext.extensions["kurgu.audio/safe_note"], MappingProxyType)
     assert isinstance(with_ext.extensions["kurgu.audio/safe_note"]["nested"], tuple)
+
+    original_extensions = {"kurgu.audio/safe_note": {"nested": ["ok"]}}
+    frozen = materialize(fx29_value(extensions=original_extensions))
+    original_extensions["kurgu.audio/safe_note"]["nested"].append("changed")
+    assert frozen.extensions["kurgu.audio/safe_note"]["nested"] == ("ok",)
+
+
+def test_serialize_rejects_forged_and_copied_audio_artifacts() -> None:
+    genuine = materialize()
+    assert serialize_audio_artifact(genuine) == FX29_CANONICAL_BYTES
+
+    forged = AudioArtifact(
+        schema_version=genuine.schema_version,
+        hash_scope_version=genuine.hash_scope_version,
+        audio_artifact_id=genuine.audio_artifact_id,
+        audio_artifact_hash=genuine.audio_artifact_hash,
+        project_id=genuine.project_id,
+        document_id=genuine.document_id,
+        narration_revision_id=genuine.narration_revision_id,
+        narration_revision_hash=genuine.narration_revision_hash,
+        media_byte_hash=genuine.media_byte_hash,
+        logical_input=genuine.logical_input,
+        decoded_metadata=genuine.decoded_metadata,
+        extensions={"kurgu.audio/safe_note": {"nested": ["ok"]}},
+    )
+    with pytest.raises(TypeError):
+        serialize_audio_artifact(forged)
+    assert isinstance(forged.extensions, MappingProxyType)
+    assert isinstance(forged.extensions["kurgu.audio/safe_note"], MappingProxyType)
+
+    copied = replace(genuine)
+    with pytest.raises(TypeError):
+        serialize_audio_artifact(copied)
+
+    fake_identity = replace(
+        genuine,
+        audio_artifact_id="aud_fakefakefakefakefake",
+        audio_artifact_hash="sha256:" + "f" * 64,
+    )
+    with pytest.raises(TypeError):
+        serialize_audio_artifact(fake_identity)
+
+    new_instance = object.__new__(AudioArtifact)
+    object.__setattr__(new_instance, "schema_version", AUDIO_ARTIFACT_V1)
+    with pytest.raises(TypeError):
+        serialize_audio_artifact(new_instance)
+
+
+def test_materialized_artifact_provenance_does_not_hold_strong_reference() -> None:
+    def build_reference() -> weakref.ReferenceType[AudioArtifact]:
+        artifact = materialize()
+        assert serialize_audio_artifact(artifact) == FX29_CANONICAL_BYTES
+        return weakref.ref(artifact)
+
+    artifact_reference = build_reference()
+    gc.collect()
+
+    assert artifact_reference() is None
+
+
+def test_nominal_narration_binding_and_runtime_boundaries_reject_lookalikes() -> None:
+    class FakeRevision:
+        project_id = "prj_audiofx"
+        document_id = "nardoc_audiofx"
+        revision_id = REVISION_A
+        revision_hash = REVISION_HASH_A
+
+    class FakeBinding:
+        project_id = "prj_audiofx"
+        document_id = "nardoc_audiofx"
+        narration_revision_id = REVISION_A
+        narration_revision_hash = REVISION_HASH_A
+
+    class FakeRuntime:
+        trusted_root = TrustedRootReference("C:/trusted/root")
+        secure_reader = _SecurePathStub(fx29_bytes())
+
+    class FakeRoot:
+        canonical_absolute_root = "C:/trusted/root"
+
+    class FakeReader:
+        access_count = 0
+        snapshot_read_count = 0
+        reverify_read_count = 0
+
+        def open_snapshot(self, trusted_root, validated_logical_segments):
+            raise AssertionError("fake reader must not be trusted")
+
+    reader = _SecurePathStub(fx29_bytes())
+    assert materialize(reader=reader).audio_artifact_id == FX29_ARTIFACT_ID
+
+    with pytest.raises(TypeError):
+        NarrationRevisionBinding.from_validated_revision(FakeRevision())
+    with pytest.raises(TypeError):
+        NarrationRevisionBinding.from_validated_revision({"revision_id": REVISION_A})
+    with pytest.raises(TypeError):
+        materialize_audio_artifact(
+            fx29_value(),
+            narration_binding=FakeBinding(),
+            runtime=runtime_for(_SecurePathStub(fx29_bytes())),
+        )
+    with pytest.raises(TypeError):
+        materialize_audio_artifact(
+            fx29_value(),
+            narration_binding=binding_a(),
+            runtime=FakeRuntime(),
+        )
+    with pytest.raises(TypeError):
+        AudioArtifactMaterializationRuntime(
+            trusted_root=FakeRoot(),
+            secure_reader=_SecurePathStub(fx29_bytes()),
+        )
+    with pytest.raises(TypeError):
+        AudioArtifactMaterializationRuntime(
+            trusted_root=TrustedRootReference("C:/trusted/root"),
+            secure_reader=FakeReader(),
+        )
 
 
 def test_public_model_runtime_boundaries() -> None:
