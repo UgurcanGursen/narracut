@@ -57,7 +57,7 @@ _SENSITIVE_EXTENSION_NAMES = frozenset(
         "uri",
     }
 )
-_SECURE_AUDIO_READER_MARKER = "_kurgu_secure_audio_reader_v1"
+_AUTHORIZED_SECURE_AUDIO_READERS: dict[int, weakref.ReferenceType[Any]] = {}
 _MATERIALIZED_ARTIFACTS: dict[int, weakref.ReferenceType["AudioArtifact"]] = {}
 
 
@@ -215,14 +215,9 @@ class TrustedRootReference:
 
 
 class SecureAudioReader(Protocol):
-    @property
-    def access_count(self) -> int: ...
-
-    @property
-    def snapshot_read_count(self) -> int: ...
-
-    @property
-    def reverify_read_count(self) -> int: ...
+    access_count: int
+    snapshot_read_count: int
+    reverify_read_count: int
 
     def open_snapshot(
         self,
@@ -240,7 +235,7 @@ class AudioArtifactMaterializationRuntime:
         if type(self.trusted_root) is not TrustedRootReference:
             raise TypeError("trusted_root must be a TrustedRootReference.")
         if not _is_secure_audio_reader(self.secure_reader):
-            raise TypeError("secure_reader must implement open_snapshot.")
+            raise TypeError("secure_reader must be an authorized SecureAudioReader.")
         for field in (
             "access_count",
             "snapshot_read_count",
@@ -976,7 +971,7 @@ def _validate_extensions(value: Any, pointer: str) -> Mapping[str, Any]:
                 issue_code="AUDIO_EXTENSION_SECURITY_VIOLATION",
             )
         _validate_extension_key_security(key, pointer)
-        _scan_extension_name(key.rsplit("/", 1)[-1], pointer)
+        _scan_extension_name(_extension_local_name(key), pointer)
         _validate_json_extension_value(item, f"{pointer}[{index}]")
     return _freeze_json(data)
 
@@ -1002,7 +997,7 @@ def _validate_json_extension_value(value: Any, pointer: str) -> None:
             if type(key) is not str:
                 _extension_reject(pointer)
             _validate_extension_key_security(key, pointer)
-            _scan_extension_name(key, pointer)
+            _scan_extension_name(_extension_local_name(key), pointer)
             _validate_json_extension_value(item, f"{pointer}[{index}]")
         return
     _extension_reject(pointer)
@@ -1013,8 +1008,16 @@ def _validate_extension_key_security(key: str, pointer: str) -> None:
         _extension_reject(pointer)
 
 
+def _extension_local_name(key: str) -> str:
+    return key.rsplit("/", 1)[-1]
+
+
 def _scan_extension_name(name: str, pointer: str) -> None:
-    if name.lower() in _SENSITIVE_EXTENSION_NAMES:
+    normalized_name = "".join(
+        chr(ord(character) + 32) if "A" <= character <= "Z" else character
+        for character in name
+    )
+    if normalized_name in _SENSITIVE_EXTENSION_NAMES:
         _extension_reject(pointer)
 
 
@@ -1070,8 +1073,30 @@ def _freeze_json(value: Any) -> Any:
     return value
 
 
+def _authorize_secure_audio_reader_for_testing(value: SecureAudioReader) -> None:
+    if SecureAudioReader not in type(value).__mro__:
+        raise TypeError("Test reader must nominally implement SecureAudioReader.")
+    if not callable(getattr(value, "open_snapshot", None)):
+        raise TypeError("Test reader must implement open_snapshot.")
+    for field in ("access_count", "snapshot_read_count", "reverify_read_count"):
+        _require_uint64(getattr(value, field), f"$test_reader.{field}")
+
+    identity = id(value)
+
+    def forget(reference: weakref.ReferenceType[Any]) -> None:
+        if _AUTHORIZED_SECURE_AUDIO_READERS.get(identity) is reference:
+            _AUTHORIZED_SECURE_AUDIO_READERS.pop(identity, None)
+
+    try:
+        reference = weakref.ref(value, forget)
+    except TypeError as exc:
+        raise TypeError("Authorized test reader must support weak references.") from exc
+    _AUTHORIZED_SECURE_AUDIO_READERS[identity] = reference
+
+
 def _is_secure_audio_reader(value: Any) -> bool:
-    return getattr(type(value), _SECURE_AUDIO_READER_MARKER, False) is True
+    reference = _AUTHORIZED_SECURE_AUDIO_READERS.get(id(value))
+    return reference is not None and reference() is value
 
 
 def _register_materialized_artifact(artifact: AudioArtifact) -> None:

@@ -11,6 +11,7 @@ from types import MappingProxyType
 
 import pytest
 
+import engine.contracts.audio as audio_contracts
 from engine.contracts import (
     AUDIO_ARTIFACT_HASH_V1,
     AUDIO_ARTIFACT_INPUT_V1,
@@ -21,6 +22,7 @@ from engine.contracts import (
     AudioArtifactMaterializationRuntime,
     NarrationRevisionBinding,
     SecureAudioInputReference,
+    SecureAudioReader,
     SecureAudioSnapshot,
     SecureOpenEvidence,
     TrustedRootReference,
@@ -142,9 +144,7 @@ def evidence(
     )
 
 
-class _SecurePathStub:
-    _kurgu_secure_audio_reader_v1 = True
-
+class _SecurePathStub(SecureAudioReader):
     def __init__(
         self,
         source: bytes,
@@ -163,6 +163,7 @@ class _SecurePathStub:
         self.snapshot_read_count = 0
         self.reverify_read_count = 0
         self.opened_segments: tuple[str, ...] | None = None
+        audio_contracts._authorize_secure_audio_reader_for_testing(self)
 
     def open_snapshot(self, trusted_root, validated_logical_segments):
         self.access_count += 1
@@ -510,6 +511,54 @@ def test_nested_extension_keys_are_screened_without_raw_leakage(sentinel: str) -
     assert all(sentinel not in field for field in visible)
 
 
+@pytest.mark.parametrize(
+    ("sentinel", "nested_value"),
+    [
+        ("safe/api_key", "opaque"),
+        ("safe/ACCESS_TOKEN", "opaque"),
+        ("nested/path/password", "opaque"),
+        ("nested/path/authorization", "opaque"),
+        ("safe/token", {"child": "value"}),
+    ],
+)
+def test_nested_extension_sensitive_local_names_fail_closed_without_leakage(
+    sentinel: str,
+    nested_value,
+) -> None:
+    value = fx29_value(
+        extensions={"kurgu.audio/meta": {sentinel: nested_value}}
+    )
+
+    with pytest.raises(AudioArtifactContractError) as exc_info:
+        materialize(value)
+
+    error = exc_info.value
+    assert error.issue_code == "AUDIO_EXTENSION_SECURITY_VIOLATION"
+    visible = (
+        error.pointer,
+        str(error),
+        repr(error),
+        repr(error.args),
+        repr(vars(error)),
+    )
+    assert all(sentinel not in field for field in visible)
+
+
+def test_safe_nested_extension_keys_remain_accepted() -> None:
+    artifact = materialize(
+        fx29_value(
+            extensions={
+                "kurgu.audio/meta": {
+                    "safe/label": "opaque",
+                    "nested/path/note": {"child": "value"},
+                }
+            }
+        )
+    )
+
+    assert artifact.extensions["kurgu.audio/meta"]["safe/label"] == "opaque"
+
+
 @pytest.mark.parametrize("key", [CustomString("safe"), StringEnum.LOCAL])
 def test_nested_extension_keys_must_be_exact_builtin_strings(key) -> None:
     value = fx29_value(extensions={"kurgu.audio/meta": {key: "opaque"}})
@@ -783,6 +832,101 @@ def test_nominal_narration_binding_and_runtime_boundaries_reject_lookalikes() ->
             trusted_root=TrustedRootReference("C:/trusted/root"),
             secure_reader=FakeReader(),
         )
+
+
+def test_secure_reader_authorization_rejects_forgery_before_access() -> None:
+    class ReaderLookalike:
+        def __init__(self):
+            self.access_count = 0
+            self.snapshot_read_count = 0
+            self.reverify_read_count = 0
+
+        def open_snapshot(self, trusted_root, validated_logical_segments):
+            self.access_count += 1
+            raise AssertionError("unauthorized reader reached file access")
+
+    class ClassMarkerReader(ReaderLookalike):
+        _kurgu_secure_audio_reader_v1 = True
+
+    class MarkerBase:
+        _kurgu_secure_audio_reader_v1 = True
+
+    class InheritedMarkerReader(MarkerBase, ReaderLookalike):
+        pass
+
+    class MarkerMeta(type):
+        _kurgu_secure_audio_reader_v1 = True
+
+    class MetaclassMarkerReader(ReaderLookalike, metaclass=MarkerMeta):
+        pass
+
+    class UnauthorizedSecureReader(SecureAudioReader):
+        def __init__(self):
+            self.access_count = 0
+            self.snapshot_read_count = 0
+            self.reverify_read_count = 0
+
+        def open_snapshot(self, trusted_root, validated_logical_segments):
+            self.access_count += 1
+            raise AssertionError("unauthorized subclass reached file access")
+
+    plain = ReaderLookalike()
+    class_marker = ClassMarkerReader()
+    instance_marker = ReaderLookalike()
+    instance_marker._kurgu_secure_audio_reader_v1 = True
+    inherited_marker = InheritedMarkerReader()
+    metaclass_marker = MetaclassMarkerReader()
+    subclass_forgery = UnauthorizedSecureReader()
+    authorized = _SecurePathStub(fx29_bytes())
+
+    class ReaderProxy:
+        def __init__(self, target):
+            self.target = target
+
+        def __getattr__(self, name):
+            return getattr(self.target, name)
+
+    proxy = ReaderProxy(authorized)
+    rejected = (
+        plain,
+        class_marker,
+        instance_marker,
+        inherited_marker,
+        metaclass_marker,
+        subclass_forgery,
+        proxy,
+    )
+
+    for reader in rejected:
+        with pytest.raises(TypeError):
+            AudioArtifactMaterializationRuntime(
+                trusted_root=TrustedRootReference("C:/trusted/root"),
+                secure_reader=reader,
+            )
+
+    for reader in rejected:
+        target = reader.target if isinstance(reader, ReaderProxy) else reader
+        assert target.access_count == 0
+        assert target.snapshot_read_count == 0
+        assert target.reverify_read_count == 0
+
+    assert materialize(reader=authorized).audio_artifact_id == FX29_ARTIFACT_ID
+    assert authorized.access_count == 1
+    assert authorized.snapshot_read_count == 1
+    assert authorized.reverify_read_count == 0
+
+
+def test_secure_reader_authorization_does_not_hold_strong_reference() -> None:
+    def build_reference() -> tuple[int, weakref.ReferenceType[_SecurePathStub]]:
+        reader = _SecurePathStub(fx29_bytes())
+        runtime_for(reader)
+        return id(reader), weakref.ref(reader)
+
+    reader_identity, reader_reference = build_reference()
+    gc.collect()
+
+    assert reader_reference() is None
+    assert reader_identity not in audio_contracts._AUTHORIZED_SECURE_AUDIO_READERS
 
 
 def test_public_model_runtime_boundaries() -> None:
