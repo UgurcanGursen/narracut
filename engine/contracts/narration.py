@@ -6,7 +6,7 @@ import hashlib
 import re
 import unicodedata
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from enum import Enum
 from types import MappingProxyType
 from typing import Any
@@ -17,6 +17,7 @@ from ._canonical_json import encode_canonical_json_bytes
 CANONICAL_NARRATION_DOCUMENT_V1 = "CANONICAL-NARRATION-DOCUMENT-V1"
 NARRATION_REVISION_V1 = "NARRATION-REVISION-V1"
 NARRATION_REVISION_HASH_V1 = "narration-revision-hash-v1"
+NARRATION_LINEAGE_V1 = "NARRATION-LINEAGE-V1"
 NORMALIZATION_PROFILE_HASH_V1 = "normalization-profile-hash-v1"
 
 _HASH_PATTERN = re.compile(r"sha256:[0-9a-f]{64}")
@@ -24,7 +25,7 @@ _STABLE_ID_PATTERN = re.compile(
     r"[a-z][a-z0-9]*_[a-z0-9][a-z0-9_-]{2,63}"
 )
 _EXTENSION_KEY_PATTERN = re.compile(
-    r"[a-z][a-z0-9-]*:[a-z][a-z0-9_]*"
+    r"[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+/[a-z][a-z0-9_-]*"
 )
 _UINT32_MAX = 2**32 - 1
 
@@ -33,6 +34,25 @@ class TokenKind(str, Enum):
     SPOKEN = "SPOKEN"
     PUNCTUATION = "PUNCTUATION"
     NON_SPOKEN = "NON_SPOKEN"
+
+
+class SpokenFormOverrideSource(str, Enum):
+    USER_LEXICON = "USER_LEXICON"
+    PROJECT_LEXICON = "PROJECT_LEXICON"
+
+
+class LineageNodeType(str, Enum):
+    SECTION = "SECTION"
+    PARAGRAPH = "PARAGRAPH"
+    SENTENCE = "SENTENCE"
+    TOKEN = "TOKEN"
+
+
+class NodeLineageRelation(str, Enum):
+    INITIAL = "INITIAL"
+    UNCHANGED = "UNCHANGED"
+    INSERTED = "INSERTED"
+    SUPERSEDES = "SUPERSEDES"
 
 
 class WordRangeConsumer(str, Enum):
@@ -92,6 +112,36 @@ class NormalizationProfileRef:
 
 
 @dataclass(frozen=True)
+class SpokenFormOverride:
+    spoken_form: str
+    source: SpokenFormOverrideSource
+    reason: str
+    version: str
+
+
+@dataclass(frozen=True)
+class TypedNodeReference:
+    node_type: LineageNodeType
+    node_id: str
+
+
+@dataclass(frozen=True)
+class NodeLineageRecord:
+    node_type: LineageNodeType
+    successor_node_id: str
+    relation: NodeLineageRelation
+    predecessor_node_id: str | None
+
+
+@dataclass(frozen=True)
+class NarrationLineageManifest:
+    schema_version: str
+    predecessor_revision_id: str | None
+    records: tuple[NodeLineageRecord, ...]
+    removed_predecessors: tuple[TypedNodeReference, ...]
+
+
+@dataclass(frozen=True)
 class NarrationSentence:
     sentence_id: str
     revision_id: str
@@ -143,7 +193,7 @@ class CanonicalTextToken:
     section_id: str
     paragraph_id: str
     sentence_id: str
-    spoken_form_override: str | None
+    spoken_form_override: SpokenFormOverride | None
     trace_refs: tuple[str, ...]
     supersedes_id: str | None
     extensions: Mapping[str, Any]
@@ -179,6 +229,7 @@ class NarrationRevision:
     text_tokens: tuple[CanonicalTextToken, ...]
     canonical_words: tuple[CanonicalWord, ...]
     sections: tuple[NarrationSection, ...]
+    lineage_manifest: NarrationLineageManifest
     extensions: Mapping[str, Any]
 
 
@@ -266,7 +317,9 @@ _TOP_LEVEL_REQUIRED = {
     "sections",
     "text_tokens",
     "canonical_words",
-    "extensions",
+    "lineage_manifest",
+    "document_extensions",
+    "revision_extensions",
 }
 _TOP_LEVEL_ALLOWED = _TOP_LEVEL_REQUIRED | {"title"}
 _PROFILE_REQUIRED_WITHOUT_HASH = {
@@ -332,6 +385,27 @@ _TOKEN_ALLOWED = _TOKEN_REQUIRED | {
     "supersedes_id",
 }
 _WORD_PROJECTION_REQUIRED = {"text_order", "canonical_word_ordinal"}
+_OVERRIDE_REQUIRED = {"spoken_form", "source", "reason", "version"}
+_LINEAGE_MANIFEST_REQUIRED = {
+    "schema_version",
+    "predecessor_revision_id",
+    "records",
+    "removed_predecessors",
+}
+_LINEAGE_RECORD_REQUIRED = {
+    "node_type",
+    "successor_node_id",
+    "relation",
+    "predecessor_node_id",
+}
+_TYPED_NODE_REFERENCE_REQUIRED = {"node_type", "node_id"}
+@dataclass(frozen=True)
+class _LineageNodeView:
+    node_type: LineageNodeType
+    node_id: str
+    parent_id: str | None
+    supersedes_id: str | None
+    identity_payload: Mapping[str, Any]
 
 
 def normalization_profile_hash(profile: Mapping[str, Any]) -> str:
@@ -397,7 +471,14 @@ def materialize_canonical_narration(
         document_id,
     )
 
-    document_extensions = _validate_extensions(data["extensions"], "$.extensions")
+    document_extensions = _validate_extensions(
+        data["document_extensions"],
+        "$.document_extensions",
+    )
+    revision_extensions = _validate_extensions(
+        data["revision_extensions"],
+        "$.revision_extensions",
+    )
     profile = _parse_normalization_profile(
         data["normalization_profile"],
         language,
@@ -413,7 +494,6 @@ def materialize_canonical_narration(
         stable_identity_context,
         source_text,
     )
-    sections = _apply_hierarchy_lineage(sections, predecessor)
     hierarchy_lookup = _hierarchy_lookup(sections)
     tokens = _build_tokens(
         data["text_tokens"],
@@ -421,15 +501,26 @@ def materialize_canonical_narration(
         source_text,
         hierarchy_lookup,
     )
-    tokens = _apply_token_lineage(tokens, predecessor)
     words = _build_canonical_words(
         tokens,
         data["canonical_words"],
         stable_identity_context,
     )
     _validate_hierarchy_word_coverage(sections, words)
+    lineage_manifest = _parse_lineage_manifest(
+        data["lineage_manifest"],
+        parent_revision_id,
+    )
+    _validate_lineage_manifest(
+        lineage_manifest,
+        sections,
+        tokens,
+        predecessor,
+        project_id,
+        document_id,
+        source_text,
+    )
 
-    revision_extensions = document_extensions
     revision_scope = {
         "schema_version": NARRATION_REVISION_V1,
         "hash_scope_version": NARRATION_REVISION_HASH_V1,
@@ -439,10 +530,16 @@ def materialize_canonical_narration(
         "source_byte_hash": source_byte_hash,
         "source_text": source_text,
         "normalization_profile": _profile_to_dict(profile),
-        "text_tokens": [_token_to_dict(token) for token in tokens],
+        "text_tokens": [
+            _token_to_dict(token, include_extensions=False)
+            for token in tokens
+        ],
         "canonical_words": [_word_to_dict(word) for word in words],
-        "sections": [_section_draft_to_dict(section) for section in sections],
-        "extensions": _thaw_json(revision_extensions),
+        "sections": [
+            _section_draft_to_dict(section, include_extensions=False)
+            for section in sections
+        ],
+        "lineage_manifest": _lineage_manifest_to_dict(lineage_manifest),
     }
     revision_hash = _sha256(revision_scope)
     revision_id = (
@@ -464,6 +561,7 @@ def materialize_canonical_narration(
         text_tokens=tokens,
         canonical_words=words,
         sections=final_sections,
+        lineage_manifest=lineage_manifest,
         extensions=revision_extensions,
     )
     document = CanonicalNarrationDocument(
@@ -924,192 +1022,424 @@ def _build_sentences(
     return tuple(sentences)
 
 
-def _apply_hierarchy_lineage(
-    sections: tuple[_SectionDraft, ...],
-    predecessor: NarrationRevision | None,
-) -> tuple[_SectionDraft, ...]:
-    if predecessor is None:
-        for section in sections:
-            _require_initial_node_has_no_supersedes(section.supersedes_id)
-            for paragraph in section.paragraphs:
-                _require_initial_node_has_no_supersedes(
-                    paragraph.supersedes_id
-                )
-                for sentence in paragraph.sentences:
-                    _require_initial_node_has_no_supersedes(
-                        sentence.supersedes_id
-                    )
-        return sections
-
-    previous_sections = {
-        section.order: section for section in predecessor.sections
-    }
-    previous_section_ids = {
-        section.section_id for section in predecessor.sections
-    }
-    previous_paragraph_ids = {
-        paragraph.paragraph_id
-        for section in predecessor.sections
-        for paragraph in section.paragraphs
-    }
-    previous_sentence_ids = {
-        sentence.sentence_id
-        for section in predecessor.sections
-        for paragraph in section.paragraphs
-        for sentence in paragraph.sentences
-    }
-    resolved_sections: list[_SectionDraft] = []
-    for section in sections:
-        previous_section = previous_sections.get(section.order)
-        resolved_paragraphs: list[_ParagraphDraft] = []
-        previous_paragraphs = (
-            {
-                paragraph.order: paragraph
-                for paragraph in previous_section.paragraphs
-            }
-            if previous_section is not None
-            else {}
+def _parse_lineage_manifest(
+    value: Any,
+    parent_revision_id: str | None,
+) -> NarrationLineageManifest:
+    data = _require_mapping(value, "$.lineage_manifest")
+    _require_closed_fields(
+        data,
+        _LINEAGE_MANIFEST_REQUIRED,
+        _LINEAGE_MANIFEST_REQUIRED,
+        "$.lineage_manifest",
+    )
+    if data["schema_version"] != NARRATION_LINEAGE_V1:
+        _reject(
+            NarrationRejectionReason.UNSUPPORTED_ENUM,
+            "$.lineage_manifest.schema_version",
+            f"schema_version must be {NARRATION_LINEAGE_V1}.",
+            issue_code="UNSUPPORTED_CONTRACT_ENUM",
         )
-        for paragraph in section.paragraphs:
-            previous_paragraph = previous_paragraphs.get(paragraph.order)
-            resolved_sentences: list[_SentenceDraft] = []
-            previous_sentences = (
-                {
-                    sentence.order: sentence
-                    for sentence in previous_paragraph.sentences
-                }
-                if previous_paragraph is not None
-                else {}
-            )
-            for sentence in paragraph.sentences:
-                previous_sentence = previous_sentences.get(sentence.order)
-                resolved_sentences.append(
-                    replace(
-                        sentence,
-                        supersedes_id=_resolve_supersedes(
-                            sentence.sentence_id,
-                            sentence.supersedes_id,
-                            (
-                                previous_sentence.sentence_id
-                                if previous_sentence is not None
-                                else None
-                            ),
-                            "$.sections[].paragraphs[].sentences[]",
-                            previous_sentence_ids,
-                        ),
-                    )
-                )
-            resolved_paragraphs.append(
-                replace(
-                    paragraph,
-                    supersedes_id=_resolve_supersedes(
-                        paragraph.paragraph_id,
-                        paragraph.supersedes_id,
-                        (
-                            previous_paragraph.paragraph_id
-                            if previous_paragraph is not None
-                            else None
-                        ),
-                        "$.sections[].paragraphs[]",
-                        previous_paragraph_ids,
-                    ),
-                    sentences=tuple(resolved_sentences),
-                )
-            )
-        resolved_sections.append(
-            replace(
-                section,
-                supersedes_id=_resolve_supersedes(
-                    section.section_id,
-                    section.supersedes_id,
-                    (
-                        previous_section.section_id
-                        if previous_section is not None
-                        else None
-                    ),
-                    "$.sections[]",
-                    previous_section_ids,
+    predecessor_revision_id = _optional_stable_id(
+        data["predecessor_revision_id"],
+        "$.lineage_manifest.predecessor_revision_id",
+    )
+    if predecessor_revision_id != parent_revision_id:
+        _reject(
+            NarrationRejectionReason.IDENTITY_MISMATCH,
+            "$.lineage_manifest.predecessor_revision_id",
+            "Lineage predecessor must equal parent_revision_id.",
+        )
+
+    records_data = _require_array(
+        data["records"],
+        "$.lineage_manifest.records",
+    )
+    records: list[NodeLineageRecord] = []
+    for index, item in enumerate(records_data):
+        pointer = f"$.lineage_manifest.records[{index}]"
+        record = _require_mapping(item, pointer)
+        _require_closed_fields(
+            record,
+            _LINEAGE_RECORD_REQUIRED,
+            _LINEAGE_RECORD_REQUIRED,
+            pointer,
+        )
+        records.append(
+            NodeLineageRecord(
+                node_type=_parse_lineage_node_type(
+                    record["node_type"],
+                    f"{pointer}.node_type",
                 ),
-                paragraphs=tuple(resolved_paragraphs),
+                successor_node_id=_require_stable_id(
+                    record["successor_node_id"],
+                    f"{pointer}.successor_node_id",
+                ),
+                relation=_parse_lineage_relation(
+                    record["relation"],
+                    f"{pointer}.relation",
+                ),
+                predecessor_node_id=_optional_stable_id(
+                    record["predecessor_node_id"],
+                    f"{pointer}.predecessor_node_id",
+                ),
             )
         )
-    return tuple(resolved_sections)
+
+    removed_data = _require_array(
+        data["removed_predecessors"],
+        "$.lineage_manifest.removed_predecessors",
+    )
+    removed: list[TypedNodeReference] = []
+    for index, item in enumerate(removed_data):
+        pointer = f"$.lineage_manifest.removed_predecessors[{index}]"
+        reference = _require_mapping(item, pointer)
+        _require_closed_fields(
+            reference,
+            _TYPED_NODE_REFERENCE_REQUIRED,
+            _TYPED_NODE_REFERENCE_REQUIRED,
+            pointer,
+        )
+        removed.append(
+            TypedNodeReference(
+                node_type=_parse_lineage_node_type(
+                    reference["node_type"],
+                    f"{pointer}.node_type",
+                ),
+                node_id=_require_stable_id(
+                    reference["node_id"],
+                    f"{pointer}.node_id",
+                ),
+            )
+        )
+    return NarrationLineageManifest(
+        schema_version=NARRATION_LINEAGE_V1,
+        predecessor_revision_id=predecessor_revision_id,
+        records=tuple(records),
+        removed_predecessors=tuple(removed),
+    )
 
 
-def _apply_token_lineage(
+def _validate_lineage_manifest(
+    manifest: NarrationLineageManifest,
+    sections: tuple[_SectionDraft, ...],
     tokens: tuple[CanonicalTextToken, ...],
     predecessor: NarrationRevision | None,
-) -> tuple[CanonicalTextToken, ...]:
-    if predecessor is None:
-        for token in tokens:
-            _require_initial_node_has_no_supersedes(token.supersedes_id)
-        return tokens
-
-    previous_tokens = {
-        token.text_order: token for token in predecessor.text_tokens
-    }
-    previous_token_ids = {
-        token.token_id for token in predecessor.text_tokens
-    }
-    return tuple(
-        replace(
-            token,
-            supersedes_id=_resolve_supersedes(
-                token.token_id,
-                token.supersedes_id,
-                (
-                    previous_tokens[token.text_order].token_id
-                    if token.text_order in previous_tokens
-                    else None
-                ),
-                "$.text_tokens[]",
-                previous_token_ids,
-            ),
-        )
-        for token in tokens
-    )
-
-
-def _require_initial_node_has_no_supersedes(
-    supersedes_id: str | None,
+    project_id: str,
+    document_id: str,
+    source_text: str,
 ) -> None:
-    if supersedes_id is not None:
+    current_nodes = _lineage_node_views(
+        sections,
+        tokens,
+        project_id,
+        document_id,
+        source_text,
+    )
+    if len(manifest.records) != len(current_nodes):
         _reject(
             NarrationRejectionReason.IDENTITY_MISMATCH,
-            "$.supersedes_id",
-            "Initial-revision identities cannot supersede prior nodes.",
+            "$.lineage_manifest.records",
+            "Every successor node must have exactly one lineage record.",
         )
-
-
-def _resolve_supersedes(
-    current_id: str,
-    declared_supersedes_id: str | None,
-    previous_id: str | None,
-    pointer: str,
-    valid_previous_ids: set[str],
-) -> str | None:
-    if previous_id is None:
-        if declared_supersedes_id is None:
-            return None
-        if declared_supersedes_id not in valid_previous_ids:
+    for index, (record, node) in enumerate(
+        zip(manifest.records, current_nodes)
+    ):
+        if (
+            record.node_type is not node.node_type
+            or record.successor_node_id != node.node_id
+        ):
             _reject(
                 NarrationRejectionReason.IDENTITY_MISMATCH,
-                f"{pointer}.supersedes_id",
-                "supersedes_id does not resolve in the predecessor graph.",
+                f"$.lineage_manifest.records[{index}]",
+                "Lineage records must follow exact type and document order.",
             )
-        return declared_supersedes_id
-    expected = (
-        previous_id
-        if current_id != previous_id
-        else None
+
+    if predecessor is None:
+        if manifest.removed_predecessors:
+            _reject(
+                NarrationRejectionReason.IDENTITY_MISMATCH,
+                "$.lineage_manifest.removed_predecessors",
+                "Initial revisions cannot remove predecessor nodes.",
+            )
+        for index, (record, node) in enumerate(
+            zip(manifest.records, current_nodes)
+        ):
+            if (
+                record.relation is not NodeLineageRelation.INITIAL
+                or record.predecessor_node_id is not None
+                or node.supersedes_id is not None
+            ):
+                _reject(
+                    NarrationRejectionReason.IDENTITY_MISMATCH,
+                    f"$.lineage_manifest.records[{index}]",
+                    "Initial nodes require INITIAL with null predecessor and supersedes.",
+                )
+        return
+
+    predecessor_nodes = _lineage_node_views(
+        predecessor.sections,
+        predecessor.text_tokens,
+        predecessor.project_id,
+        predecessor.document_id,
+        predecessor.source_text,
     )
-    if declared_supersedes_id is not None and declared_supersedes_id != expected:
+    previous_by_key = {
+        (node.node_type, node.node_id): node for node in predecessor_nodes
+    }
+    current_by_key = {
+        (node.node_type, node.node_id): node for node in current_nodes
+    }
+    record_by_successor = {
+        (record.node_type, record.successor_node_id): record
+        for record in manifest.records
+    }
+    claimed: set[tuple[LineageNodeType, str]] = set()
+
+    for index, (record, node) in enumerate(
+        zip(manifest.records, current_nodes)
+    ):
+        pointer = f"$.lineage_manifest.records[{index}]"
+        if record.relation is NodeLineageRelation.INITIAL:
+            _reject(
+                NarrationRejectionReason.IDENTITY_MISMATCH,
+                f"{pointer}.relation",
+                "INITIAL is forbidden in non-initial revisions.",
+            )
+        if record.relation is NodeLineageRelation.INSERTED:
+            if (
+                record.predecessor_node_id is not None
+                or node.supersedes_id is not None
+                or (node.node_type, node.node_id) in previous_by_key
+            ):
+                _reject(
+                    NarrationRejectionReason.IDENTITY_MISMATCH,
+                    pointer,
+                    "INSERTED requires null lineage and a new deterministic ID.",
+                )
+            continue
+
+        predecessor_id = record.predecessor_node_id
+        if predecessor_id is None:
+            _reject(
+                NarrationRejectionReason.IDENTITY_MISMATCH,
+                f"{pointer}.predecessor_node_id",
+                "UNCHANGED and SUPERSEDES require a predecessor.",
+            )
+        predecessor_key = (record.node_type, predecessor_id)
+        previous = previous_by_key.get(predecessor_key)
+        if previous is None:
+            _reject(
+                NarrationRejectionReason.IDENTITY_MISMATCH,
+                f"{pointer}.predecessor_node_id",
+                "Predecessor does not resolve with the declared node type.",
+            )
+        if predecessor_key in claimed:
+            _reject(
+                NarrationRejectionReason.IDENTITY_MISMATCH,
+                f"{pointer}.predecessor_node_id",
+                "A predecessor can be claimed by only one successor.",
+            )
+        claimed.add(predecessor_key)
+
+        same_identity = (
+            encode_canonical_json_bytes(node.identity_payload)
+            == encode_canonical_json_bytes(previous.identity_payload)
+        )
+        if record.relation is NodeLineageRelation.UNCHANGED:
+            if (
+                predecessor_id != node.node_id
+                or not same_identity
+                or node.supersedes_id is not None
+            ):
+                _reject(
+                    NarrationRejectionReason.IDENTITY_MISMATCH,
+                    pointer,
+                    "UNCHANGED requires the same ID, identity payload, and null supersedes.",
+                )
+        elif record.relation is NodeLineageRelation.SUPERSEDES:
+            if (
+                predecessor_id == node.node_id
+                or same_identity
+                or node.supersedes_id != predecessor_id
+            ):
+                _reject(
+                    NarrationRejectionReason.IDENTITY_MISMATCH,
+                    pointer,
+                    "SUPERSEDES requires changed identity and an exact supersedes assertion.",
+                )
+        else:
+            _reject(
+                NarrationRejectionReason.UNSUPPORTED_ENUM,
+                f"{pointer}.relation",
+                "Unknown lineage relation.",
+                issue_code="UNSUPPORTED_CONTRACT_ENUM",
+            )
+
+    expected_removed = tuple(
+        TypedNodeReference(node.node_type, node.node_id)
+        for node in predecessor_nodes
+        if (node.node_type, node.node_id) not in claimed
+    )
+    if manifest.removed_predecessors != expected_removed:
         _reject(
             NarrationRejectionReason.IDENTITY_MISMATCH,
-            f"{pointer}.supersedes_id",
-            "supersedes_id does not match predecessor identity lineage.",
+            "$.lineage_manifest.removed_predecessors",
+            "Predecessors must be referenced once or removed once in canonical order.",
         )
-    return expected
+
+    for index, record in enumerate(manifest.records):
+        if record.relation not in {
+            NodeLineageRelation.UNCHANGED,
+            NodeLineageRelation.SUPERSEDES,
+        }:
+            continue
+        current = current_by_key[(record.node_type, record.successor_node_id)]
+        if current.parent_id is None:
+            continue
+        previous = previous_by_key[
+            (record.node_type, record.predecessor_node_id)
+        ]
+        parent_type = _parent_lineage_type(record.node_type)
+        parent_record = record_by_successor.get(
+            (parent_type, current.parent_id)
+        )
+        if (
+            parent_record is None
+            or parent_record.relation
+            not in {
+                NodeLineageRelation.UNCHANGED,
+                NodeLineageRelation.SUPERSEDES,
+            }
+            or parent_record.predecessor_node_id != previous.parent_id
+        ):
+            _reject(
+                NarrationRejectionReason.IDENTITY_MISMATCH,
+                f"$.lineage_manifest.records[{index}]",
+                "Child lineage requires the corresponding predecessor parent mapping.",
+            )
+
+
+def _lineage_node_views(
+    sections: Sequence[Any],
+    tokens: Sequence[CanonicalTextToken],
+    project_id: str,
+    document_id: str,
+    source_text: str,
+) -> tuple[_LineageNodeView, ...]:
+    context = {"project_id": project_id, "document_id": document_id}
+    section_views: list[_LineageNodeView] = []
+    paragraph_views: list[_LineageNodeView] = []
+    sentence_views: list[_LineageNodeView] = []
+    for section in sections:
+        section_views.append(
+            _LineageNodeView(
+                LineageNodeType.SECTION,
+                section.section_id,
+                None,
+                section.supersedes_id,
+                {
+                    **context,
+                    "kind": "section",
+                    "order": section.order,
+                    "source_start": section.source_start,
+                    "source_end": section.source_end,
+                    "source_text": source_text[
+                        section.source_start:section.source_end
+                    ],
+                },
+            )
+        )
+        for paragraph in section.paragraphs:
+            paragraph_views.append(
+                _LineageNodeView(
+                    LineageNodeType.PARAGRAPH,
+                    paragraph.paragraph_id,
+                    section.section_id,
+                    paragraph.supersedes_id,
+                    {
+                        **context,
+                        "kind": "paragraph",
+                        "section_id": section.section_id,
+                        "order": paragraph.order,
+                        "source_start": paragraph.source_start,
+                        "source_end": paragraph.source_end,
+                        "source_text": source_text[
+                            paragraph.source_start:paragraph.source_end
+                        ],
+                    },
+                )
+            )
+            for sentence in paragraph.sentences:
+                sentence_views.append(
+                    _LineageNodeView(
+                        LineageNodeType.SENTENCE,
+                        sentence.sentence_id,
+                        paragraph.paragraph_id,
+                        sentence.supersedes_id,
+                        {
+                            **context,
+                            "kind": "sentence",
+                            "paragraph_id": paragraph.paragraph_id,
+                            "order": sentence.order,
+                            "source_start": sentence.source_start,
+                            "source_end": sentence.source_end,
+                            "source_text": source_text[
+                                sentence.source_start:sentence.source_end
+                            ],
+                            "segmentation_rule_version": (
+                                sentence.segmentation_rule_version
+                            ),
+                            "language_override": sentence.language_override,
+                        },
+                    )
+                )
+    token_views = [
+        _LineageNodeView(
+            LineageNodeType.TOKEN,
+            token.token_id,
+            token.sentence_id,
+            token.supersedes_id,
+            _token_identity_payload(context, token),
+        )
+        for token in tokens
+    ]
+    return tuple(
+        section_views + paragraph_views + sentence_views + token_views
+    )
+
+
+def _token_identity_payload(
+    context: Mapping[str, Any],
+    token: CanonicalTextToken,
+) -> Mapping[str, Any]:
+    return {
+        **context,
+        "kind": token.kind.value,
+        "display_text": token.display_text,
+        "normalized_alignment_text": token.normalized_alignment_text,
+        "text_order": token.text_order,
+        "canonical_word_ordinal": token.canonical_word_ordinal,
+        "source_start": token.source_start,
+        "source_end": token.source_end,
+        "section_id": token.section_id,
+        "paragraph_id": token.paragraph_id,
+        "sentence_id": token.sentence_id,
+        "spoken_form_override": (
+            _spoken_form_override_to_dict(token.spoken_form_override)
+            if token.spoken_form_override is not None
+            else None
+        ),
+        "trace_refs": list(token.trace_refs),
+    }
+
+
+def _parent_lineage_type(node_type: LineageNodeType) -> LineageNodeType:
+    return {
+        LineageNodeType.PARAGRAPH: LineageNodeType.SECTION,
+        LineageNodeType.SENTENCE: LineageNodeType.PARAGRAPH,
+        LineageNodeType.TOKEN: LineageNodeType.SENTENCE,
+    }[node_type]
 
 
 def _hierarchy_lookup(
@@ -1248,11 +1578,7 @@ def _build_tokens(
 
         spoken_form_override = data.get("spoken_form_override")
         if spoken_form_override is not None:
-            spoken_form_override = _require_nonempty_string(
-                spoken_form_override,
-                f"{pointer}.spoken_form_override",
-            )
-            _require_nfc(
+            spoken_form_override = _parse_spoken_form_override(
                 spoken_form_override,
                 f"{pointer}.spoken_form_override",
             )
@@ -1306,7 +1632,11 @@ def _build_tokens(
             "section_id": section.section_id,
             "paragraph_id": paragraph.paragraph_id,
             "sentence_id": sentence.sentence_id,
-            "spoken_form_override": spoken_form_override,
+            "spoken_form_override": (
+                _spoken_form_override_to_dict(spoken_form_override)
+                if spoken_form_override is not None
+                else None
+            ),
             "trace_refs": list(trace_refs),
         }
         token_id = _stable_token(
@@ -1588,8 +1918,23 @@ def _profile_to_dict(profile: NormalizationProfileRef) -> dict[str, Any]:
     }
 
 
-def _token_to_dict(token: CanonicalTextToken) -> dict[str, Any]:
+def _spoken_form_override_to_dict(
+    override: SpokenFormOverride,
+) -> dict[str, Any]:
     return {
+        "spoken_form": override.spoken_form,
+        "source": override.source.value,
+        "reason": override.reason,
+        "version": override.version,
+    }
+
+
+def _token_to_dict(
+    token: CanonicalTextToken,
+    *,
+    include_extensions: bool = True,
+) -> dict[str, Any]:
+    payload = {
         "token_id": token.token_id,
         "kind": token.kind.value,
         "display_text": token.display_text,
@@ -1601,11 +1946,17 @@ def _token_to_dict(token: CanonicalTextToken) -> dict[str, Any]:
         "section_id": token.section_id,
         "paragraph_id": token.paragraph_id,
         "sentence_id": token.sentence_id,
-        "spoken_form_override": token.spoken_form_override,
+        "spoken_form_override": (
+            _spoken_form_override_to_dict(token.spoken_form_override)
+            if token.spoken_form_override is not None
+            else None
+        ),
         "trace_refs": list(token.trace_refs),
         "supersedes_id": token.supersedes_id,
-        "extensions": _thaw_json(token.extensions),
     }
+    if include_extensions:
+        payload["extensions"] = _thaw_json(token.extensions)
+    return payload
 
 
 def _word_to_dict(word: CanonicalWord) -> dict[str, Any]:
@@ -1615,8 +1966,12 @@ def _word_to_dict(word: CanonicalWord) -> dict[str, Any]:
     }
 
 
-def _sentence_draft_to_dict(sentence: _SentenceDraft) -> dict[str, Any]:
-    return {
+def _sentence_draft_to_dict(
+    sentence: _SentenceDraft,
+    *,
+    include_extensions: bool = True,
+) -> dict[str, Any]:
+    payload = {
         "sentence_id": sentence.sentence_id,
         "paragraph_id": sentence.paragraph_id,
         "order": sentence.order,
@@ -1625,12 +1980,18 @@ def _sentence_draft_to_dict(sentence: _SentenceDraft) -> dict[str, Any]:
         "segmentation_rule_version": sentence.segmentation_rule_version,
         "language_override": sentence.language_override,
         "supersedes_id": sentence.supersedes_id,
-        "extensions": _thaw_json(sentence.extensions),
     }
+    if include_extensions:
+        payload["extensions"] = _thaw_json(sentence.extensions)
+    return payload
 
 
-def _paragraph_draft_to_dict(paragraph: _ParagraphDraft) -> dict[str, Any]:
-    return {
+def _paragraph_draft_to_dict(
+    paragraph: _ParagraphDraft,
+    *,
+    include_extensions: bool = True,
+) -> dict[str, Any]:
+    payload = {
         "paragraph_id": paragraph.paragraph_id,
         "section_id": paragraph.section_id,
         "order": paragraph.order,
@@ -1638,25 +1999,64 @@ def _paragraph_draft_to_dict(paragraph: _ParagraphDraft) -> dict[str, Any]:
         "source_end": paragraph.source_end,
         "supersedes_id": paragraph.supersedes_id,
         "sentences": [
-            _sentence_draft_to_dict(sentence)
+            _sentence_draft_to_dict(
+                sentence,
+                include_extensions=include_extensions,
+            )
             for sentence in paragraph.sentences
         ],
-        "extensions": _thaw_json(paragraph.extensions),
     }
+    if include_extensions:
+        payload["extensions"] = _thaw_json(paragraph.extensions)
+    return payload
 
 
-def _section_draft_to_dict(section: _SectionDraft) -> dict[str, Any]:
-    return {
+def _section_draft_to_dict(
+    section: _SectionDraft,
+    *,
+    include_extensions: bool = True,
+) -> dict[str, Any]:
+    payload = {
         "section_id": section.section_id,
         "order": section.order,
         "source_start": section.source_start,
         "source_end": section.source_end,
         "supersedes_id": section.supersedes_id,
         "paragraphs": [
-            _paragraph_draft_to_dict(paragraph)
+            _paragraph_draft_to_dict(
+                paragraph,
+                include_extensions=include_extensions,
+            )
             for paragraph in section.paragraphs
         ],
-        "extensions": _thaw_json(section.extensions),
+    }
+    if include_extensions:
+        payload["extensions"] = _thaw_json(section.extensions)
+    return payload
+
+
+def _lineage_manifest_to_dict(
+    manifest: NarrationLineageManifest,
+) -> dict[str, Any]:
+    return {
+        "schema_version": manifest.schema_version,
+        "predecessor_revision_id": manifest.predecessor_revision_id,
+        "records": [
+            {
+                "node_type": record.node_type.value,
+                "successor_node_id": record.successor_node_id,
+                "relation": record.relation.value,
+                "predecessor_node_id": record.predecessor_node_id,
+            }
+            for record in manifest.records
+        ],
+        "removed_predecessors": [
+            {
+                "node_type": reference.node_type.value,
+                "node_id": reference.node_id,
+            }
+            for reference in manifest.removed_predecessors
+        ],
     }
 
 
@@ -1726,6 +2126,9 @@ def _revision_to_dict(revision: NarrationRevision) -> dict[str, Any]:
         "sections": [
             _section_to_dict(section) for section in revision.sections
         ],
+        "lineage_manifest": _lineage_manifest_to_dict(
+            revision.lineage_manifest
+        ),
         "extensions": _thaw_json(revision.extensions),
     }
 
@@ -1779,6 +2182,13 @@ def _require_closed_fields(
     *,
     allow_missing: set[str] | None = None,
 ) -> None:
+    unknown = set(data) - allowed
+    if unknown:
+        _reject(
+            NarrationRejectionReason.CLOSED_FIELD_VIOLATION,
+            pointer,
+            f"Unknown fields are forbidden: {', '.join(sorted(unknown))}.",
+        )
     missing = required - set(data)
     if allow_missing:
         missing -= allow_missing
@@ -1787,13 +2197,6 @@ def _require_closed_fields(
             NarrationRejectionReason.STRUCTURE_INVALID,
             pointer,
             f"Required fields are missing: {', '.join(sorted(missing))}.",
-        )
-    unknown = set(data) - allowed
-    if unknown:
-        _reject(
-            NarrationRejectionReason.CLOSED_FIELD_VIOLATION,
-            pointer,
-            f"Unknown fields are forbidden: {', '.join(sorted(unknown))}.",
         )
 
 
@@ -1964,6 +2367,72 @@ def _parse_token_kind(value: Any, pointer: str) -> TokenKind:
         ) from exc
 
 
+def _parse_spoken_form_override(
+    value: Any,
+    pointer: str,
+) -> SpokenFormOverride:
+    data = _require_mapping(value, pointer)
+    _require_closed_fields(
+        data,
+        _OVERRIDE_REQUIRED,
+        _OVERRIDE_REQUIRED,
+        pointer,
+    )
+    strings: dict[str, str] = {}
+    for field in ("spoken_form", "reason", "version"):
+        field_pointer = f"{pointer}.{field}"
+        strings[field] = _require_nonempty_string(
+            data[field],
+            field_pointer,
+        )
+        _require_nfc(strings[field], field_pointer)
+    try:
+        source = SpokenFormOverrideSource(data["source"])
+    except (TypeError, ValueError) as exc:
+        raise NarrationContractError(
+            NarrationRejectionReason.UNSUPPORTED_ENUM,
+            f"{pointer}.source",
+            "Unknown spoken-form override source.",
+            issue_code="UNSUPPORTED_CONTRACT_ENUM",
+        ) from exc
+    return SpokenFormOverride(
+        spoken_form=strings["spoken_form"],
+        source=source,
+        reason=strings["reason"],
+        version=strings["version"],
+    )
+
+
+def _parse_lineage_node_type(
+    value: Any,
+    pointer: str,
+) -> LineageNodeType:
+    try:
+        return LineageNodeType(value)
+    except (TypeError, ValueError) as exc:
+        raise NarrationContractError(
+            NarrationRejectionReason.UNSUPPORTED_ENUM,
+            pointer,
+            "Unknown lineage node type.",
+            issue_code="UNSUPPORTED_CONTRACT_ENUM",
+        ) from exc
+
+
+def _parse_lineage_relation(
+    value: Any,
+    pointer: str,
+) -> NodeLineageRelation:
+    try:
+        return NodeLineageRelation(value)
+    except (TypeError, ValueError) as exc:
+        raise NarrationContractError(
+            NarrationRejectionReason.UNSUPPORTED_ENUM,
+            pointer,
+            "Unknown lineage relation.",
+            issue_code="UNSUPPORTED_CONTRACT_ENUM",
+        ) from exc
+
+
 def _validate_trace_refs(value: Any, pointer: str) -> tuple[str, ...]:
     refs = _require_array(value, pointer)
     validated = tuple(
@@ -1989,7 +2458,7 @@ def _validate_extensions(value: Any, pointer: str) -> Mapping[str, Any]:
             _reject(
                 NarrationRejectionReason.EXTENSION_INVALID,
                 pointer,
-                "Extension keys must use the V3 domain:name namespace form.",
+                "Extension keys must use the V1 dotted-namespace/local form.",
             )
         _validate_json_value(item, f"{pointer}.{key}")
     return _freeze_json(data)
