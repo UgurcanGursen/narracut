@@ -37,26 +37,52 @@ FX20_PACKAGE = {
         ],
         "language": "en",
     },
+    "payload_byte_hash": (
+        "sha256:492acc757b2708c21663a294117c418351e1037b"
+        "afce0259c409eda2b17c0db5"
+    ),
     "media_type": "application/vnd.kurgu.temporal-raw+json",
     "issue_codes": [],
 }
+FX20_PAYLOAD_BYTES = (
+    b'{"language":"en","tokens":[{"end_us":1000000,"index":0,'
+    b'"start_us":0,"text":"A"},{"end_us":2000000,"index":1,'
+    b'"start_us":1000000,"text":"clear"},{"end_us":3000000,"index":2,'
+    b'"start_us":2000000,"text":"result"}]}'
+)
 FX20_CANONICAL_BYTES = (
     b'{"issue_codes":[],"media_type":"application/vnd.kurgu.temporal-raw+json",'
     b'"payload":{"language":"en","tokens":[{"end_us":1000000,"index":0,'
     b'"start_us":0,"text":"A"},{"end_us":2000000,"index":1,'
     b'"start_us":1000000,"text":"clear"},{"end_us":3000000,"index":2,'
-    b'"start_us":2000000,"text":"result"}]},"raw_id":"raw_fx20",'
+    b'"start_us":2000000,"text":"result"}]},"payload_byte_hash":'
+    b'"sha256:492acc757b2708c21663a294117c418351e1037bafce0259c409eda2b17c0db5",'
+    b'"raw_id":"raw_fx20",'
     b'"run_id":"run_fx20","schema_version":"TRP-RAW-V1"}'
 )
 FX20_CANONICAL_HASH = (
-    "sha256:9911573528876b3bffda8cef2293ea3f02b193fc"
-    "fec61ffeeb4f9cd7cdcac85b"
+    "sha256:4c33882460f8cd26bd773a939bfd3e789edea04b"
+    "28eaad88974b0e808754983e"
 )
 
 
-def test_fx20_has_exact_canonical_bytes_and_hash() -> None:
-    result = canonicalize_temporal_raw_package(FX20_PACKAGE)
+def canonicalize_fx20(
+    package: dict | None = None,
+    *,
+    payload_bytes: bytes = FX20_PAYLOAD_BYTES,
+):
+    return canonicalize_temporal_raw_package(
+        FX20_PACKAGE if package is None else package,
+        payload_bytes=payload_bytes,
+    )
 
+
+def test_fx20_has_exact_canonical_bytes_and_hash() -> None:
+    result = canonicalize_fx20()
+
+    assert FX20_PACKAGE["payload_byte_hash"] == (
+        "sha256:" + hashlib.sha256(FX20_PAYLOAD_BYTES).hexdigest()
+    )
     assert result.canonical_bytes == FX20_CANONICAL_BYTES
     assert result.canonical_hash == FX20_CANONICAL_HASH
     assert not result.canonical_bytes.startswith(b"\xef\xbb\xbf")
@@ -74,11 +100,16 @@ def test_independent_materialization_paths_are_byte_and_hash_equal() -> None:
         b'{"text":"clear","start_us":1000000,"index":1,"end_us":2000000},'
         b'{"text":"result","start_us":2000000,"index":2,"end_us":3000000}'
         b'], "language":"en"}, "raw_id":"raw_fx20", "issue_codes":[],'
-        b' "media_type":"application/vnd.kurgu.temporal-raw+json" }'
+        b' "media_type":"application/vnd.kurgu.temporal-raw+json",'
+        b' "payload_byte_hash":'
+        b'"sha256:492acc757b2708c21663a294117c418351e1037bafce0259c409eda2b17c0db5" }'
     )
 
-    logical = canonicalize_temporal_raw_package(FX20_PACKAGE)
-    parsed = load_temporal_raw_package(source)
+    logical = canonicalize_fx20()
+    parsed = load_temporal_raw_package(
+        source,
+        payload_bytes=FX20_PAYLOAD_BYTES,
+    )
 
     assert parsed.canonical_bytes == logical.canonical_bytes
     assert parsed.canonical_hash == logical.canonical_hash
@@ -88,7 +119,7 @@ def test_object_insertion_order_does_not_change_bytes() -> None:
     reversed_root = dict(reversed(list(FX20_PACKAGE.items())))
 
     assert (
-        canonicalize_temporal_raw_package(reversed_root).canonical_bytes
+        canonicalize_fx20(reversed_root).canonical_bytes
         == FX20_CANONICAL_BYTES
     )
 
@@ -96,11 +127,11 @@ def test_object_insertion_order_does_not_change_bytes() -> None:
 def test_semantic_array_order_changes_bytes_and_hash() -> None:
     first = copy.deepcopy(FX20_PACKAGE)
     second = copy.deepcopy(FX20_PACKAGE)
-    first["payload"]["alternatives"] = ["alpha", "beta"]
-    second["payload"]["alternatives"] = ["beta", "alpha"]
+    first["alternatives"] = ["alpha", "beta"]
+    second["alternatives"] = ["beta", "alpha"]
 
-    first_result = canonicalize_temporal_raw_package(first)
-    second_result = canonicalize_temporal_raw_package(second)
+    first_result = canonicalize_fx20(first)
+    second_result = canonicalize_fx20(second)
 
     assert first_result.canonical_bytes != second_result.canonical_bytes
     assert first_result.canonical_hash != second_result.canonical_hash
@@ -109,23 +140,21 @@ def test_semantic_array_order_changes_bytes_and_hash() -> None:
 def test_nfc_equivalent_inputs_have_equal_bytes_and_hashes() -> None:
     composed = copy.deepcopy(FX20_PACKAGE)
     decomposed = copy.deepcopy(FX20_PACKAGE)
-    composed["payload"]["label"] = "caf\u00e9"
-    decomposed["payload"]["label"] = "cafe\u0301"
+    composed["label"] = "caf\u00e9"
+    decomposed["label"] = "cafe\u0301"
 
-    assert canonicalize_temporal_raw_package(
-        composed
-    ) == canonicalize_temporal_raw_package(decomposed)
+    assert canonicalize_fx20(composed) == canonicalize_fx20(decomposed)
 
 
 def test_nfc_key_collision_is_rejected() -> None:
     package = copy.deepcopy(FX20_PACKAGE)
-    package["payload"]["labels"] = {
+    package["labels"] = {
         "caf\u00e9": "composed",
         "cafe\u0301": "decomposed",
     }
 
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        canonicalize_temporal_raw_package(package)
+        canonicalize_fx20(package)
 
     assert (
         exc_info.value.reason
@@ -136,19 +165,19 @@ def test_nfc_key_collision_is_rejected() -> None:
 @pytest.mark.parametrize("value", ["\ud800", "\ufdd0"])
 def test_forbidden_unicode_values_are_rejected(value: str) -> None:
     package = copy.deepcopy(FX20_PACKAGE)
-    package["payload"]["label"] = value
+    package["label"] = value
 
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        canonicalize_temporal_raw_package(package)
+        canonicalize_fx20(package)
 
     assert exc_info.value.reason is RawPackageRejectionReason.INVALID_UNICODE
 
 
 def test_string_escaping_uses_exact_contract_forms() -> None:
     package = copy.deepcopy(FX20_PACKAGE)
-    package["payload"]["escaped"] = '"\\/\n\t'
+    package["escaped"] = '"\\/\n\t'
 
-    result = canonicalize_temporal_raw_package(package)
+    result = canonicalize_fx20(package)
 
     assert b'"\\"\\\\/\\u000a\\u0009"' in result.canonical_bytes
     assert b"\\n" not in result.canonical_bytes
@@ -157,13 +186,13 @@ def test_string_escaping_uses_exact_contract_forms() -> None:
 
 def test_integer_boolean_and_null_forms_are_exact() -> None:
     package = copy.deepcopy(FX20_PACKAGE)
-    package["payload"]["forms"] = {
+    package["forms"] = {
         "integer": -42,
         "boolean": True,
         "nullable": None,
     }
 
-    result = canonicalize_temporal_raw_package(package)
+    result = canonicalize_fx20(package)
 
     assert (
         b'"forms":{"boolean":true,"integer":-42,"nullable":null}'
@@ -189,7 +218,10 @@ def test_invalid_byte_encodings_are_rejected(
     reason: RawPackageRejectionReason,
 ) -> None:
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        load_temporal_raw_package(source)
+        load_temporal_raw_package(
+            source,
+            payload_bytes=FX20_PAYLOAD_BYTES,
+        )
 
     assert exc_info.value.reason is reason
     assert not hasattr(exc_info.value, "canonical_hash")
@@ -203,7 +235,10 @@ def test_duplicate_key_is_rejected_before_hash() -> None:
     )
 
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        load_temporal_raw_package(source)
+        load_temporal_raw_package(
+            source,
+            payload_bytes=FX20_PAYLOAD_BYTES,
+        )
 
     assert exc_info.value.reason is RawPackageRejectionReason.DUPLICATE_KEY
     assert not hasattr(exc_info.value, "canonical_hash")
@@ -217,16 +252,19 @@ def test_nonfinite_numbers_are_rejected(literal: bytes) -> None:
     )
 
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        load_temporal_raw_package(source)
+        load_temporal_raw_package(
+            source,
+            payload_bytes=FX20_PAYLOAD_BYTES,
+        )
 
     assert exc_info.value.reason is RawPackageRejectionReason.FLOAT_FORBIDDEN
 
 
 def test_finite_float_and_negative_zero_are_rejected() -> None:
     package = copy.deepcopy(FX20_PACKAGE)
-    package["payload"]["confidence"] = 0.5
+    package["confidence"] = 0.5
     with pytest.raises(TemporalRawPackageError) as float_error:
-        canonicalize_temporal_raw_package(package)
+        canonicalize_fx20(package)
     assert (
         float_error.value.reason
         is RawPackageRejectionReason.FLOAT_FORBIDDEN
@@ -238,7 +276,10 @@ def test_finite_float_and_negative_zero_are_rejected() -> None:
         1,
     )
     with pytest.raises(TemporalRawPackageError) as zero_error:
-        load_temporal_raw_package(source)
+        load_temporal_raw_package(
+            source,
+            payload_bytes=FX20_PAYLOAD_BYTES,
+        )
     assert (
         zero_error.value.reason
         is RawPackageRejectionReason.NEGATIVE_ZERO_FORBIDDEN
@@ -271,7 +312,7 @@ def test_unknown_issue_code_rejects_package_before_hash() -> None:
     package["issue_codes"] = ["NOT_IN_THE_INVENTORY"]
 
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        canonicalize_temporal_raw_package(package)
+        canonicalize_fx20(package)
 
     assert (
         exc_info.value.reason
@@ -302,9 +343,16 @@ def test_stable_issue_inventory_view_is_closed_and_deterministic() -> None:
 def test_token_arrays_require_strictly_ascending_indices() -> None:
     package = copy.deepcopy(FX20_PACKAGE)
     package["payload"]["tokens"][1]["index"] = 0
+    payload_bytes = FX20_PAYLOAD_BYTES.replace(
+        b'"end_us":2000000,"index":1',
+        b'"end_us":2000000,"index":0',
+    )
+    package["payload_byte_hash"] = (
+        "sha256:" + hashlib.sha256(payload_bytes).hexdigest()
+    )
 
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        canonicalize_temporal_raw_package(package)
+        canonicalize_fx20(package, payload_bytes=payload_bytes)
 
     assert (
         exc_info.value.reason
@@ -317,10 +365,139 @@ def test_required_structure_is_rejected_before_hash() -> None:
     del package["raw_id"]
 
     with pytest.raises(TemporalRawPackageError) as exc_info:
-        canonicalize_temporal_raw_package(package)
+        canonicalize_fx20(package)
 
     assert (
         exc_info.value.reason
         is RawPackageRejectionReason.STRUCTURE_INVALID
     )
     assert not hasattr(exc_info.value, "canonical_hash")
+
+
+def test_payload_byte_hash_is_required_before_canonical_hash() -> None:
+    package = copy.deepcopy(FX20_PACKAGE)
+    del package["payload_byte_hash"]
+
+    with pytest.raises(TemporalRawPackageError) as exc_info:
+        canonicalize_fx20(package)
+
+    assert exc_info.value.reason is RawPackageRejectionReason.STRUCTURE_INVALID
+    assert not hasattr(exc_info.value, "canonical_bytes")
+    assert not hasattr(exc_info.value, "canonical_hash")
+
+
+@pytest.mark.parametrize(
+    "declared_hash",
+    [
+        "not-a-sha256",
+        "492acc757b2708c21663a294117c418351e1037bafce0259c409eda2b17c0db5",
+        "sha256:492acc75",
+        (
+            "sha256:492ACC757B2708C21663A294117C418351E1037B"
+            "AFCE0259C409EDA2B17C0DB5"
+        ),
+        (
+            "SHA256:492acc757b2708c21663a294117c418351e1037b"
+            "afce0259c409eda2b17c0db5"
+        ),
+    ],
+)
+def test_payload_byte_hash_requires_exact_syntax(
+    declared_hash: str,
+) -> None:
+    package = copy.deepcopy(FX20_PACKAGE)
+    package["payload_byte_hash"] = declared_hash
+
+    with pytest.raises(TemporalRawPackageError) as exc_info:
+        canonicalize_fx20(package)
+
+    assert (
+        exc_info.value.reason
+        is RawPackageRejectionReason.PAYLOAD_HASH_INVALID
+    )
+    assert not hasattr(exc_info.value, "canonical_hash")
+
+
+def test_payload_byte_hash_must_match_exact_raw_bytes() -> None:
+    changed_payload_bytes = FX20_PAYLOAD_BYTES.replace(
+        b'"result"',
+        b'"Result"',
+    )
+
+    with pytest.raises(TemporalRawPackageError) as exc_info:
+        canonicalize_fx20(payload_bytes=changed_payload_bytes)
+
+    assert (
+        exc_info.value.reason
+        is RawPackageRejectionReason.PAYLOAD_HASH_MISMATCH
+    )
+    assert not hasattr(exc_info.value, "canonical_bytes")
+    assert not hasattr(exc_info.value, "canonical_hash")
+
+
+def test_raw_and_logical_paths_validate_the_same_payload_bytes() -> None:
+    logical = canonicalize_fx20()
+    loaded = load_temporal_raw_package(
+        FX20_CANONICAL_BYTES,
+        payload_bytes=FX20_PAYLOAD_BYTES,
+    )
+
+    assert loaded == logical
+
+    for materialize in (
+        lambda: canonicalize_fx20(payload_bytes=FX20_PAYLOAD_BYTES + b" "),
+        lambda: load_temporal_raw_package(
+            FX20_CANONICAL_BYTES,
+            payload_bytes=FX20_PAYLOAD_BYTES + b" ",
+        ),
+    ):
+        with pytest.raises(TemporalRawPackageError) as exc_info:
+            materialize()
+        assert (
+            exc_info.value.reason
+            is RawPackageRejectionReason.PAYLOAD_HASH_MISMATCH
+        )
+        assert not hasattr(exc_info.value, "canonical_hash")
+
+
+def test_opaque_nested_tokens_are_preserved_without_alignment_validation() -> None:
+    package = copy.deepcopy(FX20_PACKAGE)
+    package["payload"]["metadata"] = {
+        "tokens": ["not", "alignment", "tokens"],
+        "nested": {"tokens": {"provider": "opaque"}},
+    }
+    payload_bytes = (
+        b'{"language":"en","metadata":{"nested":{"tokens":{"provider":"opaque"}},'
+        b'"tokens":["not","alignment","tokens"]},"tokens":'
+        b'[{"end_us":1000000,"index":0,"start_us":0,"text":"A"},'
+        b'{"end_us":2000000,"index":1,"start_us":1000000,"text":"clear"},'
+        b'{"end_us":3000000,"index":2,"start_us":2000000,"text":"result"}]}'
+    )
+    package["payload_byte_hash"] = (
+        "sha256:" + hashlib.sha256(payload_bytes).hexdigest()
+    )
+
+    result = canonicalize_fx20(package, payload_bytes=payload_bytes)
+
+    assert b'"tokens":["not","alignment","tokens"]' in result.canonical_bytes
+    assert b'"tokens":{"provider":"opaque"}' in result.canonical_bytes
+
+
+def test_valid_alignment_token_indices_need_only_be_strictly_ascending() -> None:
+    package = copy.deepcopy(FX20_PACKAGE)
+    package["payload"]["tokens"][0]["index"] = -2
+    package["payload"]["tokens"][1]["index"] = 4
+    package["payload"]["tokens"][2]["index"] = 9
+    payload_bytes = (
+        FX20_PAYLOAD_BYTES.replace(b'"index":0', b'"index":-2')
+        .replace(b'"index":1', b'"index":4')
+        .replace(b'"index":2', b'"index":9')
+    )
+    package["payload_byte_hash"] = (
+        "sha256:" + hashlib.sha256(payload_bytes).hexdigest()
+    )
+
+    assert canonicalize_fx20(
+        package,
+        payload_bytes=payload_bytes,
+    ).canonical_hash.startswith("sha256:")

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import unicodedata
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -92,6 +93,8 @@ class RawPackageRejectionReason(str, Enum):
     INVALID_UNICODE = "invalid_unicode"
     NEGATIVE_ZERO_FORBIDDEN = "negative_zero_forbidden"
     NORMALIZED_KEY_COLLISION = "normalized_key_collision"
+    PAYLOAD_HASH_INVALID = "payload_hash_invalid"
+    PAYLOAD_HASH_MISMATCH = "payload_hash_mismatch"
     STRUCTURE_INVALID = "structure_invalid"
     TOKEN_ORDER_INVALID = "token_order_invalid"
     UNKNOWN_ISSUE_CODE = "unknown_issue_code"
@@ -160,16 +163,22 @@ def validate_issue_codes(codes: Sequence[str]) -> tuple[str, ...]:
 
 def canonicalize_temporal_raw_package(
     value: Mapping[str, Any],
+    *,
+    payload_bytes: bytes,
 ) -> CanonicalRawPackage:
     """Validate and materialize one logical TRP-RAW-V1 package."""
     normalized = _normalize_value(value, "$")
-    _validate_package_structure(normalized)
+    _validate_package_structure(normalized, payload_bytes)
     canonical_bytes = _encode_value(normalized).encode("utf-8")
     digest = hashlib.sha256(canonical_bytes).hexdigest()
     return CanonicalRawPackage(canonical_bytes, f"sha256:{digest}")
 
 
-def load_temporal_raw_package(source: bytes) -> CanonicalRawPackage:
+def load_temporal_raw_package(
+    source: bytes,
+    *,
+    payload_bytes: bytes,
+) -> CanonicalRawPackage:
     """Parse UTF-8 JSON bytes, then use the logical materialization path."""
     if not isinstance(source, bytes):
         _reject(
@@ -224,7 +233,10 @@ def load_temporal_raw_package(source: bytes) -> CanonicalRawPackage:
             "Raw package is not valid JSON.",
         ) from exc
 
-    return canonicalize_temporal_raw_package(value)
+    return canonicalize_temporal_raw_package(
+        value,
+        payload_bytes=payload_bytes,
+    )
 
 
 def _mapping_from_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
@@ -314,7 +326,7 @@ def _validate_unicode(value: str, pointer: str) -> None:
             )
 
 
-def _validate_package_structure(value: Any) -> None:
+def _validate_package_structure(value: Any, payload_bytes: bytes) -> None:
     if not isinstance(value, dict):
         _reject(
             RawPackageRejectionReason.STRUCTURE_INVALID,
@@ -326,6 +338,7 @@ def _validate_package_structure(value: Any) -> None:
         "issue_codes",
         "media_type",
         "payload",
+        "payload_byte_hash",
         "raw_id",
         "run_id",
         "schema_version",
@@ -355,6 +368,32 @@ def _validate_package_structure(value: Any) -> None:
             "$.payload",
             "payload must be an object.",
         )
+    declared_payload_hash = value["payload_byte_hash"]
+    if (
+        not isinstance(declared_payload_hash, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", declared_payload_hash)
+        is None
+    ):
+        _reject(
+            RawPackageRejectionReason.PAYLOAD_HASH_INVALID,
+            "$.payload_byte_hash",
+            "payload_byte_hash must be sha256:<64 lowercase hex>.",
+        )
+    if not isinstance(payload_bytes, bytes):
+        _reject(
+            RawPackageRejectionReason.UNSUPPORTED_VALUE,
+            "$payload_bytes",
+            "Exact raw provider payload bytes are required.",
+        )
+    actual_payload_hash = (
+        "sha256:" + hashlib.sha256(payload_bytes).hexdigest()
+    )
+    if declared_payload_hash != actual_payload_hash:
+        _reject(
+            RawPackageRejectionReason.PAYLOAD_HASH_MISMATCH,
+            "$.payload_byte_hash",
+            "payload_byte_hash does not match the raw provider payload bytes.",
+        )
     if not isinstance(value["issue_codes"], list):
         _reject(
             RawPackageRejectionReason.STRUCTURE_INVALID,
@@ -362,46 +401,40 @@ def _validate_package_structure(value: Any) -> None:
             "issue_codes must be an ordered array.",
         )
     validate_issue_codes(value["issue_codes"])
-    _validate_token_arrays(value, "$")
+    if "tokens" in value["payload"]:
+        _validate_alignment_tokens(value["payload"]["tokens"])
 
 
-def _validate_token_arrays(value: Any, pointer: str) -> None:
-    if isinstance(value, dict):
-        for key, item in value.items():
-            item_pointer = f"{pointer}.{key}"
-            if key == "tokens":
-                if not isinstance(item, list):
-                    _reject(
-                        RawPackageRejectionReason.TOKEN_ORDER_INVALID,
-                        item_pointer,
-                        "Token collections must be arrays.",
-                    )
-                indices: list[int] = []
-                for index, token in enumerate(item):
-                    if (
-                        not isinstance(token, dict)
-                        or isinstance(token.get("index"), bool)
-                        or not isinstance(token.get("index"), int)
-                    ):
-                        _reject(
-                            RawPackageRejectionReason.TOKEN_ORDER_INVALID,
-                            f"{item_pointer}[{index}]",
-                            "Every token must have an integer index.",
-                        )
-                    indices.append(token["index"])
-                if any(
-                    current >= following
-                    for current, following in zip(indices, indices[1:])
-                ):
-                    _reject(
-                        RawPackageRejectionReason.TOKEN_ORDER_INVALID,
-                        item_pointer,
-                        "Token arrays must use strictly ascending indices.",
-                    )
-            _validate_token_arrays(item, item_pointer)
-    elif isinstance(value, list):
-        for index, item in enumerate(value):
-            _validate_token_arrays(item, f"{pointer}[{index}]")
+def _validate_alignment_tokens(tokens: Any) -> None:
+    pointer = "$.payload.tokens"
+    if not isinstance(tokens, list):
+        _reject(
+            RawPackageRejectionReason.TOKEN_ORDER_INVALID,
+            pointer,
+            "The alignment token collection must be an array.",
+        )
+    indices: list[int] = []
+    for index, token in enumerate(tokens):
+        if (
+            not isinstance(token, dict)
+            or isinstance(token.get("index"), bool)
+            or not isinstance(token.get("index"), int)
+        ):
+            _reject(
+                RawPackageRejectionReason.TOKEN_ORDER_INVALID,
+                f"{pointer}[{index}]",
+                "Every alignment token must have an integer index.",
+            )
+        indices.append(token["index"])
+    if any(
+        current >= following
+        for current, following in zip(indices, indices[1:])
+    ):
+        _reject(
+            RawPackageRejectionReason.TOKEN_ORDER_INVALID,
+            pointer,
+            "Alignment tokens must use strictly ascending indices.",
+        )
 
 
 def _encode_value(value: Any) -> str:
