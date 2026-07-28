@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+import gc
 import hashlib
 import pickle
+import weakref
 
 import pytest
 
@@ -534,6 +536,60 @@ def _assert_non_genuine_raw_package(value: object) -> None:
             match="^canonical raw package must be genuine$",
         ):
             value.canonical_hash
+
+
+def _collect_until_dead(reference: weakref.ReferenceType[object]) -> None:
+    for _ in range(5):
+        if reference() is None:
+            return
+        gc.collect()
+    assert reference() is None
+
+
+def test_raw_package_registry_releases_collected_instance() -> None:
+    value = canonicalize_fx20()
+    registry = temporal_contracts._MATERIALIZED_RAW_PACKAGES
+    identity_key = id(value)
+    registered_reference = registry[identity_key]
+    external_reference = weakref.ref(value)
+
+    assert registry[identity_key] is registered_reference
+    assert registered_reference() is value
+
+    del value
+    _collect_until_dead(external_reference)
+
+    assert external_reference() is None
+    assert identity_key not in registry
+
+
+def test_raw_package_stale_cleanup_preserves_replacement_entry() -> None:
+    registry = temporal_contracts._MATERIALIZED_RAW_PACKAGES
+    original = canonicalize_fx20()
+    replacement = canonicalize_fx20()
+    original_key = id(original)
+    original_reference = registry[original_key]
+    replacement_key = id(replacement)
+    replacement_reference = registry[replacement_key]
+    external_original_reference = weakref.ref(original)
+
+    assert registry[original_key] is original_reference
+    assert original_reference() is original
+    assert registry[replacement_key] is replacement_reference
+    assert replacement_reference() is replacement
+
+    registry[original_key] = replacement_reference
+    try:
+        del original
+        _collect_until_dead(external_original_reference)
+
+        assert external_original_reference() is None
+        assert registry.get(original_key) is replacement_reference
+        assert registry[replacement_key] is replacement_reference
+        assert temporal_contracts._is_materialized_raw_package(replacement)
+    finally:
+        if registry.get(original_key) is replacement_reference:
+            del registry[original_key]
 
 
 @pytest.mark.parametrize(

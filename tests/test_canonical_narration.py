@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+import gc
 import hashlib
 import json
+import weakref
 from dataclasses import FrozenInstanceError, fields, replace
 from enum import Enum
 
@@ -549,6 +551,14 @@ def _assert_not_genuine_narration_pair(document, revision) -> None:
     )
 
 
+def _collect_until_dead(*references: weakref.ReferenceType[object]) -> None:
+    for _ in range(5):
+        if all(reference() is None for reference in references):
+            return
+        gc.collect()
+    assert all(reference() is None for reference in references)
+
+
 def test_fx34_exact_source_hierarchy_and_canonical_bytes() -> None:
     result = materialize_fx34()
     revision = result.revision
@@ -606,6 +616,112 @@ def test_fx34_exact_source_hierarchy_and_canonical_bytes() -> None:
     )
     assert result.document is result.document
     assert result.revision is revision
+
+
+def test_narration_registries_release_collected_pair() -> None:
+    result = materialize_fx34()
+    document = result.document
+    revision = result.revision
+    document_registry = narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS
+    revision_registry = narration_contracts._MATERIALIZED_NARRATION_REVISIONS
+    document_key = id(document)
+    revision_key = id(revision)
+    registered_document_reference = document_registry[document_key]
+    registered_revision_reference = revision_registry[revision_key]
+    external_document_reference = weakref.ref(document)
+    external_revision_reference = weakref.ref(revision)
+
+    assert document_registry[document_key] is registered_document_reference
+    assert revision_registry[revision_key] is registered_revision_reference
+    assert registered_document_reference() is document
+    assert registered_revision_reference() is revision
+
+    del result
+    del document
+    del revision
+    _collect_until_dead(external_document_reference, external_revision_reference)
+
+    assert external_document_reference() is None
+    assert external_revision_reference() is None
+    assert document_key not in document_registry
+    assert revision_key not in revision_registry
+
+
+def test_narration_stale_cleanup_preserves_replacement_entries() -> None:
+    document_registry = narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS
+    revision_registry = narration_contracts._MATERIALIZED_NARRATION_REVISIONS
+    original = materialize_fx34()
+    replacement = materialize_fx34()
+    original_document = original.document
+    original_revision = original.revision
+    replacement_document = replacement.document
+    replacement_revision = replacement.revision
+    original_document_key = id(original_document)
+    original_revision_key = id(original_revision)
+    replacement_document_key = id(replacement_document)
+    replacement_revision_key = id(replacement_revision)
+    original_document_reference = document_registry[original_document_key]
+    original_revision_reference = revision_registry[original_revision_key]
+    replacement_document_reference = document_registry[replacement_document_key]
+    replacement_revision_reference = revision_registry[replacement_revision_key]
+    external_document_reference = weakref.ref(original_document)
+    external_revision_reference = weakref.ref(original_revision)
+
+    assert document_registry[original_document_key] is original_document_reference
+    assert revision_registry[original_revision_key] is original_revision_reference
+    assert original_document_reference() is original_document
+    assert original_revision_reference() is original_revision
+    assert document_registry[replacement_document_key] is replacement_document_reference
+    assert revision_registry[replacement_revision_key] is replacement_revision_reference
+    assert replacement_document_reference() is replacement_document
+    assert replacement_revision_reference() is replacement_revision
+
+    document_registry[original_document_key] = replacement_document_reference
+    revision_registry[original_revision_key] = replacement_revision_reference
+    try:
+        del original
+        del original_document
+        del original_revision
+        _collect_until_dead(
+            external_document_reference,
+            external_revision_reference,
+        )
+
+        assert external_document_reference() is None
+        assert external_revision_reference() is None
+        assert (
+            document_registry.get(original_document_key)
+            is replacement_document_reference
+        )
+        assert (
+            revision_registry.get(original_revision_key)
+            is replacement_revision_reference
+        )
+        assert (
+            document_registry[replacement_document_key]
+            is replacement_document_reference
+        )
+        assert (
+            revision_registry[replacement_revision_key]
+            is replacement_revision_reference
+        )
+        assert narration_contracts._is_materialized_narration_document(
+            replacement_document
+        )
+        assert narration_contracts._is_materialized_narration_revision(
+            replacement_revision
+        )
+    finally:
+        if (
+            document_registry.get(original_document_key)
+            is replacement_document_reference
+        ):
+            del document_registry[original_document_key]
+        if (
+            revision_registry.get(original_revision_key)
+            is replacement_revision_reference
+        ):
+            del revision_registry[original_revision_key]
 
 
 def test_narration_envelope_contains_exact_registered_identities() -> None:
