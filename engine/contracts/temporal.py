@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import unicodedata
+import weakref
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
@@ -95,6 +96,7 @@ STABLE_ISSUE_CODES = (
     "ZERO_DURATION_WORD",
 )
 STABLE_ISSUE_CODE_SET = frozenset(STABLE_ISSUE_CODES)
+_MATERIALIZED_RAW_PACKAGES: dict[int, weakref.ReferenceType["CanonicalRawPackage"]] = {}
 
 
 class RawPackageRejectionReason(str, Enum):
@@ -132,6 +134,39 @@ class TemporalRawPackageError(ValueError):
 class CanonicalRawPackage:
     canonical_bytes: bytes
     canonical_hash: str
+
+    def __getattribute__(self, name: str) -> Any:
+        if name in {"canonical_bytes", "canonical_hash"}:
+            if not _is_materialized_raw_package(self):
+                raise ValueError("canonical raw package must be genuine")
+        return object.__getattribute__(self, name)
+
+    def __repr__(self) -> str:
+        return (
+            "CanonicalRawPackage("
+            f"canonical_bytes={object.__getattribute__(self, 'canonical_bytes')!r}, "
+            f"canonical_hash={object.__getattribute__(self, 'canonical_hash')!r}"
+            ")"
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if other.__class__ is self.__class__:
+            return (
+                object.__getattribute__(self, "canonical_bytes"),
+                object.__getattribute__(self, "canonical_hash"),
+            ) == (
+                object.__getattribute__(other, "canonical_bytes"),
+                object.__getattribute__(other, "canonical_hash"),
+            )
+        return NotImplemented
+
+    def __hash__(self) -> int:
+        return hash(
+            (
+                object.__getattribute__(self, "canonical_bytes"),
+                object.__getattribute__(self, "canonical_hash"),
+            )
+        )
 
 
 class _DuplicateKeyError(ValueError):
@@ -184,7 +219,9 @@ def canonicalize_temporal_raw_package(
     _validate_package_structure(normalized, payload_bytes)
     canonical_bytes = encode_canonical_json_bytes(normalized)
     digest = hashlib.sha256(canonical_bytes).hexdigest()
-    return CanonicalRawPackage(canonical_bytes, f"sha256:{digest}")
+    result = CanonicalRawPackage(canonical_bytes, f"sha256:{digest}")
+    _register_materialized_raw_package(result)
+    return result
 
 
 def load_temporal_raw_package(
@@ -249,6 +286,28 @@ def load_temporal_raw_package(
     return canonicalize_temporal_raw_package(
         value,
         payload_bytes=payload_bytes,
+    )
+
+
+def _register_materialized_raw_package(value: CanonicalRawPackage) -> None:
+    identity_key = id(value)
+
+    def _remove(
+        registered_reference: weakref.ReferenceType[CanonicalRawPackage],
+    ) -> None:
+        if _MATERIALIZED_RAW_PACKAGES.get(identity_key) is registered_reference:
+            del _MATERIALIZED_RAW_PACKAGES[identity_key]
+
+    registered_reference = weakref.ref(value, _remove)
+    _MATERIALIZED_RAW_PACKAGES[identity_key] = registered_reference
+
+
+def _is_materialized_raw_package(value: Any) -> bool:
+    reference = _MATERIALIZED_RAW_PACKAGES.get(id(value))
+    return (
+        type(value) is CanonicalRawPackage
+        and reference is not None
+        and reference() is value
     )
 
 

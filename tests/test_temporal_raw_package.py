@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import copy
+import dataclasses
 import hashlib
+import pickle
 
 import pytest
 
+import engine.contracts.temporal as temporal_contracts
 from engine.contracts import (
+    CanonicalRawPackage,
     STABLE_ISSUE_CODES,
     RawPackageRejectionReason,
     TemporalRawPackageError,
@@ -90,6 +94,7 @@ def test_fx20_has_exact_canonical_bytes_and_hash() -> None:
     assert result.canonical_hash == (
         "sha256:" + hashlib.sha256(result.canonical_bytes).hexdigest()
     )
+    assert temporal_contracts._is_materialized_raw_package(result)
 
 
 def test_independent_materialization_paths_are_byte_and_hash_equal() -> None:
@@ -113,6 +118,8 @@ def test_independent_materialization_paths_are_byte_and_hash_equal() -> None:
 
     assert parsed.canonical_bytes == logical.canonical_bytes
     assert parsed.canonical_hash == logical.canonical_hash
+    assert temporal_contracts._is_materialized_raw_package(logical)
+    assert temporal_contracts._is_materialized_raw_package(parsed)
 
 
 def test_object_insertion_order_does_not_change_bytes() -> None:
@@ -501,3 +508,137 @@ def test_valid_alignment_token_indices_need_only_be_strictly_ascending() -> None
         package,
         payload_bytes=payload_bytes,
     ).canonical_hash.startswith("sha256:")
+
+
+def _raw_package_from_fields() -> CanonicalRawPackage:
+    return CanonicalRawPackage(FX20_CANONICAL_BYTES, FX20_CANONICAL_HASH)
+
+
+def _raw_package_from_new() -> CanonicalRawPackage:
+    value = object.__new__(CanonicalRawPackage)
+    object.__setattr__(value, "canonical_bytes", FX20_CANONICAL_BYTES)
+    object.__setattr__(value, "canonical_hash", FX20_CANONICAL_HASH)
+    return value
+
+
+def _assert_non_genuine_raw_package(value: object) -> None:
+    assert not temporal_contracts._is_materialized_raw_package(value)
+    if type(value) is CanonicalRawPackage:
+        with pytest.raises(
+            ValueError,
+            match="^canonical raw package must be genuine$",
+        ):
+            value.canonical_bytes
+        with pytest.raises(
+            ValueError,
+            match="^canonical raw package must be genuine$",
+        ):
+            value.canonical_hash
+
+
+@pytest.mark.parametrize(
+    "factory",
+    [
+        _raw_package_from_fields,
+        _raw_package_from_new,
+        lambda: CanonicalRawPackage(
+            **{
+                "canonical_bytes": FX20_CANONICAL_BYTES,
+                "canonical_hash": FX20_CANONICAL_HASH,
+            }
+        ),
+        lambda: CanonicalRawPackage(
+            **vars(canonicalize_fx20()),
+        ),
+        lambda: CanonicalRawPackage(
+            **{
+                field.name: object.__getattribute__(
+                    canonicalize_fx20(), field.name
+                )
+                for field in dataclasses.fields(CanonicalRawPackage)
+            }
+        ),
+        lambda: dataclasses.replace(canonicalize_fx20()),
+    ],
+)
+def test_reconstructed_raw_packages_are_not_genuine(factory) -> None:
+    original = canonicalize_fx20()
+    reconstructed = factory()
+
+    _assert_non_genuine_raw_package(reconstructed)
+    assert temporal_contracts._is_materialized_raw_package(original)
+    assert original.canonical_bytes == FX20_CANONICAL_BYTES
+    assert original.canonical_hash == FX20_CANONICAL_HASH
+
+
+def test_marker_subclass_proxy_and_lookalike_do_not_transfer_raw_provenance() -> None:
+    original = canonicalize_fx20()
+
+    class MarkerSubclass(CanonicalRawPackage):
+        _materialized = True
+
+    class Proxy:
+        def __init__(self, target):
+            self._target = target
+
+        def __getattr__(self, name: str):
+            return getattr(self._target, name)
+
+    class Lookalike:
+        canonical_bytes = FX20_CANONICAL_BYTES
+        canonical_hash = FX20_CANONICAL_HASH
+
+    forged = _raw_package_from_fields()
+    object.__setattr__(forged, "_materialized", True)
+    values = [
+        MarkerSubclass(FX20_CANONICAL_BYTES, FX20_CANONICAL_HASH),
+        forged,
+        Proxy(original),
+        Lookalike(),
+    ]
+
+    for value in values:
+        _assert_non_genuine_raw_package(value)
+    assert temporal_contracts._is_materialized_raw_package(original)
+
+
+def test_raw_package_copy_and_pickle_do_not_mint_provenance() -> None:
+    original = canonicalize_fx20()
+
+    for copied in (copy.copy(original), copy.deepcopy(original)):
+        if copied is original:
+            assert temporal_contracts._is_materialized_raw_package(copied)
+        else:
+            _assert_non_genuine_raw_package(copied)
+        assert temporal_contracts._is_materialized_raw_package(original)
+
+    restored = pickle.loads(pickle.dumps(original))
+    assert restored is not original
+    _assert_non_genuine_raw_package(restored)
+    assert temporal_contracts._is_materialized_raw_package(original)
+
+
+def test_raw_package_passive_introspection_preserves_stored_values_and_shape() -> None:
+    original = canonicalize_fx20()
+    reconstructed = _raw_package_from_fields()
+
+    assert repr(original) == (
+        "CanonicalRawPackage("
+        f"canonical_bytes={FX20_CANONICAL_BYTES!r}, "
+        f"canonical_hash={FX20_CANONICAL_HASH!r})"
+    )
+    assert repr(reconstructed) == repr(original)
+    assert vars(original) == {
+        "canonical_bytes": FX20_CANONICAL_BYTES,
+        "canonical_hash": FX20_CANONICAL_HASH,
+    }
+    assert original.__dict__ == vars(original)
+    assert [field.name for field in dataclasses.fields(original)] == [
+        "canonical_bytes",
+        "canonical_hash",
+    ]
+    assert reconstructed == original
+    assert hash(reconstructed) == hash(original)
+    assert pickle.loads(pickle.dumps(original)).__dict__ == vars(original)
+    _assert_non_genuine_raw_package(reconstructed)
+    assert temporal_contracts._is_materialized_raw_package(original)

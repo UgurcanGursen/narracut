@@ -3,12 +3,14 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
-from dataclasses import FrozenInstanceError, replace
+from dataclasses import FrozenInstanceError, fields, replace
 from enum import Enum
 
 import pytest
 
+import engine.contracts.narration as narration_contracts
 from engine.contracts import (
+    CanonicalNarrationDocument,
     NARRATION_LINEAGE_V1,
     NARRATION_REVISION_HASH_V1,
     NARRATION_REVISION_V1,
@@ -16,6 +18,7 @@ from engine.contracts import (
     LineageNodeType,
     NarrationContractError,
     NarrationRejectionReason,
+    NarrationRevision,
     NodeLineageRelation,
     SpokenFormOverrideSource,
     TokenKind,
@@ -526,6 +529,26 @@ def assert_rejected_without_revision(
     assert not hasattr(exc_info.value, "canonical_bytes")
 
 
+def _clone_dataclass_identity(value):
+    clone = object.__new__(type(value))
+    for field in fields(value):
+        object.__setattr__(
+            clone,
+            field.name,
+            object.__getattribute__(value, field.name),
+        )
+    return clone
+
+
+def _assert_not_genuine_narration_pair(document, revision) -> None:
+    assert not narration_contracts._is_materialized_narration_document(
+        document
+    )
+    assert not narration_contracts._is_materialized_narration_revision(
+        revision
+    )
+
+
 def test_fx34_exact_source_hierarchy_and_canonical_bytes() -> None:
     result = materialize_fx34()
     revision = result.revision
@@ -575,6 +598,275 @@ def test_fx34_exact_source_hierarchy_and_canonical_bytes() -> None:
         separators=(",", ":"),
     ).encode("utf-8")
     assert result.canonical_bytes == independently_encoded
+    assert narration_contracts._is_materialized_narration_document(
+        result.document
+    )
+    assert narration_contracts._is_materialized_narration_revision(
+        result.revision
+    )
+    assert result.document is result.document
+    assert result.revision is revision
+
+
+def test_narration_envelope_contains_exact_registered_identities() -> None:
+    result = materialize_fx34()
+
+    assert result.document.current_revision_id == result.revision.revision_id
+    assert narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS[
+        id(result.document)
+    ]() is result.document
+    assert narration_contracts._MATERIALIZED_NARRATION_REVISIONS[
+        id(result.revision)
+    ]() is result.revision
+
+
+def test_narration_reconstruction_and_marker_forgery_are_not_genuine() -> None:
+    result = materialize_fx34()
+    document = result.document
+    revision = result.revision
+
+    class DocumentSubclass(CanonicalNarrationDocument):
+        _materialized = True
+
+    class RevisionSubclass(NarrationRevision):
+        _materialized = True
+
+    class Proxy:
+        def __init__(self, target):
+            self._target = target
+
+        def __getattr__(self, name: str):
+            return getattr(self._target, name)
+
+    class Lookalike:
+        pass
+
+    forged_document = CanonicalNarrationDocument(**vars(document))
+    object.__setattr__(forged_document, "_materialized", True)
+    forged_revision = NarrationRevision(**vars(revision))
+    object.__setattr__(forged_revision, "_materialized", True)
+    lookalike_document = Lookalike()
+    lookalike_revision = Lookalike()
+    for field in fields(document):
+        setattr(lookalike_document, field.name, getattr(document, field.name))
+    for field in fields(revision):
+        setattr(lookalike_revision, field.name, getattr(revision, field.name))
+
+    document_adversaries = [
+        CanonicalNarrationDocument(**vars(document)),
+        _clone_dataclass_identity(document),
+        replace(document),
+        forged_document,
+        DocumentSubclass(**vars(document)),
+        Proxy(document),
+        lookalike_document,
+    ]
+    revision_adversaries = [
+        NarrationRevision(**vars(revision)),
+        _clone_dataclass_identity(revision),
+        replace(revision),
+        forged_revision,
+        RevisionSubclass(**vars(revision)),
+        Proxy(revision),
+        lookalike_revision,
+    ]
+
+    for adversary in document_adversaries:
+        assert not narration_contracts._is_materialized_narration_document(
+            adversary
+        )
+    for adversary in revision_adversaries:
+        assert not narration_contracts._is_materialized_narration_revision(
+            adversary
+        )
+    assert narration_contracts._is_materialized_narration_document(document)
+    assert narration_contracts._is_materialized_narration_revision(revision)
+
+
+def test_narration_copy_policy_preserves_original_provenance() -> None:
+    result = materialize_fx34()
+
+    for original, predicate in (
+        (
+            result.document,
+            narration_contracts._is_materialized_narration_document,
+        ),
+        (
+            result.revision,
+            narration_contracts._is_materialized_narration_revision,
+        ),
+    ):
+        copied = copy.copy(original)
+        if copied is original:
+            assert predicate(copied)
+        else:
+            assert not predicate(copied)
+        try:
+            deep_copied = copy.deepcopy(original)
+        except TypeError:
+            assert predicate(original)
+        else:
+            if deep_copied is original:
+                assert predicate(deep_copied)
+            else:
+                assert not predicate(deep_copied)
+        assert predicate(original)
+
+
+def test_narration_transaction_rolls_back_revision_insertion_failure(
+    monkeypatch,
+) -> None:
+    existing = materialize_fx34()
+    captured = {}
+    original_revision_registry = (
+        narration_contracts._MATERIALIZED_NARRATION_REVISIONS
+    )
+    original_envelope = (
+        narration_contracts.CanonicalNarrationMaterialization
+    )
+
+    def capture_envelope(**kwargs):
+        captured.update(kwargs)
+        return original_envelope(**kwargs)
+
+    class FailingRevisionRegistry(dict):
+        def __setitem__(self, key, value):
+            raise RuntimeError("revision insertion failed")
+
+    monkeypatch.setattr(
+        narration_contracts,
+        "CanonicalNarrationMaterialization",
+        capture_envelope,
+    )
+    monkeypatch.setattr(
+        narration_contracts,
+        "_MATERIALIZED_NARRATION_REVISIONS",
+        FailingRevisionRegistry(),
+    )
+
+    with pytest.raises(RuntimeError, match="revision insertion failed"):
+        materialize_fx34()
+
+    assert captured["document"] is not None
+    assert captured["revision"] is not None
+    _assert_not_genuine_narration_pair(
+        captured["document"],
+        captured["revision"],
+    )
+    assert (
+        narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS.get(
+            id(captured["document"])
+        )
+        is None
+    )
+    assert original_revision_registry.get(id(captured["revision"])) is None
+    assert narration_contracts._is_materialized_narration_document(
+        existing.document
+    )
+    assert (
+        original_revision_registry[id(existing.revision)]()
+        is existing.revision
+    )
+
+
+def test_narration_transaction_rolls_back_post_commit_verification_failure(
+    monkeypatch,
+) -> None:
+    existing = materialize_fx34()
+    captured = {}
+    original_envelope = (
+        narration_contracts.CanonicalNarrationMaterialization
+    )
+    original_revision_predicate = (
+        narration_contracts._is_materialized_narration_revision
+    )
+
+    def capture_envelope(**kwargs):
+        captured.update(kwargs)
+        return original_envelope(**kwargs)
+
+    def fail_captured_revision(value) -> bool:
+        if value is captured.get("revision"):
+            return False
+        return original_revision_predicate(value)
+
+    monkeypatch.setattr(
+        narration_contracts,
+        "CanonicalNarrationMaterialization",
+        capture_envelope,
+    )
+    monkeypatch.setattr(
+        narration_contracts,
+        "_is_materialized_narration_revision",
+        fail_captured_revision,
+    )
+
+    with pytest.raises(NarrationContractError):
+        materialize_fx34()
+
+    _assert_not_genuine_narration_pair(
+        captured["document"],
+        captured["revision"],
+    )
+    assert (
+        narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS.get(
+            id(captured["document"])
+        )
+        is None
+    )
+    assert (
+        narration_contracts._MATERIALIZED_NARRATION_REVISIONS.get(
+            id(captured["revision"])
+        )
+        is None
+    )
+    assert narration_contracts._is_materialized_narration_document(
+        existing.document
+    )
+    assert original_revision_predicate(existing.revision)
+
+
+def test_narration_envelope_construction_failure_precedes_registration(
+    monkeypatch,
+) -> None:
+    existing = materialize_fx34()
+    captured = {}
+
+    def fail_envelope(**kwargs):
+        captured.update(kwargs)
+        raise RuntimeError("envelope construction failed")
+
+    monkeypatch.setattr(
+        narration_contracts,
+        "CanonicalNarrationMaterialization",
+        fail_envelope,
+    )
+
+    with pytest.raises(RuntimeError, match="envelope construction failed"):
+        materialize_fx34()
+
+    _assert_not_genuine_narration_pair(
+        captured["document"],
+        captured["revision"],
+    )
+    assert (
+        narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS.get(
+            id(captured["document"])
+        )
+        is None
+    )
+    assert (
+        narration_contracts._MATERIALIZED_NARRATION_REVISIONS.get(
+            id(captured["revision"])
+        )
+        is None
+    )
+    assert narration_contracts._is_materialized_narration_document(
+        existing.document
+    )
+    assert narration_contracts._is_materialized_narration_revision(
+        existing.revision
+    )
 
 
 def test_revision_hash_is_direct_sha256_of_exact_versioned_scope() -> None:

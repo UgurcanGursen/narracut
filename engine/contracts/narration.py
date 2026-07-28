@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import re
 import unicodedata
+import weakref
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum
@@ -28,6 +29,12 @@ _EXTENSION_KEY_PATTERN = re.compile(
     r"[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+/[a-z][a-z0-9_-]*"
 )
 _UINT32_MAX = 2**32 - 1
+_MATERIALIZED_NARRATION_DOCUMENTS: dict[
+    int, weakref.ReferenceType["CanonicalNarrationDocument"]
+] = {}
+_MATERIALIZED_NARRATION_REVISIONS: dict[
+    int, weakref.ReferenceType["NarrationRevision"]
+] = {}
 
 
 class TokenKind(str, Enum):
@@ -580,10 +587,89 @@ def materialize_canonical_narration(
             "revision": _revision_to_dict(revision),
         }
     )
-    return CanonicalNarrationMaterialization(
+    result = CanonicalNarrationMaterialization(
         document=document,
         revision=revision,
         canonical_bytes=canonical_bytes,
+    )
+    _register_materialized_narration_pair(document, revision)
+    return result
+
+
+def _register_materialized_narration_pair(
+    document: CanonicalNarrationDocument,
+    revision: NarrationRevision,
+) -> None:
+    document_key = id(document)
+    revision_key = id(revision)
+
+    def _remove_document(
+        registered_reference: weakref.ReferenceType[CanonicalNarrationDocument],
+    ) -> None:
+        if (
+            _MATERIALIZED_NARRATION_DOCUMENTS.get(document_key)
+            is registered_reference
+        ):
+            del _MATERIALIZED_NARRATION_DOCUMENTS[document_key]
+
+    def _remove_revision(
+        registered_reference: weakref.ReferenceType[NarrationRevision],
+    ) -> None:
+        if (
+            _MATERIALIZED_NARRATION_REVISIONS.get(revision_key)
+            is registered_reference
+        ):
+            del _MATERIALIZED_NARRATION_REVISIONS[revision_key]
+
+    document_reference = weakref.ref(document, _remove_document)
+    revision_reference = weakref.ref(revision, _remove_revision)
+    document_committed = False
+    revision_committed = False
+    try:
+        _MATERIALIZED_NARRATION_DOCUMENTS[document_key] = document_reference
+        document_committed = True
+        _MATERIALIZED_NARRATION_REVISIONS[revision_key] = revision_reference
+        revision_committed = True
+        if not (
+            _is_materialized_narration_document(document)
+            and _is_materialized_narration_revision(revision)
+        ):
+            _reject(
+                NarrationRejectionReason.STRUCTURE_INVALID,
+                "$",
+                "Canonical narration materialization provenance failed.",
+            )
+    except Exception:
+        if (
+            document_committed
+            and _MATERIALIZED_NARRATION_DOCUMENTS.get(document_key)
+            is document_reference
+        ):
+            del _MATERIALIZED_NARRATION_DOCUMENTS[document_key]
+        if (
+            revision_committed
+            and _MATERIALIZED_NARRATION_REVISIONS.get(revision_key)
+            is revision_reference
+        ):
+            del _MATERIALIZED_NARRATION_REVISIONS[revision_key]
+        raise
+
+
+def _is_materialized_narration_document(value: Any) -> bool:
+    reference = _MATERIALIZED_NARRATION_DOCUMENTS.get(id(value))
+    return (
+        type(value) is CanonicalNarrationDocument
+        and reference is not None
+        and reference() is value
+    )
+
+
+def _is_materialized_narration_revision(value: Any) -> bool:
+    reference = _MATERIALIZED_NARRATION_REVISIONS.get(id(value))
+    return (
+        type(value) is NarrationRevision
+        and reference is not None
+        and reference() is value
     )
 
 
