@@ -1,5 +1,63 @@
 # Changelog
 
+## 2026-07-28 — Documentation workflow hardening
+
+- Added a mandatory documentation synchronization gate after every
+  remote-closed Slice or equivalent bounded milestone.
+- Every task must report a `DOCUMENTATION_IMPACT_MATRIX`.
+- Documentation reconciliation requires manual verification and its own
+  commit/push gate.
+- The next implementation remains blocked until documentation sync is remote
+  closed.
+
+## 2026-07-28 — Phase 2 Slice 4 remote closure
+
+- Canonical AlignmentRequest implementation commit:
+  `2af9778de57f692f698a356f330b3bf3ede11106`
+  (`feat: add canonical alignment request contract`).
+- Mutation-resistance test-hardening commit:
+  `d32e66585d660bc3e37a1896dbb7df050a8bc849`
+  (`test: harden alignment request mutation resistance`).
+- Independent closure re-audit: PASS.
+- Focused evidence: `33 passed` for AlignmentRequest, `281 passed` for
+  prerequisite provenance plus AudioArtifact, and `85 passed, 1 skipped` for
+  V3 contracts.
+- Normal fast-forward push: PASS;
+  `origin/main=d32e66585d660bc3e37a1896dbb7df050a8bc849`.
+- Slice 4 is remote closed. Phase 2 overall remains IN_PROGRESS.
+
+## 2026-07-28 — Phase 2 Slice 3 reconciliation
+
+- Canonical AudioArtifact implementation commit:
+  `1373c4aee0374c19c1bafed122b2c4d12b5a6855`.
+- Hardening commits:
+  `8e8cd2670b9d38586fdbcdcd6d63833b082143ee` and
+  `477668b09dc000a16429bd7738bb4c21953f41fb`.
+- Commits are reachable from `origin/main`.
+- Scope/specification, audit/closure report, and slice-specific focused test
+  evidence paths: `EVIDENCE_PATH_NOT_FOUND` / `TEST_RESULT_NOT_RECONCILED`.
+
+## 2026-07-28 — Phase 2 Slice 2 reconciliation
+
+- Canonical Narration implementation commit:
+  `d00cea0dfbe965c81cdbcb311855184bf6a5cd68`.
+- Hardening commits:
+  `dba75ae2bcb81228df59e2d0d5e398fd171b4438` and
+  `fa63e8d4a741ca2c1a91b7dd04fe73e024a14d48`.
+- Commits are reachable from `origin/main`.
+- Scope/specification, audit/closure report, and slice-specific focused test
+  evidence paths: `EVIDENCE_PATH_NOT_FOUND` / `TEST_RESULT_NOT_RECONCILED`.
+
+## 2026-07-28 — Phase 2 Slice 1 reconciliation
+
+- Temporal Raw Package implementation commit:
+  `9247f7feca1ce40030a6ccc68d3e8c2775c969bc`.
+- Payload-integrity hardening commit:
+  `e0edbc751a271de561412e53acf84ae870aba97c`.
+- Commits are reachable from `origin/main`.
+- Scope/specification, audit/closure report, and slice-specific focused test
+  evidence paths: `EVIDENCE_PATH_NOT_FOUND` / `TEST_RESULT_NOT_RECONCILED`.
+
 ## 2026-07-26 - Faz 1 closure documentation and product operating model
 
 - Faz 1, V3 contract/migrator/control-plane teslimatlari ve independent mini

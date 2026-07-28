@@ -94,3 +94,37 @@ butun artifact hash dogrulamasi, revision manifest, file close/fsync, commit
 marker veya atomic active-revision pointer, crash recovery, mixed-generation
 artifact engeli, onceki valid revision'i koruma ve partial staging cleanup
 gerektirir. Bu Faz 1 deliverable'i degil, future-phase acceptance kaydidir.
+
+## Faz 2 — Temporal Annotation and Word-Level Alignment Contract
+
+Evaluation date: 28 Temmuz 2026
+
+General status: IN_PROGRESS / NOT CLOSED
+
+| Kriter | Durum | Kanit |
+|---|---|---|
+| Slice 1 - Temporal Raw Package | PARTIAL_RECONCILIATION / REMOTE_REACHABLE | `9247f7feca1ce40030a6ccc68d3e8c2775c969bc`, `e0edbc751a271de561412e53acf84ae870aba97c`; committed scope/audit/closure report `EVIDENCE_PATH_NOT_FOUND` |
+| Slice 2 - Canonical Narration | PARTIAL_RECONCILIATION / REMOTE_REACHABLE | `d00cea0dfbe965c81cdbcb311855184bf6a5cd68`, `dba75ae2bcb81228df59e2d0d5e398fd171b4438`, `fa63e8d4a741ca2c1a91b7dd04fe73e024a14d48`; committed scope/audit/closure report `EVIDENCE_PATH_NOT_FOUND` |
+| Slice 3 - Canonical AudioArtifact | PARTIAL_RECONCILIATION / REMOTE_REACHABLE | `1373c4aee0374c19c1bafed122b2c4d12b5a6855`, `8e8cd2670b9d38586fdbcdcd6d63833b082143ee`, `477668b09dc000a16429bd7738bb4c21953f41fb`; committed scope/audit/closure report `EVIDENCE_PATH_NOT_FOUND` |
+| Pre-Slice-4 prerequisite provenance hardening | SATISFIED / REMOTE_REACHABLE | `1501adf53c9ea536e903cc0c883ff23c7dbd7924`, `a8209ebeeb367817819f7951e0377a09b244e7f8` |
+| Slice 4 canonical AlignmentRequest contract | SATISFIED / REMOTE CLOSED | `2af9778de57f692f698a356f330b3bf3ede11106`; `origin/main=d32e66585d660bc3e37a1896dbb7df050a8bc849` |
+| Slice 4 mutation-resistance hardening | SATISFIED | `d32e66585d660bc3e37a1896dbb7df050a8bc849`; independent closure re-audit PASS |
+| Slice 4 golden oracle | SATISFIED | projection 1034 bytes / `bfd2a97af22b1f105c2ebe9356ce2fe684b0add89be14fea09e6b21cfbe54e51`; envelope 1188 bytes / `b2b0d24b02932b90c315bae348071aba2d3295d1f8d12281feb9f100e8a8ea45` |
+| Phase 2 overall acceptance | NOT YET EVALUATED / NOT CLOSED | Slice 1-4 do not establish overall Phase 2 closure |
+| Total Phase 2 Slice decomposition | NOT RECONCILED | Authoritative post-Slice-4 scope reconciliation required |
+| Post-Slice-4 scope report | REQUIRED | `baseline/phase2_post_slice4_scope_report.md` |
+
+### Master Roadmap Phase 2 acceptance reconciliation
+
+| Master Roadmap criterion | Status |
+|---|---|
+| Every narration word has start/end timing | PENDING_RECONCILIATION |
+| Cues can bind to word-ID ranges instead of string search | PENDING_RECONCILIATION |
+| Kinetic text differs from narration by at most one frame | PENDING_RECONCILIATION |
+| V5 and V6 do not occlude each other | PENDING_RECONCILIATION |
+| Low confidence is explicitly reported | PENDING_RECONCILIATION |
+| LLM does not generate manual seconds | PENDING_RECONCILIATION |
+
+Phase 2 Slice 1–4 are Phase 2 work items. Slice 4 is remote closed. Phase 2
+overall is not proven closed, and no next production Slice is authorized by
+this reconciliation.

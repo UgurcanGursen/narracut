@@ -1,6 +1,6 @@
 # Known Limitations
 
-Son guncelleme: 26 Temmuz 2026
+Son guncelleme: 28 Temmuz 2026
 
 ## Known limitations ve follow-up'lar
 
@@ -59,6 +59,18 @@ Son guncelleme: 26 Temmuz 2026
 - `engine/contracts/workspace.py` modul boyutu LOW/non-blocking teknik borctur;
   yeni integrity kontrolleri private helper'lara ayrilmis, genis bolme/refactor
   ertelenmistir.
+
+## Faz 2 status note
+
+- Slice 1-4 repository evidence reconciliation completed.
+- Slice 4 is remote closed at
+  `d32e66585d660bc3e37a1896dbb7df050a8bc849`.
+- Phase 2 overall closure is not established.
+- The total official Phase 2 Slice count is not reconciled.
+- The total official Slice count and uncovered acceptance criteria require
+  authoritative post-Slice-4 scope reconciliation.
+- No Phase 2 completion percentage is claimed.
+- No next production Slice is claimed before scope reconciliation.
 
 ## Environment and test limitations
 

@@ -22,6 +22,28 @@ Her görevden önce şu dosyaları sırayla oku:
 - Görev active phase’e doğrudan katkı sağlamıyorsa kodlama; bulguyu backlog veya `NEXT_ACTIONS.md` içine öneri olarak yaz.
 - Faz kabul kriterleri geçmeden fazı tamamlanmış sayma.
 
+### Slice/Milestone Documentation Synchronization Gate
+
+- Her remote-closed Slice veya eşdeğer bounded milestone sonrasında, sonraki
+  implementation başlamadan önce ayrı bir documentation reconciliation görevi
+  tamamlanır.
+- Her Slice sonunda en az `docs/CURRENT_STATE.md`, `docs/CHANGELOG.md` ve
+  `docs/NEXT_ACTIONS.md` güncellenir.
+- Her Slice sonunda `docs/KNOWN_LIMITATIONS.md`, `docs/PHASE_ACCEPTANCE.md`,
+  `docs/QUALITY_BENCHMARKS.md`, `docs/ARCHITECTURE_DECISIONS.md` ve
+  `docs/MASTER_ROADMAP.md` impact açısından incelenir.
+- Koşullu belgeler yalnız yeni kanıt, limitation, acceptance sonucu, benchmark
+  veya mimari karar varsa değiştirilir.
+- Documentation değişiklikleri ayrı bounded task, manual verification, commit
+  ve push gate'inden geçer.
+- Documentation sync remote-closed olmadan sonraki Slice implementation'ı
+  başlatılamaz.
+- Her Codex görev çıktısı bir `DOCUMENTATION_IMPACT_MATRIX` içermelidir.
+- `docs/NEXT_ACTIONS.md` içinde tam olarak bir authoritative next task bulunur.
+  Belirsiz durumda implementation yerine read-only scope reconciliation yazılır.
+- Total Slice sayısı, ilerleme yüzdesi veya phase closure repository evidence
+  olmadan tahmin edilemez.
+
 ## 3. Multi-domain mimari
 
 Bağlayıcı ürün modeli:
@@ -93,5 +115,6 @@ Her görev sonunda şunları yaz:
 - Üretilen artifact’ler
 - Bilinen eksikler veya blocker’lar
 - Sonraki tek önerilen görev
+- `DOCUMENTATION_IMPACT_MATRIX`
 
 Faz kapanıyorsa `CURRENT_STATE.md`, `KNOWN_LIMITATIONS.md`, `PHASE_ACCEPTANCE.md`, `CHANGELOG.md` ve `NEXT_ACTIONS.md` dosyalarını güncelle.
