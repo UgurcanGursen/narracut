@@ -92,6 +92,196 @@ FX_ARQ_01_ENVELOPE_LENGTH = 1188
 FX_ARQ_01_ENVELOPE_SHA256 = (
     "b2b0d24b02932b90c315bae348071aba2d3295d1f8d12281feb9f100e8a8ea45"
 )
+PRE_SLICE4_PUBLIC_EXPORTS = frozenset(
+    {
+        "AUDIO_ARTIFACT_HASH_V1",
+        "AUDIO_ARTIFACT_INPUT_V1",
+        "AUDIO_ARTIFACT_V1",
+        "AudioArtifact",
+        "AudioArtifactContractError",
+        "AudioArtifactMaterializationInput",
+        "AudioArtifactMaterializationRuntime",
+        "ArtifactRecord",
+        "Asset",
+        "Beat",
+        "CANONICAL_NARRATION_DOCUMENT_V1",
+        "NARRATION_LINEAGE_V1",
+        "CanonicalNarrationDocument",
+        "CanonicalNarrationMaterialization",
+        "CanonicalTextToken",
+        "CanonicalWord",
+        "CanonicalRawPackage",
+        "Chapter",
+        "DomainPack",
+        "DomainPackError",
+        "DomainPackManifest",
+        "DomainPackRegistry",
+        "DomainPolicyResolver",
+        "DomainPolicySnapshot",
+        "DomainProfile",
+        "DecodedAudioMetadata",
+        "EditorialSequence",
+        "EventEnvelope",
+        "LoadedWorkspace",
+        "LineageNodeType",
+        "NARRATION_REVISION_HASH_V1",
+        "NARRATION_REVISION_V1",
+        "NORMALIZATION_PROFILE_HASH_V1",
+        "NarrationContractError",
+        "NarrationLineageManifest",
+        "NarrationParagraph",
+        "NarrationRejectionReason",
+        "NarrationRevision",
+        "NarrationRevisionBinding",
+        "NarrationSection",
+        "NarrationSentence",
+        "NodeLineageRecord",
+        "NodeLineageRelation",
+        "NormalizationProfileRef",
+        "Project",
+        "RetentionPolicy",
+        "RawPackageRejectionReason",
+        "SECURE_AUDIO_INPUT_V1",
+        "SchemaCatalog",
+        "SecureAudioInputReference",
+        "SecureAudioReader",
+        "SecureAudioSnapshot",
+        "SecureOpenEvidence",
+        "STABLE_ISSUE_CODES",
+        "SpokenFormOverride",
+        "SpokenFormOverrideSource",
+        "TRP_RAW_V1",
+        "TemporalRawPackageError",
+        "TokenKind",
+        "TrustedRootReference",
+        "TypedNodeReference",
+        "ValidationIssue",
+        "ValidationResult",
+        "Workspace",
+        "WorkspaceLoader",
+        "WordRangeConsumer",
+        "WordRangeReference",
+        "canonical_json",
+        "canonicalize_temporal_raw_package",
+        "load_temporal_raw_package",
+        "materialize_canonical_narration",
+        "materialize_audio_artifact",
+        "normalization_profile_hash",
+        "policy_snapshot_hash",
+        "resolve_word_range",
+        "serialize_audio_artifact",
+        "validate_artifact_graph",
+        "validate_issue_codes",
+        "validate_retention_policy",
+    }
+)
+SLICE4_PUBLIC_EXPORTS = frozenset(
+    {
+        "AlignmentRequestMode",
+        "AdapterCapability",
+        "CanonicalTranscriptReference",
+        "AlignmentRequest",
+        "AlignmentRequestRejectionReason",
+        "AlignmentRequestContractError",
+        "materialize_alignment_request",
+        "serialize_alignment_request",
+    }
+)
+PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
+    {
+        "ADAPTER_FAILURE",
+        "ADAPTER_PRECISION_OVERSTATED",
+        "ADAPTER_UNSUPPORTED_LANGUAGE",
+        "AUDIO_BYTE_HASH_MISMATCH",
+        "AUDIO_DECODE_FAILED",
+        "AUDIO_EMPTY",
+        "AUDIO_EXTENSION_SECURITY_VIOLATION",
+        "AUDIO_FORMAT_UNSUPPORTED",
+        "AUDIO_INPUT_OPEN_FAILED",
+        "AUDIO_INPUT_READ_FAILED",
+        "AUDIO_INPUT_URI_FORBIDDEN",
+        "AUDIO_METADATA_MISMATCH",
+        "AUDIO_REVISION_MISMATCH",
+        "AUDIO_SIZE_OUT_OF_BOUNDS",
+        "AUDIO_TRUNCATED",
+        "AUTO_OVERLAP_REPAIR",
+        "CANONICAL_COVERAGE_BLOCKER",
+        "CANONICAL_WORD_ORDER_INVALID",
+        "CONFIDENCE_REQUIRED_UNAVAILABLE",
+        "CONFIDENCE_UNAVAILABLE",
+        "CONTIGUOUS_UNALIGNED",
+        "CONTIGUOUS_UNALIGNED_BLOCKER",
+        "CORRECTION_PRECONDITION_CONFLICT",
+        "DIVERGENCE_AMBIGUOUS",
+        "DOWNSTREAM_UNALIGNED_REFERENCE",
+        "DURATION_GAP_BLOCKER",
+        "DURATION_GAP_WARNING",
+        "FRAME_BOUNDARY_DRIFT_EXCEEDED",
+        "FRAME_BOUNDARY_TOLERANCE_WARNING",
+        "FRAME_RATE_INVALID",
+        "HASH_DEPENDENCY_CYCLE",
+        "HIERARCHY_COVERAGE_BLOCKER",
+        "HIERARCHY_COVERAGE_WARNING",
+        "INDIVIDUAL_CONFIDENCE_BLOCKER",
+        "INDIVIDUAL_CONFIDENCE_WARNING",
+        "INPUT_TEXT_INVALID_UTF8",
+        "LLM_TIMESTAMP_SOURCE_FORBIDDEN",
+        "LOW_CONFIDENCE_RATIO_BLOCKER",
+        "LOW_CONFIDENCE_RATIO_WARNING",
+        "MANUAL_CORRECTION_RATIO_BLOCKER",
+        "MANUAL_CORRECTION_RATIO_WARNING",
+        "MANUAL_CORRECTION_REVIEWED",
+        "NEGATIVE_NARRATION_OFFSET",
+        "PAID_CANDIDATE_COST_WARNING",
+        "PAID_FALLBACK_UNAUTHORIZED",
+        "PATH_ADS_FORBIDDEN",
+        "PATH_DEVICE_FORBIDDEN",
+        "PATH_RESERVED_NAME",
+        "PATH_SYNTAX_INVALID",
+        "PATH_TRAVERSAL",
+        "PATH_UNC_FORBIDDEN",
+        "PROVIDER_METADATA_INCOMPLETE",
+        "REPLAY_HASH_MISMATCH",
+        "REPLAY_INPUT_MISMATCH",
+        "SECURE_INPUT_CONTAINMENT_FAILED",
+        "SECURE_INPUT_IDENTITY_CHANGED",
+        "SEGMENT_CONFIDENCE_BLOCKER",
+        "SEGMENT_CONFIDENCE_WARNING",
+        "TIMESTAMP_NON_MONOTONIC",
+        "TIMESTAMP_OUT_OF_BOUNDS",
+        "TIMESTAMP_OVERLAP",
+        "TRANSCRIPT_CER_BLOCKER",
+        "TRANSCRIPT_CER_WARNING",
+        "TRANSCRIPT_DIVERGENCE",
+        "TRANSCRIPT_WER_BLOCKER",
+        "TRANSCRIPT_WER_WARNING",
+        "UNALIGNED_COVERAGE",
+        "UNALIGNED_DURATION_BLOCKER",
+        "UNALIGNED_DURATION_WARNING",
+        "UNSUPPORTED_CONTRACT_ENUM",
+        "URI_SENSITIVE_COMPONENT",
+        "URI_USER_INFO",
+        "WORD_RANGE_OUT_OF_BOUNDS",
+        "WORD_RANGE_REVERSED",
+        "WORD_RANGE_REVISION_MISMATCH",
+        "ZERO_DURATION_WORD",
+    }
+)
+SLICE4_STABLE_ISSUE_CODES = frozenset(
+    {
+        "ALIGNMENT_REQUEST_WIRE_INVALID",
+        "ALIGNMENT_REQUEST_UNSUPPORTED_VALUE",
+        "ALIGNMENT_REQUEST_LINEAGE_MISMATCH",
+        "ALIGNMENT_REQUEST_MODE_PRESENCE_MISMATCH",
+        "ALIGNMENT_REQUEST_TRANSCRIPT_INVALID",
+        "ALIGNMENT_REQUEST_AUTHORIZATION_FORBIDDEN",
+        "ALIGNMENT_REQUEST_CAPABILITY_INVALID",
+        "ALIGNMENT_REQUEST_MODE_CAPABILITY_MISMATCH",
+        "ALIGNMENT_REQUEST_EXTENSIONS_FORBIDDEN",
+        "ALIGNMENT_REQUEST_SENSITIVE_DATA",
+        "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+    }
+)
 
 
 class CustomString(str):
@@ -566,8 +756,14 @@ def test_alignment_request_mode_matrix() -> None:
 def test_alignment_request_capability_boundaries() -> None:
     value, deps = _raw_request()
     value["adapter_capability"]["media_type"] = "audio/x_wav"
-    with pytest.raises(AlignmentRequestContractError):
+    with pytest.raises(AlignmentRequestContractError) as exc_info:
         _materialize(value, dependencies=deps)
+    _assert_error(
+        exc_info,
+        AlignmentRequestRejectionReason.MODE_CAPABILITY_MISMATCH,
+        "ALIGNMENT_REQUEST_MODE_CAPABILITY_MISMATCH",
+        "/adapter_capability/media_type",
+    )
 
     for replacement in (
         CustomString("ADAPTER-CAPABILITY-V1"),
@@ -706,33 +902,19 @@ def test_serialize_alignment_request_rejects_non_materialized_instances() -> Non
 def test_alignment_request_public_exports_are_exact() -> None:
     import engine.contracts as contracts
 
-    expected = {
-        "AlignmentRequestMode",
-        "AdapterCapability",
-        "CanonicalTranscriptReference",
-        "AlignmentRequest",
-        "AlignmentRequestRejectionReason",
-        "AlignmentRequestContractError",
-        "materialize_alignment_request",
-        "serialize_alignment_request",
-    }
-    assert expected <= set(contracts.__all__)
+    current_exports = set(contracts.__all__)
+    assert current_exports - PRE_SLICE4_PUBLIC_EXPORTS == SLICE4_PUBLIC_EXPORTS
+    assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")
     assert not hasattr(contracts, "_is_materialized_alignment_request")
-    for code in (
-        "ALIGNMENT_REQUEST_WIRE_INVALID",
-        "ALIGNMENT_REQUEST_UNSUPPORTED_VALUE",
-        "ALIGNMENT_REQUEST_LINEAGE_MISMATCH",
-        "ALIGNMENT_REQUEST_MODE_PRESENCE_MISMATCH",
-        "ALIGNMENT_REQUEST_TRANSCRIPT_INVALID",
-        "ALIGNMENT_REQUEST_AUTHORIZATION_FORBIDDEN",
-        "ALIGNMENT_REQUEST_CAPABILITY_INVALID",
-        "ALIGNMENT_REQUEST_MODE_CAPABILITY_MISMATCH",
-        "ALIGNMENT_REQUEST_EXTENSIONS_FORBIDDEN",
-        "ALIGNMENT_REQUEST_SENSITIVE_DATA",
-        "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
-    ):
-        assert code in STABLE_ISSUE_CODES
+
+
+def test_alignment_request_stable_issue_inventory_delta_is_exact() -> None:
+    current_codes = set(STABLE_ISSUE_CODES)
+
+    assert current_codes - PRE_SLICE4_STABLE_ISSUE_CODES == SLICE4_STABLE_ISSUE_CODES
+    assert PRE_SLICE4_STABLE_ISSUE_CODES - current_codes == set()
+    assert "NOT_MATERIALIZED" not in current_codes
 
 
 def test_alignment_request_registry_releases_collected_instance() -> None:
@@ -798,6 +980,62 @@ def test_alignment_request_registration_failure_publishes_nothing(monkeypatch) -
     )
 
 
+def test_alignment_request_insertion_failure_preserves_replacement(monkeypatch) -> None:
+    class SentinelError(RuntimeError):
+        pass
+
+    unrelated = _materialize()
+    unrelated_key = id(unrelated)
+    unrelated_reference = weakref.ref(unrelated)
+    captured = {}
+
+    class ReplacingFailingRegistry(dict):
+        def __setitem__(self, key, value):
+            candidate = value()
+            replacement = replace(candidate)
+            replacement_reference = weakref.ref(replacement)
+            captured.update(
+                {
+                    "key": key,
+                    "candidate": candidate,
+                    "candidate_reference": value,
+                    "replacement": replacement,
+                    "replacement_reference": replacement_reference,
+                }
+            )
+            super().__setitem__(unrelated_key, unrelated_reference)
+            super().__setitem__(key, replacement_reference)
+            raise SentinelError("sentinel")
+
+    registry = ReplacingFailingRegistry()
+    monkeypatch.setattr(
+        alignment_contracts,
+        "_MATERIALIZED_ALIGNMENT_REQUESTS",
+        registry,
+    )
+
+    with pytest.raises(SentinelError, match="sentinel"):
+        _materialize()
+
+    assert registry[captured["key"]] is captured["replacement_reference"]
+    assert registry[unrelated_key] is unrelated_reference
+    assert captured["replacement_reference"]() is captured["replacement"]
+    assert captured["candidate_reference"]() is captured["candidate"]
+    assert captured["candidate"] is not captured["replacement"]
+    assert captured["candidate"] == captured["replacement"]
+    assert not alignment_contracts._is_materialized_alignment_request(
+        captured["candidate"]
+    )
+    with pytest.raises(AlignmentRequestContractError) as exc_info:
+        serialize_alignment_request(captured["candidate"])
+    _assert_error(
+        exc_info,
+        AlignmentRequestRejectionReason.NOT_MATERIALIZED,
+        None,
+        "/",
+    )
+
+
 def test_alignment_request_verification_failure_rolls_back_exact_entry(monkeypatch) -> None:
     original_registry = {}
     captured = {}
@@ -842,6 +1080,135 @@ def test_alignment_request_verification_failure_rolls_back_exact_entry(monkeypat
     with pytest.raises(ValueError, match="verification sentinel"):
         _materialize()
     assert registry.get(captured["key"]) is not captured["reference"]
+
+
+def test_alignment_request_verification_false_preserves_replacement(monkeypatch) -> None:
+    unrelated = _materialize()
+    unrelated_key = id(unrelated)
+    unrelated_reference = weakref.ref(unrelated)
+    genuine_predicate = alignment_contracts._is_materialized_alignment_request
+    captured = {}
+
+    class TrackingRegistry(dict):
+        def __setitem__(self, key, value):
+            captured["key"] = key
+            captured["candidate_reference"] = value
+            captured["candidate"] = value()
+            super().__setitem__(key, value)
+
+    registry = TrackingRegistry({unrelated_key: unrelated_reference})
+    monkeypatch.setattr(
+        alignment_contracts,
+        "_MATERIALIZED_ALIGNMENT_REQUESTS",
+        registry,
+    )
+
+    def replace_and_fail(value):
+        replacement = replace(value)
+        replacement_reference = weakref.ref(replacement)
+        captured["replacement"] = replacement
+        captured["replacement_reference"] = replacement_reference
+        dict.__setitem__(registry, captured["key"], replacement_reference)
+        return False
+
+    monkeypatch.setattr(
+        alignment_contracts,
+        "_is_materialized_alignment_request",
+        replace_and_fail,
+    )
+
+    with pytest.raises(RuntimeError, match="^alignment request provenance registration failed$"):
+        _materialize()
+
+    assert registry[captured["key"]] is captured["replacement_reference"]
+    assert registry[unrelated_key] is unrelated_reference
+    assert captured["replacement_reference"]() is captured["replacement"]
+    assert captured["candidate_reference"]() is captured["candidate"]
+    assert captured["candidate"] is not captured["replacement"]
+    assert captured["candidate"] == captured["replacement"]
+
+    monkeypatch.setattr(
+        alignment_contracts,
+        "_is_materialized_alignment_request",
+        genuine_predicate,
+    )
+    assert not alignment_contracts._is_materialized_alignment_request(
+        captured["candidate"]
+    )
+    with pytest.raises(AlignmentRequestContractError) as exc_info:
+        serialize_alignment_request(captured["candidate"])
+    _assert_error(
+        exc_info,
+        AlignmentRequestRejectionReason.NOT_MATERIALIZED,
+        None,
+        "/",
+    )
+
+
+def test_alignment_request_verification_exception_preserves_replacement(monkeypatch) -> None:
+    class SentinelError(RuntimeError):
+        pass
+
+    unrelated = _materialize()
+    unrelated_key = id(unrelated)
+    unrelated_reference = weakref.ref(unrelated)
+    genuine_predicate = alignment_contracts._is_materialized_alignment_request
+    captured = {}
+
+    class TrackingRegistry(dict):
+        def __setitem__(self, key, value):
+            captured["key"] = key
+            captured["candidate_reference"] = value
+            captured["candidate"] = value()
+            super().__setitem__(key, value)
+
+    registry = TrackingRegistry({unrelated_key: unrelated_reference})
+    monkeypatch.setattr(
+        alignment_contracts,
+        "_MATERIALIZED_ALIGNMENT_REQUESTS",
+        registry,
+    )
+
+    def replace_and_raise(value):
+        replacement = replace(value)
+        replacement_reference = weakref.ref(replacement)
+        captured["replacement"] = replacement
+        captured["replacement_reference"] = replacement_reference
+        dict.__setitem__(registry, captured["key"], replacement_reference)
+        raise SentinelError("verification sentinel")
+
+    monkeypatch.setattr(
+        alignment_contracts,
+        "_is_materialized_alignment_request",
+        replace_and_raise,
+    )
+
+    with pytest.raises(SentinelError, match="verification sentinel"):
+        _materialize()
+
+    assert registry[captured["key"]] is captured["replacement_reference"]
+    assert registry[unrelated_key] is unrelated_reference
+    assert captured["replacement_reference"]() is captured["replacement"]
+    assert captured["candidate_reference"]() is captured["candidate"]
+    assert captured["candidate"] is not captured["replacement"]
+    assert captured["candidate"] == captured["replacement"]
+
+    monkeypatch.setattr(
+        alignment_contracts,
+        "_is_materialized_alignment_request",
+        genuine_predicate,
+    )
+    assert not alignment_contracts._is_materialized_alignment_request(
+        captured["candidate"]
+    )
+    with pytest.raises(AlignmentRequestContractError) as exc_info:
+        serialize_alignment_request(captured["candidate"])
+    _assert_error(
+        exc_info,
+        AlignmentRequestRejectionReason.NOT_MATERIALIZED,
+        None,
+        "/",
+    )
 
 
 def test_alignment_request_malformed_custom_mapping_and_cycles_fail_closed() -> None:
