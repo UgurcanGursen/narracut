@@ -1,6 +1,16 @@
 """Canonical V3 models, validation, workspace, and domain-pack contracts."""
 
 from .artifacts import validate_artifact_graph, validate_retention_policy
+from .alignment import (
+    AdapterCapability,
+    AlignmentRequest,
+    AlignmentRequestContractError,
+    AlignmentRequestMode,
+    AlignmentRequestRejectionReason,
+    CanonicalTranscriptReference,
+    materialize_alignment_request,
+    serialize_alignment_request,
+)
 from .audio import (
     AUDIO_ARTIFACT_HASH_V1,
     AUDIO_ARTIFACT_INPUT_V1,
@@ -90,6 +100,11 @@ __all__ = [
     "AUDIO_ARTIFACT_HASH_V1",
     "AUDIO_ARTIFACT_INPUT_V1",
     "AUDIO_ARTIFACT_V1",
+    "AdapterCapability",
+    "AlignmentRequest",
+    "AlignmentRequestContractError",
+    "AlignmentRequestMode",
+    "AlignmentRequestRejectionReason",
     "AudioArtifact",
     "AudioArtifactContractError",
     "AudioArtifactMaterializationInput",
@@ -101,6 +116,7 @@ __all__ = [
     "NARRATION_LINEAGE_V1",
     "CanonicalNarrationDocument",
     "CanonicalNarrationMaterialization",
+    "CanonicalTranscriptReference",
     "CanonicalTextToken",
     "CanonicalWord",
     "Chapter",
@@ -159,10 +175,12 @@ __all__ = [
     "load_temporal_raw_package",
     "materialize_canonical_narration",
     "materialize_audio_artifact",
+    "materialize_alignment_request",
     "normalization_profile_hash",
     "policy_snapshot_hash",
     "resolve_word_range",
     "serialize_audio_artifact",
+    "serialize_alignment_request",
     "validate_artifact_graph",
     "validate_issue_codes",
     "validate_retention_policy",
