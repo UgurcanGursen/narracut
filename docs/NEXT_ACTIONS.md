@@ -2,81 +2,36 @@
 
 Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
-## NEXT RECOMMENDED TASK - Prepare the bounded candidate specification for PHASE2-SLICE-5-CANDIDATE
+## NEXT RECOMMENDED TASK - Run the bounded Slice 5 implementation-authorization decision
 
 This is the single authoritative next task.
 
-Task title:
+Run the separate bounded Phase 2 Slice 5 implementation-authorization
+decision against the accepted, remote-closed, documentation-synchronized
+specification.
+
+Specification path:
+`docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`.
+
+Specification commit:
+`26562c9449f8a4782cd231979cb5f61933c26515`.
+
+The specification file's `Accepted: No` line is the historical candidate
+snapshot. Acceptance is recorded in the authoritative state documents from
+the completed manual verification, Terra audit and correction, targeted
+re-audit, exact commit, exact blob, remote closure, and documentation
+synchronization evidence.
+
+This next task is a decision only. It must not implement production or test
+code, authorize runtime/provider execution implicitly, define downstream
+timing artifacts, close Phase 2, claim a total Slice count, or name a Slice
+after Slice 5.
 
 ```text
-Canonical Adapter Execution Provenance Contract
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
+SPECIFICATION_REMOTE_CLOSED=YES
+DOCUMENTATION_SYNCHRONIZATION_CLOSED=YES
+IMPLEMENTATION_AUTHORIZATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
 ```
-
-Exact specification path:
-
-```text
-docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md
-```
-
-Task constraints:
-
-- specification-only
-- may start only after this documentation synchronization is committed,
-  manually exact-SHA verified, pushed, and remote closed on `main`
-- bound to the accepted post-Slice-4 scope report in-scope/out-of-scope
-  boundary
-- no production implementation
-- no production or test file modification
-- the specification is not accepted by being drafted
-- no Phase 2 closure claim
-
-Scope basis:
-
-```text
-baseline/phase2_post_slice4_scope_report.md
-```
-
-Dependency boundary:
-
-- Slice 1 - Temporal Raw Package
-- Slice 2 - Canonical Narration
-- Slice 3 - Canonical AudioArtifact
-- Slice 4 - Canonical AlignmentRequest Contract
-
-This dependency boundary is not the total Phase 2 Slice count.
-
-The specification must preserve the selected candidate boundary:
-
-- immutable adapter execution provenance bound to AlignmentRequest
-- closed mode/status and evidence-presence rules
-- canonical identity, hashing, serialization, and publication boundary
-- paid-fallback authorization evidence
-- replay evidence
-- confidence-availability evidence
-- golden and mutation-resistance contract tests
-
-The specification must keep these areas out of scope:
-
-- provider or alignment runtime execution
-- canonical word timing result
-- failure artifact
-- AlignmentReport
-- transcript divergence handling
-- quality gates and corrections
-- replay execution
-- phrase grouping
-- emphasis mapping
-- frame compilation
-- caption preview
-- Phase 3 EDL or frame compilation
-
-Implementation remains blocked until the specification has its own independent
-audit and acceptance gate. This task does not close Phase 2.
-
-## Deferred, not current work
-
-- WorkspaceStore, SQLite, durable persistence, project recovery and packaging
-  remain Phase 14-17 responsibilities.
-- Provider automation and the Independent Editorial Critic Pipeline remain
-  future binding decisions.
-- Provider revoke/rotation remains a separate security/operations follow-up.

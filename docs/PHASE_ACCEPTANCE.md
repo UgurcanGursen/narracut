@@ -111,9 +111,10 @@ General status: IN_PROGRESS / NOT CLOSED
 | Slice 4 mutation-resistance hardening | SATISFIED | `d32e66585d660bc3e37a1896dbb7df050a8bc849`; independent closure re-audit PASS |
 | Slice 4 golden oracle | SATISFIED | projection 1034 bytes / `bfd2a97af22b1f105c2ebe9356ce2fe684b0add89be14fea09e6b21cfbe54e51`; envelope 1188 bytes / `b2b0d24b02932b90c315bae348071aba2d3295d1f8d12281feb9f100e8a8ea45` |
 | Phase 2 overall acceptance | NOT YET EVALUATED / NOT CLOSED | Slice 1-4 do not establish overall Phase 2 closure |
-| Total Phase 2 Slice decomposition | NOT RECONCILED | Authoritative post-Slice-4 scope reconciliation required |
+| Total Phase 2 Slice decomposition | NOT RECONCILED | The remote-closed scope report does not establish a total Slice count |
 | Post-Slice-4 scope reconciliation closure | SATISFIED / REMOTE CLOSED | `baseline/phase2_post_slice4_scope_report.md`; commit `f89e10156a940016deef4e94b6aef8863837dbf6`; parent `47727dbcbf2fdbdc6334b04bdfea7b3c1f7f6878`; subject `docs: reconcile phase 2 post-slice-4 scope`; SHA-256 `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f` |
 | Slice 5 specification-path decision | SATISFIED / REMOTE CLOSED | `baseline/phase2_slice5_specification_path_decision_report.md`; commit `d61500d861762bb6215e0f3041c144e25ea10752`; parent `013c154f0612d7e45e4411656d033372a3241f34`; subject `docs: add slice 5 specification path decision`; SHA-256 `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`; byte length `5668` |
+| Slice 5 specification | ACCEPTED / REMOTE CLOSED / DOCUMENTATION SYNCHRONIZED | `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`; commit `26562c9449f8a4782cd231979cb5f61933c26515`; parent `d27cd83ae2f8501a19dd232a3516af5cdfed6d9d`; SHA-256 `607630177cee9918efec621a637524f7b410e0ac61631b9c2f1fa8c6cc71ab75`; byte length `53180`; final Terra findings `0/0/0/0` |
 
 ### Post-Slice-4 scope reconciliation closure evidence
 
@@ -158,6 +159,42 @@ closure for `PHASE2-SLICE-5-CANDIDATE`. It is not acceptance or closure
 evidence for Slice 5 specification, Slice 5 implementation, runtime alignment
 execution, canonical word timing result, Phase 2 overall, or a repository-wide
 specification convention.
+
+### Slice 5 specification acceptance and remote closure evidence
+
+- Specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
+- Commit SHA: `26562c9449f8a4782cd231979cb5f61933c26515`
+- Commit parent: `d27cd83ae2f8501a19dd232a3516af5cdfed6d9d`
+- Commit subject: `docs: add phase 2 slice 5 specification`
+- Specification SHA-256:
+  `607630177cee9918efec621a637524f7b410e0ac61631b9c2f1fa8c6cc71ab75`
+- Specification UTF-8 byte length: `53180`
+- Manual specification verification: PASS
+- Terra broad audit: COMPLETE
+- Bounded corrections: COMPLETE
+- Targeted Terra re-audit: PASS
+- All findings closed: YES
+- Finding counts: BLOCKER=0 / MAJOR=0 / MINOR=0 / OBSERVATION=0
+- Commit exact: PASS
+- Blob hash exact: PASS
+- Byte length exact: PASS
+- Remote `main` exact: PASS
+
+The specification file's `Accepted: No` line remains an immutable historical
+candidate snapshot. Completion of the specification's gate sequence through
+documentation synchronization supports acceptance in the authoritative state
+documents. This is specification acceptance only: implementation acceptance
+and Phase 2 acceptance are not granted.
+
+```text
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
+SPECIFICATION_REMOTE_CLOSED=YES
+DOCUMENTATION_SYNCHRONIZATION_CLOSED=YES
+IMPLEMENTATION_AUTHORIZATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+```
 
 ### Master Roadmap Phase 2 acceptance reconciliation
 

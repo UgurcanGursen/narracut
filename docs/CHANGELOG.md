@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-07-29 - Phase 2 Slice 5 specification remote closure
+
+- Phase 2 Slice 5 specification was manually verified, independently audited,
+  corrected, committed, exact-SHA verified, fast-forward pushed, and remote
+  closed.
+- Specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`.
+- Commit:
+  `26562c9449f8a4782cd231979cb5f61933c26515`.
+- Parent:
+  `d27cd83ae2f8501a19dd232a3516af5cdfed6d9d`.
+- Subject: `docs: add phase 2 slice 5 specification`.
+- Specification SHA-256:
+  `607630177cee9918efec621a637524f7b410e0ac61631b9c2f1fa8c6cc71ab75`.
+- Specification UTF-8 byte length: `53180`.
+- Final Terra findings:
+  `0 blocker / 0 major / 0 minor / 0 observation`.
+- The remote-closed specification's `Accepted: No` line is its historical
+  candidate snapshot. Acceptance is recorded in the authoritative state
+  documents after completion of the specification gate evidence.
+- Documentation synchronization is closed by this commit. Implementation has
+  not started and remains unauthorized. Phase 2 remains open.
+
+```text
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
+SPECIFICATION_REMOTE_CLOSED=YES
+DOCUMENTATION_SYNCHRONIZATION_CLOSED=YES
+IMPLEMENTATION_AUTHORIZATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+```
+
 ## 2026-07-29 - Phase 2 Slice 5 specification-path decision remote closure
 
 - Phase 2 Slice 5 specification-path decision report was independently

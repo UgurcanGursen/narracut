@@ -5,10 +5,10 @@ Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 IN_PROGRESS**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-Current repository identity:
+Remote-closed Slice 5 specification baseline identity:
 
-- `HEAD=d61500d861762bb6215e0f3041c144e25ea10752`
-- `origin/main=d61500d861762bb6215e0f3041c144e25ea10752`
+- `specification_commit=26562c9449f8a4782cd231979cb5f61933c26515`
+- `origin/main=26562c9449f8a4782cd231979cb5f61933c26515`
 
 ## Verified replacement state
 
@@ -65,6 +65,43 @@ Current repository identity:
 
 ## Phase 2 reconciliation state
 
+Phase 2 Slice 5 specification is accepted, documentation-synchronized, and
+remote closed.
+
+- Specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
+- Specification commit:
+  `26562c9449f8a4782cd231979cb5f61933c26515`
+- Commit parent:
+  `d27cd83ae2f8501a19dd232a3516af5cdfed6d9d`
+- Commit subject: `docs: add phase 2 slice 5 specification`
+- Specification SHA-256:
+  `607630177cee9918efec621a637524f7b410e0ac61631b9c2f1fa8c6cc71ab75`
+- Specification UTF-8 byte length: `53180`
+- Manual specification verification: PASS
+- Terra broad audit and bounded corrections: COMPLETE
+- Targeted Terra re-audit: PASS
+- Final findings: BLOCKER=0 / MAJOR=0 / MINOR=0 / OBSERVATION=0
+- Exact-SHA commit verification: PASS
+- Remote push verification: PASS
+- Specification implementation: NOT STARTED
+- Implementation authorization: REQUIRED / NOT GRANTED
+- Phase 2: IN_PROGRESS / NOT CLOSED
+
+The specification file's `Accepted: No` line is the historical remote-closed
+candidate snapshot. The completed gate evidence supports acceptance in these
+authoritative state documents without changing that immutable specification
+blob.
+
+```text
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
+SPECIFICATION_REMOTE_CLOSED=YES
+DOCUMENTATION_SYNCHRONIZATION_CLOSED=YES
+IMPLEMENTATION_AUTHORIZATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+```
+
 Post-Slice-4 scope reconciliation is remote closed.
 
 - Scope report path: `baseline/phase2_post_slice4_scope_report.md`
@@ -103,20 +140,11 @@ Slice 5 specification-path decision is remote closed.
 - Independent Terra audit: PASS
 - Terra finding counts: BLOCKER=0 / MAJOR=0 / MINOR=0 / OBSERVATION=0
 - Decision report remote closure: YES
-- Selected future specification path:
+- Selected specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
 - Decision scope: bounded to `PHASE2-SLICE-5-CANDIDATE` only.
 - Repository-wide specification convention: NOT ESTABLISHED.
-- Documentation synchronization status: IN_PROGRESS until this change is
-  committed, manually exact-SHA verified, pushed, and remote closed.
-- Specification directory `docs/specifications/`: absent.
-- Slice 5 specification file:
-  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
-  absent.
-- Slice 5 specification is not written or accepted.
 - Slice 5 implementation is not authorized.
-- This documentation synchronization must be committed, manually exact-SHA
-  verified, pushed, and remote closed before specification creation is open.
 
 Phase 2 Slice 1–4 are Phase 2 work items. Repository evidence currently
 supports the following bounded status:
@@ -152,13 +180,12 @@ Phase 2 implementation has started after Slice 4.
 
 ## Current next move
 
-Prepare the bounded specification for `PHASE2-SLICE-5-CANDIDATE` -
-Canonical Adapter Execution Provenance Contract, after this documentation
-synchronization is committed, manually exact-SHA verified, pushed, and remote
-closed.
+Run the separate bounded Phase 2 Slice 5 implementation-authorization
+decision against the accepted, remote-closed, documentation-synchronized
+specification.
 
-This is a specification-only task. Slice 5 specification is not yet written or
-accepted, Slice 5 implementation is not authorized, and Phase 2 is not closed.
+This decision is not implementation. Slice 5 implementation remains
+unauthorized and has not started. Phase 2 is not closed.
 
 ## Phase 1 closure references
 
