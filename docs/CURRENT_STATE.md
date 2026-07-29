@@ -7,8 +7,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 
 Current repository identity:
 
-- `HEAD=f89e10156a940016deef4e94b6aef8863837dbf6`
-- `origin/main=f89e10156a940016deef4e94b6aef8863837dbf6`
+- `HEAD=d61500d861762bb6215e0f3041c144e25ea10752`
+- `origin/main=d61500d861762bb6215e0f3041c144e25ea10752`
 
 ## Verified replacement state
 
@@ -83,9 +83,40 @@ Post-Slice-4 scope reconciliation is remote closed.
 - Selected next bounded Slice candidate ID: `PHASE2-SLICE-5-CANDIDATE`
 - Selected next bounded Slice candidate title: Canonical Adapter Execution
   Provenance Contract
-- Initial repository identity for this documentation sync:
+- Initial repository identity for the post-Slice-4 documentation sync:
   `HEAD=f89e10156a940016deef4e94b6aef8863837dbf6`,
   `origin/main=f89e10156a940016deef4e94b6aef8863837dbf6`
+
+Slice 5 specification-path decision is remote closed.
+
+- Decision report path:
+  `baseline/phase2_slice5_specification_path_decision_report.md`
+- Decision report commit:
+  `d61500d861762bb6215e0f3041c144e25ea10752`
+- Commit parent:
+  `013c154f0612d7e45e4411656d033372a3241f34`
+- Commit subject: `docs: add slice 5 specification path decision`
+- Decision report SHA-256:
+  `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`
+- Decision report UTF-8 byte length: `5668`
+- Manual exact-SHA verification: PASS
+- Independent Terra audit: PASS
+- Terra finding counts: BLOCKER=0 / MAJOR=0 / MINOR=0 / OBSERVATION=0
+- Decision report remote closure: YES
+- Selected future specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
+- Decision scope: bounded to `PHASE2-SLICE-5-CANDIDATE` only.
+- Repository-wide specification convention: NOT ESTABLISHED.
+- Documentation synchronization status: IN_PROGRESS until this change is
+  committed, manually exact-SHA verified, pushed, and remote closed.
+- Specification directory `docs/specifications/`: absent.
+- Slice 5 specification file:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
+  absent.
+- Slice 5 specification is not written or accepted.
+- Slice 5 implementation is not authorized.
+- This documentation synchronization must be committed, manually exact-SHA
+  verified, pushed, and remote closed before specification creation is open.
 
 Phase 2 Slice 1–4 are Phase 2 work items. Repository evidence currently
 supports the following bounded status:
@@ -122,7 +153,9 @@ Phase 2 implementation has started after Slice 4.
 ## Current next move
 
 Prepare the bounded specification for `PHASE2-SLICE-5-CANDIDATE` -
-Canonical Adapter Execution Provenance Contract.
+Canonical Adapter Execution Provenance Contract, after this documentation
+synchronization is committed, manually exact-SHA verified, pushed, and remote
+closed.
 
 This is a specification-only task. Slice 5 specification is not yet written or
 accepted, Slice 5 implementation is not authorized, and Phase 2 is not closed.

@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-07-29 - Phase 2 Slice 5 specification-path decision remote closure
+
+- Phase 2 Slice 5 specification-path decision report was independently
+  audited, manually exact-SHA verified, committed, pushed, and remote closed.
+- Decision report commit:
+  `d61500d861762bb6215e0f3041c144e25ea10752`
+  (`docs: add slice 5 specification path decision`).
+- Decision report path:
+  `baseline/phase2_slice5_specification_path_decision_report.md`.
+- Decision report SHA-256:
+  `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`.
+- Selected future specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`.
+- The decision is bounded to `PHASE2-SLICE-5-CANDIDATE` only and does not
+  establish a repository-wide specification convention.
+- The Slice 5 specification has not been created or accepted, implementation
+  is not authorized, and Phase 2 is not closed.
+- After this documentation synchronization is committed, manually exact-SHA
+  verified, pushed, and remote closed, the next gate is bounded Slice 5
+  specification drafting.
+
 ## 2026-07-29 - Phase 2 post-Slice-4 scope report remote closure
 
 - Post-Slice-4 scope report was created, corrected, verified, committed, and

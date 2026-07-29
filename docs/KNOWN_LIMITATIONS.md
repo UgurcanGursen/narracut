@@ -72,6 +72,21 @@ Son guncelleme: 29 Temmuz 2026
 - `TERRASCOPE-001` is CLOSED by targeted Terra re-audit.
 - Slice 4 is remote closed at
   `d32e66585d660bc3e37a1896dbb7df050a8bc849`.
+- The bounded Slice 5 specification-path decision is remote closed.
+- Decision report path:
+  `baseline/phase2_slice5_specification_path_decision_report.md`.
+- Decision report commit:
+  `d61500d861762bb6215e0f3041c144e25ea10752`.
+- Decision report SHA-256:
+  `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`.
+- Selected future Slice 5 specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`.
+- Repository-wide accepted specification convention is still not established.
+- The Slice 5 path decision applies only to `PHASE2-SLICE-5-CANDIDATE`.
+- Specification creation is not open until this documentation synchronization
+  is committed, manually exact-SHA verified, pushed, and remote closed.
+- The `docs/specifications/` directory and Slice 5 specification file do not
+  exist yet.
 - Phase 2 overall closure is not established.
 - The total official Phase 2 Slice count is not reconciled.
 - No Phase 2 completion percentage is claimed.

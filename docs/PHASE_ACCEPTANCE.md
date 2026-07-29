@@ -113,6 +113,7 @@ General status: IN_PROGRESS / NOT CLOSED
 | Phase 2 overall acceptance | NOT YET EVALUATED / NOT CLOSED | Slice 1-4 do not establish overall Phase 2 closure |
 | Total Phase 2 Slice decomposition | NOT RECONCILED | Authoritative post-Slice-4 scope reconciliation required |
 | Post-Slice-4 scope reconciliation closure | SATISFIED / REMOTE CLOSED | `baseline/phase2_post_slice4_scope_report.md`; commit `f89e10156a940016deef4e94b6aef8863837dbf6`; parent `47727dbcbf2fdbdc6334b04bdfea7b3c1f7f6878`; subject `docs: reconcile phase 2 post-slice-4 scope`; SHA-256 `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f` |
+| Slice 5 specification-path decision | SATISFIED / REMOTE CLOSED | `baseline/phase2_slice5_specification_path_decision_report.md`; commit `d61500d861762bb6215e0f3041c144e25ea10752`; parent `013c154f0612d7e45e4411656d033372a3241f34`; subject `docs: add slice 5 specification path decision`; SHA-256 `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`; byte length `5668` |
 
 ### Post-Slice-4 scope reconciliation closure evidence
 
@@ -133,6 +134,30 @@ General status: IN_PROGRESS / NOT CLOSED
 This evidence accepts only post-Slice-4 scope reconciliation closure. It is not
 Slice 5 specification acceptance, not Slice 5 implementation acceptance, and
 not Phase 2 acceptance or closure.
+
+### Slice 5 specification-path decision remote closure evidence
+
+- Decision report path:
+  `baseline/phase2_slice5_specification_path_decision_report.md`
+- Commit SHA: `d61500d861762bb6215e0f3041c144e25ea10752`
+- Commit parent: `013c154f0612d7e45e4411656d033372a3241f34`
+- Commit subject: `docs: add slice 5 specification path decision`
+- Report SHA-256:
+  `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`
+- Report UTF-8 byte length: `5668`
+- Selected future specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
+- `PHASE2_SLICE5_SPECIFICATION_PATH_DECISION_TERRA_AUDIT_STATUS=PASS`
+- Finding counts: BLOCKER=0 / MAJOR=0 / MINOR=0 / OBSERVATION=0
+- `MANUAL_PHASE2_SLICE5_SPECIFICATION_PATH_DECISION_COMMIT_VERIFICATION=PASS`
+- `PHASE2_SLICE5_SPECIFICATION_PATH_DECISION_PUSH_STATUS=PASS`
+- `DECISION_REPORT_REMOTE_CLOSED=YES`
+
+This evidence accepts only the bounded specification-path decision remote
+closure for `PHASE2-SLICE-5-CANDIDATE`. It is not acceptance or closure
+evidence for Slice 5 specification, Slice 5 implementation, runtime alignment
+execution, canonical word timing result, Phase 2 overall, or a repository-wide
+specification convention.
 
 ### Master Roadmap Phase 2 acceptance reconciliation
 
