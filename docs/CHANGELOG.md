@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-07-29 - Phase 2 post-Slice-4 scope report remote closure
+
+- Post-Slice-4 scope report was created, corrected, verified, committed, and
+  pushed to remote `main`.
+- `TERRASCOPE-001` was closed by targeted re-audit.
+- Scope report commit:
+  `f89e10156a940016deef4e94b6aef8863837dbf6`
+  (`docs: reconcile phase 2 post-slice-4 scope`).
+- Scope report SHA-256:
+  `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f`.
+- Selected next candidate:
+  `PHASE2-SLICE-5-CANDIDATE` - Canonical Adapter Execution Provenance
+  Contract.
+- The next gate is specification. Slice 5 implementation and Phase 2 closure
+  are not open.
+
 ## 2026-07-28 — Documentation workflow hardening
 
 - Added a mandatory documentation synchronization gate after every

@@ -1,6 +1,6 @@
 # Known Limitations
 
-Son guncelleme: 28 Temmuz 2026
+Son guncelleme: 29 Temmuz 2026
 
 ## Known limitations ve follow-up'lar
 
@@ -63,14 +63,27 @@ Son guncelleme: 28 Temmuz 2026
 ## Faz 2 status note
 
 - Slice 1-4 repository evidence reconciliation completed.
+- Post-Slice-4 scope reconciliation is no longer a blocker; the scope report is
+  remote closed at `f89e10156a940016deef4e94b6aef8863837dbf6`.
+- Remote-closed scope report path:
+  `baseline/phase2_post_slice4_scope_report.md`.
+- Remote-closed scope report SHA-256:
+  `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f`.
+- `TERRASCOPE-001` is CLOSED by targeted Terra re-audit.
 - Slice 4 is remote closed at
   `d32e66585d660bc3e37a1896dbb7df050a8bc849`.
 - Phase 2 overall closure is not established.
 - The total official Phase 2 Slice count is not reconciled.
-- The total official Slice count and uncovered acceptance criteria require
-  authoritative post-Slice-4 scope reconciliation.
 - No Phase 2 completion percentage is claimed.
-- No next production Slice is claimed before scope reconciliation.
+- Accepted/committed Slice 5 specification does not exist yet.
+- Slice 5 implementation remains blocked.
+- The next bounded candidate is `PHASE2-SLICE-5-CANDIDATE` - Canonical Adapter
+  Execution Provenance Contract, but only a specification task is authorized.
+- Scope report evidence gaps remain: `EVIDENCE_PATH_NOT_FOUND`,
+  `TEST_RESULT_NOT_RECONCILED`, and `NOT_PROVEN_BY_REPOSITORY`.
+- Slice 1-3 standalone scope/audit/closure evidence and test-result
+  reconciliation gaps remain, so broader closure must not be claimed.
+- Downstream canonical timing deliverables are not proven complete.
 
 ## Environment and test limitations
 

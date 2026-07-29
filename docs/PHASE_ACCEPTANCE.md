@@ -97,7 +97,7 @@ gerektirir. Bu Faz 1 deliverable'i degil, future-phase acceptance kaydidir.
 
 ## Faz 2 — Temporal Annotation and Word-Level Alignment Contract
 
-Evaluation date: 28 Temmuz 2026
+Evaluation date: 29 Temmuz 2026
 
 General status: IN_PROGRESS / NOT CLOSED
 
@@ -112,7 +112,27 @@ General status: IN_PROGRESS / NOT CLOSED
 | Slice 4 golden oracle | SATISFIED | projection 1034 bytes / `bfd2a97af22b1f105c2ebe9356ce2fe684b0add89be14fea09e6b21cfbe54e51`; envelope 1188 bytes / `b2b0d24b02932b90c315bae348071aba2d3295d1f8d12281feb9f100e8a8ea45` |
 | Phase 2 overall acceptance | NOT YET EVALUATED / NOT CLOSED | Slice 1-4 do not establish overall Phase 2 closure |
 | Total Phase 2 Slice decomposition | NOT RECONCILED | Authoritative post-Slice-4 scope reconciliation required |
-| Post-Slice-4 scope report | REQUIRED | `baseline/phase2_post_slice4_scope_report.md` |
+| Post-Slice-4 scope reconciliation closure | SATISFIED / REMOTE CLOSED | `baseline/phase2_post_slice4_scope_report.md`; commit `f89e10156a940016deef4e94b6aef8863837dbf6`; parent `47727dbcbf2fdbdc6334b04bdfea7b3c1f7f6878`; subject `docs: reconcile phase 2 post-slice-4 scope`; SHA-256 `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f` |
+
+### Post-Slice-4 scope reconciliation closure evidence
+
+- Scope report path: `baseline/phase2_post_slice4_scope_report.md`
+- Commit SHA: `f89e10156a940016deef4e94b6aef8863837dbf6`
+- Commit parent: `47727dbcbf2fdbdc6334b04bdfea7b3c1f7f6878`
+- Commit subject: `docs: reconcile phase 2 post-slice-4 scope`
+- Report SHA-256:
+  `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f`
+- Manual report reverification: PASS
+- Targeted Terra re-audit: PASS
+- Finding counts: BLOCKER=0 / MAJOR=0 / MINOR=0 / OBSERVATION=0
+- Manual exact commit verification: PASS
+- Remote push verification: PASS
+- `TERRASCOPE-001=CLOSED`
+- `SCOPE_REPORT_REMOTE_CLOSED=YES`
+
+This evidence accepts only post-Slice-4 scope reconciliation closure. It is not
+Slice 5 specification acceptance, not Slice 5 implementation acceptance, and
+not Phase 2 acceptance or closure.
 
 ### Master Roadmap Phase 2 acceptance reconciliation
 
