@@ -65,9 +65,14 @@ publish a failure artifact. `BLOCKED` records that execution did not start.
 
 ## 3. Terminology
 
-- **AlignmentRequest binding:** the required pair
+- **Current AlignmentRequest binding:** the required pair
   `alignment_request_id` and `alignment_request_hash`, validated against one
-  genuine, materialized `AlignmentRequest`.
+  genuine, materialized current `AlignmentRequest`. These are the root
+  `AdapterExecution` binding fields.
+- **Source AlignmentRequest dependency:** for `REPLAY` only, one genuine,
+  materialized `AlignmentRequest` originally bound to `source_execution`.
+  Its identity is carried only by `ReplayEvidence`; it is distinct in role
+  and identity from the current replay request.
 - **Adapter execution:** the bounded semantic event classified by this
   provenance snapshot. Provider invocation mechanics are outside this
   specification.
@@ -80,7 +85,8 @@ publish a failure artifact. `BLOCKED` records that execution did not start.
   determines whether a `PAID_API` path for the bound request was approved and
   proceeded or was denied and remained `BLOCKED`.
 - **Replay evidence:** a single direct binding to one genuine, successful,
-  non-replay source execution for the same request.
+  non-replay source execution and that execution's genuine original request.
+  It never asserts that the source request is the current replay request.
 - **Confidence-availability evidence:** a declaration of availability only;
   it carries no score, word list, provider payload, or quality classification.
 - **Canonical projection:** the identity-bearing JSON object excluding
@@ -212,6 +218,7 @@ def materialize_adapter_execution(
     value: Mapping[str, Any],
     *,
     alignment_request: AlignmentRequest,
+    source_alignment_request: AlignmentRequest | None = None,
     source_execution: AdapterExecution | None = None,
 ) -> AdapterExecution
 
@@ -219,6 +226,7 @@ def load_adapter_execution(
     source: bytes,
     *,
     alignment_request: AlignmentRequest,
+    source_alignment_request: AlignmentRequest | None = None,
     source_execution: AdapterExecution | None = None,
 ) -> AdapterExecution
 
@@ -235,16 +243,20 @@ normative. The sanitized message category identifies `alignment_request`, but
 exact message text is not a stable contract. These failures occur before
 `AdapterExecutionContractError` validation and carry no pointer, rejection
 reason, or issue code.
-When `source_execution` is non-null, they also validate only its exact type and
-genuine materialization at that pre-input stage. A null `source_execution` is
-not rejected and mode-dependent presence is not decided before root mode
-parsing.
+When `source_alignment_request` is non-null, both materializers next validate
+only its exact `AlignmentRequest` type and genuine materialization. When
+`source_execution` is non-null, they then validate only its exact
+`AdapterExecution` type and genuine materialization. These Slice-owned
+dependency failures use `AdapterExecutionContractError` as specified in
+sections 17 and 18. Null values are accepted during pre-input validation;
+mode-dependent presence is not decided before root mode parsing.
 
 After root structure and the closed `mode` enum have been parsed,
-`source_execution` is required for `REPLAY` and forbidden for `LOCAL`,
-`FREE_API`, `PAID_API`, and `MANUAL_UI`. `load_adapter_execution` applies the
-same dependency and semantic validation as `materialize_adapter_execution`
-before its final exact-byte check.
+both `source_alignment_request` and `source_execution` are required for
+`REPLAY` and forbidden for `LOCAL`, `FREE_API`, `PAID_API`, and `MANUAL_UI`.
+Presence is checked in that exact parameter order. `load_adapter_execution`
+applies the same dependency and semantic validation as
+`materialize_adapter_execution` before its final exact-byte check.
 
 ### 5.2 `AdapterExecution`
 
@@ -282,8 +294,8 @@ before its final exact-byte check.
 | `schema_version` | `str` | required | JSON string | evidence schema | exact `REPLAY-EVIDENCE-V1` | yes, through root | `REPLAY` only | other value/type |
 | `source_adapter_execution_id` | `str` | required | JSON string | direct source execution | exact genuine source ID | yes | object present | self-reference, mismatch, or malformed |
 | `source_adapter_execution_hash` | `str` | required | JSON string | direct source content identity | exact genuine source hash | yes | object present | mismatch or malformed |
-| `source_alignment_request_id` | `str` | required | JSON string | source request binding | exact current and source request ID | yes | object present | mismatch |
-| `source_alignment_request_hash` | `str` | required | JSON string | source request binding | exact current and source request hash | yes | object present | mismatch |
+| `source_alignment_request_id` | `str` | required | JSON string | source request binding | exact genuine source request ID; not the current replay request ID | yes | object present | mismatch or role confusion |
+| `source_alignment_request_hash` | `str` | required | JSON string | source request binding | exact genuine source request hash; not the current replay request hash | yes | object present | mismatch or role confusion |
 
 ### 5.5 `ConfidenceAvailabilityEvidence`
 
@@ -300,7 +312,14 @@ payment state.
 
 **Specification decision:**
 
-- Both `alignment_request_id` and `alignment_request_hash` are required.
+- The repository `AlignmentRequest` model has no source-request or
+  source-execution reference. Its identity projection includes `mode`.
+  Therefore Model A, an existing request-carried source binding, is not
+  available. This specification selects Model B, an explicit genuine source
+  request dependency, as the smallest repository-supported complete replay
+  proof.
+- Both root `alignment_request_id` and `alignment_request_hash` are required
+  and always identify the current genuine request.
 - Materialization requires a genuine exact `AlignmentRequest` produced by
   `materialize_alignment_request`; reconstruction, subclass, proxy, copied
   lookalike, or unregistered instance is rejected before raw input access.
@@ -311,6 +330,16 @@ payment state.
 - The two stored values must exactly equal the genuine request values.
 - The request payload is referenced, never embedded.
 - Both binding fields participate in execution identity.
+- For `REPLAY`, `source_alignment_request` is a second genuine exact
+  `AlignmentRequest` dependency. It is the request originally bound to
+  `source_execution`; it is not stored as a new root field.
+- `ReplayEvidence.source_alignment_request_id` and
+  `ReplayEvidence.source_alignment_request_hash` must exactly equal the
+  source request dependency. The source execution's own request ID/hash must
+  also exactly equal that dependency.
+- The current `REPLAY` request and source non-`REPLAY` request have distinct
+  roles and must have different ID and hash values. Neither source request
+  field is compared for equality with the current root request field.
 - `adapter_id` and `adapter_version` must exactly equal
   `alignment_request.adapter_capability.adapter_id` and
   `alignment_request.adapter_capability.adapter_version`.
@@ -341,7 +370,8 @@ payment state.
 
 Request-mode parity is exact:
 
-- `LOCAL`, `REPLAY`, and `MANUAL_UI` require the same request mode.
+- For the current execution, `LOCAL`, `REPLAY`, and `MANUAL_UI` require the
+  same current request mode.
 - `FREE_API` requires request mode `FREE_API`.
 - `PAID_API` also requires request mode `FREE_API`; it is not an
   `AlignmentRequestMode` and cannot appear in an `AlignmentRequest`.
@@ -350,6 +380,15 @@ Request-mode parity is exact:
   A paid channel, tier, or authorization path may vary, but a different paid
   adapter identity requires a distinct `AlignmentRequest`.
 - A different paid adapter requires a distinct `AlignmentRequest`.
+- For a `REPLAY` execution, the current request mode is `REPLAY`.
+  `source_alignment_request.mode` must not be `REPLAY`.
+  `source_execution.mode` must not be `REPLAY` and must satisfy the same
+  parity rule against the source request: `LOCAL` and `MANUAL_UI` require the
+  identical source request mode; `FREE_API` requires source request mode
+  `FREE_API`; `PAID_API` also requires source request mode `FREE_API`.
+- Because request mode participates in `AlignmentRequest` identity, current
+  replay request identity and source non-replay request identity are required
+  to differ. This difference is valid and is not a request-binding failure.
 - No provider brand, model, SDK, or endpoint is part of this enum.
 
 Unknown values, aliases, case variants, arbitrary `str` subclasses, and other
@@ -393,7 +432,11 @@ lifecycle, or ordering between snapshots is defined.
 | `MANUAL_UI` | `FAILED` | VALID | FORBIDDEN | FORBIDDEN | REQUIRED |
 | `MANUAL_UI` | `BLOCKED` | VALID | FORBIDDEN | FORBIDDEN | FORBIDDEN |
 
-`REPLAY` is conditionally valid only when section 11 lineage rules pass.
+`REPLAY` is conditionally valid only when section 11 lineage rules pass with
+both a genuine source request and a genuine successful non-replay source
+execution. The current replay request and source request identities are
+distinct. These rules make both `REPLAY/SUCCEEDED` and `REPLAY/FAILED`
+constructible without changing any matrix row.
 `PAID_API` is conditionally valid only when section 10 rules pass.
 For `PAID_API`, `SUCCEEDED` and `FAILED` require `APPROVED`;
 `BLOCKED` requires `DENIED`.
@@ -441,18 +484,41 @@ forbidden fields.
 
 **Specification decision:**
 
-- Materializing `REPLAY` requires both the serialized `replay_evidence` object
-  and a genuine exact materialized `AdapterExecution` dependency named
+- Materializing `REPLAY` requires the serialized `replay_evidence` object,
+  one genuine exact materialized `AlignmentRequest` dependency named
+  `source_alignment_request`, and one genuine exact materialized
+  `AdapterExecution` dependency named `source_execution`.
+- The current root `alignment_request_id` and `alignment_request_hash` remain
+  bound only to the current genuine replay request.
+- Pre-input validation checks a non-null `source_alignment_request` only for
+  exact `AlignmentRequest` type and genuine materialization, then checks a
+  non-null `source_execution` only for exact `AdapterExecution` type and
+  genuine materialization. It does not decide mode compatibility or required
+  presence.
+- After the root `mode` is parsed, `REPLAY` requires both dependencies.
+  Every non-`REPLAY` mode forbids both dependencies.
+- `source_alignment_request.mode` must not be `REPLAY`.
+- `source_execution.status` must be `SUCCEEDED`.
+- `source_execution.mode` must not be `REPLAY` and must satisfy section 7
+  parity against `source_alignment_request`.
+- `source_execution.alignment_request_id` and
+  `source_execution.alignment_request_hash` must exactly equal
+  `source_alignment_request.alignment_request_id` and
+  `source_alignment_request.alignment_request_hash`.
+- `ReplayEvidence.source_alignment_request_id` and
+  `ReplayEvidence.source_alignment_request_hash` must exactly equal that same
+  genuine source request dependency.
+- Source execution ID/hash in `ReplayEvidence` must exactly match
   `source_execution`.
-- Pre-input validation checks a non-null `source_execution` only for exact
-  type and genuine materialization. It does not decide mode compatibility.
-- After the root `mode` is parsed, `REPLAY` requires a non-null
-  `source_execution`; every non-`REPLAY` mode forbids it.
-- The source must have status `SUCCEEDED`.
-- The source mode must not be `REPLAY`.
-- Source execution ID/hash must exactly match the dependency.
-- Source request ID/hash must exactly match both the source execution and the
-  current genuine request.
+- Before any lineage comparison, replay scalar syntax is closed:
+  `source_adapter_execution_id` is exact built-in `str` matching
+  `aex_[0-9a-f]{32}`; `source_adapter_execution_hash` is exact built-in `str`
+  matching `[0-9a-f]{64}`; `source_alignment_request_id` is exact built-in
+  `str` matching `arq_[0-9a-f]{32}`; and
+  `source_alignment_request_hash` is exact built-in `str` matching
+  `[0-9a-f]{64}`.
+- The source request ID/hash must not equal the current replay request
+  ID/hash. Equality is role confusion, not valid replay binding.
 - The lineage representation is exactly one direct source object. Lists,
   ancestor arrays, multiple candidates, alternative parents, nested replay
   evidence, and free-form lineage are forbidden.
@@ -461,12 +527,18 @@ forbidden fields.
   verification.
 - A replay source that is itself `REPLAY` is rejected. This prevents a v1
   record from representing cycle-capable replay lineage.
-- A missing, extra, ambiguous, copied, reconstructed, or mismatched source
-  rejects publication.
+- A source request whose mode is `REPLAY` is also rejected. Together with the
+  source execution mode rule and single direct-source schema, this prevents
+  cycle-capable replay lineage.
+- A missing, extra, ambiguous, copied, reconstructed, role-confused, or
+  mismatched dependency rejects publication.
 - All replay fields participate in identity.
 
 This section does not execute replay, retrieve cached bytes, orchestrate retry,
-or define a replay result.
+look up a request or execution by ID/hash, or define a replay result. Genuine
+dependency objects are the complete proof; unverified strings, provider state,
+runtime lookup, database lookup, network access, mutable cache lookup, and
+future timing artifacts are not accepted as lineage evidence.
 
 ## 12. Confidence-availability evidence
 
@@ -521,6 +593,12 @@ forbidden.
 - Copy, deep copy, pickle reconstruction, `dataclasses.replace`, direct
   constructor use, `object.__new__`, subclassing, proxying, and field cloning
   do not mint materialization provenance.
+- `source_alignment_request` and `source_execution` are validation
+  dependencies, not retained mutable inputs and not new serialized root
+  fields. Their frozen values are copied only into the already-defined
+  `ReplayEvidence` scalar identity fields. Mutation, replacement, collection,
+  or registry cleanup after successful materialization cannot change the
+  execution object, bytes, hash, or ID.
 - Genuine-instance registration uses exact type plus weak identity. Failed
   registration publishes nothing and cleanup cannot delete a replacement
   entry installed under the same identity key.
@@ -591,6 +669,10 @@ forbidden.
 - `engine.contracts.alignment_execution` may import
   `engine.contracts.alignment`, `engine.contracts.temporal`, and the private
   canonical JSON encoder.
+- The module may use the existing private exact-type/weak-identity predicate
+  from `engine.contracts.alignment` to validate both current and source
+  `AlignmentRequest` dependencies. It owns the equivalent private predicate
+  for `AdapterExecution`.
 - `engine.contracts.alignment` must not import
   `engine.contracts.alignment_execution`. `temporal.py` must not import either
   alignment module. This direction forbids an import cycle.
@@ -600,6 +682,9 @@ forbidden.
 - Publication is atomic: validation and serialization verification complete
   before genuine-instance registration; registration failure leaves no
   genuine object. No other artifact is created or rolled back.
+- Source dependency objects are never registered by this materializer,
+  modified, published, or looked up by string identity. Their genuine
+  registries are read only for validation.
 
 ## 17. Deterministic validation order
 
@@ -609,50 +694,171 @@ forbidden.
    wrong-type or exact-type-but-non-genuine dependency raises `TypeError`
    before `AdapterExecutionContractError` validation. Raw root input is not
    accessed before this check.
-2. When `source_execution` is non-null, validate its exact type and genuine
-   materialization. A null value is accepted at this stage. Required or
-   forbidden presence is not decided before mode parsing, and raw root input
-   is not accessed before validation of any non-null dependency.
-3. Root input type, exact key set, missing fields, unknown fields, duplicate
-   keys for byte input, and exact built-in scalar/object/null types.
-4. Validate root `schema_version` and `hash_scope_version`.
-5. Parse closed root enums without coercion, in field order `mode`, then
-   `status`.
-6. Apply `source_execution` presence compatibility using the parsed mode:
-   `REPLAY` requires a genuine non-null dependency; `LOCAL`, `FREE_API`,
-   `PAID_API`, and `MANUAL_UI` forbid a present dependency.
-7. Validate request binding syntax, then request ID/hash parity against the
-   genuine request.
-8. Validate adapter ID/version parity and execution-mode/request-mode
-   compatibility.
-9. Validate mode/status compatibility.
-10. Validate evidence presence/null rules in order paid, replay, confidence.
-11. Validate paid-fallback nested structure and enums, authorization binding,
-    and
-    decision/status invariants.
-12. Validate replay nested structure, source identity/hash parity, request parity,
-    direct self-reference, ambiguity, and cycle-capable lineage checks.
-13. Validate confidence nested structure and enum, then capability/status
-    state invariants.
-14. Perform the full sensitive-data scan over the supplied logical object.
-15. Encode the canonical projection and validate the supplied
+2. When `source_alignment_request` is non-null, validate its exact
+   `AlignmentRequest` type and genuine materialization. A null value is
+   accepted at this stage. A failure uses the exact Slice-owned dependency
+   mapping in section 18.
+3. When `source_execution` is non-null, validate its exact
+   `AdapterExecution` type and genuine materialization. A null value is
+   accepted at this stage. A failure uses the exact Slice-owned dependency
+   mapping in section 18. Raw root input is not accessed before all three
+   dependency preflight stages finish.
+4. Parse byte input and validate root mapping type, exact built-in key types,
+   duplicate root or nested keys, and the exact root key set. Root key-set
+   validation applies unknown-key rejection before missing-required-key
+   rejection. It then validates exact built-in root scalar/object/null types
+   and evidence-object/null shape. In particular, root `mode` and `status`
+   must satisfy `type(value) is str` at this stage. Nested evidence key sets
+   and nested scalar types are deferred to their owning stages 12, 13, and
+   14. Duplicate-key pointers use the containing-object algorithm in section
+   18.
+5. Validate root `schema_version` and `hash_scope_version`.
+6. Parse closed root enums without coercion, in field order `mode`, then
+   `status`. Only exact built-in `str` values reach this stage. An exact
+   built-in string absent from the relevant closed enum is an unsupported
+   literal; a `str` subclass, arbitrary Enum member, `bytes`, integer,
+   boolean, `None`, or any other non-exact-string value has already failed at
+   stage 4 and cannot reach enum parsing.
+7. Apply dependency presence compatibility using the parsed mode, in exact
+   parameter order `source_alignment_request`, then `source_execution`.
+   `REPLAY` requires both genuine non-null dependencies; `LOCAL`, `FREE_API`,
+   `PAID_API`, and `MANUAL_UI` forbid both.
+8. Validate current request binding syntax, then current request ID/hash
+   parity against `alignment_request`, in field order ID then hash.
+9. Validate current adapter ID, current adapter version, and
+   execution-mode/current-request-mode compatibility, in that order.
+10. Validate mode/status compatibility.
+11. Validate evidence presence/null rules in order paid, replay, confidence.
+12. Validate paid-fallback evidence in this exact suborder: mapping and exact
+    built-in key-type prerequisites; unknown-key rejection; missing-required-
+    key rejection; then known-field scalar validation in this order:
+    `schema_version` exact built-in `str` type, then exact literal;
+    `authorization_id` exact built-in `str` type, then syntax; `source` exact
+    built-in `str` type, then closed enum parsing; `decision` exact built-in
+    `str` type, then closed enum parsing; `alignment_request_id` exact
+    built-in `str` type, then syntax; `alignment_request_hash` exact built-in
+    `str` type, then syntax; request ID then hash binding; decision/status
+    invariant.
+13. Validate replay in this exact suborder:
+    13.1 mapping and exact built-in key-type prerequisites; unknown-key
+    rejection; missing-required-key rejection; then the exact replay key set;
+    13.2 `ReplayEvidence.schema_version` exact built-in `str` type;
+    13.3 `ReplayEvidence.schema_version` exact `REPLAY-EVIDENCE-V1` literal;
+    13.4 `source_adapter_execution_id` exact built-in `str` type, then syntax;
+    13.5 `source_adapter_execution_hash` exact built-in `str` type, then
+    syntax;
+    13.6 `source_alignment_request_id` exact built-in `str` type, then syntax;
+    13.7 `source_alignment_request_hash` exact built-in `str` type, then
+    syntax;
+    13.8 source request mode is not `REPLAY`;
+    13.9 source execution status is `SUCCEEDED`;
+    13.10 source execution mode is not `REPLAY`;
+    13.11 source execution mode/source request mode parity;
+    13.12 source execution request ID then hash parity against
+    `source_alignment_request`;
+    13.13 replay-evidence source request ID then hash parity against
+    `source_alignment_request`;
+    13.14 current/source request role distinction by ID then hash;
+    13.15 replay-evidence source execution ID then hash parity against
+    `source_execution`;
+    13.16 direct self-reference;
+    13.17 remaining ambiguity and cycle-capable lineage checks.
+14. Validate confidence evidence in this exact suborder:
+    14.1 mapping and exact built-in key-type prerequisites; unknown-key
+    rejection; missing-required-key rejection; then the exact confidence key
+    set;
+    14.2 `ConfidenceAvailabilityEvidence.schema_version` exact built-in `str`
+    type;
+    14.3 exact `CONFIDENCE-AVAILABILITY-EVIDENCE-V1` schema literal;
+    14.4 `availability` exact built-in `str` type;
+    14.5 closed `ConfidenceAvailability` enum parsing without coercion;
+    14.6 capability/status state invariant.
+15. Perform the full sensitive-data scan over the supplied logical object
+    using the scan and pointer algorithm in section 18.
+16. Encode the canonical projection and validate the supplied
     `adapter_execution_hash`.
-16. Validate the derived `adapter_execution_id`.
-17. For byte input only, validate exact source-byte equality with the canonical
+17. Validate the derived `adapter_execution_id`.
+18. For byte input only, validate exact source-byte equality with the canonical
     envelope.
-18. Perform immutable construction, canonical envelope encoding verification,
-    and
-    genuine-instance registration.
+19. Perform immutable construction and canonical envelope encoding
+    verification.
+20. Register the genuine instance. Registration failure publishes nothing.
 
-Within a key-set failure, the lexicographically first unknown pointer wins;
-otherwise missing-required-field rejection uses the containing object pointer.
+The following exact key-set algorithm applies globally to the root mapping and
+to every paid, replay, and confidence evidence mapping after any byte-input
+duplicate-key rejection:
+
+1. Validate the mapping/root type and require every member name to be an exact
+   built-in `str`.
+2. Detect unknown keys. If one or more unknown keys exist, reject the
+   canonical-JSON-member-order first unknown key even when required keys are
+   also missing. Missing-key detection and known-field scalar access do not
+   run.
+3. Only when no unknown key exists, detect missing required keys. If one or
+   more are missing, reject the schema-order first missing key. Known-field
+   scalar access does not run.
+4. Only an exact key set proceeds to known-field scalar validation.
+
+Canonical JSON member ordering means ascending Unicode code-point order of
+exact built-in string keys, exactly the `sorted(keys)` convention used by
+`engine.contracts._canonical_json.encode_canonical_json_bytes`. Mapping
+insertion order never participates. The selected unknown-key pointer uses JSON
+Pointer escaping (`~` becomes `~0`; `/` becomes `~1`) only when the key passes
+the section 18 safe-pointer predicate; otherwise it uses the containing-object
+pointer.
+
+The canonical required-field orders are the section 5 table orders and are
+exactly:
+
+```text
+root:
+schema_version
+hash_scope_version
+adapter_execution_id
+adapter_execution_hash
+alignment_request_id
+alignment_request_hash
+adapter_id
+adapter_version
+mode
+status
+paid_fallback_authorization_evidence
+replay_evidence
+confidence_availability_evidence
+
+paid:
+schema_version
+authorization_id
+source
+decision
+alignment_request_id
+alignment_request_hash
+
+replay:
+schema_version
+source_adapter_execution_id
+source_adapter_execution_hash
+source_alignment_request_id
+source_alignment_request_hash
+
+confidence:
+schema_version
+availability
+```
+
+The selected missing-key pointer is the containing mapping pointer plus the
+schema-order first missing key, using the same JSON Pointer escaping. Root
+fields therefore use `/<field>`; nested fields use
+`/paid_fallback_authorization_evidence/<field>`,
+`/replay_evidence/<field>`, or
+`/confidence_availability_evidence/<field>`.
 
 Raw root input is not accessed before `alignment_request` validation and
-validation of any non-null `source_execution` dependency. Whether
-`source_execution` is required or forbidden is not decided before mode
-parsing. `REPLAY` requires a genuine non-null `source_execution`. Every
-non-`REPLAY` mode forbids `source_execution`. This deterministic validation
-order is implementable and has no mode-before-input dependency.
+validation of every non-null source dependency. Whether either nullable source
+dependency is required or forbidden is not decided before current root mode
+parsing. If both dependencies violate presence, the
+`source_alignment_request` failure wins. A valid `REPLAY` requires both; every
+non-`REPLAY` mode forbids both. This order has no mode-before-input dependency.
 
 ## 18. Error contract
 
@@ -680,59 +886,186 @@ Stable message categories are the exact reason value prefixed by
 `Adapter execution rejected: `. Raw values, paths, URIs, credentials, provider
 payloads, and source exception text are never interpolated.
 
-This Slice adds no stable issue code. `issue_code`, when non-null, must be an
-exact existing inventory member:
+This Slice adds no stable issue code and no rejection reason. Only these
+existing issue codes may be non-null:
 
-| Rejection | Exact issue code |
-|---|---|
-| unknown mode/status/evidence enum | `UNSUPPORTED_CONTRACT_ENUM` |
-| request ID/hash parity failure | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| missing, forbidden, malformed, mismatched, or denied-in-nonblocked paid evidence | `PAID_FALLBACK_UNAUTHORIZED` |
-| replay request/source ID mismatch or ambiguous lineage | `REPLAY_INPUT_MISMATCH` |
-| replay source execution hash mismatch | `REPLAY_HASH_MISMATCH` |
-| all other contract-shape, state, canonical-byte, identity, and materialization rejections | `None` |
+```text
+UNSUPPORTED_CONTRACT_ENUM
+ALIGNMENT_REQUEST_IDENTITY_MISMATCH
+PAID_FALLBACK_UNAUTHORIZED
+REPLAY_INPUT_MISMATCH
+REPLAY_HASH_MISMATCH
+```
 
-Unknown object fields are `STRUCTURE_INVALID`. Invalid known mode/status pairs
-are `MODE_STATUS_INVALID`. Invalid evidence presence is
-`EVIDENCE_PRESENCE_INVALID`. Hash mismatch points to
-`/adapter_execution_hash`; derived-ID mismatch points to
-`/adapter_execution_id`. Replay self-reference and replay-of-replay use
-`REPLAY_LINEAGE_INVALID`.
+For every `AdapterExecutionContractError` row below, the stable message
+category is exactly `Adapter execution rejected: ` followed by that row's
+exact reason value. `CONTRACT:<REASON>` in the table denotes that exact
+category. Publication result `NONE` means no genuine execution, ID, hash,
+canonical bytes, result, report, provenance substitute, or failure artifact.
+For the two prerequisite `TypeError` rows, stable category token
+`PREREQUISITE:alignment_request` identifies the dependency without making the
+exception's sanitized text stable or adding a serialized field.
 
-Unknown fields and non-canonical serialized bytes publish nothing. Mutation of
-a frozen public field raises standard frozen-dataclass `FrozenInstanceError`
-or `AttributeError`; it is not converted into a serialized contract error.
-Serialization of a non-genuine object raises `NOT_MATERIALIZED`.
+### 18.1 Pointer and scan algorithms
 
-`alignment_request` prerequisite dependency failures are exact:
+- Root pointer is `/`. Known-field pointers use `/field` and
+  `/evidence_object/field`.
+- Dynamic object-key pointers use JSON Pointer escaping: `~` becomes `~0` and
+  `/` becomes `~1`.
+- A dynamic key is safe to expose only when it is an exact built-in NFC string
+  with no surrogate, noncharacter, NUL, C0/C1 control, URI form, absolute-path
+  form, drive prefix, or sensitive local name. If unsafe, the containing
+  object pointer is used.
+- Unknown-key selection and unknown-before-missing precedence use the section
+  17 global key-set algorithm. The canonical-JSON-member-order first unknown
+  key wins independently of mapping insertion order. The safe-exposure rule
+  then selects either its escaped pointer or the containing-object pointer.
+- Missing-key selection runs only when no unknown field exists. The section
+  17 schema-order first missing required key wins and its exact known-field
+  pointer is published.
+- Duplicate-key parsing never exposes the duplicated key. The exact pointer is
+  `/` for a root duplicate,
+  `/paid_fallback_authorization_evidence`,
+  `/replay_evidence`, or `/confidence_availability_evidence` for a duplicate
+  in that object. This follows the repository parser convention of rejecting
+  duplicates before materialization while avoiding key leakage.
+- Sensitive scanning is depth-first pre-order. Mapping keys are visited in
+  Unicode-code-point order; each key is safety-checked before its value, and
+  each value is then recursively scanned. The first failure wins. A sensitive
+  scalar uses its exact known-field pointer. An unsafe dynamic key uses the
+  containing-object pointer. Arrays and unknown fields have already failed at
+  their earlier structure stage.
+- Sensitive rejection always uses `STRUCTURE_INVALID`, issue code `None`, and
+  a redacted `CONTRACT:STRUCTURE_INVALID` message. The offending key or value
+  is never interpolated.
 
-| Condition | Exception class | Pointer | Reason | Issue code | Message stability |
-|---|---|---|---|---|---|
-| invalid exact type for `alignment_request` | `TypeError` | not applicable | not applicable | not applicable | sanitized category identifies `alignment_request`; exact text is not stable |
-| exact `AlignmentRequest` type but not a genuine materialized instance | `TypeError` | not applicable | not applicable | not applicable | sanitized category identifies `alignment_request`; exact text is not stable |
+### 18.2 Complete mandatory error oracle
 
-These failures occur before `AdapterExecutionContractError` validation and
-before root input access. They intentionally follow the established
-prerequisite contract convention and do not carry pointer,
-`AdapterExecutionRejectionReason`, or issue-code fields.
+Every rejection required by Sections 5, 10, 11, 12 and 17 has either:
 
-Slice-owned `source_execution` dependency-parameter failures are exact:
+- its own exact oracle row; or
+- one explicitly identified generic row whose condition, pointer algorithm,
+  reason, and issue-code mapping are sufficient to produce one deterministic
+  public failure.
 
-| Condition | Pointer | Reason | Issue code |
-|---|---|---|---|
-| invalid exact type for non-null `source_execution` | `/source_execution` | `NOT_MATERIALIZED` | `None` |
-| non-null `source_execution` is not a genuine materialized instance | `/source_execution` | `NOT_MATERIALIZED` | `None` |
-| parsed `REPLAY` mode with `source_execution=None` | `/source_execution` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` |
-| parsed non-`REPLAY` mode with present `source_execution` | `/source_execution` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` |
+No known nested field falls outside this table.
 
-The first two rows are pre-input failures. The last two rows are evaluated
-only after mode parsing. They reuse existing rejection reasons and stable issue
-codes; no new hierarchy or issue code is introduced.
+Materializer/loader stages are the numbered stages in section 17.
+Serializer stage `S1` is the exact-type and genuine-materialization preflight
+performed before projection or envelope access.
 
-The difference between the two dependency boundaries is intentional:
-`alignment_request` follows the established prerequisite contract convention,
-while `source_execution` is a Slice-owned dependency boundary specified by
-this candidate and therefore uses `AdapterExecutionContractError`.
+| Condition | Stage | Exception class | Exact pointer | Exact reason | Exact issue code | Message category | Publication |
+|---|---:|---|---|---|---|---|---|
+| wrong exact type for current `alignment_request` | 1 | `TypeError` | not applicable | not applicable | not applicable | `PREREQUISITE:alignment_request`; exact text non-stable | `NONE` |
+| non-genuine current `alignment_request` | 1 | `TypeError` | not applicable | not applicable | not applicable | `PREREQUISITE:alignment_request`; exact text non-stable | `NONE` |
+| wrong exact type for non-null `source_alignment_request` | 2 | `AdapterExecutionContractError` | `/source_alignment_request` | `NOT_MATERIALIZED` | `None` | `CONTRACT:NOT_MATERIALIZED` | `NONE` |
+| non-genuine non-null `source_alignment_request` | 2 | `AdapterExecutionContractError` | `/source_alignment_request` | `NOT_MATERIALIZED` | `None` | `CONTRACT:NOT_MATERIALIZED` | `NONE` |
+| wrong exact type for non-null `source_execution` | 3 | `AdapterExecutionContractError` | `/source_execution` | `NOT_MATERIALIZED` | `None` | `CONTRACT:NOT_MATERIALIZED` | `NONE` |
+| non-genuine non-null `source_execution` | 3 | `AdapterExecutionContractError` | `/source_execution` | `NOT_MATERIALIZED` | `None` | `CONTRACT:NOT_MATERIALIZED` | `NONE` |
+| byte source is not exact built-in `bytes`, invalid UTF-8, or malformed JSON | 4 | `AdapterExecutionContractError` | `/` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| BOM or otherwise parseable but forbidden byte envelope form | 4 | `AdapterExecutionContractError` | `/` | `NON_CANONICAL_SERIALIZATION` | `None` | `CONTRACT:NON_CANONICAL_SERIALIZATION` | `NONE` |
+| duplicate root key | 4 | `AdapterExecutionContractError` | `/` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| duplicate paid-evidence key | 4 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| duplicate replay-evidence key | 4 | `AdapterExecutionContractError` | `/replay_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| duplicate confidence-evidence key | 4 | `AdapterExecutionContractError` | `/confidence_availability_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| logical root is not a mapping or a root member name is not an exact built-in `str` | 4 | `AdapterExecutionContractError` | `/` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| one or more unknown root fields exist, regardless of simultaneous missing required fields | 4 | `AdapterExecutionContractError` | section 17 canonical-member-order first safe escaped unknown root pointer, otherwise `/` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| no unknown root field exists and one or more required root fields are missing | 4 | `AdapterExecutionContractError` | section 17 schema-order first missing root field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| root `mode` has any wrong exact type, including a `str` subclass, arbitrary Enum, `bytes`, integer, boolean, `None`, or other non-exact-`str` object | 4 | `AdapterExecutionContractError` | `/mode` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| root `status` has any wrong exact type, including a `str` subclass, arbitrary Enum, `bytes`, integer, boolean, `None`, or other non-exact-`str` object | 4 | `AdapterExecutionContractError` | `/status` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| wrong root scalar/object/null type other than the separately listed `mode` and `status` conditions, or any JSON number/boolean/array in such a field | 4 | `AdapterExecutionContractError` | exact known-field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| unsupported `schema_version` | 5 | `AdapterExecutionContractError` | `/schema_version` | `UNSUPPORTED_VALUE` | `None` | `CONTRACT:UNSUPPORTED_VALUE` | `NONE` |
+| unsupported `hash_scope_version` | 5 | `AdapterExecutionContractError` | `/hash_scope_version` | `UNSUPPORTED_VALUE` | `None` | `CONTRACT:UNSUPPORTED_VALUE` | `NONE` |
+| root `mode` is an exact built-in `str` value unsupported by the closed `AdapterExecutionMode` enum | 6 | `AdapterExecutionContractError` | `/mode` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` | `CONTRACT:UNSUPPORTED_VALUE` | `NONE` |
+| root `status` is an exact built-in `str` value unsupported by the closed `AdapterExecutionStatus` enum | 6 | `AdapterExecutionContractError` | `/status` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` | `CONTRACT:UNSUPPORTED_VALUE` | `NONE` |
+| `REPLAY` missing `source_alignment_request` | 7 | `AdapterExecutionContractError` | `/source_alignment_request` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| non-`REPLAY` has `source_alignment_request` | 7 | `AdapterExecutionContractError` | `/source_alignment_request` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| `REPLAY` missing `source_execution` | 7 | `AdapterExecutionContractError` | `/source_execution` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| non-`REPLAY` has `source_execution` | 7 | `AdapterExecutionContractError` | `/source_execution` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| current request ID mismatch | 8 | `AdapterExecutionContractError` | `/alignment_request_id` | `REQUEST_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` | `CONTRACT:REQUEST_BINDING_INVALID` | `NONE` |
+| current request hash mismatch | 8 | `AdapterExecutionContractError` | `/alignment_request_hash` | `REQUEST_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` | `CONTRACT:REQUEST_BINDING_INVALID` | `NONE` |
+| current adapter ID mismatch | 9 | `AdapterExecutionContractError` | `/adapter_id` | `REQUEST_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` | `CONTRACT:REQUEST_BINDING_INVALID` | `NONE` |
+| current adapter version mismatch | 9 | `AdapterExecutionContractError` | `/adapter_version` | `REQUEST_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` | `CONTRACT:REQUEST_BINDING_INVALID` | `NONE` |
+| current execution mode/current request mode parity mismatch | 9 | `AdapterExecutionContractError` | `/mode` | `REQUEST_BINDING_INVALID` | `None` | `CONTRACT:REQUEST_BINDING_INVALID` | `NONE` |
+| invalid known mode/status pair | 10 | `AdapterExecutionContractError` | `/status` | `MODE_STATUS_INVALID` | `None` | `CONTRACT:MODE_STATUS_INVALID` | `NONE` |
+| missing or forbidden paid evidence object | 11 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence` | `EVIDENCE_PRESENCE_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:EVIDENCE_PRESENCE_INVALID` | `NONE` |
+| missing or forbidden replay evidence object | 11 | `AdapterExecutionContractError` | `/replay_evidence` | `EVIDENCE_PRESENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:EVIDENCE_PRESENCE_INVALID` | `NONE` |
+| missing or forbidden confidence evidence object | 11 | `AdapterExecutionContractError` | `/confidence_availability_evidence` | `EVIDENCE_PRESENCE_INVALID` | `None` | `CONTRACT:EVIDENCE_PRESENCE_INVALID` | `NONE` |
+| a paid-evidence member name is not an exact built-in `str` | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| one or more unknown paid-evidence fields exist, regardless of simultaneous missing required fields | 12 | `AdapterExecutionContractError` | section 17 canonical-member-order first safe escaped unknown paid pointer, otherwise `/paid_fallback_authorization_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| no unknown paid-evidence field exists and one or more required paid fields are missing | 12 | `AdapterExecutionContractError` | section 17 schema-order first missing paid field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| paid `schema_version` wrong exact type | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/schema_version` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| paid `schema_version` unsupported literal | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/schema_version` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| paid `authorization_id` wrong exact type or malformed syntax | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/authorization_id` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| paid `source` wrong exact type or unsupported/coerced value | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/source` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| paid `decision` wrong exact type or unsupported/coerced value | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/decision` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| paid `alignment_request_id` wrong exact type, malformed syntax, or current-request mismatch | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/alignment_request_id` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| paid `alignment_request_hash` wrong exact type, malformed syntax, or current-request mismatch | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/alignment_request_hash` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| paid decision/status incompatibility after all paid fields validate | 12 | `AdapterExecutionContractError` | `/paid_fallback_authorization_evidence/decision` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `PAID_FALLBACK_UNAUTHORIZED` | `CONTRACT:PAID_FALLBACK_AUTHORIZATION_INVALID` | `NONE` |
+| a replay-evidence member name is not an exact built-in `str` | 13 | `AdapterExecutionContractError` | `/replay_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| one or more unknown replay-evidence fields exist, regardless of simultaneous missing required fields | 13 | `AdapterExecutionContractError` | section 17 canonical-member-order first safe escaped unknown replay pointer, otherwise `/replay_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| no unknown replay-evidence field exists and one or more required replay fields are missing | 13 | `AdapterExecutionContractError` | section 17 schema-order first missing replay field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| replay `schema_version` wrong exact type | 13 | `AdapterExecutionContractError` | `/replay_evidence/schema_version` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `schema_version` unsupported literal | 13 | `AdapterExecutionContractError` | `/replay_evidence/schema_version` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_adapter_execution_id` wrong exact type | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_adapter_execution_id` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_adapter_execution_id` malformed syntax | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_adapter_execution_id` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_adapter_execution_hash` wrong exact type | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_adapter_execution_hash` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_adapter_execution_hash` malformed syntax | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_adapter_execution_hash` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_alignment_request_id` wrong exact type | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_alignment_request_id` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_alignment_request_id` malformed syntax | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_alignment_request_id` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_alignment_request_hash` wrong exact type | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_alignment_request_hash` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay `source_alignment_request_hash` malformed syntax | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_alignment_request_hash` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| source request mode is `REPLAY` | 13 | `AdapterExecutionContractError` | `/source_alignment_request/mode` | `REPLAY_LINEAGE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_LINEAGE_INVALID` | `NONE` |
+| source execution status is not `SUCCEEDED` | 13 | `AdapterExecutionContractError` | `/source_execution/status` | `REPLAY_LINEAGE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_LINEAGE_INVALID` | `NONE` |
+| source execution mode is `REPLAY` | 13 | `AdapterExecutionContractError` | `/source_execution/mode` | `REPLAY_LINEAGE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_LINEAGE_INVALID` | `NONE` |
+| source execution mode/source request mode parity mismatch | 13 | `AdapterExecutionContractError` | `/source_execution/mode` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| source execution request ID mismatch against source request | 13 | `AdapterExecutionContractError` | `/source_execution/alignment_request_id` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| source execution request hash mismatch against source request | 13 | `AdapterExecutionContractError` | `/source_execution/alignment_request_hash` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay-evidence source request ID mismatch | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_alignment_request_id` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay-evidence source request hash mismatch | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_alignment_request_hash` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| source request/current request ID role confusion | 13 | `AdapterExecutionContractError` | `/source_alignment_request/alignment_request_id` | `REPLAY_LINEAGE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_LINEAGE_INVALID` | `NONE` |
+| source request/current request hash role confusion | 13 | `AdapterExecutionContractError` | `/source_alignment_request/alignment_request_hash` | `REPLAY_LINEAGE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_LINEAGE_INVALID` | `NONE` |
+| replay-evidence source execution ID mismatch | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_adapter_execution_id` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| replay-evidence source execution hash mismatch | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_adapter_execution_hash` | `REPLAY_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` | `NONE` |
+| direct self-reference | 13 | `AdapterExecutionContractError` | `/replay_evidence/source_adapter_execution_id` | `REPLAY_LINEAGE_INVALID` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_LINEAGE_INVALID` | `NONE` |
+| extra parent, ancestor array, multiple-source key, nested replay object, or other ambiguous lineage field | 13 | `AdapterExecutionContractError` | first safe escaped unknown replay pointer, otherwise `/replay_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| a confidence-evidence member name is not an exact built-in `str` | 14 | `AdapterExecutionContractError` | `/confidence_availability_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| one or more unknown confidence-evidence fields exist, regardless of simultaneous missing required fields | 14 | `AdapterExecutionContractError` | section 17 canonical-member-order first safe escaped unknown confidence pointer, otherwise `/confidence_availability_evidence` | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| no unknown confidence-evidence field exists and one or more required confidence fields are missing | 14 | `AdapterExecutionContractError` | section 17 schema-order first missing confidence field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| confidence `schema_version` wrong exact type | 14 | `AdapterExecutionContractError` | `/confidence_availability_evidence/schema_version` | `CONFIDENCE_AVAILABILITY_INVALID` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` | `NONE` |
+| confidence `schema_version` unsupported literal | 14 | `AdapterExecutionContractError` | `/confidence_availability_evidence/schema_version` | `CONFIDENCE_AVAILABILITY_INVALID` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` | `NONE` |
+| confidence `availability` wrong exact type | 14 | `AdapterExecutionContractError` | `/confidence_availability_evidence/availability` | `CONFIDENCE_AVAILABILITY_INVALID` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` | `NONE` |
+| confidence `availability` unsupported/coerced value | 14 | `AdapterExecutionContractError` | `/confidence_availability_evidence/availability` | `CONFIDENCE_AVAILABILITY_INVALID` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` | `NONE` |
+| confidence availability capability/status incompatibility after schema and enum validation | 14 | `AdapterExecutionContractError` | `/confidence_availability_evidence/availability` | `CONFIDENCE_AVAILABILITY_INVALID` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` | `NONE` |
+| sensitive data in a root known field | 15 | `AdapterExecutionContractError` | exact offending root field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| sensitive data in paid evidence | 15 | `AdapterExecutionContractError` | exact offending paid field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| sensitive data in replay evidence | 15 | `AdapterExecutionContractError` | exact offending replay field pointer | `STRUCTURE_INVALID` | `None` | `CONTRACT:STRUCTURE_INVALID` | `NONE` |
+| supplied canonical projection hash mismatch | 16 | `AdapterExecutionContractError` | `/adapter_execution_hash` | `IDENTITY_MISMATCH` | `None` | `CONTRACT:IDENTITY_MISMATCH` | `NONE` |
+| supplied derived ID mismatch after hash matches | 17 | `AdapterExecutionContractError` | `/adapter_execution_id` | `IDENTITY_MISMATCH` | `None` | `CONTRACT:IDENTITY_MISMATCH` | `NONE` |
+| parsed semantic envelope bytes differ from exact canonical envelope | 18 | `AdapterExecutionContractError` | `/` | `NON_CANONICAL_SERIALIZATION` | `None` | `CONTRACT:NON_CANONICAL_SERIALIZATION` | `NONE` |
+| serialize wrong-type or non-genuine execution | `S1` | `AdapterExecutionContractError` | `/` | `NOT_MATERIALIZED` | `None` | `CONTRACT:NOT_MATERIALIZED` | `NONE` |
+
+Malformed `source_adapter_execution_hash` syntax and valid-syntax content
+mismatch against the genuine source execution both use
+`REPLAY_HASH_MISMATCH`. Its wrong exact type uses
+`REPLAY_INPUT_MISMATCH`. All type, literal, and syntax failures for the source
+request ID/hash use `REPLAY_INPUT_MISMATCH`; no source-request hash condition
+may select `REPLAY_HASH_MISMATCH`.
+
+The `alignment_request` rows intentionally follow the established Slice 4
+prerequisite `TypeError` convention. Both source parameters are Slice-owned
+dependency boundaries and therefore use `AdapterExecutionContractError`.
+Mutation of a frozen public field raises standard frozen-dataclass
+`FrozenInstanceError` or `AttributeError`; it is not converted into a contract
+error.
+
+Stages 19 and 20 are atomic construction/publication internals, not public
+input-rejection paths. They never produce `AdapterExecutionContractError` and
+publish no genuine object, ID, hash, or canonical bytes. Registry insertion
+exceptions and genuine-verification exceptions propagate unchanged, while a
+false genuine-verification result raises exact `RuntimeError` message
+`adapter execution provenance registration failed`; cleanup removes only the
+exact weak-reference entry inserted by the failing operation.
 
 ## 19. Golden canonical oracle
 
@@ -816,35 +1149,89 @@ f874ae7027af4eb1e251bdced9933d11da112d3d56c403f1a32b4627512d4c58
 
 | Example | Invalid input | Expected exception/reason | Expected pointer / issue code |
 |---|---|---|---|
-| Unknown mode | `mode="LOCAL_API"` | `UNSUPPORTED_VALUE` | `/mode` / `UNSUPPORTED_CONTRACT_ENUM` |
-| Unknown status | `status="COMPLETE"` | `UNSUPPORTED_VALUE` | `/status` / `UNSUPPORTED_CONTRACT_ENUM` |
-| Root enum alias/coercion | `mode=CustomString("LOCAL")` or an arbitrary Enum member | `UNSUPPORTED_VALUE` | `/mode` / `UNSUPPORTED_CONTRACT_ENUM` |
 | Paid source alias/coercion | paid `source` is a case variant, `str` subclass, or arbitrary Enum member | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `/paid_fallback_authorization_evidence/source` / `PAID_FALLBACK_UNAUTHORIZED` |
 | Confidence alias/coercion | `availability` is a case variant, `str` subclass, or arbitrary Enum member | `CONFIDENCE_AVAILABILITY_INVALID` | `/confidence_availability_evidence/availability` / `None` |
 | Wrong-type request dependency | `alignment_request` is a subclass, proxy, or any value that is not exact `AlignmentRequest` type | `TypeError`; rejection reason not applicable | pointer not applicable / issue code not applicable; sanitized message category identifies `alignment_request`, exact text not stable; root input not accessed |
 | Non-genuine request dependency | distinct exact `AlignmentRequest` reconstructed, copied, replaced, or otherwise unregistered | `TypeError`; rejection reason not applicable | pointer not applicable / issue code not applicable; sanitized message category identifies `alignment_request`, exact text not stable; root input not accessed |
+| Wrong-type source request dependency | non-null `source_alignment_request` is a subclass, proxy, or wrong type | `NOT_MATERIALIZED` | `/source_alignment_request` / `None`; root input not accessed |
+| Non-genuine source request dependency | non-null exact `AlignmentRequest` is copied, reconstructed, replaced, or unregistered | `NOT_MATERIALIZED` | `/source_alignment_request` / `None`; root input not accessed |
+| Wrong-type source execution dependency | non-null `source_execution` is a subclass, proxy, or wrong type | `NOT_MATERIALIZED` | `/source_execution` / `None`; root input not accessed |
+| Non-genuine source execution dependency | non-null exact `AdapterExecution` is copied, reconstructed, replaced, or unregistered | `NOT_MATERIALIZED` | `/source_execution` / `None`; root input not accessed |
 | Disallowed pair | `LOCAL/BLOCKED` | `MODE_STATUS_INVALID` | `/status` / `None` |
-| Missing request ID | omit `alignment_request_id` | `STRUCTURE_INVALID` | `/` / `None` |
-| Missing request hash | omit `alignment_request_hash` | `STRUCTURE_INVALID` | `/` / `None` |
+| Missing request ID | omit `alignment_request_id`, with no unknown root field | `STRUCTURE_INVALID` | `/alignment_request_id` / `None` |
+| Missing request hash | omit `alignment_request_hash`, with no unknown root field | `STRUCTURE_INVALID` | `/alignment_request_hash` / `None` |
 | Request ID/hash mismatch | use another genuine request's ID or hash | `REQUEST_BINDING_INVALID` | mismatched binding pointer / `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
 | Paid adapter identity mismatch | approved `PAID_API` input changes `adapter_id` or `adapter_version` from the bound request | `REQUEST_BINDING_INVALID` | mismatched adapter pointer / `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| Current request-mode parity mismatch | current execution `mode` is incompatible with `alignment_request.mode` | `REQUEST_BINDING_INVALID` | `/mode` / `None` |
 | Missing paid evidence | `PAID_API/SUCCEEDED` with null evidence | `EVIDENCE_PRESENCE_INVALID` | `/paid_fallback_authorization_evidence` / `PAID_FALLBACK_UNAUTHORIZED` |
 | Forbidden paid evidence | `LOCAL/SUCCEEDED` with evidence | `EVIDENCE_PRESENCE_INVALID` | paid pointer / `PAID_FALLBACK_UNAUTHORIZED` |
 | Invalid paid evidence | `PAID_API/SUCCEEDED`, decision `DENIED` | `PAID_FALLBACK_AUTHORIZATION_INVALID` | `/paid_fallback_authorization_evidence/decision` / `PAID_FALLBACK_UNAUTHORIZED` |
 | Missing replay evidence | `REPLAY/SUCCEEDED` with null evidence | `EVIDENCE_PRESENCE_INVALID` | `/replay_evidence` / `REPLAY_INPUT_MISMATCH` |
 | Forbidden replay evidence | `FREE_API/SUCCEEDED` with replay evidence | `EVIDENCE_PRESENCE_INVALID` | `/replay_evidence` / `REPLAY_INPUT_MISMATCH` |
+| Missing replay source request dependency | parsed `REPLAY` input with `source_alignment_request=None` | `REPLAY_EVIDENCE_INVALID` | `/source_alignment_request` / `REPLAY_INPUT_MISMATCH` |
+| Forbidden replay source request dependency | parsed non-`REPLAY` input with genuine `source_alignment_request` present | `REPLAY_EVIDENCE_INVALID` | `/source_alignment_request` / `REPLAY_INPUT_MISMATCH` |
 | Missing replay source dependency | parsed `REPLAY` input with `source_execution=None` | `REPLAY_EVIDENCE_INVALID` | `/source_execution` / `REPLAY_INPUT_MISMATCH` |
 | Forbidden replay source dependency | parsed non-`REPLAY` input with genuine `source_execution` present | `REPLAY_EVIDENCE_INVALID` | `/source_execution` / `REPLAY_INPUT_MISMATCH` |
-| Non-genuine replay source dependency | non-null copied, reconstructed, proxied, subclassed, or wrong-type `source_execution` | `NOT_MATERIALIZED` | `/source_execution` / `None` |
+| Failed replay source | genuine `source_execution.status != SUCCEEDED` | `REPLAY_LINEAGE_INVALID` | `/source_execution/status` / `REPLAY_INPUT_MISMATCH` |
+| Replay source request is replay-mode | genuine `source_alignment_request.mode == REPLAY` | `REPLAY_LINEAGE_INVALID` | `/source_alignment_request/mode` / `REPLAY_INPUT_MISMATCH` |
+| Replay source execution is replay-mode | genuine `source_execution.mode == REPLAY` | `REPLAY_LINEAGE_INVALID` | `/source_execution/mode` / `REPLAY_INPUT_MISMATCH` |
+| Source execution/request mode mismatch | source execution mode does not satisfy parity against source request | `REPLAY_EVIDENCE_INVALID` | `/source_execution/mode` / `REPLAY_INPUT_MISMATCH` |
+| Source execution request-binding mismatch | source execution request ID/hash differs from source request dependency | `REPLAY_EVIDENCE_INVALID` | first mismatched `/source_execution` binding pointer / `REPLAY_INPUT_MISMATCH` |
+| Replay-evidence source-request mismatch | replay evidence request ID/hash differs from source request dependency | `REPLAY_EVIDENCE_INVALID` | first mismatched replay request pointer / `REPLAY_INPUT_MISMATCH` |
+| Current/source request role confusion | source request ID or hash equals the current replay request | `REPLAY_LINEAGE_INVALID` | first mismatched `/source_alignment_request` role pointer / `REPLAY_INPUT_MISMATCH` |
+| Replay source execution ID mismatch | replay evidence source ID differs from genuine source execution | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_adapter_execution_id` / `REPLAY_INPUT_MISMATCH` |
+| Replay source execution hash mismatch | replay evidence source hash differs from genuine source execution | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_adapter_execution_hash` / `REPLAY_HASH_MISMATCH` |
 | Replay self-reference | source ID equals supplied current ID | `REPLAY_LINEAGE_INVALID` | `/replay_evidence/source_adapter_execution_id` / `REPLAY_INPUT_MISMATCH` |
-| Ambiguous/cycle-capable lineage | extra parent array, multiple source keys, or source mode `REPLAY` | `REPLAY_LINEAGE_INVALID` | `/replay_evidence` / `REPLAY_INPUT_MISMATCH` |
+| Ambiguous lineage | extra parent array, multiple source key, nested replay object, or other lineage field | `STRUCTURE_INVALID` | section 18 safe unknown pointer or `/replay_evidence` / `None` |
 | Missing confidence evidence | `LOCAL/SUCCEEDED` with null evidence | `EVIDENCE_PRESENCE_INVALID` | `/confidence_availability_evidence` / `None` |
 | Forbidden confidence evidence | `FREE_API/BLOCKED` with evidence object | `EVIDENCE_PRESENCE_INVALID` | confidence pointer / `None` |
 | Invalid confidence state | successful `SUPPORTED` request with `NOT_APPLICABLE` | `CONFIDENCE_AVAILABILITY_INVALID` | `/confidence_availability_evidence/availability` / `None` |
-| Unknown object field | add root or nested `extra` | `STRUCTURE_INVALID` | lexicographically first unknown pointer / `None` |
+| Duplicate root key | repeat any root key in byte input | `STRUCTURE_INVALID` | `/` / `None` |
+| Duplicate nested key | repeat a paid, replay, or confidence evidence key in byte input | `STRUCTURE_INVALID` | exact containing evidence-object pointer / `None` |
+| Unknown object field | add root or nested `extra`, with or without a simultaneous missing required field | `STRUCTURE_INVALID` | section 17 canonical-member-order first safe escaped unknown pointer or containing object / `None`; unknown wins before missing |
+| Sensitive root value | place a URI, absolute path, control-bearing, or secret material string in a known root field | `STRUCTURE_INVALID` | exact offending root field pointer / `None`; redacted message |
+| Sensitive paid value | place sensitive material in a known paid evidence field | `STRUCTURE_INVALID` | exact offending paid field pointer / `None`; redacted message |
+| Sensitive replay value | place sensitive material in a known replay evidence field | `STRUCTURE_INVALID` | exact offending replay field pointer / `None`; redacted message |
 | Non-canonical serialized input | add whitespace or reorder byte-input keys | `NON_CANONICAL_SERIALIZATION` | `/` / `None` |
 | Canonical hash mismatch | replace execution hash with lowercase zero hash | `IDENTITY_MISMATCH` | `/adapter_execution_hash` / `None` |
 | Derived identifier mismatch | correct hash plus wrong execution ID | `IDENTITY_MISMATCH` | `/adapter_execution_id` / `None` |
+
+### 20.1 Root scalar and exact-key-set precedence examples
+
+| Example | Exact invalid input | Stage and precedence | Exception class | Exact reason | Exact pointer | Exact issue code | Message category / publication |
+|---|---|---|---|---|---|---|---|
+| Wrong-type root mode subclass | root `mode=CustomString("LOCAL")` | 4 exact type; before enum parsing | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/mode` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Wrong-type root mode Enum | root `mode=ArbitraryEnum.LOCAL` | 4 exact type; before enum parsing | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/mode` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Unsupported root mode literal | root `mode="UNKNOWN_MODE"` as exact built-in `str` | 6 closed enum; after exact type | `AdapterExecutionContractError` | `UNSUPPORTED_VALUE` | `/mode` | `UNSUPPORTED_CONTRACT_ENUM` | `CONTRACT:UNSUPPORTED_VALUE` / `NONE` |
+| Wrong-type root status subclass | root `status=CustomString("SUCCEEDED")` | 4 exact type; before enum parsing | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/status` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Wrong-type root status Enum | root `status=ArbitraryEnum.SUCCEEDED` | 4 exact type; before enum parsing | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/status` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Unsupported root status literal | root `status="UNKNOWN_STATUS"` as exact built-in `str` | 6 closed enum; after exact type | `AdapterExecutionContractError` | `UNSUPPORTED_VALUE` | `/status` | `UNSUPPORTED_CONTRACT_ENUM` | `CONTRACT:UNSUPPORTED_VALUE` / `NONE` |
+| Root unknown plus missing | add safe key `aaa_extra` and omit `schema_version` | 4 key set; unknown wins and missing is not evaluated | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/aaa_extra` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Paid unknown plus missing | add paid key `aaa_extra` and omit paid `schema_version` | 12 key set; unknown wins and missing is not evaluated | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/paid_fallback_authorization_evidence/aaa_extra` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Replay unknown plus missing | add replay key `aaa_extra` and omit replay `schema_version` | 13.1 key set; unknown wins and missing is not evaluated | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/replay_evidence/aaa_extra` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Confidence unknown plus missing | add confidence key `aaa_extra` and omit confidence `schema_version` | 14.1 key set; unknown wins and missing is not evaluated | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/confidence_availability_evidence/aaa_extra` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Multiple root unknown keys | add `z_extra` before `a_extra` in one mapping and reverse insertion order in another | 4 key set; canonical member ordering wins independently of insertion order | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/a_extra` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+| Multiple root missing keys | with no unknown key, omit `schema_version` and `hash_scope_version` | 4 key set; root schema order selects the first missing key | `AdapterExecutionContractError` | `STRUCTURE_INVALID` | `/schema_version` | `None` | `CONTRACT:STRUCTURE_INVALID` / `NONE` |
+
+### 20.2 Nested type, literal, and syntax precedence examples
+
+| Example | Exact invalid input | Stage and precedence | Exception class | Exact reason | Exact pointer | Exact issue code | Message category / publication |
+|---|---|---|---|---|---|---|---|
+| Wrong-type replay schema | replay `schema_version=1` | 13.2; before schema literal and all lineage checks | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/schema_version` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Unsupported replay schema | replay `schema_version="REPLAY-EVIDENCE-V2"` | 13.3; after exact type, before source scalar and lineage checks | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/schema_version` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Wrong-type replay source execution ID | replay `source_adapter_execution_id=1` | 13.4 type; before that field's syntax and all later fields | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_adapter_execution_id` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Malformed replay source execution ID | replay `source_adapter_execution_id="aex_bad"` | 13.4 syntax; after exact type, before source execution hash | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_adapter_execution_id` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Wrong-type replay source execution hash | replay `source_adapter_execution_hash=1` | 13.5 type; before that field's syntax and all later fields | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_adapter_execution_hash` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Malformed replay source execution hash | replay `source_adapter_execution_hash="sha256:"` plus 64 lowercase zeros | 13.5 syntax; after exact type, before source request ID | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_adapter_execution_hash` | `REPLAY_HASH_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Wrong-type replay source request ID | replay `source_alignment_request_id=1` | 13.6 type; before that field's syntax and all later fields | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_alignment_request_id` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Malformed replay source request ID | replay `source_alignment_request_id="arq_bad"` | 13.6 syntax; after exact type, before source request hash | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_alignment_request_id` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Wrong-type replay source request hash | replay `source_alignment_request_hash=1` | 13.7 type; before that field's syntax and all lineage checks | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_alignment_request_hash` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Malformed replay source request hash | replay `source_alignment_request_hash="sha256:"` plus 64 lowercase zeros | 13.7 syntax; after exact type, before all lineage checks | `AdapterExecutionContractError` | `REPLAY_EVIDENCE_INVALID` | `/replay_evidence/source_alignment_request_hash` | `REPLAY_INPUT_MISMATCH` | `CONTRACT:REPLAY_EVIDENCE_INVALID` / `NONE` |
+| Wrong-type confidence schema | confidence `schema_version=1` | 14.2; before schema literal and availability access | `AdapterExecutionContractError` | `CONFIDENCE_AVAILABILITY_INVALID` | `/confidence_availability_evidence/schema_version` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` / `NONE` |
+| Unsupported confidence schema | confidence `schema_version="CONFIDENCE-AVAILABILITY-EVIDENCE-V2"` | 14.3; after exact type, before availability access | `AdapterExecutionContractError` | `CONFIDENCE_AVAILABILITY_INVALID` | `/confidence_availability_evidence/schema_version` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` / `NONE` |
+| Wrong-type confidence availability | confidence `availability=1` | 14.4; before enum parsing and state invariant | `AdapterExecutionContractError` | `CONFIDENCE_AVAILABILITY_INVALID` | `/confidence_availability_evidence/availability` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` / `NONE` |
+| Unsupported confidence availability | confidence `availability="available"` | 14.5; after exact type, before state invariant | `AdapterExecutionContractError` | `CONFIDENCE_AVAILABILITY_INVALID` | `/confidence_availability_evidence/availability` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` / `NONE` |
+| Confidence capability/status incompatibility | valid `availability="NOT_APPLICABLE"` for a successful request whose capability is `SUPPORTED` | 14.6; after schema and availability validation | `AdapterExecutionContractError` | `CONFIDENCE_AVAILABILITY_INVALID` | `/confidence_availability_evidence/availability` | `None` | `CONTRACT:CONFIDENCE_AVAILABILITY_INVALID` / `NONE` |
 
 Every rejection produces no genuine `AdapterExecution`.
 
@@ -859,17 +1246,22 @@ Every rejection produces no genuine `AdapterExecution`.
 | Replay evidence mutation | frozen-field assignment fails; source substitution requires rematerialization and rehash |
 | Confidence evidence mutation | frozen-field assignment fails; enum substitution is rejected |
 | Source input mutation after construction | all canonical outputs remain byte-identical |
+| Current request dependency substitution | a different, copied, reconstructed, proxy, subclass, or non-genuine current request rejects before root access |
+| Source request dependency substitution | a different, copied, reconstructed, proxy, subclass, non-genuine, or replay-mode source request rejects; its provenance cannot transfer to another object |
+| Source execution dependency substitution | a different, copied, reconstructed, proxy, subclass, non-genuine, failed, blocked, replay-mode, or mismatched source execution rejects; its provenance cannot transfer to another object |
+| Source dependency mutation or collection | dependencies are frozen and retained only for validation; attempted mutation, collection, stale-registry cleanup, or identity reuse cannot change the published execution or make a replacement genuine |
 | Canonical bytes mutation attempt | returned `bytes` cannot be mutated; mutable copy changes no object state |
 | Returned mapping mutation | any private/test projection copy can be mutated without changing the genuine object |
 | Returned sequence mutation | no public sequence is returned; any test-helper copy is caller-owned and cannot change object state |
 | Enum substitution | arbitrary Enum, `str` subclass, alias, case variant, or spelling variant is rejected |
 | Hash substitution | mismatch rejects before ID verification and publishes nothing |
 | Request-binding substitution | different request ID/hash or forged dependency rejects before hashing |
-| Replay-lineage substitution | different, copied, replay-mode, failed, ambiguous, or self-referential source rejects |
+| Replay-lineage substitution | distinct current replay request plus exact genuine non-replay source request/execution pair is required; copied, replay-mode, failed, blocked, mismatched, ambiguous, self-referential, or cycle-capable lineage rejects |
 
 Registry tests shall also cover collection cleanup, stale cleanup replacement
-safety, insertion failure, verification false/exception rollback, subclass,
-proxy, copy, deep copy, pickle, and reconstructed dataclass rejection.
+safety, source-dependency provenance non-transfer, insertion failure,
+verification false/exception rollback, subclass, proxy, copy, deep copy,
+pickle, and reconstructed dataclass rejection.
 
 ## 22. Future test plan
 
@@ -891,37 +1283,101 @@ It shall contain:
   serialized `.value` strings, no-alias, no-unknown-member, no-case-folding,
   no-arbitrary-Enum-coercion, no-`str`-subclass-coercion, and public import
   identity tests;
+- root `mode` and `status` scalar-oracle tests proving exact built-in `str`
+  values reach closed-enum parsing, `str` subclasses and arbitrary Enum
+  members reject at stage 4, unsupported exact-string literals reject at
+  stage 6, and exact-type failure precedes enum parsing; every case asserts
+  exact pointer, reason, issue code, stable message category, publication
+  `NONE`, and no sensitive-value leakage;
+- exact-key-set tests for the root, paid, replay, and confidence mappings,
+  covering wrong mapping/root type, non-exact-string member names, unknown
+  only, missing only, simultaneous unknown plus missing, multiple unknown keys
+  in different insertion orders, and multiple missing required keys;
+- key-set oracle tests proving unknown always precedes missing, the selected
+  unknown key follows canonical JSON member ordering independently of mapping
+  insertion order, the selected missing key follows that mapping's section 17
+  schema order, and known-field scalar validation never runs before the
+  key-set winner; every mapping asserts exact pointer, reason
+  `STRUCTURE_INVALID`, issue code `None`, message category
+  `CONTRACT:STRUCTURE_INVALID`, publication `NONE`, and no sensitive-value
+  leakage;
 - all 15 mode/status matrix rows;
 - every required/forbidden evidence-presence boundary;
 - genuine `AlignmentRequest` binding, adapter parity, and request-mode parity;
 - approved paid fallback retaining the exact request adapter identity, plus
   rejection of a different paid adapter ID or version;
 - paid-fallback source, decision, ID, binding, and forbidden-data tests;
-- replay source identity/hash/request parity, self-reference, ambiguity, and
-  replay-of-replay rejection tests;
-- confidence availability/capability/status tests without numeric confidence;
-- pre-input dependency validation tests proving that invalid
-  `alignment_request` and any invalid non-null `source_execution` reject
-  before raw root access;
+- exact stage-12 paid-evidence oracle tests for schema wrong type and
+  unsupported literal; authorization ID wrong type and malformed syntax;
+  source wrong type and unsupported/coerced value; decision wrong type and
+  unsupported/coerced value; request ID/hash wrong type, malformed syntax,
+  and binding mismatch; and decision/status incompatibility;
+- valid `REPLAY/SUCCEEDED` and `REPLAY/FAILED` materialization using a genuine
+  current `REPLAY` request, a distinct genuine non-`REPLAY` source request,
+  and its genuine successful non-`REPLAY` source execution;
+- exact tests proving current request ID/hash bind only the current execution,
+  source execution request ID/hash bind the source request, replay evidence
+  binds that same source request and source execution, and current/source
+  request identities are distinct roles;
+- exact stage-13 replay-evidence oracle tests in field order for schema wrong
+  type and unsupported literal; source execution ID wrong type and malformed
+  syntax; source execution hash wrong type and malformed syntax; source
+  request ID wrong type and malformed syntax; and source request hash wrong
+  type and malformed syntax;
+- replay hash-code tests proving malformed or content-mismatched source
+  execution hash uses `REPLAY_HASH_MISMATCH`, while its wrong exact type and
+  every source-request hash type/syntax failure use
+  `REPLAY_INPUT_MISMATCH`;
+- replay rejection tests for source status other than `SUCCEEDED`, source
+  request mode `REPLAY`, source execution mode `REPLAY`, source
+  execution/source request mode mismatch, source request ID mismatch, source
+  request hash mismatch, source execution ID mismatch, source execution hash
+  mismatch, current/source request role confusion, direct self-reference,
+  ambiguous lineage, replay-of-replay, and cycle-capable lineage;
+- exact stage-14 confidence-evidence oracle tests for schema wrong type and
+  unsupported literal; availability wrong type and unsupported/coerced value;
+  and capability/status incompatibility, without numeric confidence;
+- multi-fault nested-order tests proving replay scalar type validation
+  precedes syntax and lineage comparison, replay schema validation precedes
+  every source-lineage check, confidence schema validation precedes
+  availability parsing, and availability parsing precedes capability/status
+  invariants;
+- paired replay tests distinguishing wrong exact type, unsupported literal,
+  malformed syntax, valid syntax with dependency mismatch, and valid
+  dependency binding with lineage failure;
+- pre-input dependency validation tests proving exact order
+  `alignment_request`, non-null `source_alignment_request`, non-null
+  `source_execution`, and proving every invalid dependency rejects before raw
+  root access;
 - wrong-type and exact-type-but-non-genuine `alignment_request` preflight
   tests proving exact `TypeError`, non-applicable pointer/reason/issue-code,
-  a sanitized message category identifying `alignment_request`, no
-  exact-message assertion because message text is non-stable, and raw-input
-  non-access;
+  stable category token `PREREQUISITE:alignment_request`, no exact-message
+  assertion because message text is non-stable, and raw-input non-access;
 - tests proving that `alignment_request` follows the prerequisite `TypeError`
-  boundary while invalid/non-genuine `source_execution` uses
-  `AdapterExecutionContractError` with pointer `/source_execution`, reason
-  `NOT_MATERIALIZED`, and issue code `None`;
-- mode-dependent `source_execution` presence tests proving `REPLAY` requires
-  it and every non-`REPLAY` mode forbids it only after mode parsing;
-- multi-fault ordering where an invalid non-null `source_execution` wins
-  before raw input access;
-- multi-fault ordering where `source_execution` absence/presence compatibility
-  is evaluated only after root mode parsing;
+  boundary while invalid/non-genuine `source_alignment_request` and
+  `source_execution` use `AdapterExecutionContractError`, their exact
+  dependency pointers, reason `NOT_MATERIALIZED`, and issue code `None`;
+- mode-dependent source-dependency presence tests proving `REPLAY` requires
+  both and every non-`REPLAY` mode forbids both only after mode parsing, with
+  `source_alignment_request` presence failure preceding `source_execution`;
+- wrong-type, non-genuine, missing, and forbidden tests for each source
+  dependency;
+- multi-fault ordering where invalid non-null source request wins before an
+  invalid non-null source execution and both win before raw input access;
+- multi-fault ordering where each source dependency's absence/presence
+  compatibility is evaluated only after root mode parsing;
 - multi-fault deterministic validation-order tests;
-- exact error type, reason, pointer, message-category, issue-code, and
-  no-leak tests;
-- the complete mutation-resistance matrix;
+- one exact oracle test for every section 18.2 row, asserting stage precedence,
+  exception class, pointer, reason, issue code, stable message category,
+  publication `NONE`, and no sensitive-value leakage;
+- duplicate root and each nested evidence duplicate containing-object pointer
+  test, plus safe/unsafe unknown-key pointer tests;
+- depth-first sensitive-scan first-failure tests at root, paid evidence, and
+  replay evidence, including exact redacted message behavior;
+- failed replay source and current request-mode parity tests asserting their
+  distinct exact mappings;
+- the complete mutation-resistance matrix, including every added source
+  dependency and source-registry provenance non-transfer;
 - public import and exact `__all__` delta tests;
 - regressions against Slice 4 `AlignmentRequest`, its golden oracle, genuine
   provenance registry, and existing stable issue inventory.
@@ -949,12 +1405,15 @@ when it occurs, will not itself authorize implementation.
 
 ## 24. Explicit in-scope and out-of-scope boundary
 
-This specification defines only immutable execution provenance bound to
-`AlignmentRequest`, closed execution modes/statuses, evidence presence,
-canonical request and adapter binding, paid authorization evidence, replay
-lineage evidence, confidence availability evidence, immutable canonical
-serialization, identity, hashing, publication, errors, golden oracles, and
-future mutation-resistant tests.
+This specification defines only immutable execution provenance bound to a
+genuine current `AlignmentRequest`, closed execution modes/statuses, evidence
+presence, canonical request and adapter binding, paid authorization evidence,
+replay lineage verified from explicit genuine source `AlignmentRequest` and
+`AdapterExecution` dependencies, confidence availability evidence, immutable
+canonical serialization, identity, hashing, publication, errors, golden
+oracles, and future mutation-resistant tests. Source dependencies are
+validation-only and introduce no runtime, database, network, provider, or
+mutable-cache lookup.
 
 It does not define or implement provider execution, alignment runtime
 execution, external API calls, canonical word timing result, word timing
