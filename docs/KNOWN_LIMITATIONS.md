@@ -1,6 +1,6 @@
 # Known Limitations
 
-Son guncelleme: 30 Temmuz 2026
+Son guncelleme: 2 Agustos 2026
 
 ## Known limitations ve follow-up'lar
 
@@ -99,20 +99,21 @@ Son guncelleme: 30 Temmuz 2026
 - Phase 2 overall closure is not established.
 - The total official Phase 2 Slice count is not reconciled.
 - No Phase 2 completion percentage is claimed.
-- Slice 1-3 historical focused-test-result evidence remains unreconciled.
-- Slice 1-3 standalone Slice-specific closure/audit reports remain absent.
-- Slice 1-3 therefore remain
-  `IMPLEMENTED_BUT_TEST_RESULT_NOT_RECONCILED`; focused test rerun and
-  closure-evidence audit/reconciliation are required.
-- This Slice 1-3 evidence gap is the active authorization blocker for Slice 5
-  implementation.
+- The Slice 1-3 historical focused-test evidence gap is closed by the bounded
+  read-only closure reconciliation: Slice 1 `47 passed`, Slice 2 `150 passed`,
+  and Slice 3 `84 passed`, for `281 passed` total.
+- The focused tests ran with cache provider disabled and repository-external
+  task-specific basetemp paths under `C:\tmp`; pre/post Git status parity,
+  commit ancestry, and public export verification passed.
+- Slice 1, Slice 2, and Slice 3 are CLOSED. Their former unreconciled
+  classification and evidence blocker no longer apply.
 - The corrected Slice 5 specification itself has zero open audit findings.
 - Downstream canonical timing deliverables are not proven complete.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
 PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
-SLICE1_3_EVIDENCE_BLOCK=REMAINS
+SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=NO
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO

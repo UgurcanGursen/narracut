@@ -97,15 +97,15 @@ gerektirir. Bu Faz 1 deliverable'i degil, future-phase acceptance kaydidir.
 
 ## Faz 2 — Temporal Annotation and Word-Level Alignment Contract
 
-Evaluation date: 30 Temmuz 2026
+Evaluation date: 2 Agustos 2026
 
 General status: IN_PROGRESS / NOT CLOSED
 
 | Kriter | Durum | Kanit |
 |---|---|---|
-| Slice 1 - Temporal Raw Package | PARTIAL_RECONCILIATION / REMOTE_REACHABLE | `9247f7feca1ce40030a6ccc68d3e8c2775c969bc`, `e0edbc751a271de561412e53acf84ae870aba97c`; committed scope/audit/closure report `EVIDENCE_PATH_NOT_FOUND` |
-| Slice 2 - Canonical Narration | PARTIAL_RECONCILIATION / REMOTE_REACHABLE | `d00cea0dfbe965c81cdbcb311855184bf6a5cd68`, `dba75ae2bcb81228df59e2d0d5e398fd171b4438`, `fa63e8d4a741ca2c1a91b7dd04fe73e024a14d48`; committed scope/audit/closure report `EVIDENCE_PATH_NOT_FOUND` |
-| Slice 3 - Canonical AudioArtifact | PARTIAL_RECONCILIATION / REMOTE_REACHABLE | `1373c4aee0374c19c1bafed122b2c4d12b5a6855`, `8e8cd2670b9d38586fdbcdcd6d63833b082143ee`, `477668b09dc000a16429bd7738bb4c21953f41fb`; committed scope/audit/closure report `EVIDENCE_PATH_NOT_FOUND` |
+| Slice 1 - Temporal Raw Package | CLOSED / FOCUSED-TEST RECONCILIATION PASS | `tests/test_temporal_raw_package.py`: `47 passed`; commits `9247f7feca1ce40030a6ccc68d3e8c2775c969bc`, `e0edbc751a271de561412e53acf84ae870aba97c`; closure addendum in `baseline/phase2_slice1_4_reconciliation_report.md` |
+| Slice 2 - Canonical Narration | CLOSED / FOCUSED-TEST RECONCILIATION PASS | `tests/test_canonical_narration.py`: `150 passed`; commits `d00cea0dfbe965c81cdbcb311855184bf6a5cd68`, `dba75ae2bcb81228df59e2d0d5e398fd171b4438`, `fa63e8d4a741ca2c1a91b7dd04fe73e024a14d48`; closure addendum in `baseline/phase2_slice1_4_reconciliation_report.md` |
+| Slice 3 - Canonical AudioArtifact | CLOSED / FOCUSED-TEST RECONCILIATION PASS | `tests/test_audio_artifact.py`: `84 passed`; commits `1373c4aee0374c19c1bafed122b2c4d12b5a6855`, `8e8cd2670b9d38586fdbcdcd6d63833b082143ee`, `477668b09dc000a16429bd7738bb4c21953f41fb`; closure addendum in `baseline/phase2_slice1_4_reconciliation_report.md` |
 | Pre-Slice-4 prerequisite provenance hardening | SATISFIED / REMOTE_REACHABLE | `1501adf53c9ea536e903cc0c883ff23c7dbd7924`, `a8209ebeeb367817819f7951e0377a09b244e7f8` |
 | Slice 4 canonical AlignmentRequest contract | SATISFIED / REMOTE CLOSED | `2af9778de57f692f698a356f330b3bf3ede11106`; `origin/main=d32e66585d660bc3e37a1896dbb7df050a8bc849` |
 | Slice 4 mutation-resistance hardening | SATISFIED | `d32e66585d660bc3e37a1896dbb7df050a8bc849`; independent closure re-audit PASS |
@@ -191,16 +191,18 @@ specification`, `Accepted: No`, `Implementation authorized: No`, and
 specification acceptance or implementation authorization.
 
 Slice 1-3 production implementations and focused test files exist, and their
-implementation and hardening commits are `origin/main` ancestors. Standalone
-Slice-specific closure/audit reports were not found and historical focused
-test execution results remain unreconciled. The required prerequisite for any
-Slice 5 implementation-authorization reconsideration is
-`FOCUSED_TEST_RERUN_AND_CLOSURE_AUDIT_REQUIRED`.
+implementation and hardening commits are `origin/main` ancestors. The bounded
+read-only closure reconciliation passed with Slice 1 `47 passed`, Slice 2
+`150 passed`, and Slice 3 `84 passed`, for `281 passed` total. Cache provider
+was disabled, basetemp paths were outside the repository under `C:\tmp`, and
+pre/post Git status parity plus public export verification passed. Slice 1-3
+are CLOSED and their evidence block is CLEARED. This does not accept Slice 5,
+authorize implementation, or close Phase 2.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
 PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
-SLICE1_3_EVIDENCE_BLOCK=REMAINS
+SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=NO
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO

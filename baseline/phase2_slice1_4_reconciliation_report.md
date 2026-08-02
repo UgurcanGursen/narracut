@@ -321,3 +321,47 @@ report is reviewed and its documentation gate is remote closed.
 | `docs/QUALITY_BENCHMARKS.md` | REVIEWED_NO_CHANGE | no new committed benchmark evidence |
 | `docs/DOMAIN_PACKS.md` | REVIEWED_NO_CHANGE | no domain-pack impact |
 | `baseline/phase2_slice1_4_reconciliation_report.md` | UPDATED | durable reconciliation evidence |
+
+## 2026-08-02 - Slice 1-3 focused-test closure reconciliation addendum
+
+This addendum records the bounded read-only closure-evidence reconciliation
+performed against the authoritative repository at base identity
+`0f71b8799af13a1c3d0bc5812562f699bfd2fdd0`. It does not rewrite or
+invalidate the historical evidence inventory above.
+
+Focused-test evidence:
+
+- Slice 1 - Temporal Raw Package:
+  `tests/test_temporal_raw_package.py` - `47 passed`.
+- Slice 2 - Canonical Narration:
+  `tests/test_canonical_narration.py` - `150 passed`.
+- Slice 3 - Canonical AudioArtifact:
+  `tests/test_audio_artifact.py` - `84 passed`.
+- Total focused result: `281 passed`.
+- Pytest cache provider was disabled.
+- Task-specific `--basetemp` directories were under `C:\tmp`, outside the
+  repository.
+- Pre-test and post-test Git status were identical: tracked worktree and
+  staging remained clean, with only the pre-existing allowed untracked status
+  entry.
+- Slice 1-3 implementation and hardening commits were verified as
+  `origin/main` ancestors.
+- Required production files, focused-test files, and public contract exports
+  were present and verified without mutation.
+
+Closure result:
+
+```text
+SLICE1_STATUS=CLOSED
+SLICE2_STATUS=CLOSED
+SLICE3_STATUS=CLOSED
+SLICE1_3_EVIDENCE_BLOCK=CLEARED
+SLICE5_SPECIFICATION_ACCEPTED=NO
+SLICE5_IMPLEMENTATION_AUTHORIZED=NO
+PHASE2_CLOSED=NO
+```
+
+This reconciliation removes only the Slice 1-3 historical focused-test
+evidence blocker. It does not accept the Slice 5 corrected candidate
+specification, authorize implementation, close Phase 2, establish the total
+official Slice count, or claim a completion percentage.

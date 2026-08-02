@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-08-02 - Phase 2 Slice 1-3 focused-test closure reconciliation
+
+- Slice 1 - Temporal Raw Package focused test: `47 passed`; status CLOSED.
+- Slice 2 - Canonical Narration focused test: `150 passed`; status CLOSED.
+- Slice 3 - Canonical AudioArtifact focused test: `84 passed`; status CLOSED.
+- Total focused result: `281 passed` with pytest cache provider disabled and
+  task-specific repository-external basetemp paths under `C:\tmp`.
+- Pre/post Git status parity, implementation/hardening commit ancestry, and
+  public contract export verification passed.
+- `SLICE1_3_EVIDENCE_BLOCK=CLEARED`.
+- The corrected Slice 5 specification remains a candidate, is not accepted,
+  and does not authorize implementation.
+- Phase 2 remains IN_PROGRESS / NOT CLOSED; no total Slice count or completion
+  percentage is claimed.
+
 ## 2026-07-30 - Phase 2 Slice 5 corrected candidate specification remote closure
 
 - The corrected Phase 2 Slice 5 candidate specification was committed and
