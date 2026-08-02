@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-07-30 - Phase 2 Slice 5 corrected candidate specification remote closure
+
+- The corrected Phase 2 Slice 5 candidate specification was committed and
+  remote closed.
+- Commit:
+  `e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`.
+- Parent:
+  `d1fdfd4523a886d70a5504a4191fa78260dd8336`.
+- Subject: `docs: correct phase 2 slice 5 specification`.
+- Specification path:
+  `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`.
+- Specification blob SHA-256:
+  `e6de8c1cdf52498a8e5c657962e48fc9915f58065621c8cb586c0c213ab7d71f`.
+- Specification UTF-8 byte length: `104240`.
+- Independent corrected-specification re-audit: PASS with
+  0 BLOCKER / 0 MAJOR / 0 MINOR findings.
+- Manual exact-SHA commit verification: PASS.
+- Remote closure: PASS; local HEAD, `origin/main`, and remote
+  `refs/heads/main` equal the corrected commit.
+- The corrected document remains a candidate, is not accepted, and does not
+  authorize implementation.
+- Slice 5 implementation authorization remains blocked by the Slice 1-3
+  closure-evidence and historical focused-test-result reconciliation gap.
+- Slice 4 remains CLOSED / REMOTE CLOSED. Phase 2 remains IN_PROGRESS / NOT
+  CLOSED. The official total Slice count is UNKNOWN and completion percentage
+  is NOT_STATED.
+
 ## 2026-07-29 - Phase 2 Slice 5 specification remote closure
 
 - Phase 2 Slice 5 specification was manually verified, independently audited,
@@ -22,6 +49,10 @@
   documents after completion of the specification gate evidence.
 - Documentation synchronization is closed by this commit. Implementation has
   not started and remains unauthorized. Phase 2 remains open.
+
+The following block is historical evidence for the superseded
+`26562c9449f8a4782cd231979cb5f61933c26515` specification blob. It is not the
+current status of the corrected candidate specification.
 
 ```text
 PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES

@@ -1,6 +1,6 @@
 # Known Limitations
 
-Son guncelleme: 29 Temmuz 2026
+Son guncelleme: 30 Temmuz 2026
 
 ## Known limitations ve follow-up'lar
 
@@ -81,15 +81,14 @@ Son guncelleme: 29 Temmuz 2026
   `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`.
 - Selected Slice 5 specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`.
-- The Slice 5 specification is accepted, documentation-synchronized, and
-  remote closed at commit
-  `26562c9449f8a4782cd231979cb5f61933c26515`.
-- Specification SHA-256:
-  `607630177cee9918efec621a637524f7b410e0ac61631b9c2f1fa8c6cc71ab75`.
-- Specification UTF-8 byte length: `53180`.
-- The specification file's `Accepted: No` line is its historical
-  remote-closed candidate snapshot; authoritative acceptance is recorded in
-  the state documents after completed gate evidence.
+- The corrected Slice 5 candidate specification commit is remote closed at
+  `e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`.
+- Corrected specification SHA-256:
+  `e6de8c1cdf52498a8e5c657962e48fc9915f58065621c8cb586c0c213ab7d71f`.
+- Corrected specification UTF-8 byte length: `104240`.
+- Independent corrected-specification re-audit: PASS with 0 BLOCKER /
+  0 MAJOR / 0 MINOR findings.
+- The corrected specification remains a candidate and is not accepted.
 - Slice 5 implementation is not authorized.
 - Slice 5 implementation has not started.
 - No `AdapterExecution` production contract exists yet.
@@ -100,19 +99,21 @@ Son guncelleme: 29 Temmuz 2026
 - Phase 2 overall closure is not established.
 - The total official Phase 2 Slice count is not reconciled.
 - No Phase 2 completion percentage is claimed.
-- The separate bounded Slice 5 implementation-authorization decision remains
-  required.
-- Scope report evidence gaps remain: `EVIDENCE_PATH_NOT_FOUND`,
-  `TEST_RESULT_NOT_RECONCILED`, and `NOT_PROVEN_BY_REPOSITORY`.
-- Slice 1-3 standalone scope/audit/closure evidence and test-result
-  reconciliation gaps remain, so broader closure must not be claimed.
+- Slice 1-3 historical focused-test-result evidence remains unreconciled.
+- Slice 1-3 standalone Slice-specific closure/audit reports remain absent.
+- Slice 1-3 therefore remain
+  `IMPLEMENTED_BUT_TEST_RESULT_NOT_RECONCILED`; focused test rerun and
+  closure-evidence audit/reconciliation are required.
+- This Slice 1-3 evidence gap is the active authorization blocker for Slice 5
+  implementation.
+- The corrected Slice 5 specification itself has zero open audit findings.
 - Downstream canonical timing deliverables are not proven complete.
 
 ```text
-PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
-SPECIFICATION_REMOTE_CLOSED=YES
-DOCUMENTATION_SYNCHRONIZATION_CLOSED=YES
-IMPLEMENTATION_AUTHORIZATION_REQUIRED=YES
+PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
+SLICE1_3_EVIDENCE_BLOCK=REMAINS
+SLICE5_IMPLEMENTATION_AUTHORIZED=NO
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 ```

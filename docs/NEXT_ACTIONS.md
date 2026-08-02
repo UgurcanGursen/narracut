@@ -2,36 +2,40 @@
 
 Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
-## NEXT RECOMMENDED TASK - Run the bounded Slice 5 implementation-authorization decision
+## NEXT RECOMMENDED TASK - Reconcile Slice 1-3 focused test and closure evidence
 
 This is the single authoritative next task.
 
-Run the separate bounded Phase 2 Slice 5 implementation-authorization
-decision against the accepted, remote-closed, documentation-synchronized
-specification.
+Phase 2 Slice 1-3 focused test rerun and closure-evidence
+audit/reconciliation.
 
-Specification path:
-`docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`.
+The task must:
 
-Specification commit:
-`26562c9449f8a4782cd231979cb5f61933c26515`.
+- run the existing focused tests for Slice 1, Slice 2, and Slice 3;
+- collect current exact test evidence;
+- perform a Slice-specific closure audit;
+- determine whether each Slice can be reclassified from
+  `IMPLEMENTED_BUT_TEST_RESULT_NOT_RECONCILED`; and
+- record every remaining blocker before Slice 5 implementation authorization
+  can be reconsidered.
 
-The specification file's `Accepted: No` line is the historical candidate
-snapshot. Acceptance is recorded in the authoritative state documents from
-the completed manual verification, Terra audit and correction, targeted
-re-audit, exact commit, exact blob, remote closure, and documentation
-synchronization evidence.
+The corrected Slice 5 candidate specification commit is remote closed at
+`e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`, with blob SHA-256
+`e6de8c1cdf52498a8e5c657962e48fc9915f58065621c8cb586c0c213ab7d71f`
+and UTF-8 byte length `104240`. Its independent corrected-specification
+re-audit passed with 0 BLOCKER / 0 MAJOR / 0 MINOR findings.
 
-This next task is a decision only. It must not implement production or test
-code, authorize runtime/provider execution implicitly, define downstream
-timing artifacts, close Phase 2, claim a total Slice count, or name a Slice
-after Slice 5.
+Slice 5 implementation is not the next task. The specification remains a
+candidate, is not accepted, and implementation is not authorized.
+Specification implementation must not start. Slice 4 remains CLOSED /
+REMOTE CLOSED. Phase 2 is not closed. The official total Phase 2 Slice count
+is UNKNOWN, and completion percentage is NOT_STATED.
 
 ```text
-PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
-SPECIFICATION_REMOTE_CLOSED=YES
-DOCUMENTATION_SYNCHRONIZATION_CLOSED=YES
-IMPLEMENTATION_AUTHORIZATION_REQUIRED=YES
+PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
+SLICE1_3_EVIDENCE_BLOCK=REMAINS
+SLICE5_IMPLEMENTATION_AUTHORIZED=NO
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 ```

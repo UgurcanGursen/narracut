@@ -1,14 +1,14 @@
 # Current State
 
-Son guncelleme: 29 Temmuz 2026
+Son guncelleme: 30 Temmuz 2026
 Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 IN_PROGRESS**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-Remote-closed Slice 5 specification baseline identity:
+Remote-closed corrected Slice 5 candidate specification identity:
 
-- `specification_commit=26562c9449f8a4782cd231979cb5f61933c26515`
-- `origin/main=26562c9449f8a4782cd231979cb5f61933c26515`
+- `HEAD=e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
+- `origin/main=e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
 
 ## Verified replacement state
 
@@ -65,39 +65,45 @@ Remote-closed Slice 5 specification baseline identity:
 
 ## Phase 2 reconciliation state
 
-Phase 2 Slice 5 specification is accepted, documentation-synchronized, and
-remote closed.
+The corrected Phase 2 Slice 5 candidate specification commit is remote
+closed. This does not accept the specification or authorize implementation.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
-- Specification commit:
-  `26562c9449f8a4782cd231979cb5f61933c26515`
+- Corrected specification commit:
+  `e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
 - Commit parent:
-  `d27cd83ae2f8501a19dd232a3516af5cdfed6d9d`
-- Commit subject: `docs: add phase 2 slice 5 specification`
+  `d1fdfd4523a886d70a5504a4191fa78260dd8336`
+- Commit subject: `docs: correct phase 2 slice 5 specification`
 - Specification SHA-256:
-  `607630177cee9918efec621a637524f7b410e0ac61631b9c2f1fa8c6cc71ab75`
-- Specification UTF-8 byte length: `53180`
-- Manual specification verification: PASS
-- Terra broad audit and bounded corrections: COMPLETE
-- Targeted Terra re-audit: PASS
-- Final findings: BLOCKER=0 / MAJOR=0 / MINOR=0 / OBSERVATION=0
-- Exact-SHA commit verification: PASS
-- Remote push verification: PASS
+  `e6de8c1cdf52498a8e5c657962e48fc9915f58065621c8cb586c0c213ab7d71f`
+- Specification UTF-8 byte length: `104240`
+- Manual exact-SHA commit verification: PASS
+- Independent corrected-specification re-audit: PASS
+- Final findings: BLOCKER=0 / MAJOR=0 / MINOR=0
+- Local HEAD, `origin/main`, and remote `refs/heads/main`:
+  `e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
+- Corrected specification remote closure: PASS
+- Specification document status: Candidate specification
+- Specification accepted: NO
 - Specification implementation: NOT STARTED
-- Implementation authorization: REQUIRED / NOT GRANTED
+- Implementation authorization: NO
 - Phase 2: IN_PROGRESS / NOT CLOSED
 
-The specification file's `Accepted: No` line is the historical remote-closed
-candidate snapshot. The completed gate evidence supports acceptance in these
-authoritative state documents without changing that immutable specification
-blob.
+The corrected specification closes all open specification audit findings but
+does not change its intentional candidate status. Slice 1-3 production
+implementations and focused test files exist, and their implementation and
+hardening commits are `origin/main` ancestors. Standalone Slice-specific
+closure/audit reports were not found and historical focused-test execution
+results remain unreconciled. Their classification remains
+`IMPLEMENTED_BUT_TEST_RESULT_NOT_RECONCILED`; required remediation is
+`FOCUSED_TEST_RERUN_AND_CLOSURE_AUDIT_REQUIRED`.
 
 ```text
-PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
-SPECIFICATION_REMOTE_CLOSED=YES
-DOCUMENTATION_SYNCHRONIZATION_CLOSED=YES
-IMPLEMENTATION_AUTHORIZATION_REQUIRED=YES
+PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
+SLICE1_3_EVIDENCE_BLOCK=REMAINS
+SLICE5_IMPLEMENTATION_AUTHORIZED=NO
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 ```
@@ -180,12 +186,16 @@ Phase 2 implementation has started after Slice 4.
 
 ## Current next move
 
-Run the separate bounded Phase 2 Slice 5 implementation-authorization
-decision against the accepted, remote-closed, documentation-synchronized
-specification.
+Run the Phase 2 Slice 1-3 focused tests and perform the Slice-specific
+closure-evidence audit/reconciliation. Collect current exact test evidence,
+determine whether each Slice can be reclassified from
+`IMPLEMENTED_BUT_TEST_RESULT_NOT_RECONCILED`, and record any remaining blocker
+before any Slice 5 implementation-authorization decision.
 
-This decision is not implementation. Slice 5 implementation remains
-unauthorized and has not started. Phase 2 is not closed.
+Slice 5 implementation is not the next task, is not authorized, and has not
+started. Slice 4 remains CLOSED / REMOTE CLOSED. Phase 2 remains in progress
+and open. The official total Phase 2 Slice count is UNKNOWN, and completion
+percentage is NOT_STATED.
 
 ## Phase 1 closure references
 
