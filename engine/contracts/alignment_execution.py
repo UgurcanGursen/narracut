@@ -846,7 +846,9 @@ def _convert_pairs(value: Any, pointer: str) -> Any:
             _reject(pointer, AdapterExecutionRejectionReason.STRUCTURE_INVALID)
         result: dict[str, Any] = {}
         for key, nested in value:
-            child_pointer = _join_pointer(pointer, key) if type(key) is str else pointer
+            child_pointer = (
+                _join_pointer(pointer, key) if _safe_dynamic_key(key) else pointer
+            )
             result[key] = _convert_pairs(nested, child_pointer)
         return result
     if isinstance(value, list):

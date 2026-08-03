@@ -177,6 +177,99 @@ def _assert_error(exc, reason, pointer, issue=None):
     assert not hasattr(error, "canonical_bytes")
 
 
+def _collect_until_dead(reference: weakref.ReferenceType[object]) -> None:
+    for _ in range(10):
+        gc.collect()
+        if reference() is None:
+            return
+    assert reference() is None
+
+
+def _clone_dataclass(value, clone_type=None):
+    clone_type = clone_type or type(value)
+    return clone_type(
+        **{field.name: getattr(value, field.name) for field in dataclasses.fields(value)}
+    )
+
+
+def _forge_dependency(value, kind):
+    if kind == "copy":
+        return copy.copy(value)
+    if kind == "deepcopy":
+        return copy.deepcopy(value)
+    if kind == "pickle":
+        return pickle.loads(pickle.dumps(value))
+    if kind == "proxy":
+        return weakref.proxy(value)
+    if kind == "replace":
+        return replace(value)
+    if kind == "reconstructed":
+        return _clone_dataclass(value)
+    if kind == "subclass":
+        subclass = type(f"Forged{type(value).__name__}", (type(value),), {})
+        clone = object.__new__(subclass)
+        for field in dataclasses.fields(value):
+            object.__setattr__(clone, field.name, getattr(value, field.name))
+        return clone
+    if kind == "wrong_type":
+        return object()
+    raise AssertionError(f"unsupported test forgery: {kind}")
+
+
+def _raw_replay_for_sources(source_request, source_execution):
+    current_request = _request("REPLAY")
+    replay = {
+        "schema_version": REPLAY_EVIDENCE_V1,
+        "source_adapter_execution_id": source_execution.adapter_execution_id,
+        "source_adapter_execution_hash": source_execution.adapter_execution_hash,
+        "source_alignment_request_id": source_request.alignment_request_id,
+        "source_alignment_request_hash": source_request.alignment_request_hash,
+    }
+    value, _ = _raw_execution(
+        current_request,
+        mode="REPLAY",
+        replay=replay,
+    )
+    return value, current_request
+
+
+def _assert_replay_rejection(
+    value,
+    current_request,
+    source_request,
+    source_execution,
+    reason,
+    pointer,
+    issue="REPLAY_INPUT_MISMATCH",
+):
+    registry_before = dict(execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS)
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        _materialize(
+            value,
+            current_request,
+            source_alignment_request=source_request,
+            source_execution=source_execution,
+        )
+    _assert_error(exc, reason, pointer, issue)
+    assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == registry_before
+    for sensitive in (
+        source_request.alignment_request_id,
+        source_request.alignment_request_hash,
+        source_execution.adapter_execution_id,
+        source_execution.adapter_execution_hash,
+    ):
+        assert sensitive not in str(exc.value)
+        assert sensitive not in exc.value.pointer
+
+
+def _nested_duplicate_payload(dynamic_key: str, container: str | None = None) -> bytes:
+    key = json.dumps(dynamic_key, ensure_ascii=False)
+    nested = f'{key}:{{"duplicate":1,"duplicate":2}}'
+    if container is not None:
+        nested = f'"{container}":{{{nested}}}'
+    return ("{" + nested + "}").encode("utf-8")
+
+
 def test_golden_projection_envelope_identity_and_loader() -> None:
     value, request = _raw_execution()
     assert _canonical({key: item for key, item in value.items()
@@ -309,6 +402,215 @@ def test_replay_dependency_mismatch_oracle(field, replacement, pointer, issue) -
                   pointer, issue)
 
 
+@pytest.mark.parametrize(
+    "source_mode,source_status",
+    [("LOCAL", "FAILED"), ("FREE_API", "BLOCKED")],
+)
+def test_replay_rejects_failed_and_blocked_genuine_source_execution(
+    source_mode, source_status
+) -> None:
+    source_request = _request(source_mode)
+    source_raw, _ = _raw_execution(
+        source_request,
+        mode=source_mode,
+        status=source_status,
+    )
+    source_execution = _materialize(source_raw, source_request)
+    value, current_request = _raw_replay_for_sources(
+        source_request, source_execution
+    )
+    _assert_replay_rejection(
+        value,
+        current_request,
+        source_request,
+        source_execution,
+        AdapterExecutionRejectionReason.REPLAY_LINEAGE_INVALID,
+        "/source_execution/status",
+    )
+
+
+def test_replay_rejects_genuine_replay_mode_source_request() -> None:
+    source_request = _request("REPLAY")
+    execution_request = _request("LOCAL")
+    source_raw, _ = _raw_execution(execution_request)
+    source_execution = _materialize(source_raw, execution_request)
+    value, current_request = _raw_replay_for_sources(
+        source_request, source_execution
+    )
+    _assert_replay_rejection(
+        value,
+        current_request,
+        source_request,
+        source_execution,
+        AdapterExecutionRejectionReason.REPLAY_LINEAGE_INVALID,
+        "/source_alignment_request/mode",
+    )
+
+
+def test_replay_rejects_genuine_replay_mode_source_execution() -> None:
+    replay_raw, replay_request, source_request, source_execution = _replay_case()
+    replay_execution = _materialize(
+        replay_raw,
+        replay_request,
+        source_alignment_request=source_request,
+        source_execution=source_execution,
+    )
+    value, current_request = _raw_replay_for_sources(
+        source_request, replay_execution
+    )
+    _assert_replay_rejection(
+        value,
+        current_request,
+        source_request,
+        replay_execution,
+        AdapterExecutionRejectionReason.REPLAY_LINEAGE_INVALID,
+        "/source_execution/mode",
+    )
+
+
+def test_replay_of_replay_rejects_before_source_execution_binding() -> None:
+    replay_raw, replay_request, source_request, source_execution = _replay_case()
+    replay_execution = _materialize(
+        replay_raw,
+        replay_request,
+        source_alignment_request=source_request,
+        source_execution=source_execution,
+    )
+    value, current_request = _raw_replay_for_sources(
+        replay_request, replay_execution
+    )
+    _assert_replay_rejection(
+        value,
+        current_request,
+        replay_request,
+        replay_execution,
+        AdapterExecutionRejectionReason.REPLAY_LINEAGE_INVALID,
+        "/source_alignment_request/mode",
+    )
+
+
+def test_replay_rejects_source_request_execution_mode_mismatch() -> None:
+    source_request = _request("LOCAL")
+    execution_request = _request("FREE_API")
+    source_raw, _ = _raw_execution(
+        execution_request,
+        mode="FREE_API",
+    )
+    source_execution = _materialize(source_raw, execution_request)
+    value, current_request = _raw_replay_for_sources(
+        source_request, source_execution
+    )
+    _assert_replay_rejection(
+        value,
+        current_request,
+        source_request,
+        source_execution,
+        AdapterExecutionRejectionReason.REPLAY_EVIDENCE_INVALID,
+        "/source_execution/mode",
+    )
+
+
+def test_replay_rejects_source_execution_request_id_mismatch() -> None:
+    source_request = _request("LOCAL")
+    execution_request = _request("LOCAL", confidence="UNSUPPORTED")
+    source_raw, _ = _raw_execution(execution_request)
+    source_execution = _materialize(source_raw, execution_request)
+    value, current_request = _raw_replay_for_sources(
+        source_request, source_execution
+    )
+    _assert_replay_rejection(
+        value,
+        current_request,
+        source_request,
+        source_execution,
+        AdapterExecutionRejectionReason.REPLAY_EVIDENCE_INVALID,
+        "/source_execution/alignment_request_id",
+    )
+
+
+def test_replay_rejects_source_execution_request_hash_mismatch() -> None:
+    source_request = _request("LOCAL")
+    source_raw, _ = _raw_execution(source_request)
+    source_execution = _materialize(source_raw, source_request)
+    original_hash = source_request.alignment_request_hash
+    object.__setattr__(source_request, "alignment_request_hash", "f" * 64)
+    try:
+        value, current_request = _raw_replay_for_sources(
+            source_request, source_execution
+        )
+        _assert_replay_rejection(
+            value,
+            current_request,
+            source_request,
+            source_execution,
+            AdapterExecutionRejectionReason.REPLAY_EVIDENCE_INVALID,
+            "/source_execution/alignment_request_hash",
+        )
+    finally:
+        object.__setattr__(source_request, "alignment_request_hash", original_hash)
+
+
+@pytest.mark.parametrize(
+    "field,pointer",
+    [
+        ("alignment_request_id", "/source_alignment_request/alignment_request_id"),
+        (
+            "alignment_request_hash",
+            "/source_alignment_request/alignment_request_hash",
+        ),
+    ],
+)
+def test_replay_rejects_current_source_request_role_confusion(field, pointer) -> None:
+    value, current_request, source_request, source_execution = _replay_case()
+    original_request_value = getattr(source_request, field)
+    original_execution_value = getattr(source_execution, field)
+    confused_value = getattr(current_request, field)
+    object.__setattr__(source_request, field, confused_value)
+    object.__setattr__(source_execution, field, confused_value)
+    replay_field = "source_" + field
+    value["replay_evidence"][replay_field] = confused_value
+    _rehash(value)
+    try:
+        _assert_replay_rejection(
+            value,
+            current_request,
+            source_request,
+            source_execution,
+            AdapterExecutionRejectionReason.REPLAY_LINEAGE_INVALID,
+            pointer,
+        )
+    finally:
+        object.__setattr__(source_request, field, original_request_value)
+        object.__setattr__(source_execution, field, original_execution_value)
+
+
+def test_replay_rejects_direct_self_reference_before_identity_verification() -> None:
+    value, current_request, source_request, source_execution = _replay_case()
+    value["adapter_execution_id"] = source_execution.adapter_execution_id
+    _assert_replay_rejection(
+        value,
+        current_request,
+        source_request,
+        source_execution,
+        AdapterExecutionRejectionReason.REPLAY_LINEAGE_INVALID,
+        "/replay_evidence/source_adapter_execution_id",
+    )
+
+
+def test_replay_rejects_ambiguous_lineage_with_exact_structure_oracle() -> None:
+    value, current_request, source_request, source_execution = _replay_case()
+    value["replay_evidence"]["ancestor_array"] = []
+    _assert_replay_rejection(
+        value,
+        current_request,
+        source_request,
+        source_execution,
+        AdapterExecutionRejectionReason.STRUCTURE_INVALID,
+        "/replay_evidence/ancestor_array",
+        None,
+    )
+
+
 @pytest.mark.parametrize("availability,confidence,status,valid", [
     ("AVAILABLE", "SUPPORTED", "SUCCEEDED", True),
     ("UNAVAILABLE", "SUPPORTED", "SUCCEEDED", True),
@@ -397,6 +699,145 @@ def test_duplicate_keys_use_containing_object_pointer(mutator, pointer) -> None:
     _assert_error(exc, AdapterExecutionRejectionReason.STRUCTURE_INVALID, pointer)
 
 
+@pytest.mark.parametrize(
+    "payload,pointer",
+    [
+        (b'{"schema_version":"one","schema_version":"two"}', "/"),
+        (
+            b'{"paid_fallback_authorization_evidence":'
+            b'{"schema_version":"one","schema_version":"two"}}',
+            "/paid_fallback_authorization_evidence",
+        ),
+        (
+            b'{"replay_evidence":'
+            b'{"schema_version":"one","schema_version":"two"}}',
+            "/replay_evidence",
+        ),
+        (
+            b'{"confidence_availability_evidence":'
+            b'{"schema_version":"one","schema_version":"two"}}',
+            "/confidence_availability_evidence",
+        ),
+    ],
+)
+def test_all_contract_duplicate_containers_have_exact_redacted_pointer(
+    payload, pointer
+) -> None:
+    request = _request()
+    registry_before = dict(execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS)
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        load_adapter_execution(payload, alignment_request=request)
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.STRUCTURE_INVALID,
+        pointer,
+    )
+    assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == registry_before
+
+
+@pytest.mark.parametrize(
+    "container,pointer",
+    [
+        (None, "/"),
+        (
+            "paid_fallback_authorization_evidence",
+            "/paid_fallback_authorization_evidence",
+        ),
+        ("replay_evidence", "/replay_evidence"),
+        (
+            "confidence_availability_evidence",
+            "/confidence_availability_evidence",
+        ),
+    ],
+)
+def test_unsafe_uri_ancestor_never_leaks_from_nested_duplicate(
+    container, pointer
+) -> None:
+    unsafe_key = "https://synthetic.invalid/audit-token"
+    request = _request()
+    registry_before = dict(execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS)
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        load_adapter_execution(
+            _nested_duplicate_payload(unsafe_key, container),
+            alignment_request=request,
+        )
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.STRUCTURE_INVALID,
+        pointer,
+    )
+    assert unsafe_key not in exc.value.pointer
+    assert "synthetic.invalid" not in exc.value.pointer
+    assert "synthetic.invalid" not in str(exc.value)
+    assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == registry_before
+
+
+@pytest.mark.parametrize(
+    "unsafe_key",
+    [
+        r"C:\synthetic\audit",
+        r"\\synthetic\share",
+        "/synthetic/audit",
+        "token",
+        "credential",
+        "authorization",
+    ],
+)
+def test_unsafe_path_and_sensitive_name_ancestors_are_redacted(unsafe_key) -> None:
+    request = _request()
+    registry_before = dict(execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS)
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        load_adapter_execution(
+            _nested_duplicate_payload(unsafe_key),
+            alignment_request=request,
+        )
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.STRUCTURE_INVALID,
+        "/",
+    )
+    assert unsafe_key not in exc.value.pointer
+    assert unsafe_key not in str(exc.value)
+    assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == registry_before
+
+
+def test_safe_dynamic_ancestor_preserves_exact_escaped_duplicate_pointer() -> None:
+    safe_key = "safe~segment/child"
+    request = _request()
+    registry_before = dict(execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS)
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        load_adapter_execution(
+            _nested_duplicate_payload(safe_key),
+            alignment_request=request,
+        )
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.STRUCTURE_INVALID,
+        "/safe~0segment~1child",
+    )
+    assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == registry_before
+
+
+def test_unsafe_nested_duplicate_pointer_is_insertion_order_independent() -> None:
+    unsafe_key = "https://synthetic.invalid/order-token"
+    encoded = json.dumps(unsafe_key)
+    payloads = (
+        f'{{"z_safe":0,{encoded}:{{"x":1,"x":2}},"a_safe":0}}'.encode(),
+        f'{{"a_safe":0,{encoded}:{{"x":1,"x":2}},"z_safe":0}}'.encode(),
+    )
+    request = _request()
+    for payload in payloads:
+        with pytest.raises(AdapterExecutionContractError) as exc:
+            load_adapter_execution(payload, alignment_request=request)
+        _assert_error(
+            exc,
+            AdapterExecutionRejectionReason.STRUCTURE_INVALID,
+            "/",
+        )
+        assert "synthetic.invalid" not in exc.value.pointer
+        assert "synthetic.invalid" not in str(exc.value)
+
+
 @pytest.mark.parametrize("transform,reason", [
     (lambda raw: b"\xef\xbb\xbf" + raw, AdapterExecutionRejectionReason.NON_CANONICAL_SERIALIZATION),
     (lambda raw: b" " + raw, AdapterExecutionRejectionReason.NON_CANONICAL_SERIALIZATION),
@@ -449,6 +890,166 @@ def test_dependency_preflight_order_and_raw_non_access() -> None:
                                       source_execution=object())
     _assert_error(exc, AdapterExecutionRejectionReason.NOT_MATERIALIZED,
                   "/source_execution")
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "copy",
+        "deepcopy",
+        "pickle",
+        "proxy",
+        "replace",
+        "reconstructed",
+        "subclass",
+        "wrong_type",
+    ],
+)
+def test_current_request_dependency_forgery_rejects_before_raw_access(kind) -> None:
+    class ExplodingMapping(dict):
+        def keys(self):
+            raise AssertionError("raw input accessed")
+
+    genuine = _request("LOCAL")
+    forged = _forge_dependency(genuine, kind)
+    with pytest.raises(TypeError) as exc:
+        materialize_adapter_execution(
+            ExplodingMapping(),
+            alignment_request=forged,
+        )
+    assert type(exc.value) is TypeError
+    assert "alignment_request" in str(exc.value)
+    assert not hasattr(exc.value, "pointer")
+    assert not hasattr(exc.value, "reason")
+    assert not hasattr(exc.value, "issue_code")
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "copy",
+        "deepcopy",
+        "pickle",
+        "proxy",
+        "replace",
+        "reconstructed",
+        "subclass",
+        "wrong_type",
+    ],
+)
+def test_source_request_dependency_forgery_cannot_transfer_provenance(kind) -> None:
+    class ExplodingMapping(dict):
+        def keys(self):
+            raise AssertionError("raw input accessed")
+
+    current_request = _request("REPLAY")
+    source_request = _request("LOCAL")
+    source_raw = _raw_execution(source_request)[0]
+    source_execution = _materialize(source_raw, source_request)
+    forged = _forge_dependency(source_request, kind)
+    registry_before = dict(execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS)
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        materialize_adapter_execution(
+            ExplodingMapping(),
+            alignment_request=current_request,
+            source_alignment_request=forged,
+            source_execution=source_execution,
+        )
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.NOT_MATERIALIZED,
+        "/source_alignment_request",
+    )
+    assert source_request.alignment_request_id not in str(exc.value)
+    assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == registry_before
+
+
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "copy",
+        "deepcopy",
+        "pickle",
+        "proxy",
+        "replace",
+        "reconstructed",
+        "subclass",
+        "wrong_type",
+    ],
+)
+def test_source_execution_dependency_forgery_cannot_transfer_provenance(kind) -> None:
+    class ExplodingMapping(dict):
+        def keys(self):
+            raise AssertionError("raw input accessed")
+
+    current_request = _request("REPLAY")
+    source_request = _request("LOCAL")
+    source_raw, _ = _raw_execution(source_request)
+    source_execution = _materialize(source_raw, source_request)
+    forged = _forge_dependency(source_execution, kind)
+    registry_before = dict(execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS)
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        materialize_adapter_execution(
+            ExplodingMapping(),
+            alignment_request=current_request,
+            source_alignment_request=source_request,
+            source_execution=forged,
+        )
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.NOT_MATERIALIZED,
+        "/source_execution",
+    )
+    assert source_execution.adapter_execution_id not in str(exc.value)
+    assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == registry_before
+
+
+def test_collected_source_request_proxy_is_stale_and_non_transferable() -> None:
+    current_request = _request("REPLAY")
+    source_request = _request("LOCAL")
+    source_raw = _raw_execution(source_request)[0]
+    source_execution = _materialize(source_raw, source_request)
+    source_proxy = weakref.proxy(source_request)
+    source_reference = weakref.ref(source_request)
+    del source_request
+    _collect_until_dead(source_reference)
+
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        materialize_adapter_execution(
+            {},
+            alignment_request=current_request,
+            source_alignment_request=source_proxy,
+            source_execution=source_execution,
+        )
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.NOT_MATERIALIZED,
+        "/source_alignment_request",
+    )
+
+
+def test_collected_source_execution_proxy_is_stale_and_non_transferable() -> None:
+    current_request = _request("REPLAY")
+    source_request = _request("LOCAL")
+    source_raw, _ = _raw_execution(source_request)
+    source_execution = _materialize(source_raw, source_request)
+    source_proxy = weakref.proxy(source_execution)
+    source_reference = weakref.ref(source_execution)
+    del source_execution
+    _collect_until_dead(source_reference)
+
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        materialize_adapter_execution(
+            {},
+            alignment_request=current_request,
+            source_alignment_request=source_request,
+            source_execution=source_proxy,
+        )
+    _assert_error(
+        exc,
+        AdapterExecutionRejectionReason.NOT_MATERIALIZED,
+        "/source_execution",
+    )
 
 
 def test_source_dependency_presence_is_after_mode_parsing_and_ordered() -> None:
@@ -583,6 +1184,158 @@ def test_registry_collection_cleanup_and_registration_rollback(monkeypatch) -> N
     with pytest.raises(RuntimeError, match="^adapter execution provenance registration failed$"):
         _materialize(value, request)
     assert execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS == before
+
+
+def test_registry_stale_cleanup_preserves_replacement_entry() -> None:
+    registry = execution_contracts._MATERIALIZED_ADAPTER_EXECUTIONS
+    original = _materialize()
+    replacement = _materialize()
+    original_key = id(original)
+    replacement_key = id(replacement)
+    original_reference = registry[original_key]
+    replacement_reference = registry[replacement_key]
+    external_original_reference = weakref.ref(original)
+
+    assert original_reference() is original
+    registry[original_key] = replacement_reference
+    try:
+        del original
+        _collect_until_dead(external_original_reference)
+        assert registry.get(original_key) is replacement_reference
+        assert registry[replacement_key] is replacement_reference
+        assert execution_contracts._is_materialized_adapter_execution(replacement)
+    finally:
+        if registry.get(original_key) is replacement_reference:
+            del registry[original_key]
+
+
+def test_registry_insertion_failure_preserves_replacement_and_publishes_nothing(
+    monkeypatch,
+) -> None:
+    class SentinelError(RuntimeError):
+        pass
+
+    unrelated = _materialize()
+    unrelated_key = id(unrelated)
+    unrelated_reference = weakref.ref(unrelated)
+    captured = {}
+
+    class ReplacingFailingRegistry(dict):
+        def __setitem__(self, key, value):
+            candidate = value()
+            replacement = replace(candidate)
+            replacement_reference = weakref.ref(replacement)
+            captured.update(
+                {
+                    "key": key,
+                    "candidate": candidate,
+                    "candidate_reference": value,
+                    "replacement": replacement,
+                    "replacement_reference": replacement_reference,
+                }
+            )
+            dict.__setitem__(self, unrelated_key, unrelated_reference)
+            dict.__setitem__(self, key, replacement_reference)
+            raise SentinelError("insertion sentinel")
+
+    registry = ReplacingFailingRegistry()
+    monkeypatch.setattr(
+        execution_contracts,
+        "_MATERIALIZED_ADAPTER_EXECUTIONS",
+        registry,
+    )
+    value, request = _raw_execution()
+    with pytest.raises(SentinelError, match="^insertion sentinel$"):
+        _materialize(value, request)
+
+    assert registry[captured["key"]] is captured["replacement_reference"]
+    assert registry[unrelated_key] is unrelated_reference
+    assert captured["replacement_reference"]() is captured["replacement"]
+    assert captured["candidate_reference"]() is captured["candidate"]
+    assert captured["candidate"] == captured["replacement"]
+    assert captured["candidate"] is not captured["replacement"]
+    assert not execution_contracts._is_materialized_adapter_execution(
+        captured["candidate"]
+    )
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        serialize_adapter_execution(captured["candidate"])
+    _assert_error(exc, AdapterExecutionRejectionReason.NOT_MATERIALIZED, "/")
+
+
+@pytest.mark.parametrize("verification_mode", ["false", "exception"])
+def test_registry_verification_failure_preserves_replacement_and_unrelated_entry(
+    monkeypatch, verification_mode
+) -> None:
+    class SentinelError(RuntimeError):
+        pass
+
+    unrelated = _materialize()
+    unrelated_key = id(unrelated)
+    unrelated_reference = weakref.ref(unrelated)
+    genuine_predicate = execution_contracts._is_materialized_adapter_execution
+    captured = {}
+
+    class TrackingRegistry(dict):
+        def __setitem__(self, key, value):
+            captured["key"] = key
+            captured["candidate_reference"] = value
+            captured["candidate"] = value()
+            dict.__setitem__(self, key, value)
+
+    registry = TrackingRegistry({unrelated_key: unrelated_reference})
+    monkeypatch.setattr(
+        execution_contracts,
+        "_MATERIALIZED_ADAPTER_EXECUTIONS",
+        registry,
+    )
+
+    def replace_and_fail(value):
+        replacement = replace(value)
+        replacement_reference = weakref.ref(replacement)
+        captured["replacement"] = replacement
+        captured["replacement_reference"] = replacement_reference
+        dict.__setitem__(registry, captured["key"], replacement_reference)
+        if verification_mode == "exception":
+            raise SentinelError("verification sentinel")
+        return False
+
+    monkeypatch.setattr(
+        execution_contracts,
+        "_is_materialized_adapter_execution",
+        replace_and_fail,
+    )
+    value, request = _raw_execution()
+    if verification_mode == "exception":
+        expected_error = pytest.raises(
+            SentinelError,
+            match="^verification sentinel$",
+        )
+    else:
+        expected_error = pytest.raises(
+            RuntimeError,
+            match="^adapter execution provenance registration failed$",
+        )
+    with expected_error:
+        _materialize(value, request)
+
+    assert registry[captured["key"]] is captured["replacement_reference"]
+    assert registry[unrelated_key] is unrelated_reference
+    assert captured["replacement_reference"]() is captured["replacement"]
+    assert captured["candidate_reference"]() is captured["candidate"]
+    assert captured["candidate"] == captured["replacement"]
+    assert captured["candidate"] is not captured["replacement"]
+
+    monkeypatch.setattr(
+        execution_contracts,
+        "_is_materialized_adapter_execution",
+        genuine_predicate,
+    )
+    assert not execution_contracts._is_materialized_adapter_execution(
+        captured["candidate"]
+    )
+    with pytest.raises(AdapterExecutionContractError) as exc:
+        serialize_adapter_execution(captured["candidate"])
+    _assert_error(exc, AdapterExecutionRejectionReason.NOT_MATERIALIZED, "/")
 
 
 def test_alignment_request_golden_and_stable_issue_inventory_regressions() -> None:
