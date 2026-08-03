@@ -13,6 +13,7 @@ import pytest
 
 import engine.contracts as contracts
 import engine.contracts.alignment_result as result_contracts
+import engine.contracts.narration as narration_contracts
 from engine.contracts import (
     ALIGNMENT_RESULT_HASH_V1,
     ALIGNMENT_RESULT_V1,
@@ -206,6 +207,98 @@ def _dependencies():
         source_alignment_request=source_request, source_execution=source_execution,
     )
     evidence = load_repository_timing_origin_evidence(EVIDENCE_BYTES)
+    return raw, narration.document, narration.revision, audio, request, execution, evidence
+
+
+def _dynamic_dependencies(payload: dict, monkeypatch):
+    narration = materialize_fx34()
+    payload_bytes = _canonical(payload)
+    package = {
+        "schema_version": "TRP-RAW-V1", "run_id": "run_dynamic_alignment_result",
+        "raw_id": "raw_dynamic_alignment_result", "payload": payload,
+        "payload_byte_hash": "sha256:" + hashlib.sha256(payload_bytes).hexdigest(),
+        "media_type": "application/vnd.kurgu.alignment-token-observation+json",
+        "issue_codes": [],
+    }
+    raw = canonicalize_temporal_raw_package(package, payload_bytes=payload_bytes)
+    wave = _wave()
+    audio = materialize_audio_artifact(
+        {
+            "schema_version": "AUDIO-ARTIFACT-INPUT-V1",
+            "project_id": narration.document.project_id,
+            "document_id": narration.document.document_id,
+            "narration_revision_id": narration.revision.revision_id,
+            "narration_revision_hash": narration.revision.revision_hash,
+            "logical_input": {"schema_version": "SECURE-AUDIO-INPUT-V1", "kind": "LOCAL_FILE", "logical_path": "audio/narration.wav"},
+            "declared_media_byte_hash": "sha256:" + hashlib.sha256(wave).hexdigest(),
+            "declared_sample_rate_hz": 8000, "declared_channel_count": 1,
+            "declared_sample_frame_count": 32000, "extensions": {},
+        },
+        narration_binding=NarrationRevisionBinding.from_validated_revision(narration.revision),
+        runtime=AudioArtifactMaterializationRuntime(TrustedRootReference("C:/trusted/root"), _Reader(wave)),
+    )
+    base = raw, narration.document, narration.revision, audio
+    source_request = materialize_alignment_request(
+        _request_value(base, "LOCAL"), temporal_raw_package=raw,
+        narration_document=narration.document, narration_revision=narration.revision,
+        audio_artifact=audio,
+    )
+    source_execution = materialize_adapter_execution(
+        _execution_value(source_request, "LOCAL"), alignment_request=source_request,
+    )
+    request = materialize_alignment_request(
+        _request_value(base, "REPLAY"), temporal_raw_package=raw,
+        narration_document=narration.document, narration_revision=narration.revision,
+        audio_artifact=audio,
+    )
+    replay = {
+        "schema_version": "REPLAY-EVIDENCE-V1",
+        "source_adapter_execution_id": source_execution.adapter_execution_id,
+        "source_adapter_execution_hash": source_execution.adapter_execution_hash,
+        "source_alignment_request_id": source_request.alignment_request_id,
+        "source_alignment_request_hash": source_request.alignment_request_hash,
+    }
+    execution = materialize_adapter_execution(
+        _execution_value(request, "REPLAY", replay=replay), alignment_request=request,
+        source_alignment_request=source_request, source_execution=source_execution,
+    )
+    document_bytes = _canonical(narration_contracts._document_to_dict(narration.document))
+    evidence_data = {
+        "schema_version": TIMING_ORIGIN_EVIDENCE_V1,
+        "hash_scope_version": TIMING_ORIGIN_EVIDENCE_HASH_V1,
+        "timing_origin_evidence_id": "toe_" + "0" * 32,
+        "timing_origin_evidence_hash": "0" * 64,
+        "fixture_id": "FX-TEST-ONLY-DYNAMIC",
+        "temporal_raw_package_hash": raw.canonical_hash,
+        "timing_payload_byte_hash": "sha256:" + hashlib.sha256(payload_bytes).hexdigest(),
+        "narration_document_snapshot_hash": "sha256:" + hashlib.sha256(document_bytes).hexdigest(),
+        "narration_revision_id": narration.revision.revision_id,
+        "narration_revision_hash": narration.revision.revision_hash,
+        "audio_artifact_id": audio.audio_artifact_id,
+        "audio_artifact_hash": audio.audio_artifact_hash,
+        "alignment_request_id": request.alignment_request_id,
+        "alignment_request_hash": request.alignment_request_hash,
+        "adapter_execution_id": execution.adapter_execution_id,
+        "adapter_execution_hash": execution.adapter_execution_hash,
+    }
+    projection = {key: item for key, item in evidence_data.items() if key not in {
+        "timing_origin_evidence_id", "timing_origin_evidence_hash"
+    }}
+    digest = hashlib.sha256(_canonical(projection)).hexdigest()
+    evidence_data["timing_origin_evidence_hash"] = digest
+    evidence_data["timing_origin_evidence_id"] = "toe_" + digest[:32]
+    evidence_bytes = _canonical(evidence_data)
+    key = (
+        evidence_data["fixture_id"], digest, hashlib.sha256(evidence_bytes).hexdigest(),
+        len(evidence_bytes), hashlib.sha256(payload_bytes).hexdigest(), len(payload_bytes),
+    )
+    monkeypatch.setattr(
+        result_contracts, "_allowlist_lookup",
+        lambda candidate: (evidence_bytes, payload_bytes) if candidate == key else None,
+    )
+    monkeypatch.setattr(result_contracts, "_GOLDEN_EVIDENCE", evidence_bytes)
+    monkeypatch.setattr(result_contracts, "_GOLDEN_TIMING_PAYLOAD", payload_bytes)
+    evidence = load_repository_timing_origin_evidence(evidence_bytes)
     return raw, narration.document, narration.revision, audio, request, execution, evidence
 
 
@@ -525,3 +618,144 @@ def test_result_registry_cleanup_and_nested_container_mutation() -> None:
             break
     assert reference() is None
     assert key not in result_contracts._MATERIALIZED_ALIGNMENT_RESULTS
+
+
+def test_supported_split_token_mapping_is_deterministic(monkeypatch) -> None:
+    payload = json.loads(PAYLOAD_BYTES)
+    original = payload["tokens"]
+    split = [
+        {"index": 0, "kind": "SPOKEN", "normalized_alignment_text": "al", "start_ms": 100, "end_ms": 280, "confidence_millionths": 980000},
+        {"index": 1, "kind": "SPOKEN", "normalized_alignment_text": "pha", "start_ms": 300, "end_ms": 500, "confidence_millionths": 970000},
+    ]
+    for token in original[1:]:
+        token = copy.deepcopy(token)
+        token["index"] += 1
+        split.append(token)
+    payload["tokens"] = split
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    value = _result_value(deps)
+    value["word_timings"][0].update(
+        confidence_millionths=970000, source_token_indices=[0, 1]
+    )
+    value["word_timings"][1]["source_token_indices"] = [2]
+    value["word_timings"][2]["source_token_indices"] = [4]
+    value["word_timings"][3]["source_token_indices"] = [5]
+    value = _rehash(value, "alignment_result_id", "alignment_result_hash", "alr_")
+    result = _materialize(value, deps)
+    assert result.word_timings[0] == WordTiming(
+        "nword_5321ba14c2c4b28c31ab", 100, 500, 970000, (0, 1)
+    )
+    assert serialize_alignment_result(result) == _canonical(value)
+
+
+@pytest.mark.parametrize(
+    "mutate,issue",
+    [
+        (lambda payload: payload["tokens"][0].update(normalized_alignment_text="Alpha"), "TRANSCRIPT_DIVERGENCE"),
+        (
+            lambda payload: (
+                payload["tokens"][0].update(normalized_alignment_text="alphabeta", end_ms=900),
+                payload["tokens"].pop(1),
+            ),
+            "ADAPTER_PRECISION_OVERSTATED",
+        ),
+    ],
+)
+def test_zero_cover_diagnostics_are_closed(monkeypatch, mutate, issue) -> None:
+    payload = json.loads(PAYLOAD_BYTES)
+    mutate(payload)
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert (exc.value.pointer, exc.value.reason, exc.value.issue_code) == (
+        "/raw_package/payload/tokens", AlignmentResultRejectionReason.TRANSCRIPT_DIVERGENCE,
+        issue,
+    )
+
+
+@pytest.mark.parametrize(
+    "mutate,issue",
+    [
+        (lambda token: token.update(start_ms=-1), "TIMESTAMP_OUT_OF_BOUNDS"),
+        (lambda token: token.update(start_ms=500), "ZERO_DURATION_WORD"),
+        (lambda token: token.update(start_ms=600), "TIMESTAMP_NON_MONOTONIC"),
+        (lambda token: token.update(end_ms=4_001), "TIMESTAMP_OUT_OF_BOUNDS"),
+    ],
+)
+def test_timing_boundaries_fail_closed(monkeypatch, mutate, issue) -> None:
+    payload = json.loads(PAYLOAD_BYTES)
+    mutate(payload["tokens"][0])
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert (exc.value.reason, exc.value.issue_code) == (
+        AlignmentResultRejectionReason.TIMING_INVALID, issue
+    )
+
+
+def test_overlap_and_confidence_failures_use_exact_issue_codes(monkeypatch) -> None:
+    payload = json.loads(PAYLOAD_BYTES)
+    payload["tokens"][1]["start_ms"] = 499
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert (exc.value.reason, exc.value.issue_code) == (
+        AlignmentResultRejectionReason.TIMING_INVALID, "TIMESTAMP_OVERLAP"
+    )
+    payload = json.loads(PAYLOAD_BYTES)
+    payload["tokens"][0]["confidence_millionths"] = None
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert (exc.value.reason, exc.value.issue_code) == (
+        AlignmentResultRejectionReason.CONFIDENCE_INVALID,
+        "CONFIDENCE_REQUIRED_UNAVAILABLE",
+    )
+    payload = json.loads(PAYLOAD_BYTES)
+    payload["tokens"][0]["confidence_millionths"] = 1_000_001
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert (exc.value.reason, exc.value.issue_code) == (
+        AlignmentResultRejectionReason.CONFIDENCE_INVALID,
+        "ADAPTER_PRECISION_OVERSTATED",
+    )
+
+
+@pytest.mark.parametrize(
+    "mutate,pointer",
+    [
+        (lambda payload: payload.update(extra=True), "/raw_package/payload"),
+        (lambda payload: payload["tokens"][0].update(extra=True), "/raw_package/payload/tokens/0"),
+        (lambda payload: payload["tokens"][0].update(kind="UNKNOWN"), "/raw_package/payload/tokens/0"),
+        (lambda payload: payload["tokens"][2].update(start_ms=1), "/raw_package/payload/tokens/2"),
+    ],
+)
+def test_raw_observation_shape_is_closed(monkeypatch, mutate, pointer) -> None:
+    payload = json.loads(PAYLOAD_BYTES)
+    mutate(payload)
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert (exc.value.reason, exc.value.pointer) == (
+        AlignmentResultRejectionReason.RAW_OBSERVATION_INVALID, pointer
+    )
+
+
+def test_logical_containers_sensitive_values_and_cycles_are_rejected() -> None:
+    deps = _dependencies()
+    value = _result_value(deps)
+    value["word_timings"] = tuple(value["word_timings"])
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(value, deps)
+    assert exc.value.reason is AlignmentResultRejectionReason.TRANSCRIPT_DIVERGENCE
+    value = _result_value(deps)
+    value["word_timings"][0]["source_token_indices"] = (0,)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(value, deps)
+    assert exc.value.reason is AlignmentResultRejectionReason.STRUCTURE_INVALID
+    value = _result_value(deps)
+    value["alignment_result_hash"] = "https://credential.invalid"
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(value, deps)
+    assert exc.value.reason is AlignmentResultRejectionReason.SENSITIVE_DATA
