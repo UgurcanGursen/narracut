@@ -92,8 +92,10 @@ Son guncelleme: 3 Agustos 2026
   `baseline/phase2_slice5_specification_acceptance_decision_report.md`.
 - The immutable specification file retains its historical `Accepted: No`
   metadata and remains byte-for-byte unchanged.
-- Slice 5 implementation is not authorized.
-- Slice 5 implementation authorization remains pending.
+- Slice 5 bounded implementation authorization is granted by
+  `baseline/phase2_slice5_implementation_authorization_decision_report.md`.
+- Implementation becomes allowed only after the authorization documentation
+  synchronization is remote closed.
 - Slice 5 implementation has not started.
 - No `AdapterExecution` production contract exists yet.
 - No focused Slice 5 implementation tests exist yet.
@@ -116,14 +118,20 @@ Son guncelleme: 3 Agustos 2026
 - Specification acceptance does not prove implementation, integration,
   provider execution, runtime behavior, timing correctness, renderer
   correctness, performance, or production readiness.
+- Implementation authorization does not prove the contract, focused tests,
+  runtime behavior, provider execution, timing results, integration,
+  performance, or production readiness. Implementation acceptance remains
+  OPEN.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
 PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
 SLICE1_3_EVIDENCE_BLOCK=CLEARED
-SLICE5_IMPLEMENTATION_AUTHORIZED=NO
-SLICE5_IMPLEMENTATION_ALLOWED=NO
-IMPLEMENTATION_AUTHORIZATION_DECISION_ALLOWED=YES
+SLICE5_IMPLEMENTATION_AUTHORIZED=YES
+SLICE5_IMPLEMENTATION_ALLOWED=YES
+IMPLEMENTATION_START_ALLOWED=YES
+SLICE5_IMPLEMENTATION_STATUS=NOT_STARTED
+SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
 PHASE2_CLOSED=NO
 ```
 

@@ -115,7 +115,8 @@ General status: IN_PROGRESS / NOT CLOSED
 | Post-Slice-4 scope reconciliation closure | SATISFIED / REMOTE CLOSED | `baseline/phase2_post_slice4_scope_report.md`; commit `f89e10156a940016deef4e94b6aef8863837dbf6`; parent `47727dbcbf2fdbdc6334b04bdfea7b3c1f7f6878`; subject `docs: reconcile phase 2 post-slice-4 scope`; SHA-256 `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f` |
 | Slice 5 specification-path decision | SATISFIED / REMOTE CLOSED | `baseline/phase2_slice5_specification_path_decision_report.md`; commit `d61500d861762bb6215e0f3041c144e25ea10752`; parent `013c154f0612d7e45e4411656d033372a3241f34`; subject `docs: add slice 5 specification path decision`; SHA-256 `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`; byte length `5668` |
 | Slice 5 corrected specification | ACCEPT / REMOTE CLOSED / RE-AUDIT PASS | `baseline/phase2_slice5_specification_acceptance_decision_report.md`; specification `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`; commit `e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`; SHA-256 `e6de8c1cdf52498a8e5c657962e48fc9915f58065621c8cb586c0c213ab7d71f`; byte length `104240`; corrected-specification re-audit `0 BLOCKER / 0 MAJOR / 0 MINOR` |
-| Slice 5 implementation acceptance | OPEN / NOT AUTHORIZED / NOT STARTED | Specification acceptance is not implementation authorization or implementation closure |
+| Slice 5 implementation authorization | AUTHORIZE / DOCUMENTATION REMOTE CLOSED | `baseline/phase2_slice5_implementation_authorization_decision_report.md`; exact implementation boundary: `engine/contracts/alignment_execution.py`, `tests/test_alignment_execution.py`, `engine/contracts/__init__.py` |
+| Slice 5 implementation acceptance | OPEN / AUTHORIZED / NOT STARTED | Authorization does not establish implementation or implementation acceptance |
 
 ### Post-Slice-4 scope reconciliation closure evidence
 
@@ -192,6 +193,12 @@ specification`, `Accepted: No`, `Implementation authorized: No`, and
 decision report accepts the specification without changing those bytes.
 Acceptance does not grant implementation authorization.
 
+The separate implementation-authorization decision is AUTHORIZE. It permits
+only the exact three-path bounded implementation after the authorization
+documentation synchronization is remote closed. No implementation has
+started; implementation acceptance and Phase 2 overall acceptance remain
+open.
+
 Slice 1-3 production implementations and focused test files exist, and their
 implementation and hardening commits are `origin/main` ancestors. The bounded
 read-only closure reconciliation passed with Slice 1 `47 passed`, Slice 2
@@ -205,9 +212,11 @@ authorize implementation, or close Phase 2.
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
 PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
 SLICE1_3_EVIDENCE_BLOCK=CLEARED
-SLICE5_IMPLEMENTATION_AUTHORIZED=NO
-SLICE5_IMPLEMENTATION_ALLOWED=NO
-IMPLEMENTATION_AUTHORIZATION_DECISION_ALLOWED=YES
+SLICE5_IMPLEMENTATION_AUTHORIZED=YES
+SLICE5_IMPLEMENTATION_ALLOWED=YES
+IMPLEMENTATION_START_ALLOWED=YES
+SLICE5_IMPLEMENTATION_STATUS=NOT_STARTED
+SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
 PHASE2_CLOSED=NO
 ```
 

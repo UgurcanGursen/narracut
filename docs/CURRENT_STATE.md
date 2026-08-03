@@ -10,6 +10,11 @@ Slice 5 specification acceptance decision base identity:
 - `HEAD=21d555568ea8b5e6383c29e6f284e5c4591da4bc`
 - `origin/main=21d555568ea8b5e6383c29e6f284e5c4591da4bc`
 
+Slice 5 implementation-authorization decision base identity:
+
+- `HEAD=c7fde6595bd5632b9b06203fe91cec2484c18df1`
+- `origin/main=c7fde6595bd5632b9b06203fe91cec2484c18df1`
+
 Remote-closed corrected Slice 5 specification identity:
 
 - `HEAD=e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
@@ -77,8 +82,9 @@ Slice 1-3 focused-test closure reconciliation base identity:
 
 The corrected Phase 2 Slice 5 specification is remote closed and accepted by
 the external decision record
-`baseline/phase2_slice5_specification_acceptance_decision_report.md`. This
-does not authorize implementation.
+`baseline/phase2_slice5_specification_acceptance_decision_report.md`.
+Bounded implementation is authorized by
+`baseline/phase2_slice5_implementation_authorization_decision_report.md`.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -101,8 +107,25 @@ does not authorize implementation.
 - External specification acceptance decision: ACCEPT
 - Specification accepted: YES
 - Specification implementation: NOT STARTED
-- Implementation authorization: NO
+- Implementation authorization decision: AUTHORIZE
+- Implementation authorization: YES
+- Implementation status: NOT STARTED
+- Implementation acceptance: OPEN
+- Bounded implementation allowed only after authorization documentation
+  remote closure: YES
 - Phase 2: IN_PROGRESS / NOT CLOSED
+
+Authorized implementation paths are exactly:
+
+```text
+engine/contracts/alignment_execution.py
+tests/test_alignment_execution.py
+engine/contracts/__init__.py
+```
+
+Provider/runtime/network/queue/database/UI/renderer work, canonical timing
+results, `AlignmentResult`, `AlignmentReport`, failure artifacts, EDL, and
+Phase 3 changes are not authorized.
 
 The corrected specification closes all open specification audit findings. Its
 immutable embedded candidate metadata remains unchanged; the external report
@@ -119,9 +142,11 @@ unreconciled classification no longer applies.
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
 PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
 SLICE1_3_EVIDENCE_BLOCK=CLEARED
-SLICE5_IMPLEMENTATION_AUTHORIZED=NO
-SLICE5_IMPLEMENTATION_ALLOWED=NO
-IMPLEMENTATION_AUTHORIZATION_DECISION_ALLOWED=YES
+SLICE5_IMPLEMENTATION_AUTHORIZED=YES
+SLICE5_IMPLEMENTATION_ALLOWED=YES
+IMPLEMENTATION_START_ALLOWED=YES
+SLICE5_IMPLEMENTATION_STATUS=NOT_STARTED
+SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
 PHASE2_CLOSED=NO
 ```
 
@@ -167,7 +192,8 @@ Slice 5 specification-path decision is remote closed.
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
 - Decision scope: bounded to `PHASE2-SLICE-5-CANDIDATE` only.
 - Repository-wide specification convention: NOT ESTABLISHED.
-- Slice 5 implementation is not authorized.
+- Slice 5 bounded implementation is authorized only for the exact three-path
+  boundary recorded by the authorization decision report.
 
 Phase 2 Slice 1–4 are Phase 2 work items. Repository evidence currently
 supports the following bounded status:
@@ -205,12 +231,15 @@ Phase 2 implementation has started after Slice 4.
 
 ## Current next move
 
-Perform the Phase 2 Slice 5 implementation-authorization decision. This is a
-decision-only task: it must not start implementation or close Phase 2.
+Perform the Phase 2 Slice 5 bounded AdapterExecution contract implementation
+only in the three authorized paths. Preserve the accepted specification bytes,
+exclude provider/runtime and downstream timing/result behavior, and do not
+close Phase 2.
 
-Slice 5 implementation is not authorized and has not started. Slice 4 remains
-CLOSED / REMOTE CLOSED. Phase 2 remains in progress and open. The official
-total Phase 2 Slice count is UNKNOWN, and completion percentage is NOT_STATED.
+Slice 5 implementation is authorized but remains NOT STARTED. Its acceptance
+is OPEN. Slice 4 remains CLOSED / REMOTE CLOSED. Phase 2 remains in progress
+and open. The official total Phase 2 Slice count is UNKNOWN, and completion
+percentage is NOT_STATED.
 
 ## Phase 1 closure references
 
