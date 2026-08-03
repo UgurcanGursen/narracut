@@ -86,6 +86,22 @@ the external decision record
 Bounded implementation is authorized by
 `baseline/phase2_slice5_implementation_authorization_decision_report.md`.
 
+The first bounded implementation attempt produced an uncommitted candidate.
+Its focused gate passed, but prerequisite and combined gates exposed a stale
+Slice 4 public-export oracle. The bounded correction is authorized by
+`baseline/phase2_slice5_implementation_scope_correction_report.md`.
+
+- Slice 5 implementation status: `BLOCKED_UNCOMMITTED_CANDIDATE`.
+- Focused gate: `71 passed`.
+- Regression gate: `248 passed, 1 failed, 1 skipped`.
+- Combined gate: `319 passed, 1 failed, 1 skipped`.
+- Exact failing test:
+  `tests/test_alignment_request.py::test_alignment_request_public_exports_are_exact`.
+- Scope correction: `AUTHORIZED`.
+- Added authorized path: `tests/test_alignment_request.py`.
+- Implementation acceptance: `OPEN`.
+- Phase 2 closed: `NO`.
+
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
 - Corrected specification commit:
@@ -106,10 +122,10 @@ Bounded implementation is authorized by
 - Embedded historical acceptance field: `Accepted: No` (unchanged)
 - External specification acceptance decision: ACCEPT
 - Specification accepted: YES
-- Specification implementation: NOT STARTED
+- Specification implementation: BLOCKED / UNCOMMITTED CANDIDATE
 - Implementation authorization decision: AUTHORIZE
 - Implementation authorization: YES
-- Implementation status: NOT STARTED
+- Implementation status: BLOCKED_UNCOMMITTED_CANDIDATE
 - Implementation acceptance: OPEN
 - Bounded implementation allowed only after authorization documentation
   remote closure: YES
@@ -121,6 +137,7 @@ Authorized implementation paths are exactly:
 engine/contracts/alignment_execution.py
 tests/test_alignment_execution.py
 engine/contracts/__init__.py
+tests/test_alignment_request.py
 ```
 
 Provider/runtime/network/queue/database/UI/renderer work, canonical timing
@@ -145,7 +162,7 @@ SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=YES
 SLICE5_IMPLEMENTATION_ALLOWED=YES
 IMPLEMENTATION_START_ALLOWED=YES
-SLICE5_IMPLEMENTATION_STATUS=NOT_STARTED
+SLICE5_IMPLEMENTATION_STATUS=BLOCKED_UNCOMMITTED_CANDIDATE
 SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
 PHASE2_CLOSED=NO
 ```
@@ -192,8 +209,9 @@ Slice 5 specification-path decision is remote closed.
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
 - Decision scope: bounded to `PHASE2-SLICE-5-CANDIDATE` only.
 - Repository-wide specification convention: NOT ESTABLISHED.
-- Slice 5 bounded implementation is authorized only for the exact three-path
-  boundary recorded by the authorization decision report.
+- Slice 5 bounded implementation uses the corrected exact four-path boundary
+  recorded by the original authorization report plus the bounded scope
+  correction report.
 
 Phase 2 Slice 1–4 are Phase 2 work items. Repository evidence currently
 supports the following bounded status:
@@ -226,20 +244,19 @@ supports the following bounded status:
   `d32e66585d660bc3e37a1896dbb7df050a8bc849`.
 
 Phase 2 overall is not CLOSED. The total official Phase 2 Slice count is not
-reconciled. No Phase 2 completion percentage is claimed. No new
-Phase 2 implementation has started after Slice 4.
+reconciled. No Phase 2 completion percentage is claimed. A Slice 5 candidate
+exists only in the uncommitted worktree; it is blocked pending the authorized
+export-oracle compatibility repair and is not accepted or remote closed.
 
 ## Current next move
 
-Perform the Phase 2 Slice 5 bounded AdapterExecution contract implementation
-only in the three authorized paths. Preserve the accepted specification bytes,
-exclude provider/runtime and downstream timing/result behavior, and do not
-close Phase 2.
-
-Slice 5 implementation is authorized but remains NOT STARTED. Its acceptance
-is OPEN. Slice 4 remains CLOSED / REMOTE CLOSED. Phase 2 remains in progress
-and open. The official total Phase 2 Slice count is UNKNOWN, and completion
-percentage is NOT_STATED.
+Resume the Phase 2 Slice 5 bounded implementation with only the authorized
+`tests/test_alignment_request.py` export-oracle compatibility repair, rerun all
+three gates, then commit and push only the exact four implementation paths.
+The accepted specification bytes and all unrelated Slice 4 tests remain
+unchanged. Slice 5 implementation acceptance is OPEN. Phase 2 remains in
+progress and open; total Slice count is UNKNOWN and completion percentage is
+NOT_STATED.
 
 ## Phase 1 closure references
 

@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-08-03 - Phase 2 Slice 5 implementation scope correction
+
+- Recorded the uncommitted Slice 5 candidate and focused gate `71 passed`.
+- Recorded regression `248 passed, 1 failed, 1 skipped` and combined `319
+  passed, 1 failed, 1 skipped`.
+- The exact blocker is the stale
+  `tests/test_alignment_request.py::test_alignment_request_public_exports_are_exact`
+  assertion, which rejects the accepted exact 19-symbol Slice 5 additive
+  export delta.
+- Decision: `AUTHORIZE_BOUNDED_EXPORT_TEST_COMPATIBILITY_REPAIR`.
+- Added only `tests/test_alignment_request.py` to the implementation boundary;
+  the corrected boundary is exactly
+  `engine/contracts/alignment_execution.py`,
+  `tests/test_alignment_execution.py`, `engine/contracts/__init__.py`, and
+  `tests/test_alignment_request.py`.
+- The only permitted repair preserves the exact Slice 4 export and private
+  symbol assertions while asserting the exact Slice 5 additive delta.
+- The candidate remains uncommitted, implementation acceptance remains OPEN,
+  and Phase 2 remains NOT CLOSED.
+
+```text
+SLICE5_IMPLEMENTATION_STATUS=BLOCKED_UNCOMMITTED_CANDIDATE
+SCOPE_CORRECTION=AUTHORIZED
+SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
+PHASE2_CLOSED=NO
+```
+
 ## 2026-08-03 - Phase 2 Slice 5 implementation authorization documentation sync
 
 - The bounded Slice 5 implementation-authorization decision is AUTHORIZE.

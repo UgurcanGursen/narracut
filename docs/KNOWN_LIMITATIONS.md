@@ -94,11 +94,20 @@ Son guncelleme: 3 Agustos 2026
   metadata and remains byte-for-byte unchanged.
 - Slice 5 bounded implementation authorization is granted by
   `baseline/phase2_slice5_implementation_authorization_decision_report.md`.
-- Implementation becomes allowed only after the authorization documentation
-  synchronization is remote closed.
-- Slice 5 implementation has not started.
-- No `AdapterExecution` production contract exists yet.
-- No focused Slice 5 implementation tests exist yet.
+- The bounded implementation produced an uncommitted candidate and is blocked
+  by the stale Slice 4 public-export regression oracle in
+  `tests/test_alignment_request.py::test_alignment_request_public_exports_are_exact`.
+- Focused gate: `71 passed`.
+- Regression gate: `248 passed, 1 failed, 1 skipped`.
+- Combined gate: `319 passed, 1 failed, 1 skipped`.
+- The public-export compatibility repair is authorized by
+  `baseline/phase2_slice5_implementation_scope_correction_report.md`.
+- Scope correction: `AUTHORIZED`.
+- The corrected implementation boundary is exactly
+  `engine/contracts/alignment_execution.py`,
+  `tests/test_alignment_execution.py`, `engine/contracts/__init__.py`, and
+  `tests/test_alignment_request.py`.
+- The candidate is not committed, remote closed, or accepted.
 - No runtime or provider execution is authorized.
 - No canonical timing result, failure artifact, or `AlignmentReport` is
   defined by the Slice 5 specification.
@@ -130,7 +139,7 @@ SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=YES
 SLICE5_IMPLEMENTATION_ALLOWED=YES
 IMPLEMENTATION_START_ALLOWED=YES
-SLICE5_IMPLEMENTATION_STATUS=NOT_STARTED
+SLICE5_IMPLEMENTATION_STATUS=BLOCKED_UNCOMMITTED_CANDIDATE
 SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
 PHASE2_CLOSED=NO
 ```
