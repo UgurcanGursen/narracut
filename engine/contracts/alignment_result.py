@@ -61,6 +61,19 @@ TIMING_ORIGIN_EVIDENCE_HASH_V1 = "TIMING-ORIGIN-EVIDENCE-HASH-V1"
 _RAW_MEDIA_TYPE = "application/vnd.kurgu.alignment-token-observation+json"
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
 _SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
+_FIXED_POINTERS = frozenset({
+    "/", "/adapter_execution", "/adapter_execution/mode",
+    "/adapter_execution/status", "/alignment_request",
+    "/alignment_result_hash", "/alignment_result_id", "/audio_artifact",
+    "/narration_document/current_revision_id", "/narration_document/document_id",
+    "/narration_document/project_id", "/narration_revision",
+    "/narration_revision/canonical_words", "/raw_package", "/raw_package/payload",
+    "/raw_package/payload/tokens", "/temporal_raw_package",
+    "/timing_origin_evidence", "/timing_origin_evidence/timing_origin_evidence_hash",
+    "/timing_origin_evidence/timing_origin_evidence_id", "/timing_source",
+    "/word_timings",
+})
+_INDEXED_POINTER = re.compile(r"^/(?:raw_package/payload/tokens|word_timings)/(?:0|[1-9][0-9]*)$")
 
 
 class AlignmentTimingSource(str, Enum):
@@ -146,7 +159,11 @@ class AlignmentResultContractError(ValueError):
         reason: AlignmentResultRejectionReason,
         issue_code: str | None = None,
     ) -> None:
-        if type(pointer) is not str or type(reason) is not AlignmentResultRejectionReason:
+        if (
+            type(pointer) is not str
+            or (pointer not in _FIXED_POINTERS and _INDEXED_POINTER.fullmatch(pointer) is None)
+            or type(reason) is not AlignmentResultRejectionReason
+        ):
             raise TypeError("invalid alignment result error construction")
         if issue_code is not None and (
             type(issue_code) is not str or issue_code not in STABLE_ISSUE_CODE_SET
@@ -236,8 +253,14 @@ _EVIDENCE_ALLOWLIST = MappingProxyType({_ALLOWLIST_KEY: (_GOLDEN_EVIDENCE, _GOLD
 _MATERIALIZED_TIMING_ORIGIN_EVIDENCE: dict[
     int, tuple[weakref.ReferenceType[TimingOriginEvidence], bytes, bytes]
 ] = {}
+_OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES: dict[
+    int, weakref.ReferenceType[TimingOriginEvidence]
+] = {}
 _MATERIALIZED_ALIGNMENT_RESULTS: dict[
     int, tuple[weakref.ReferenceType[AlignmentResult], bytes]
+] = {}
+_OWNED_ALIGNMENT_RESULT_REFERENCES: dict[
+    int, weakref.ReferenceType[AlignmentResult]
 ] = {}
 
 
@@ -356,24 +379,35 @@ def _register_evidence(value: TimingOriginEvidence, envelope: bytes, payload: by
         raise RuntimeError("timing evidence provenance collision")
     if old is not None and old[0]() is None:
         _MATERIALIZED_TIMING_ORIGIN_EVIDENCE.pop(key, None)
+        _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES.pop(key, None)
 
     def forget(reference: weakref.ReferenceType[TimingOriginEvidence]) -> None:
         current = _MATERIALIZED_TIMING_ORIGIN_EVIDENCE.get(key)
         if current is not None and current[0] is reference:
             _MATERIALIZED_TIMING_ORIGIN_EVIDENCE.pop(key, None)
+        if _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES.get(key) is reference:
+            _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES.pop(key, None)
 
     reference = weakref.ref(value, forget)
     entry = (reference, bytes(envelope), bytes(payload))
     try:
+        _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES[key] = reference
         _MATERIALIZED_TIMING_ORIGIN_EVIDENCE[key] = entry
         current = _MATERIALIZED_TIMING_ORIGIN_EVIDENCE.get(key)
-        if current is not entry or reference() is not value or any(
+        if (
+            current is not entry
+            or _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES.get(key) is not reference
+            or reference() is not value
+            or any(
             type(item) is not bytes for item in current[1:]
+            )
         ):
             raise RuntimeError("timing evidence provenance registration failed")
     except Exception:
         if _MATERIALIZED_TIMING_ORIGIN_EVIDENCE.get(key) is entry:
             _MATERIALIZED_TIMING_ORIGIN_EVIDENCE.pop(key, None)
+        if _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES.get(key) is reference:
+            _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES.pop(key, None)
         raise
 
 
@@ -541,7 +575,15 @@ def _preflight(
     if type(timing_origin_evidence) is not TimingOriginEvidence:
         raise TypeError("timing_origin_evidence must be a genuine exact dependency")
     entry = _MATERIALIZED_TIMING_ORIGIN_EVIDENCE.get(id(timing_origin_evidence))
-    if entry is None or entry[0]() is not timing_origin_evidence or type(entry[1]) is not bytes or type(entry[2]) is not bytes:
+    owner = _OWNED_TIMING_ORIGIN_EVIDENCE_REFERENCES.get(id(timing_origin_evidence))
+    if (
+        entry is None
+        or owner is None
+        or entry[0] is not owner
+        or owner() is not timing_origin_evidence
+        or type(entry[1]) is not bytes
+        or type(entry[2]) is not bytes
+    ):
         _reject("/timing_origin_evidence", AlignmentResultRejectionReason.TIMING_ORIGIN_EVIDENCE_INVALID, "REPLAY_HASH_MISMATCH")
     try:
         evidence_snapshot = _parse_json(entry[1], "/timing_origin_evidence")
@@ -727,8 +769,13 @@ def _divergence_issue(words: Any, spoken: list[dict[str, Any]]) -> str:
     for _ in range(len(keys) + len(raw) + 1):
         advanced = set(reachable)
         for wi, ri, merged in reachable:
-            if wi < len(keys) and ri < len(raw) and keys[wi] == raw[ri]:
-                advanced.add((wi + 1, ri + 1, merged))
+            combined_raw = ""
+            for raw_end in range(ri, len(raw)):
+                combined_raw += raw[raw_end]
+                if wi < len(keys) and combined_raw == keys[wi]:
+                    advanced.add((wi + 1, raw_end + 1, merged))
+                if wi >= len(keys) or len(combined_raw) >= len(keys[wi]):
+                    break
             for end in range(wi + 2, len(keys) + 1):
                 if ri < len(raw) and "".join(keys[wi:end]) == raw[ri]:
                     advanced.add((end, ri + 1, True))
@@ -838,16 +885,25 @@ def _register_result(value: AlignmentResult, envelope: bytes) -> None:
         current = _MATERIALIZED_ALIGNMENT_RESULTS.get(key)
         if current is not None and current[0] is reference:
             _MATERIALIZED_ALIGNMENT_RESULTS.pop(key, None)
+        if _OWNED_ALIGNMENT_RESULT_REFERENCES.get(key) is reference:
+            _OWNED_ALIGNMENT_RESULT_REFERENCES.pop(key, None)
 
     reference = weakref.ref(value, forget)
     entry = (reference, bytes(envelope))
     try:
+        _OWNED_ALIGNMENT_RESULT_REFERENCES[key] = reference
         _MATERIALIZED_ALIGNMENT_RESULTS[key] = entry
-        if _MATERIALIZED_ALIGNMENT_RESULTS.get(key) is not entry or reference() is not value:
+        if (
+            _MATERIALIZED_ALIGNMENT_RESULTS.get(key) is not entry
+            or _OWNED_ALIGNMENT_RESULT_REFERENCES.get(key) is not reference
+            or reference() is not value
+        ):
             raise RuntimeError("alignment result provenance registration failed")
     except Exception:
         if _MATERIALIZED_ALIGNMENT_RESULTS.get(key) is entry:
             _MATERIALIZED_ALIGNMENT_RESULTS.pop(key, None)
+        if _OWNED_ALIGNMENT_RESULT_REFERENCES.get(key) is reference:
+            _OWNED_ALIGNMENT_RESULT_REFERENCES.pop(key, None)
         raise
 
 
@@ -870,14 +926,14 @@ def _materialize(
     try:
         confidence = ConfidenceAvailability(data["confidence_availability"])
     except ValueError:
-        _reject("/confidence_availability", AlignmentResultRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM")
+        _reject("/", AlignmentResultRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM")
     if confidence is not preflight.confidence:
-        _reject("/confidence_availability", AlignmentResultRejectionReason.DEPENDENCY_BINDING_INVALID, "ALIGNMENT_REQUEST_IDENTITY_MISMATCH")
+        _reject("/", AlignmentResultRejectionReason.DEPENDENCY_BINDING_INVALID, "ALIGNMENT_REQUEST_IDENTITY_MISMATCH")
     if (
         confidence is ConfidenceAvailability.NOT_APPLICABLE
         and alignment_request.adapter_capability.confidence_output != "UNSUPPORTED"
     ):
-        _reject("/confidence_availability", AlignmentResultRejectionReason.CONFIDENCE_INVALID, "CONFIDENCE_REQUIRED_UNAVAILABLE")
+        _reject("/", AlignmentResultRejectionReason.CONFIDENCE_INVALID, "CONFIDENCE_REQUIRED_UNAVAILABLE")
     _bindings(data, temporal_raw_package=temporal_raw_package, narration_document=narration_document, narration_revision=narration_revision, audio_artifact=audio_artifact, alignment_request=alignment_request, adapter_execution=adapter_execution, timing_origin_evidence=timing_origin_evidence)
     if data["timing_source"] != AlignmentTimingSource.REPLAY_VERIFIED.value:
         _reject("/timing_source", AlignmentResultRejectionReason.TIMESTAMP_SOURCE_FORBIDDEN, "LLM_TIMESTAMP_SOURCE_FORBIDDEN")
@@ -948,8 +1004,15 @@ def load_alignment_result(
 
 def serialize_alignment_result(result: AlignmentResult) -> bytes:
     entry = _MATERIALIZED_ALIGNMENT_RESULTS.get(id(result))
-    if type(result) is not AlignmentResult or entry is None or entry[0]() is not result or type(entry[1]) is not bytes:
+    owner = _OWNED_ALIGNMENT_RESULT_REFERENCES.get(id(result))
+    if (
+        type(result) is not AlignmentResult
+        or owner is None
+        or owner() is not result
+    ):
         _reject("/", AlignmentResultRejectionReason.NOT_MATERIALIZED)
+    if entry is None or entry[0] is not owner or type(entry[1]) is not bytes:
+        _reject("/", AlignmentResultRejectionReason.CONTENT_DRIFT)
     try:
         _validate_current_result(result)
         current = _result_dict(result)

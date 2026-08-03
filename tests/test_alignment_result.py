@@ -383,6 +383,10 @@ def test_public_surface_is_exact_and_additive() -> None:
         "value", "temporal_raw_package", "narration_document", "narration_revision",
         "audio_artifact", "alignment_request", "adapter_execution", "timing_origin_evidence"
     ]
+    with pytest.raises(TypeError):
+        AlignmentResultContractError("/attacker/value", AlignmentResultRejectionReason.STRUCTURE_INVALID)
+    with pytest.raises(TypeError):
+        AlignmentResultContractError("/", AlignmentResultRejectionReason.STRUCTURE_INVALID, "NOT_CANONICAL")
 
 
 def test_golden_evidence_and_result_bytes_identity_and_loader() -> None:
@@ -494,6 +498,30 @@ def test_evidence_registry_owns_each_load_and_cleans_up() -> None:
             break
     assert reference() is None
     assert first_key not in result_contracts._MATERIALIZED_TIMING_ORIGIN_EVIDENCE
+
+
+def test_replaced_registry_tuples_do_not_transfer_provenance() -> None:
+    deps = _dependencies()
+    evidence = deps[-1]
+    evidence_key = id(evidence)
+    evidence_entry = result_contracts._MATERIALIZED_TIMING_ORIGIN_EVIDENCE[evidence_key]
+    result_contracts._MATERIALIZED_TIMING_ORIGIN_EVIDENCE[evidence_key] = (
+        weakref.ref(evidence), evidence_entry[1], evidence_entry[2]
+    )
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert exc.value.reason is AlignmentResultRejectionReason.TIMING_ORIGIN_EVIDENCE_INVALID
+
+    deps = _dependencies()
+    result = _materialize(_result_value(deps), deps)
+    result_key = id(result)
+    result_entry = result_contracts._MATERIALIZED_ALIGNMENT_RESULTS[result_key]
+    result_contracts._MATERIALIZED_ALIGNMENT_RESULTS[result_key] = (
+        weakref.ref(result), result_entry[1]
+    )
+    with pytest.raises(AlignmentResultContractError) as exc:
+        serialize_alignment_result(result)
+    assert exc.value.reason is AlignmentResultRejectionReason.CONTENT_DRIFT
 
 
 def test_non_replay_and_non_successful_executions_publish_nothing() -> None:
@@ -670,6 +698,23 @@ def test_zero_cover_diagnostics_are_closed(monkeypatch, mutate, issue) -> None:
     assert (exc.value.pointer, exc.value.reason, exc.value.issue_code) == (
         "/raw_package/payload/tokens", AlignmentResultRejectionReason.TRANSCRIPT_DIVERGENCE,
         issue,
+    )
+
+
+def test_precision_diagnostic_preserves_other_supported_split_edges(monkeypatch) -> None:
+    payload = json.loads(PAYLOAD_BYTES)
+    payload["tokens"] = [
+        {"index": 0, "kind": "SPOKEN", "normalized_alignment_text": "al", "start_ms": 100, "end_ms": 250, "confidence_millionths": 980000},
+        {"index": 1, "kind": "SPOKEN", "normalized_alignment_text": "pha", "start_ms": 260, "end_ms": 500, "confidence_millionths": 970000},
+        {"index": 2, "kind": "SPOKEN", "normalized_alignment_text": "betagamma", "start_ms": 520, "end_ms": 1700, "confidence_millionths": 940000},
+        {"index": 3, "kind": "SPOKEN", "normalized_alignment_text": "delta", "start_ms": 1720, "end_ms": 2300, "confidence_millionths": 920000},
+    ]
+    deps = _dynamic_dependencies(payload, monkeypatch)
+    with pytest.raises(AlignmentResultContractError) as exc:
+        _materialize(_result_value(deps), deps)
+    assert (exc.value.reason, exc.value.issue_code) == (
+        AlignmentResultRejectionReason.TRANSCRIPT_DIVERGENCE,
+        "ADAPTER_PRECISION_OVERSTATED",
     )
 
 
