@@ -15,10 +15,11 @@ Authority is limited to:
 - `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`;
 - the closed Slice 1-5 contracts and their accepted implementations.
 
-This revision repairs independent-audit findings F1-F5. It remains a candidate
-pending targeted independent read-only re-audit. It does not accept the
-specification, authorize implementation, assign a Slice number, or close
-Phase 2.
+This second correction preserves the closed F1 timing-pseudo-proof boundary
+and F3 mapping uniqueness proof and repairs the remaining targeted re-audit
+findings F2, F4, and F5. It remains a candidate pending final targeted
+independent read-only re-audit. It does not accept the specification,
+authorize implementation, assign a Slice number, or close Phase 2.
 
 ## 2. Bounded purpose
 
@@ -256,13 +257,43 @@ requires this exact tuple in the private immutable allowlist:
 Allowlist comparison uses all six values. The allowlist entry also owns the
 exact immutable canonical timing payload bytes printed in section 20; those
 bytes are not caller input and their digest and length MUST equal the last two
-tuple members. Only after all comparisons succeed is the frozen object
-constructed and registered. Direct construction, a copied object, or
-canonical bytes absent from this exact allowlist is not trusted. The private
-evidence registry stores `(weakref, exact canonical evidence envelope bytes,
-exact canonical timing payload bytes)` and verifies object identity and both
-immutable byte snapshots. No public API accepts replacement timing payload
-bytes.
+tuple members. Direct construction, a copied object, or canonical bytes absent
+from this exact allowlist is not trusted. No public API accepts replacement
+timing payload bytes.
+
+The module-local evidence registry has exact type:
+
+```text
+dict[int, tuple[weakref.ReferenceType[TimingOriginEvidence], bytes, bytes]]
+```
+
+The tuple is `(owned weakref, exact canonical evidence envelope bytes, exact
+canonical timing payload bytes)`. Importing or re-exporting the module creates
+the empty registry and immutable allowlist but registers nothing; import order
+cannot change either. Each successful load creates a new exact object and may
+register that independent object even when another live object was loaded from
+the same bytes.
+
+Registration is atomic and ordered: validate all source and allowlist values,
+construct the frozen object, rebuild and verify its projection/hash/ID and
+envelope, then inspect `id(object)`. A live entry at that key is an internal
+collision and raises sanitized `RuntimeError` without overwrite. A dead entry
+is removed only when its weakref is still the entry's owned weakref; this makes
+object-ID reuse safe. Insert exactly one tuple, immediately verify that its
+weakref resolves to the exact object and both byte snapshots are exact
+built-in `bytes`, and return only after verification. Any exception or false
+post-insert verification removes only that same owned tuple and leaves every
+other entry unchanged. The weakref cleanup callback likewise removes the entry
+only when the current tuple still contains that callback's owned weakref.
+
+There is no public evidence serializer. Every internal evidence reserialization
+and every result preflight requires exact type, a live identical registered
+object, exact current fields, rebuilt projection/hash/ID and envelope equality
+to the registry snapshot, and unchanged payload snapshot. A mutated object,
+stale/dead weakref, replaced tuple, altered envelope snapshot, or altered
+payload snapshot rejects at `/timing_origin_evidence` with
+`TIMING_ORIGIN_EVIDENCE_INVALID` / `REPLAY_HASH_MISMATCH`; no snapshot alone is
+treated as proof and no bytes are emitted.
 
 This bounded producer accepts only repository-owned committed fixture bytes.
 It makes no provider-authenticity claim. Adding another fixture or a trusted
@@ -347,52 +378,100 @@ never retains caller containers.
 
 ## 11. Exact dependency integrity preflight
 
-Before reading logical `value` or loader `source`, preflight checks these seven
-parameters in signature order. Wrong runtime type or absent genuine registry
-entry raises sanitized `TypeError`. For every genuine object, current content
-is then independently reserialized and its identity recomputed; registry
-membership alone is insufficient.
+The result materializer/loader performs one closed stage-2 preflight before
+reading logical `value` or result-loader `source`. Its substage order is
+normative.
 
-1. **Raw package:** read the actual `canonical_bytes` and `canonical_hash`
-   fields; require `canonical_bytes` to be exact built-in envelope bytes,
-   strict canonical parse and byte-identical re-encoding; recompute the
-   `sha256:` envelope hash and compare it to `canonical_hash`. Retrieve timing
-   payload bytes exclusively from the genuine
-   evidence registry snapshot, require exact built-in bytes, strict canonical
-   parse and byte-identical re-encoding, and recompute `sha256:` payload hash.
-   Canonically encode the raw envelope's `payload` member and require it to be
-   byte-identical to that private payload snapshot. The raw envelope
-   `payload_byte_hash`, evidence
-   `timing_payload_byte_hash`, allowlist payload digest/length, and recomputed
-   payload digest/length MUST all agree. No payload absent from the private
-   snapshot is accepted and no caller-supplied payload source exists.
+**2A - first-six genuineness and current content.** Check raw package,
+narration document, narration revision, audio artifact, alignment request, and
+adapter execution in signature order. Wrong runtime type or absent genuine
+registry entry raises sanitized `TypeError`. Independently reserialize current
+content; registry membership alone is insufficient. Save only immutable local
+bytes and recomputed values:
+
+1. **Raw package:** require actual `canonical_bytes` to be exact built-in
+   bytes, strict canonical parse and byte-identical re-encoding. Recompute the
+   prefixed canonical-envelope SHA-256 and compare it to actual stored
+   `canonical_hash`. Save the recomputed hash and canonically encoded payload.
 2. **Narration document:** encode exactly `schema_version`, `project_id`,
    `document_id`, `current_revision_id`, `language`, `locale`, `title`, and
-   thawed `extensions`; compute prefixed SHA-256 and compare to evidence
-   `narration_document_snapshot_hash`.
+   thawed `extensions`; save its prefixed SHA-256.
 3. **Narration revision:** reconstruct the accepted Slice 2 revision hash
-   projection from the actual fields `schema_version`, `hash_scope_version`,
+   projection from actual fields `schema_version`, `hash_scope_version`,
    `project_id`, `document_id`, `parent_revision_id`, `source_byte_hash`,
    `source_text`, `normalization_profile`, `text_tokens` without extensions,
    `canonical_words`, `sections` without extensions, and `lineage_manifest`.
-   Recompute prefixed revision hash and `narrev_` ID. Compare stored values and
-   evidence. Revision/document extensions remain outside revision identity as
-   required by Slice 2.
+   Recompute prefixed revision hash and `narrev_` ID and compare both stored
+   values. Revision/document extensions remain outside revision identity.
 4. **Audio artifact:** reconstruct the accepted Slice 3 projection from
    `schema_version`, `hash_scope_version`, project/document/revision identity
    fields, `media_byte_hash`, `logical_input`, and `decoded_metadata`;
-   `extensions` are excluded. Recompute prefixed hash and `aud_` ID and
-   compare stored values and evidence.
+   `extensions` are excluded. Recompute prefixed hash and `aud_` ID and compare
+   stored values.
 5. **Alignment request:** reconstruct the accepted Slice 4 projection from
    every field except request ID/hash; recompute bare hash and `arq_` ID and
-   compare stored values and evidence.
+   compare stored values.
 6. **Adapter execution:** reconstruct the accepted Slice 5 projection from
    every field except execution ID/hash; recompute bare hash and `aex_` ID and
-   compare stored values and evidence.
-7. **Timing-origin evidence:** re-encode every field, compare to its registry
-   evidence byte snapshot, recompute projection hash then ID, recompute
-   envelope digest and length, re-hash and remeasure its private timing payload
-   snapshot, and repeat exact six-value allowlist membership.
+   compare stored values.
+
+**2B - success state.** Inspect the revalidated genuine execution. `FAILED`
+or `BLOCKED` rejects immediately at `/adapter_execution/status` with
+`EXECUTION_NOT_SUCCESSFUL` / `ADAPTER_FAILURE`.
+
+**2C - REPLAY mode.** If execution mode is any value other than exact
+`REPLAY`, reject at `/adapter_execution/mode` with
+`TIMESTAMP_SOURCE_FORBIDDEN` / `LLM_TIMESTAMP_SOURCE_FORBIDDEN`. This single
+reachable row covers genuine successful `LOCAL`, `FREE_API`, `PAID_API`, and
+`MANUAL_UI` executions. For the surviving genuine `REPLAY` execution, require
+the revalidated request mode to be exact `REPLAY`, then capability mode to be
+exact `REPLAY`, then require request/capability/execution mode consistency.
+Thus exact mode-check order is execution mode, request mode, capability mode,
+consistency. Slice 4 and Slice 5 make an independent mismatch
+unmaterializable: altered fields already fail 2A content drift. Therefore no
+fictional standalone request-mode or capability-mode oracle row exists.
+
+Reachability witnesses use only accepted Slice 5 states: genuine
+`LOCAL/FAILED` reaches the FAILED row; genuine `FREE_API/BLOCKED` reaches the
+BLOCKED row; and genuine `LOCAL/SUCCEEDED`, `FREE_API/SUCCEEDED`,
+`PAID_API/SUCCEEDED` bound to its `FREE_API` request, and
+`MANUAL_UI/SUCCEEDED` each reach the one non-REPLAY execution-mode row. A
+genuine `REPLAY/SUCCEEDED` is the sole state that advances to 2D. No evidence
+object or allowlist comparison is read for any earlier rejection.
+
+**2D - timing-evidence registry provenance.** Only after 2B and 2C pass, check
+the timing-evidence parameter's exact type, live identical registry membership,
+and owned tuple. Independently validate the registry envelope and payload
+snapshots as exact canonical built-in bytes and repeat their digest/length and
+six-value allowlist checks. Do not yet trust or compare the live object's
+fields. The standalone evidence loader retains its own closed
+source-validation order, but invoking it does not publish a result.
+
+**2E - raw/evidence integrity join.** Decode
+`temporal_raw_package_hash` from the validated immutable registered
+evidence-envelope snapshot. Compare the 2A recomputed raw envelope hash against
+the package's stored `canonical_hash` and that registry-snapshot evidence
+field. Any inequality rejects at `/temporal_raw_package` with
+`DEPENDENCY_CONTENT_DRIFT` / `REPLAY_HASH_MISMATCH`, before general evidence
+binding or mapping. Thus coherent mutation of both raw `canonical_bytes` and
+stored `canonical_hash`, including a coordinated live-evidence mutation,
+cannot pass. Require the registered timing payload snapshot to be
+byte-identical to the saved raw payload; raw `payload_byte_hash` and the
+snapshot evidence payload hash plus allowlist/recomputed payload digest and
+length must all agree. No caller-supplied payload source exists.
+
+**2F - timing-evidence current content.** Re-encode every live field, compare
+the rebuilt envelope to the registry envelope snapshot, recompute projection
+hash then ID and envelope digest/length, and compare the live
+`temporal_raw_package_hash` and `timing_payload_byte_hash` to the already
+validated raw and payload values. Re-hash and remeasure the private payload
+snapshot. Any live-object or owned-snapshot drift rejects at
+`/timing_origin_evidence`; a raw mutation has already won at 2E.
+
+**2G - remaining evidence comparisons.** Compare the saved document snapshot
+hash and recomputed revision/audio/request/execution identities to both live
+evidence fields and immutable evidence-envelope snapshot fields. These
+comparisons cannot trust a live alias.
 
 The first content drift uses the parameter-order pointer:
 
@@ -406,13 +485,13 @@ The first content drift uses the parameter-order pointer:
 | adapter execution | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
 | timing evidence | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
 
-No mapping, status, payload, result identity, or canonical result bytes are
-computed before this preflight succeeds. Snapshots are immutable local values;
-no cached mutable projection or caller alias is trusted.
+No mapping, payload interpretation, result identity, or canonical result bytes
+are computed before this preflight succeeds. Snapshots are immutable local
+values; no cached mutable projection or caller alias is trusted.
 
 ## 12. Binding and success-only publication
 
-After integrity preflight, exact equalities are checked in this order:
+After stage 2 succeeds, exact equalities are checked in this order:
 
 | Order | Equality | Fixed pointer |
 |---:|---|---|
@@ -422,25 +501,20 @@ After integrity preflight, exact equalities are checked in this order:
 | 4 | audio project/document/revision ID/hash equal revision | `/audio_artifact` |
 | 5 | request project/document/raw/revision/audio identities equal dependencies | `/alignment_request` |
 | 6 | execution request ID/hash equal request | `/adapter_execution` |
-| 7 | evidence raw/payload/document/revision/audio/request/execution fields equal snapshots | `/timing_origin_evidence` |
-| 8 | declared result dependency/evidence identities equal dependencies | `/` |
+| 7 | declared result dependency/evidence identities equal dependencies | `/` |
 
-Rows 4-8 use their fixed containing pointer; attacker values never appear in
+Rows 4-7 use their fixed containing pointer; attacker values never appear in
 a pointer. Binding failure reason is `DEPENDENCY_BINDING_INVALID` and issue
-code is `ALIGNMENT_REQUEST_IDENTITY_MISMATCH`, except row 7 uses
-`REPLAY_INPUT_MISMATCH`.
+code is `ALIGNMENT_REQUEST_IDENTITY_MISMATCH`. Evidence-to-dependency
+comparisons are already complete in stage 2E-2G and are not repeated as an
+unreachable binding row.
 
-`adapter_execution.status` MUST be exact `SUCCEEDED`, and mode MUST be exact
-`REPLAY`. `FAILED` and `BLOCKED` publish nothing. `LOCAL`, `FREE_API`,
-`PAID_API`, and `MANUAL_UI` successful executions are deterministically
-rejected at `/adapter_execution/mode` with
-`TIMESTAMP_SOURCE_FORBIDDEN` / `LLM_TIMESTAMP_SOURCE_FORBIDDEN`. No mode is
-downgraded or translated to `REPLAY`.
-
-The request mode and capability mode MUST also be `REPLAY`. Execution replay
-evidence remains subject to the recomputed Slice 5 identity. Root
-`timing_source` MUST be `REPLAY_VERIFIED`; it is derived from the allowlisted
-evidence and not from raw payload text.
+Stage 2 has already required exact `SUCCEEDED/REPLAY` and exact REPLAY request
+and capability consistency. `FAILED` and `BLOCKED` publish nothing. No mode is
+downgraded or translated to `REPLAY`. Execution replay evidence remains
+subject to the recomputed Slice 5 identity. Root `timing_source` MUST be
+`REPLAY_VERIFIED`; it is derived from the allowlisted evidence and not from raw
+payload text.
 
 ## 13. Deterministic token-to-word mapping and uniqueness
 
@@ -634,13 +708,16 @@ No inventory delta or alias is introduced.
 
 First failing stage is authoritative:
 
-1. seven dependency type/genuineness checks in signature order;
-2. seven content-integrity recomputations in section 11 order;
+1. first-six dependency type/genuineness checks in signature order;
+2. section 11 substages 2A-2G exactly: first-six current-content integrity,
+   execution status, execution mode plus REPLAY consistency, timing-evidence
+   registry provenance, raw/evidence integrity join, timing-evidence current
+   content, then remaining evidence comparisons;
 3. loader bytes/UTF-8/JSON/canonical syntax when applicable;
 4. exact root dict/key set, unknown before missing;
 5. root field types, schema/hash-scope/confidence literals;
 6. section 12 intrinsic bindings;
-7. execution status, then exact REPLAY mode/source;
+7. exact `REPLAY_VERIFIED` result timing source;
 8. raw envelope/media/payload shape;
 9. raw payload fields and token list/items in array order;
 10. token index/time/confidence ordering and audio bounds;
@@ -654,6 +731,13 @@ First failing stage is authoritative:
 18. construction, re-encoding, atomic registration, snapshot verification.
 
 Exact oracle:
+
+The `evidence loader` rows below are the standalone
+`load_repository_timing_origin_evidence` source oracle. In a result
+materializer/loader call, a supplied evidence object is not inspected until
+stage 2D, after the reachable status and execution-mode rows. Table placement
+does not move standalone loader failures ahead of a result call's stage-2
+ordering.
 
 | Condition | Stage | Fixed pointer | Reason | Issue code |
 |---|---:|---|---|---|
@@ -671,26 +755,29 @@ Exact oracle:
 | evidence projection hash mismatches | evidence loader | `/timing_origin_evidence/timing_origin_evidence_hash` | `IDENTITY_MISMATCH` | `REPLAY_HASH_MISMATCH` |
 | evidence ID mismatches | evidence loader | `/timing_origin_evidence/timing_origin_evidence_id` | `IDENTITY_MISMATCH` | `REPLAY_HASH_MISMATCH` |
 | evidence is not the exact six-value allowlist member | evidence loader | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` |
-| raw package canonical content drifts | 2 | `/temporal_raw_package` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
-| raw package stored hash differs from recomputation | 2 | `/temporal_raw_package` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
-| narration document content drifts | 2 | `/narration_document` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| narration revision projection content drifts | 2 | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| narration revision stored hash differs from recomputation | 2 | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| narration revision stored ID differs from recomputation | 2 | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| audio artifact projection content drifts | 2 | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| audio artifact stored hash differs from recomputation | 2 | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| audio artifact stored ID differs from recomputation | 2 | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| alignment request projection content drifts | 2 | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| alignment request stored hash differs from recomputation | 2 | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| alignment request stored ID differs from recomputation | 2 | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| adapter execution projection content drifts | 2 | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
-| adapter execution stored hash differs from recomputation | 2 | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
-| adapter execution stored ID differs from recomputation | 2 | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
-| timing evidence projection content drifts | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
-| timing evidence stored hash differs from recomputation | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
-| timing evidence stored ID differs from recomputation | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
-| timing evidence envelope differs from its registry snapshot | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
-| timing payload differs from its registry snapshot | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| raw package canonical bytes are not canonical or byte-identically re-encodable | 2A | `/temporal_raw_package` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| raw recomputed envelope hash differs from stored hash or registry-snapshot evidence hash | 2A/2E | `/temporal_raw_package` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| narration document content drifts | 2A/2G | `/narration_document` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| narration revision projection content drifts | 2A | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| narration revision stored hash differs from recomputation | 2A | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| narration revision stored ID differs from recomputation | 2A | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio artifact projection content drifts | 2A | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio artifact stored hash differs from recomputation | 2A | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio artifact stored ID differs from recomputation | 2A | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| alignment request projection content drifts | 2A | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| alignment request stored hash differs from recomputation | 2A | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| alignment request stored ID differs from recomputation | 2A | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| adapter execution projection content drifts | 2A | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| adapter execution stored hash differs from recomputation | 2A | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| adapter execution stored ID differs from recomputation | 2A | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| execution status is FAILED | 2B | `/adapter_execution/status` | `EXECUTION_NOT_SUCCESSFUL` | `ADAPTER_FAILURE` |
+| execution status is BLOCKED | 2B | `/adapter_execution/status` | `EXECUTION_NOT_SUCCESSFUL` | `ADAPTER_FAILURE` |
+| successful execution mode is not REPLAY | 2C | `/adapter_execution/mode` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
+| timing evidence projection content drifts | 2F | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing evidence stored hash differs from recomputation | 2F | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing evidence stored ID differs from recomputation | 2F | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing evidence envelope differs from its registry snapshot | 2F | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing payload differs from its registry snapshot | 2D/2F | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
 | result source type is not exact built-in bytes | 3 | `/` | `STRUCTURE_INVALID` | `None` |
 | result source is invalid UTF-8 | 3 | `/` | `STRUCTURE_INVALID` | `None` |
 | result source is malformed JSON | 3 | `/` | `STRUCTURE_INVALID` | `None` |
@@ -709,13 +796,7 @@ Exact oracle:
 | audio binding differs from revision | 6 | `/audio_artifact` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
 | request binding differs from its dependencies | 6 | `/alignment_request` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
 | execution binding differs from request | 6 | `/adapter_execution` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| evidence binding differs from dependency snapshots | 6 | `/timing_origin_evidence` | `DEPENDENCY_BINDING_INVALID` | `REPLAY_INPUT_MISMATCH` |
 | declared result binding differs from its dependencies | 6 | `/` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| execution status is FAILED | 7 | `/adapter_execution/status` | `EXECUTION_NOT_SUCCESSFUL` | `ADAPTER_FAILURE` |
-| execution status is BLOCKED | 7 | `/adapter_execution/status` | `EXECUTION_NOT_SUCCESSFUL` | `ADAPTER_FAILURE` |
-| execution mode is not REPLAY | 7 | `/adapter_execution/mode` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
-| request mode is not REPLAY | 7 | `/alignment_request/mode` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
-| capability mode is not REPLAY | 7 | `/alignment_request/adapter_capability/mode` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
 | result timing source is not REPLAY_VERIFIED | 7 | `/timing_source` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
 | raw envelope media type is not the exact observation media type | 8 | `/raw_package` | `RAW_OBSERVATION_INVALID` | `None` |
 | private timing payload snapshot is not valid canonical JSON | 8 | `/raw_package/payload` | `RAW_OBSERVATION_INVALID` | `None` |
@@ -794,7 +875,44 @@ nword_d81fe913754f8b49c296 delta
 ```
 
 2. Generate PCM WAVE: 8000 Hz, one channel, 32000 frames, little-endian S16,
-sample `((frame * 257 + 12345) % 65536) - 32768`.
+sample `((frame * 257 + 12345) % 65536) - 32768`. Use the exact 44-byte
+RIFF/WAVE layout: `RIFF` size `64036`, `WAVE`, one `fmt ` chunk of length 16,
+audio format 1, channel count 1, sample rate 8000, byte rate 16000, block align
+2, bits per sample 16, followed immediately by `data` length `64000` and the
+samples.
+
+The exact `AudioArtifactMaterializationInput` logical root is:
+
+```json
+{"declared_channel_count":1,"declared_media_byte_hash":"sha256:913d5cfe5fb72e8586b42cee742d3bea4da16d3e97fb158835d4cd060ae3bd72","declared_sample_frame_count":32000,"declared_sample_rate_hz":8000,"document_id":"nardoc_fx34","extensions":{},"logical_input":{"kind":"LOCAL_FILE","logical_path":"audio/narration.wav","schema_version":"SECURE-AUDIO-INPUT-V1"},"narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","project_id":"prj_fx34","schema_version":"AUDIO-ARTIFACT-INPUT-V1"}
+```
+
+Use `NarrationRevisionBinding.from_validated_revision` on the exact genuine
+FX-34 revision. The test-only runtime root is
+`TrustedRootReference(canonical_absolute_root="C:/trusted/root")`. Its existing
+Slice 3-authorized fixture reader receives validated logical segments exactly
+`("audio", "narration.wav")` and returns the generated bytes in a
+`SecureAudioSnapshot`. Both its open and reverify evidence have exactly:
+
+```text
+initial_root_identity=root_identity
+final_root_identity=root_identity
+initial_file_identity=file_identity
+final_file_identity=file_identity
+initial_byte_length=64044
+final_byte_length=64044
+containment_before=true
+containment_after=true
+reparse_component_seen=false
+snapshot_media_byte_hash=sha256:913d5cfe5fb72e8586b42cee742d3bea4da16d3e97fb158835d4cd060ae3bd72
+final_same_object_media_byte_hash=sha256:913d5cfe5fb72e8586b42cee742d3bea4da16d3e97fb158835d4cd060ae3bd72
+object_replacement_observed=false
+final_read_byte_length=64044
+```
+
+No runtime field is defaulted. The trusted-root and secure-open evidence are
+materialization prerequisites but are correctly excluded from AudioArtifact
+identity; the exact `logical_input` above is included in that identity.
 
 ```text
 file length=64044
@@ -804,6 +922,12 @@ audio hash=sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d9
 duration_us_numerator=4000000
 duration_us_denominator=1
 ```
+
+Changing only `logical_path` to `audio/alignment_result_fx01.wav` while keeping
+the same bytes and metadata produces non-golden
+`audio_artifact_hash=sha256:9da08c7f72d0cb3fc2b45c66bbc7d65831c9394d699d00bc1033a2c6be6e3c79`
+and `audio_artifact_id=aud_9da08c7f72d0cb3fc2b4`; it cannot satisfy the
+allowlist or any downstream golden binding.
 
 3. Exact raw root inputs:
 
@@ -924,16 +1048,24 @@ The focused module MUST cover:
 - exact constants, enums, dataclass fields/order/types, signatures, exports,
   and forbidden exports;
 - exact evidence allowlist membership, canonical bytes, hash/ID, direct
-  construction/copy/proxy rejection, and no runtime allowlist extension;
+  construction/copy/proxy rejection, no runtime allowlist extension, and the
+  exact owned-weakref duplicate/stale-ID/cleanup/rollback/import-order rules;
 - the complete FX-ALR-01 construction including exact run/raw IDs, source
-  LOCAL lineage, REPLAY lineage, all bytes, lengths, hashes, and IDs;
+  LOCAL lineage, REPLAY lineage, exact audio logical input and secure fixture
+  evidence, all bytes, lengths, hashes, and IDs; changing only audio
+  `logical_path` must produce the stated non-golden identity and fail binding;
 - caller-authored arbitrary valid milliseconds through genuine Slice 1-5
   public materializers rejected because evidence raw/payload/execution binding
   does not match;
-- rejection of LOCAL/FREE_API/PAID_API/MANUAL_UI publication, every
-  FAILED/BLOCKED state, mode downgrade, and former `ADAPTER_MEASURED` input;
+- actual-valid `FAILED` and `BLOCKED` executions reaching the exact status row
+  before evidence inspection; actual-valid successful LOCAL/FREE_API/PAID_API/
+  MANUAL_UI executions reaching the single exact execution-mode row; no
+  fictional request/capability mode row; mode downgrade and former
+  `ADAPTER_MEASURED` input remain rejected;
 - mutation via `object.__setattr__` for every dependency and evidence;
-  recomputation must reject the first drift pointer before logical input;
+  coherent raw bytes/hash mutation must reject at `/temporal_raw_package`
+  against the immutable evidence-envelope hash before general binding or
+  logical input; recomputation must reject every other first drift pointer;
 - result ordinary/coherent mutation, nested replacement, copy/deepcopy,
   pickle/replace/direct/new/subclass/proxy and serializer snapshot checks;
 - exact one-to-one and one-word-to-many-token mapping, repeated words,
@@ -985,6 +1117,6 @@ SPECIFICATION_STATUS=CANDIDATE
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
 PHASE2_CLOSED=NO
-INDEPENDENT_AUDIT_FINDINGS_F1_F5=REPAIRED_PENDING_TARGETED_REAUDIT
-NEXT_REQUIRED_GATE=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
+INDEPENDENT_AUDIT_FINDINGS_F1_F5=SECOND_CORRECTION_PENDING_FINAL_TARGETED_REAUDIT
+NEXT_REQUIRED_GATE=FINAL_TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
 ```
