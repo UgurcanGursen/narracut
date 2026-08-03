@@ -110,15 +110,18 @@ General status: IN_PROGRESS / NOT CLOSED
 | Slice 4 canonical AlignmentRequest contract | SATISFIED / REMOTE CLOSED | `2af9778de57f692f698a356f330b3bf3ede11106`; `origin/main=d32e66585d660bc3e37a1896dbb7df050a8bc849` |
 | Slice 4 mutation-resistance hardening | SATISFIED | `d32e66585d660bc3e37a1896dbb7df050a8bc849`; independent closure re-audit PASS |
 | Slice 4 golden oracle | SATISFIED | projection 1034 bytes / `bfd2a97af22b1f105c2ebe9356ce2fe684b0add89be14fea09e6b21cfbe54e51`; envelope 1188 bytes / `b2b0d24b02932b90c315bae348071aba2d3295d1f8d12281feb9f100e8a8ea45` |
-| Phase 2 overall acceptance | NOT YET EVALUATED / NOT CLOSED | Slice 1-4 do not establish overall Phase 2 closure |
+| Phase 2 overall acceptance | OPEN / NOT CLOSED | Completed Slice 1-5 evidence requires post-Slice-5 reconciliation against the Master Roadmap Phase 2 criteria |
 | Total Phase 2 Slice decomposition | NOT RECONCILED | The remote-closed scope report does not establish a total Slice count |
 | Post-Slice-4 scope reconciliation closure | SATISFIED / REMOTE CLOSED | `baseline/phase2_post_slice4_scope_report.md`; commit `f89e10156a940016deef4e94b6aef8863837dbf6`; parent `47727dbcbf2fdbdc6334b04bdfea7b3c1f7f6878`; subject `docs: reconcile phase 2 post-slice-4 scope`; SHA-256 `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f` |
 | Slice 5 specification-path decision | SATISFIED / REMOTE CLOSED | `baseline/phase2_slice5_specification_path_decision_report.md`; commit `d61500d861762bb6215e0f3041c144e25ea10752`; parent `013c154f0612d7e45e4411656d033372a3241f34`; subject `docs: add slice 5 specification path decision`; SHA-256 `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`; byte length `5668` |
 | Slice 5 corrected specification | ACCEPT / REMOTE CLOSED / RE-AUDIT PASS | `baseline/phase2_slice5_specification_acceptance_decision_report.md`; specification `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`; commit `e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`; SHA-256 `e6de8c1cdf52498a8e5c657962e48fc9915f58065621c8cb586c0c213ab7d71f`; byte length `104240`; corrected-specification re-audit `0 BLOCKER / 0 MAJOR / 0 MINOR` |
 | Slice 5 implementation authorization | AUTHORIZE / DOCUMENTATION REMOTE CLOSED | `baseline/phase2_slice5_implementation_authorization_decision_report.md`; original three-path boundary |
 | Slice 5 implementation scope correction | AUTHORIZED | `baseline/phase2_slice5_implementation_scope_correction_report.md`; added path `tests/test_alignment_request.py`; corrected boundary is exactly four paths |
-| Slice 5 implementation candidate | BLOCKED_UNCOMMITTED_CANDIDATE | Focused `71 passed`; regression `248 passed, 1 failed, 1 skipped`; combined `319 passed, 1 failed, 1 skipped`; failing test `tests/test_alignment_request.py::test_alignment_request_public_exports_are_exact` |
-| Slice 5 implementation acceptance | OPEN | Candidate is not committed, remote closed, audited, or accepted |
+| Slice 5 implementation | ACCEPT / REMOTE CLOSED | Implementation `9cdf8de75ab1d51fd39e0dba303fd5bb06f553a4`; repair `8120cb8907eb539b3d724749eba1cd084b8ddf84`; exact corrected four-path boundary |
+| Slice 5 tests | PASS | Focused `129 passed`; regression `249 passed, 1 skipped`; combined `378 passed, 1 skipped`; targeted repair `18 passed`; independent pointer probes `13 passed` |
+| Slice 5 original implementation audit | FIX_REQUIRED / RESOLVED | `S5-IMPL-AUD-001` BLOCKER -> CLOSED; `S5-IMPL-AUD-002` MAJOR -> CLOSED |
+| Slice 5 targeted implementation re-audit | PASS | Findings BLOCKER=0 / MAJOR=0 / MINOR=0 / INFO=0 |
+| Slice 5 management status | CLOSED / REMOTE CLOSED | Implementation acceptance documentation synchronization is normally pushed and remote closed |
 
 The corrected Slice 5 implementation boundary is exactly:
 
@@ -206,9 +209,10 @@ Acceptance does not grant implementation authorization.
 
 The separate implementation-authorization decision is AUTHORIZE. The bounded
 scope correction adds only `tests/test_alignment_request.py` for the exact
-public-export oracle compatibility repair. The implementation candidate is
-blocked and uncommitted; implementation acceptance and Phase 2 overall
-acceptance remain open.
+public-export oracle compatibility repair. The implementation and subsequent
+audit repair are remote closed. The independent targeted re-audit passed, both
+implementation findings are CLOSED, and the bounded implementation acceptance
+decision is ACCEPT. Phase 2 overall acceptance remains open.
 
 Slice 1-3 production implementations and focused test files exist, and their
 implementation and hardening commits are `origin/main` ancestors. The bounded
@@ -226,10 +230,46 @@ SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=YES
 SLICE5_IMPLEMENTATION_ALLOWED=YES
 IMPLEMENTATION_START_ALLOWED=YES
-SLICE5_IMPLEMENTATION_STATUS=BLOCKED_UNCOMMITTED_CANDIDATE
-SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
+SLICE5_IMPLEMENTATION_STATUS=CLOSED
+SLICE5_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+SLICE5_IMPLEMENTATION_ACCEPTED=YES
+SLICE5_STATUS=CLOSED
+SLICE5_REMOTE_CLOSED=YES
 PHASE2_CLOSED=NO
+POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 ```
+
+### Slice 5 implementation acceptance and closure evidence
+
+- Acceptance report:
+  `baseline/phase2_slice5_implementation_acceptance_decision_report.md`.
+- Implementation commit:
+  `9cdf8de75ab1d51fd39e0dba303fd5bb06f553a4`.
+- Implementation parent:
+  `ea031dfdf6bf82ff1aab3a78fd5e1e0af79baa68`.
+- Implementation subject: `feat: implement phase 2 slice 5 adapter execution`.
+- Audit-repair commit:
+  `8120cb8907eb539b3d724749eba1cd084b8ddf84`.
+- Repair parent:
+  `9cdf8de75ab1d51fd39e0dba303fd5bb06f553a4`.
+- Repair subject: `fix: close phase 2 slice 5 implementation audit findings`.
+- Corrected implementation boundary: exactly four paths listed above.
+- Focused gate: `129 passed`.
+- Regression gate: `249 passed, 1 skipped`.
+- Combined gate: `378 passed, 1 skipped`.
+- Original implementation audit: `FIX_REQUIRED`.
+- `S5-IMPL-AUD-001`: `CLOSED`.
+- `S5-IMPL-AUD-002`: `CLOSED`.
+- Targeted implementation re-audit: `PASS`.
+- Final findings: BLOCKER=0 / MAJOR=0 / MINOR=0 / INFO=0.
+- Final implementation acceptance decision: `ACCEPT`.
+
+This evidence closes only the bounded Slice 5 immutable AdapterExecution
+provenance implementation. It does not establish provider execution,
+canonical WordTiming results, AlignmentResult, AlignmentReport, failure
+artifacts, renderer or EDL integration, production readiness, or Phase 2
+overall acceptance. Post-Slice-5 scope reconciliation remains required.
 
 ### Master Roadmap Phase 2 acceptance reconciliation
 
@@ -242,6 +282,6 @@ PHASE2_CLOSED=NO
 | Low confidence is explicitly reported | PENDING_RECONCILIATION |
 | LLM does not generate manual seconds | PENDING_RECONCILIATION |
 
-Phase 2 Slice 1–4 are Phase 2 work items. Slice 4 is remote closed. Phase 2
-overall is not proven closed, and no next production Slice is authorized by
-this reconciliation.
+Phase 2 Slice 1-5 are completed bounded work items. Slice 5 is CLOSED / REMOTE
+CLOSED. Phase 2 overall is not proven closed, and no next implementation is
+authorized before post-Slice-5 scope reconciliation.

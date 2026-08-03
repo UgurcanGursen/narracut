@@ -1,5 +1,44 @@
 # Changelog
 
+## 2026-08-03 - Phase 2 Slice 5 implementation acceptance closure
+
+- Accepted the bounded immutable AdapterExecution provenance implementation.
+- Acceptance report:
+  `baseline/phase2_slice5_implementation_acceptance_decision_report.md`.
+- Implementation commit:
+  `9cdf8de75ab1d51fd39e0dba303fd5bb06f553a4`.
+- Audit-repair commit:
+  `8120cb8907eb539b3d724749eba1cd084b8ddf84`.
+- The accepted implementation boundary is exactly
+  `engine/contracts/alignment_execution.py`, `engine/contracts/__init__.py`,
+  `tests/test_alignment_execution.py`, and `tests/test_alignment_request.py`.
+- Final evidence: focused `129 passed`; regression `249 passed, 1 skipped`;
+  combined `378 passed, 1 skipped`; targeted repair `18 passed`; independent
+  pointer probes `13 passed`.
+- Original implementation audit: `FIX_REQUIRED`.
+- `S5-IMPL-AUD-001`: BLOCKER -> CLOSED.
+- `S5-IMPL-AUD-002`: MAJOR -> CLOSED.
+- Independent targeted re-audit: PASS with 0 BLOCKER / 0 MAJOR / 0 MINOR /
+  0 INFO findings.
+- Final implementation acceptance decision: `ACCEPT`.
+- Slice 5 is CLOSED / REMOTE CLOSED after this documentation synchronization
+  commit is normally pushed.
+- Acceptance does not claim provider/runtime execution, canonical timing
+  results, downstream result/report artifacts, renderer or EDL integration,
+  database/cache behavior, or production readiness.
+- Phase 2 remains IN_PROGRESS / NOT CLOSED.
+- The next authoritative task is read-only post-Slice-5 scope reconciliation;
+  no next implementation is authorized.
+
+```text
+SLICE5_IMPLEMENTATION_ACCEPTED=YES
+SLICE5_STATUS=CLOSED
+SLICE5_REMOTE_CLOSED=YES
+PHASE2_CLOSED=NO
+POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+```
+
 ## 2026-08-03 - Phase 2 Slice 5 implementation scope correction
 
 - Recorded the uncommitted Slice 5 candidate and focused gate `71 passed`.

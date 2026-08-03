@@ -86,21 +86,34 @@ the external decision record
 Bounded implementation is authorized by
 `baseline/phase2_slice5_implementation_authorization_decision_report.md`.
 
-The first bounded implementation attempt produced an uncommitted candidate.
-Its focused gate passed, but prerequisite and combined gates exposed a stale
-Slice 4 public-export oracle. The bounded correction is authorized by
-`baseline/phase2_slice5_implementation_scope_correction_report.md`.
+The bounded implementation, its authorized export-oracle compatibility
+change, and the subsequent audit repair are committed and remote closed. The
+implementation acceptance decision is recorded by
+`baseline/phase2_slice5_implementation_acceptance_decision_report.md`.
 
-- Slice 5 implementation status: `BLOCKED_UNCOMMITTED_CANDIDATE`.
-- Focused gate: `71 passed`.
-- Regression gate: `248 passed, 1 failed, 1 skipped`.
-- Combined gate: `319 passed, 1 failed, 1 skipped`.
-- Exact failing test:
-  `tests/test_alignment_request.py::test_alignment_request_public_exports_are_exact`.
-- Scope correction: `AUTHORIZED`.
-- Added authorized path: `tests/test_alignment_request.py`.
-- Implementation acceptance: `OPEN`.
-- Phase 2 closed: `NO`.
+- Slice 5 implementation commit:
+  `9cdf8de75ab1d51fd39e0dba303fd5bb06f553a4`.
+- Implementation parent:
+  `ea031dfdf6bf82ff1aab3a78fd5e1e0af79baa68`.
+- Implementation subject: `feat: implement phase 2 slice 5 adapter execution`.
+- Audit-repair commit:
+  `8120cb8907eb539b3d724749eba1cd084b8ddf84`.
+- Repair parent:
+  `9cdf8de75ab1d51fd39e0dba303fd5bb06f553a4`.
+- Repair subject: `fix: close phase 2 slice 5 implementation audit findings`.
+- Original implementation audit: `FIX_REQUIRED`.
+- `S5-IMPL-AUD-001`: `CLOSED`.
+- `S5-IMPL-AUD-002`: `CLOSED`.
+- Targeted implementation re-audit: `PASS`.
+- Final findings: BLOCKER=0 / MAJOR=0 / MINOR=0 / INFO=0.
+- Focused gate: `129 passed`.
+- Regression gate: `249 passed, 1 skipped`.
+- Combined gate: `378 passed, 1 skipped`.
+- Targeted repair tests: `18 passed`.
+- Independent pointer probes: `13 passed`.
+- Slice 5 implementation: `IMPLEMENTED / ACCEPTED / REMOTE CLOSED`.
+- Slice 5 management status after this documentation remote closure: `CLOSED`.
+- Phase 2: `IN_PROGRESS / NOT CLOSED`.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -122,11 +135,11 @@ Slice 4 public-export oracle. The bounded correction is authorized by
 - Embedded historical acceptance field: `Accepted: No` (unchanged)
 - External specification acceptance decision: ACCEPT
 - Specification accepted: YES
-- Specification implementation: BLOCKED / UNCOMMITTED CANDIDATE
+- Specification implementation: IMPLEMENTED / ACCEPTED / REMOTE CLOSED
 - Implementation authorization decision: AUTHORIZE
 - Implementation authorization: YES
-- Implementation status: BLOCKED_UNCOMMITTED_CANDIDATE
-- Implementation acceptance: OPEN
+- Implementation status: CLOSED / REMOTE CLOSED
+- Implementation acceptance: ACCEPT
 - Bounded implementation allowed only after authorization documentation
   remote closure: YES
 - Phase 2: IN_PROGRESS / NOT CLOSED
@@ -162,9 +175,14 @@ SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=YES
 SLICE5_IMPLEMENTATION_ALLOWED=YES
 IMPLEMENTATION_START_ALLOWED=YES
-SLICE5_IMPLEMENTATION_STATUS=BLOCKED_UNCOMMITTED_CANDIDATE
-SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
+SLICE5_IMPLEMENTATION_STATUS=CLOSED
+SLICE5_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+SLICE5_IMPLEMENTATION_ACCEPTED=YES
+SLICE5_STATUS=CLOSED
+SLICE5_REMOTE_CLOSED=YES
 PHASE2_CLOSED=NO
+POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 ```
 
 Post-Slice-4 scope reconciliation is remote closed.
@@ -244,19 +262,20 @@ supports the following bounded status:
   `d32e66585d660bc3e37a1896dbb7df050a8bc849`.
 
 Phase 2 overall is not CLOSED. The total official Phase 2 Slice count is not
-reconciled. No Phase 2 completion percentage is claimed. A Slice 5 candidate
-exists only in the uncommitted worktree; it is blocked pending the authorized
-export-oracle compatibility repair and is not accepted or remote closed.
+reconciled. No Phase 2 completion percentage is claimed. Slice 5 is CLOSED /
+REMOTE CLOSED within its bounded immutable `AdapterExecution` provenance
+scope. This does not establish provider execution, downstream canonical
+timing results, renderer integration, production readiness, or Phase 2
+overall acceptance.
 
 ## Current next move
 
-Resume the Phase 2 Slice 5 bounded implementation with only the authorized
-`tests/test_alignment_request.py` export-oracle compatibility repair, rerun all
-three gates, then commit and push only the exact four implementation paths.
-The accepted specification bytes and all unrelated Slice 4 tests remain
-unchanged. Slice 5 implementation acceptance is OPEN. Phase 2 remains in
-progress and open; total Slice count is UNKNOWN and completion percentage is
-NOT_STATED.
+Perform a read-only Phase 2 post-Slice-5 scope reconciliation and next
+bounded-task decision. Reconcile completed Slice 1-5 evidence against the
+Master Roadmap Phase 2 deliverables and acceptance criteria, without inventing
+a Slice name, authorizing another implementation, closing Phase 2, or stating
+a total Slice count or completion percentage without authoritative evidence.
+No next implementation is currently authorized.
 
 ## Phase 1 closure references
 

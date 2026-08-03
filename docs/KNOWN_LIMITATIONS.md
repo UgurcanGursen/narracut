@@ -94,12 +94,6 @@ Son guncelleme: 3 Agustos 2026
   metadata and remains byte-for-byte unchanged.
 - Slice 5 bounded implementation authorization is granted by
   `baseline/phase2_slice5_implementation_authorization_decision_report.md`.
-- The bounded implementation produced an uncommitted candidate and is blocked
-  by the stale Slice 4 public-export regression oracle in
-  `tests/test_alignment_request.py::test_alignment_request_public_exports_are_exact`.
-- Focused gate: `71 passed`.
-- Regression gate: `248 passed, 1 failed, 1 skipped`.
-- Combined gate: `319 passed, 1 failed, 1 skipped`.
 - The public-export compatibility repair is authorized by
   `baseline/phase2_slice5_implementation_scope_correction_report.md`.
 - Scope correction: `AUTHORIZED`.
@@ -107,13 +101,30 @@ Son guncelleme: 3 Agustos 2026
   `engine/contracts/alignment_execution.py`,
   `tests/test_alignment_execution.py`, `engine/contracts/__init__.py`, and
   `tests/test_alignment_request.py`.
-- The candidate is not committed, remote closed, or accepted.
-- No runtime or provider execution is authorized.
+- The bounded AdapterExecution implementation is accepted and remote closed.
+- Implementation commit:
+  `9cdf8de75ab1d51fd39e0dba303fd5bb06f553a4`.
+- Audit-repair commit:
+  `8120cb8907eb539b3d724749eba1cd084b8ddf84`.
+- Original implementation audit: `FIX_REQUIRED`.
+- `S5-IMPL-AUD-001`: BLOCKER -> CLOSED.
+- `S5-IMPL-AUD-002`: MAJOR -> CLOSED.
+- Targeted re-audit: PASS with 0 BLOCKER / 0 MAJOR / 0 MINOR / 0 INFO.
+- Final test evidence: focused `129 passed`; regression `249 passed, 1
+  skipped`; combined `378 passed, 1 skipped`; targeted repair `18 passed`;
+  independent pointer probes `13 passed`.
+- Slice 5 is CLOSED / REMOTE CLOSED after the implementation acceptance
+  documentation commit is pushed.
+- No runtime or provider execution is claimed.
 - No canonical timing result, failure artifact, or `AlignmentReport` is
   defined by the Slice 5 specification.
+- No renderer integration, production readiness, database/cache behavior,
+  retry/queue orchestration, or paid-provider invocation is claimed.
 - Phase 2 overall closure is not established.
 - The total official Phase 2 Slice count is not reconciled.
 - No Phase 2 completion percentage is claimed.
+- Post-Slice-5 scope reconciliation is required before selecting or
+  authorizing another implementation task.
 - The Slice 1-3 historical focused-test evidence gap is closed by the bounded
   read-only closure reconciliation: Slice 1 `47 passed`, Slice 2 `150 passed`,
   and Slice 3 `84 passed`, for `281 passed` total.
@@ -124,13 +135,10 @@ Son guncelleme: 3 Agustos 2026
   classification and evidence blocker no longer apply.
 - The corrected Slice 5 specification itself has zero open audit findings.
 - Downstream canonical timing deliverables are not proven complete.
-- Specification acceptance does not prove implementation, integration,
-  provider execution, runtime behavior, timing correctness, renderer
-  correctness, performance, or production readiness.
-- Implementation authorization does not prove the contract, focused tests,
-  runtime behavior, provider execution, timing results, integration,
-  performance, or production readiness. Implementation acceptance remains
-  OPEN.
+- Slice 5 acceptance proves only its bounded immutable AdapterExecution
+  provenance contract. It does not prove provider execution, runtime timing
+  correctness, downstream result artifacts, renderer behavior, performance,
+  or production readiness.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
@@ -139,9 +147,14 @@ SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=YES
 SLICE5_IMPLEMENTATION_ALLOWED=YES
 IMPLEMENTATION_START_ALLOWED=YES
-SLICE5_IMPLEMENTATION_STATUS=BLOCKED_UNCOMMITTED_CANDIDATE
-SLICE5_IMPLEMENTATION_ACCEPTANCE=OPEN
+SLICE5_IMPLEMENTATION_STATUS=CLOSED
+SLICE5_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+SLICE5_IMPLEMENTATION_ACCEPTED=YES
+SLICE5_STATUS=CLOSED
+SLICE5_REMOTE_CLOSED=YES
 PHASE2_CLOSED=NO
+POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 ```
 
 ## Environment and test limitations
