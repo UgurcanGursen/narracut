@@ -1,6 +1,6 @@
 # Phase 2 Canonical Successful Alignment Word-Timing Result Contract
 
-## 1. Status and authority
+## 1. Status, authority, and repair state
 
 ```text
 Status: Candidate specification
@@ -15,97 +15,99 @@ Authority is limited to:
 - `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`;
 - the closed Slice 1-5 contracts and their accepted implementations.
 
-This candidate owns a domain-agnostic core contract. It does not change any
-closed upstream contract. Later acceptance and a separate implementation
-authorization decision are mandatory.
+This revision repairs independent-audit findings F1-F5. It remains a candidate
+pending targeted independent read-only re-audit. It does not accept the
+specification, authorize implementation, assign a Slice number, or close
+Phase 2.
 
 ## 2. Bounded purpose
 
-This contract defines one immutable, successful alignment result whose
-canonical word timings are derived from a genuine temporal raw package and
-bound to genuine closed Slice 1-5 objects. It defines:
+This contract defines one immutable successful alignment result and one
+repository-owned timing-origin evidence boundary. In this bounded revision,
+publication is intentionally limited to an exact allowlisted `REPLAY` fixture.
+It defines:
 
 - deterministic raw alignment-token to canonical narration `word_id` mapping;
 - integer millisecond `WordTiming` values;
 - confidence availability and fixed-point confidence values;
 - complete coverage, ordering, bounds, and non-overlap invariants;
-- canonical bytes, SHA-256 identity, derived ID, provenance, and atomic
-  publication.
+- canonical bytes, SHA-256 identities, derived IDs, immutable provenance, and
+  atomic publication.
 
-It is the canonical word-timing projection underpinning a future
-`timing/word_timeline.json`. It is not that future file-layout contract.
+It underpins a future `timing/word_timeline.json`; it is not that future file
+layout contract.
 
 ## 3. Explicit exclusions
 
-This candidate does not define provider or runtime execution, retries, queues,
+This candidate does not define provider/runtime execution, retries, queues,
 network or paid-provider behavior, `FAILED` or `BLOCKED` result publication,
-a failure artifact, `AlignmentReport`, quality/publication thresholds,
-caption or phrase grouping, emphasis mapping, word-to-frame compilation,
+a failure artifact, `AlignmentReport`, quality thresholds, caption or phrase
+grouping, emphasis mapping, word-to-frame compilation,
 `CaptionPreviewRenderer`, V5/V6 collision validation, Phase 3, UI, database,
 or renderer behavior.
 
-An LLM or a person MUST NOT generate, estimate, repair, or default any
-millisecond value. No string-search, fuzzy-search, positional guess, silent
-coercion, silent default, or silent repair is permitted.
+An LLM or person MUST NOT generate, estimate, repair, or default a millisecond
+value. No string search, fuzzy search, positional guess, silent coercion,
+silent default, silent repair, mode downgrade, or fallback is permitted.
 
-## 4. Terminology and dependency roles
+## 4. Terminology and trust boundary
 
-- **Raw package:** a genuine exact `CanonicalRawPackage` produced by the
-  Slice 1 materializer.
-- **Narration document and revision:** a genuine exact
-  `CanonicalNarrationDocument` and `NarrationRevision` pair produced together
-  by Slice 2. `NarrationRevision.canonical_words` is the only canonical word
-  inventory.
-- **Audio artifact:** a genuine exact `AudioArtifact` produced by Slice 3.
-  Its `DecodedAudioMetadata.duration_us_numerator` and
-  `duration_us_denominator` define the exact audio duration.
-- **Alignment request:** a genuine exact `AlignmentRequest` produced by
-  Slice 4 and bound to the raw package, narration revision, and audio artifact.
-- **Adapter execution:** a genuine exact `AdapterExecution` produced by Slice
-  5 and bound to the request.
-- **Observation token:** one closed token object inside the raw package profile
-  defined in section 8. It is validation input, not a public result model.
-- **Spoken observation token:** an observation whose exact `kind` is
-  `SPOKEN`.
-- **Canonical word:** one `CanonicalWord`, in increasing `ordinal` order.
-- **Published result:** a genuine exact `AlignmentResult` registered only
-  after every validation and byte verification succeeds.
+- **Raw package:** an exact genuine `CanonicalRawPackage` from Slice 1.
+- **Narration pair:** an exact genuine `CanonicalNarrationDocument` and
+  `NarrationRevision` pair produced together by Slice 2.
+- **Audio artifact:** an exact genuine `AudioArtifact` from Slice 3.
+- **Alignment request:** an exact genuine `AlignmentRequest` from Slice 4.
+- **Adapter execution:** an exact genuine `AdapterExecution` from Slice 5.
+- **Timing-origin evidence:** an exact genuine `TimingOriginEvidence` loaded
+  only from canonical bytes whose complete identity is in the closed
+  repository allowlist in section 9.
+- **Observation token:** one closed token object in section 8. It is input,
+  not a public result model.
+- **Canonical word:** one `CanonicalWord` in increasing ordinal order.
+- **Published result:** an exact genuine `AlignmentResult` returned only after
+  all validation, recomputation, snapshot, and registry checks succeed.
 
-## 5. Ownership and future paths
+Slice 1 and Slice 5 genuineness proves only passage through their public
+materializers. It does not prove timing origin. `TimingOriginEvidence` is the
+additional bounded trust boundary. It claims repository allowlist membership,
+not provider authenticity or cryptographic authorship.
 
-Only a future separately authorized implementation may use these paths:
+## 5. Future paths and import direction
+
+Only a future separately authorized implementation may change:
 
 ```text
 engine/contracts/alignment_result.py
-tests/test_alignment_result.py
 engine/contracts/__init__.py
+tests/test_alignment_result.py
 ```
 
-`alignment_result.py` owns the contract. The test file owns focused tests.
-`__init__.py` only exports the public symbols. No existing upstream module may
-import `alignment_result.py`; it imports the closed upstream modules.
+`alignment_result.py` owns all new declarations. `__init__.py` only exports
+the exact public delta. Existing upstream modules MUST NOT import
+`alignment_result.py`; it imports the closed upstream modules.
 
 ## 6. Exact public symbol delta
-
-The future public export delta is exactly:
 
 ```text
 ALIGNMENT_RESULT_V1
 ALIGNMENT_RESULT_HASH_V1
 ALIGNMENT_TOKEN_OBSERVATION_V1
+TIMING_ORIGIN_EVIDENCE_V1
+TIMING_ORIGIN_EVIDENCE_HASH_V1
 AlignmentTimingSource
 AlignmentResultRejectionReason
+TimingOriginEvidence
 WordTiming
 AlignmentResult
 AlignmentResultContractError
+load_repository_timing_origin_evidence
 materialize_alignment_result
 load_alignment_result
 serialize_alignment_result
 ```
 
-No other public symbol is authorized. The existing public
-`ConfidenceAvailability` and `TokenKind` declarations are reused and are not
-redeclared.
+No other public symbol is authorized. Existing `ConfidenceAvailability` and
+`TokenKind` declarations are reused and not redeclared.
 
 ## 7. Constants, enums, and closed values
 
@@ -113,87 +115,163 @@ redeclared.
 ALIGNMENT_RESULT_V1 = "ALIGNMENT-RESULT-V1"
 ALIGNMENT_RESULT_HASH_V1 = "ALIGNMENT-RESULT-HASH-V1"
 ALIGNMENT_TOKEN_OBSERVATION_V1 = "ALIGNMENT-TOKEN-OBSERVATION-V1"
+TIMING_ORIGIN_EVIDENCE_V1 = "TIMING-ORIGIN-EVIDENCE-V1"
+TIMING_ORIGIN_EVIDENCE_HASH_V1 = "TIMING-ORIGIN-EVIDENCE-HASH-V1"
 
 class AlignmentTimingSource(str, Enum):
-    ADAPTER_MEASURED = "ADAPTER_MEASURED"
     REPLAY_VERIFIED = "REPLAY_VERIFIED"
 
 class AlignmentResultRejectionReason(str, Enum):
     STRUCTURE_INVALID = "STRUCTURE_INVALID"
     UNSUPPORTED_VALUE = "UNSUPPORTED_VALUE"
     DEPENDENCY_BINDING_INVALID = "DEPENDENCY_BINDING_INVALID"
+    DEPENDENCY_CONTENT_DRIFT = "DEPENDENCY_CONTENT_DRIFT"
     EXECUTION_NOT_SUCCESSFUL = "EXECUTION_NOT_SUCCESSFUL"
+    TIMING_ORIGIN_EVIDENCE_INVALID = "TIMING_ORIGIN_EVIDENCE_INVALID"
     RAW_OBSERVATION_INVALID = "RAW_OBSERVATION_INVALID"
     TIMESTAMP_SOURCE_FORBIDDEN = "TIMESTAMP_SOURCE_FORBIDDEN"
     TRANSCRIPT_DIVERGENCE = "TRANSCRIPT_DIVERGENCE"
-    MAPPING_AMBIGUOUS = "MAPPING_AMBIGUOUS"
     TIMING_INVALID = "TIMING_INVALID"
     CONFIDENCE_INVALID = "CONFIDENCE_INVALID"
     SENSITIVE_DATA = "SENSITIVE_DATA"
     NON_CANONICAL_SERIALIZATION = "NON_CANONICAL_SERIALIZATION"
     IDENTITY_MISMATCH = "IDENTITY_MISMATCH"
+    CONTENT_DRIFT = "CONTENT_DRIFT"
     NOT_MATERIALIZED = "NOT_MATERIALIZED"
 ```
 
-These declarations are alias-free and closed. Values must be exact built-in
-strings; case variants, spelling variants, arbitrary Enums, and `str`
-subclasses are rejected without coercion.
+Declarations are alias-free and closed. Enum inputs are exact built-in
+strings; case variants, spelling variants, arbitrary `Enum` values, and
+`str` subclasses are rejected without coercion. `ADAPTER_MEASURED` is not a
+value of `AlignmentTimingSource` and cannot authorize publication.
 
 ## 8. Closed raw observation profile
 
-The raw package MUST have exact media type:
+The raw package media type MUST be exactly:
 
 ```text
 application/vnd.kurgu.alignment-token-observation+json
 ```
 
-Its already-canonicalized `payload` MUST be an exact mapping with members:
+The canonical `payload` is an exact built-in `dict` with exactly these keys:
 
 ```text
-schema_version: str
-narration_revision_id: str
-narration_revision_hash: str
-normalization_profile_hash: str
-timestamp_source: str
-tokens: array
+schema_version
+narration_revision_id
+narration_revision_hash
+normalization_profile_hash
+tokens
 ```
 
-`schema_version` MUST equal `ALIGNMENT-TOKEN-OBSERVATION-V1`. Revision ID,
-revision hash, and normalization profile hash MUST exactly equal the genuine
-`NarrationRevision` values. `timestamp_source` MUST parse as
-`AlignmentTimingSource`.
+`timestamp_source` is forbidden. Its former string assertion is not timing
+origin evidence. `schema_version` equals
+`ALIGNMENT-TOKEN-OBSERVATION-V1`. Revision ID/hash and profile hash equal the
+recomputed genuine revision values.
 
-Every token mapping has this exact field set and order in the logical model:
+At the logical boundary `tokens` MUST be an exact built-in `list`. At the JSON
+loader boundary a JSON array becomes that exact list. Tuple, arbitrary
+`Sequence`, iterator, string, bytes, subclass, or coercible object is rejected.
+Every token MUST be an exact built-in `dict` with exact built-in `str` keys and
+exactly these fields:
 
 ```text
-index: int
-kind: str
-normalized_alignment_text: str | null
-start_ms: int | null
-end_ms: int | null
-confidence_millionths: int | null
+index
+kind
+normalized_alignment_text
+start_ms
+end_ms
+confidence_millionths
 ```
 
-`index` is an exact non-boolean integer in `[0, 2**32 - 1]`; indices are
-strictly increasing and unique. `kind` is exactly one existing `TokenKind`
+`index` is exact built-in non-boolean `int` in `[0, 2**32 - 1]`; indices are
+strictly increasing and unique. `kind` is one exact existing `TokenKind`
 value.
 
-For `SPOKEN`, normalized text is an exact, non-empty, NFC built-in string with
-no surrogate, Unicode noncharacter, C0, C1, or DEL code point. `start_ms` and
-`end_ms` are exact non-boolean integers. Confidence follows section 11.
+For `SPOKEN`, normalized text is an exact non-empty NFC built-in string with
+no surrogate, Unicode noncharacter, C0, C1, or DEL code point. Start/end are
+exact non-boolean integers. Confidence follows section 14.
 
 For `PUNCTUATION` and `NON_SPOKEN`, normalized text, start, end, and confidence
-MUST all be null. Those tokens preserve raw order but are ineligible for
-mapping and never appear in the result. Canonical punctuation and non-spoken
-text are likewise absent because only `NarrationRevision.canonical_words` is
-eligible. Unknown token fields or kinds are rejected.
+are all null. These tokens preserve raw order but are ineligible for mapping
+and never appear in the result.
 
-No provider payload, provider response object, credential, authorization,
-URI, path, raw exception, or provider metadata may be copied into the result.
+## 9. Timing-origin evidence model and producer
 
-## 9. Exact immutable models
+Field order is normative:
 
-Field order is normative.
+```python
+@dataclass(frozen=True)
+class TimingOriginEvidence:
+    schema_version: str
+    hash_scope_version: str
+    timing_origin_evidence_id: str
+    timing_origin_evidence_hash: str
+    fixture_id: str
+    temporal_raw_package_hash: str
+    timing_payload_byte_hash: str
+    narration_document_snapshot_hash: str
+    narration_revision_id: str
+    narration_revision_hash: str
+    audio_artifact_id: str
+    audio_artifact_hash: str
+    alignment_request_id: str
+    alignment_request_hash: str
+    adapter_execution_id: str
+    adapter_execution_hash: str
+```
+
+The hash projection contains every field except evidence ID/hash. Canonical
+projection SHA-256 is 64 lowercase hexadecimal characters without a prefix:
+
+```text
+timing_origin_evidence_hash = lowercase_hex(SHA256(projection_bytes))
+timing_origin_evidence_id = "toe_" + timing_origin_evidence_hash[0:32]
+```
+
+The only constructor boundary is:
+
+```python
+def load_repository_timing_origin_evidence(source: bytes) -> TimingOriginEvidence
+```
+
+There is no public logical materializer. `source` MUST be exact built-in
+`bytes`. The loader performs strict UTF-8/JSON/canonical validation, exact
+root-field validation, projection hash then ID verification, and finally
+requires this exact tuple in the private immutable allowlist:
+
+```text
+(
+  fixture_id="FX-ALR-01",
+  timing_origin_evidence_hash=
+    "f140843e7e1f86817c7acc0bdc8eb775021ffd8c5a5a13809d5e33407c34ae03",
+  canonical_envelope_sha256=
+    "11ba9218006576fc87f0bcac1bf7cbe808dcdfc78a3fa3f957e97918960628a9",
+  canonical_envelope_byte_length=1206,
+  canonical_timing_payload_sha256=
+    "86497808c046ec4334395f23eaef5a8e9976780af61a2ec7278ade6137d0b0ad",
+  canonical_timing_payload_byte_length=1062,
+)
+```
+
+Allowlist comparison uses all six values. The allowlist entry also owns the
+exact immutable canonical timing payload bytes printed in section 20; those
+bytes are not caller input and their digest and length MUST equal the last two
+tuple members. Only after all comparisons succeed is the frozen object
+constructed and registered. Direct construction, a copied object, or
+canonical bytes absent from this exact allowlist is not trusted. The private
+evidence registry stores `(weakref, exact canonical evidence envelope bytes,
+exact canonical timing payload bytes)` and verifies object identity and both
+immutable byte snapshots. No public API accepts replacement timing payload
+bytes.
+
+This bounded producer accepts only repository-owned committed fixture bytes.
+It makes no provider-authenticity claim. Adding another fixture or a trusted
+runtime producer requires a later accepted specification change; it cannot be
+done by configuration, environment, caller input, or silent allowlist growth.
+
+## 10. Result models and signatures
+
+Field order is normative:
 
 ```python
 @dataclass(frozen=True)
@@ -221,22 +299,21 @@ class AlignmentResult:
     alignment_request_hash: str
     adapter_execution_id: str
     adapter_execution_hash: str
+    timing_origin_evidence_id: str
+    timing_origin_evidence_hash: str
     timing_source: AlignmentTimingSource
     confidence_availability: ConfidenceAvailability
     word_timings: tuple[WordTiming, ...]
 ```
 
-All fields are required and non-null except `confidence_millionths` under the
-rules below. No extensions exist. In particular, `text`, `normalized_text`,
-caption IDs, phrase IDs, emphasis, frames, issue sets, provider data, runtime
-state, report data, failure data, paths, URIs, and authorization material are
-forbidden result fields.
-
-The exact logical materializer signatures are:
+All fields are required and non-null except `confidence_millionths`. No
+extensions exist. Result text, normalized text, captions, phrases, emphasis,
+frames, issue sets, provider/runtime/report/failure data, paths, URIs, and
+authorization material are forbidden.
 
 ```python
 def materialize_alignment_result(
-    value: Mapping[str, Any],
+    value: dict[str, Any],
     *,
     temporal_raw_package: CanonicalRawPackage,
     narration_document: CanonicalNarrationDocument,
@@ -244,6 +321,7 @@ def materialize_alignment_result(
     audio_artifact: AudioArtifact,
     alignment_request: AlignmentRequest,
     adapter_execution: AdapterExecution,
+    timing_origin_evidence: TimingOriginEvidence,
 ) -> AlignmentResult
 
 def load_alignment_result(
@@ -255,432 +333,458 @@ def load_alignment_result(
     audio_artifact: AudioArtifact,
     alignment_request: AlignmentRequest,
     adapter_execution: AdapterExecution,
+    timing_origin_evidence: TimingOriginEvidence,
 ) -> AlignmentResult
 
 def serialize_alignment_result(result: AlignmentResult) -> bytes
 ```
 
-## 10. Genuine prerequisite and success binding
+Logical root and every nested object MUST be exact built-in `dict`; every
+logical array MUST be exact built-in `list`. Arbitrary `Mapping`, tuple,
+`Sequence`, iterator, subclass, string, bytes, and coercible containers are
+rejected. Successful construction converts only validated lists to tuples and
+never retains caller containers.
 
-Dependencies are checked before reading `value` or `source`, in the parameter
-order shown above. Each dependency MUST have exact runtime type and genuine
-weak-registry provenance from its own materializer. A copy, deep copy,
-reconstruction, `dataclasses.replace`, pickle result, proxy, subclass,
-lookalike, wrong type, or collected/stale object is not genuine.
+## 11. Exact dependency integrity preflight
 
-The following equalities are mandatory:
+Before reading logical `value` or loader `source`, preflight checks these seven
+parameters in signature order. Wrong runtime type or absent genuine registry
+entry raises sanitized `TypeError`. For every genuine object, current content
+is then independently reserialized and its identity recomputed; registry
+membership alone is insufficient.
 
-- document `project_id`, `document_id`, and `current_revision_id` bind exactly
-  to the revision;
-- revision project/document bind exactly to the audio artifact and request;
-- audio revision ID/hash bind exactly to the revision;
-- request raw hash, revision ID/hash, and audio ID/hash bind exactly to the
-  supplied genuine dependencies;
-- execution request ID/hash bind exactly to the supplied request;
-- every corresponding result identity field equals the genuine dependency;
-- raw payload revision ID/hash and normalization profile hash equal the
-  revision.
+1. **Raw package:** read the actual `canonical_bytes` and `canonical_hash`
+   fields; require `canonical_bytes` to be exact built-in envelope bytes,
+   strict canonical parse and byte-identical re-encoding; recompute the
+   `sha256:` envelope hash and compare it to `canonical_hash`. Retrieve timing
+   payload bytes exclusively from the genuine
+   evidence registry snapshot, require exact built-in bytes, strict canonical
+   parse and byte-identical re-encoding, and recompute `sha256:` payload hash.
+   Canonically encode the raw envelope's `payload` member and require it to be
+   byte-identical to that private payload snapshot. The raw envelope
+   `payload_byte_hash`, evidence
+   `timing_payload_byte_hash`, allowlist payload digest/length, and recomputed
+   payload digest/length MUST all agree. No payload absent from the private
+   snapshot is accepted and no caller-supplied payload source exists.
+2. **Narration document:** encode exactly `schema_version`, `project_id`,
+   `document_id`, `current_revision_id`, `language`, `locale`, `title`, and
+   thawed `extensions`; compute prefixed SHA-256 and compare to evidence
+   `narration_document_snapshot_hash`.
+3. **Narration revision:** reconstruct the accepted Slice 2 revision hash
+   projection from the actual fields `schema_version`, `hash_scope_version`,
+   `project_id`, `document_id`, `parent_revision_id`, `source_byte_hash`,
+   `source_text`, `normalization_profile`, `text_tokens` without extensions,
+   `canonical_words`, `sections` without extensions, and `lineage_manifest`.
+   Recompute prefixed revision hash and `narrev_` ID. Compare stored values and
+   evidence. Revision/document extensions remain outside revision identity as
+   required by Slice 2.
+4. **Audio artifact:** reconstruct the accepted Slice 3 projection from
+   `schema_version`, `hash_scope_version`, project/document/revision identity
+   fields, `media_byte_hash`, `logical_input`, and `decoded_metadata`;
+   `extensions` are excluded. Recompute prefixed hash and `aud_` ID and
+   compare stored values and evidence.
+5. **Alignment request:** reconstruct the accepted Slice 4 projection from
+   every field except request ID/hash; recompute bare hash and `arq_` ID and
+   compare stored values and evidence.
+6. **Adapter execution:** reconstruct the accepted Slice 5 projection from
+   every field except execution ID/hash; recompute bare hash and `aex_` ID and
+   compare stored values and evidence.
+7. **Timing-origin evidence:** re-encode every field, compare to its registry
+   evidence byte snapshot, recompute projection hash then ID, recompute
+   envelope digest and length, re-hash and remeasure its private timing payload
+   snapshot, and repeat exact six-value allowlist membership.
 
-Intrinsic binding checks and their first-failure pointers are exactly:
+The first content drift uses the parameter-order pointer:
 
-| Order | Equality | Pointer |
+| Dependency | Fixed pointer | Reason | Existing stable issue code |
+|---|---|---|---|
+| raw package | `/temporal_raw_package` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| narration document | `/narration_document` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| narration revision | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio artifact | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| alignment request | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| adapter execution | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| timing evidence | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+
+No mapping, status, payload, result identity, or canonical result bytes are
+computed before this preflight succeeds. Snapshots are immutable local values;
+no cached mutable projection or caller alias is trusted.
+
+## 12. Binding and success-only publication
+
+After integrity preflight, exact equalities are checked in this order:
+
+| Order | Equality | Fixed pointer |
 |---:|---|---|
 | 1 | document project equals revision project | `/narration_document/project_id` |
 | 2 | document ID equals revision document ID | `/narration_document/document_id` |
-| 3 | document current revision equals revision ID | `/narration_document/current_revision_id` |
-| 4 | audio project equals revision project | `/audio_artifact/project_id` |
-| 5 | audio document equals revision document | `/audio_artifact/document_id` |
-| 6 | audio revision ID equals revision ID | `/audio_artifact/narration_revision_id` |
-| 7 | audio revision hash equals revision hash | `/audio_artifact/narration_revision_hash` |
-| 8 | request project equals revision project | `/alignment_request/project_id` |
-| 9 | request document equals revision document | `/alignment_request/document_id` |
-| 10 | request raw hash equals raw package hash | `/alignment_request/temporal_raw_package_hash` |
-| 11 | request revision ID equals revision ID | `/alignment_request/narration_revision_id` |
-| 12 | request revision hash equals revision hash | `/alignment_request/narration_revision_hash` |
-| 13 | request audio ID equals audio ID | `/alignment_request/audio_artifact_id` |
-| 14 | request audio hash equals audio hash | `/alignment_request/audio_artifact_hash` |
-| 15 | execution request ID equals request ID | `/adapter_execution/alignment_request_id` |
-| 16 | execution request hash equals request hash | `/adapter_execution/alignment_request_hash` |
+| 3 | current revision equals revision ID | `/narration_document/current_revision_id` |
+| 4 | audio project/document/revision ID/hash equal revision | `/audio_artifact` |
+| 5 | request project/document/raw/revision/audio identities equal dependencies | `/alignment_request` |
+| 6 | execution request ID/hash equal request | `/adapter_execution` |
+| 7 | evidence raw/payload/document/revision/audio/request/execution fields equal snapshots | `/timing_origin_evidence` |
+| 8 | declared result dependency/evidence identities equal dependencies | `/` |
 
-`adapter_execution.status` MUST be exact `SUCCEEDED`. `FAILED` and `BLOCKED`
-cannot publish an `AlignmentResult` and produce no result ID, result hash, or
-canonical result bytes.
+Rows 4-8 use their fixed containing pointer; attacker values never appear in
+a pointer. Binding failure reason is `DEPENDENCY_BINDING_INVALID` and issue
+code is `ALIGNMENT_REQUEST_IDENTITY_MISMATCH`, except row 7 uses
+`REPLAY_INPUT_MISMATCH`.
 
-All five genuine Slice 5 modes may publish only when status is `SUCCEEDED`.
-`LOCAL`, `FREE_API`, `PAID_API`, and `MANUAL_UI` require
-`ADAPTER_MEASURED`; `REPLAY` requires `REPLAY_VERIFIED`. For `MANUAL_UI`, the
-mode describes human-mediated transport only: `ADAPTER_MEASURED` attests that
-the imported integers were emitted by an audio aligner, not authored,
-estimated, or repaired by the person or an LLM. Any other pairing or source
-claim is forbidden. The result does not retain replay source objects; their
-validity is already part of the genuine Slice 5 execution.
+`adapter_execution.status` MUST be exact `SUCCEEDED`, and mode MUST be exact
+`REPLAY`. `FAILED` and `BLOCKED` publish nothing. `LOCAL`, `FREE_API`,
+`PAID_API`, and `MANUAL_UI` successful executions are deterministically
+rejected at `/adapter_execution/mode` with
+`TIMESTAMP_SOURCE_FORBIDDEN` / `LLM_TIMESTAMP_SOURCE_FORBIDDEN`. No mode is
+downgraded or translated to `REPLAY`.
 
-## 11. Confidence model
+The request mode and capability mode MUST also be `REPLAY`. Execution replay
+evidence remains subject to the recomputed Slice 5 identity. Root
+`timing_source` MUST be `REPLAY_VERIFIED`; it is derived from the allowlisted
+evidence and not from raw payload text.
 
-The root `confidence_availability` MUST equal
-`adapter_execution.confidence_availability_evidence.availability`. A
-successful execution always has that evidence under Slice 5.
+## 13. Deterministic token-to-word mapping and uniqueness
 
-- `AVAILABLE`: every spoken observation has an exact non-boolean integer
-  `confidence_millionths` in `[0, 1_000_000]`. A word consuming multiple raw
-  tokens receives the minimum consumed value.
-- `UNAVAILABLE`: every spoken observation and every `WordTiming` confidence is
-  null.
-- `NOT_APPLICABLE`: every spoken observation and every `WordTiming` confidence
-  is null; this is valid only where the genuine request capability has
-  `confidence_output == "UNSUPPORTED"` as already enforced by Slice 5.
+The canonical side is the complete non-empty
+`narration_revision.canonical_words` tuple in contiguous ordinal order. The
+raw side is the non-empty `SPOKEN` subsequence in increasing token-index order.
+The comparison key is exact `normalized_alignment_text`; no additional
+normalization occurs.
 
-No float, decimal string, percentage string, boolean, default, interpolation,
-or quality threshold is permitted. This contract records confidence; it does
-not decide whether confidence is good enough to publish a later product.
-
-## 12. Deterministic token-to-word mapping
-
-The canonical side is the complete tuple `narration_revision.canonical_words`
-sorted by the already-required contiguous `ordinal` values. The raw side is
-the subsequence of `SPOKEN` observations in increasing token `index` order.
-Both sequences MUST be non-empty.
-
-The comparison key is the exact `normalized_alignment_text` string. The
-contract performs no additional normalization. The raw payload's exact
-`normalization_profile_hash` proves which existing narration profile produced
-its normalized strings. Spoken-form overrides are therefore already reflected
-in the canonical word string and are not reinterpreted here.
+Every canonical word has an exact non-empty built-in NFC `word_id` and
+`normalized_alignment_text`, with the same forbidden-code-point rules as a
+spoken raw key. Its `ordinal` is an exact non-boolean integer, starts at zero,
+and increases by one. These checks precede mapping and make every canonical
+and raw comparison key non-empty.
 
 Supported mapping is an order-preserving partition of the complete spoken raw
-sequence into one non-empty contiguous token group per canonical word. For a
-word and candidate raw group, the edge exists iff concatenating the raw
-normalized strings with the empty string exactly equals the canonical word's
-normalized string. Every raw spoken token is consumed exactly once; no token
-may be skipped, reused, reordered, or searched by position elsewhere.
+sequence into one non-empty contiguous group per canonical word. An edge
+exists iff concatenating the raw keys with the empty separator exactly equals
+the canonical word key. Every spoken token is consumed exactly once.
 
-The implementation MUST run dynamic programming over `(word_position,
-raw_position)`, enumerate candidate group ends in increasing raw position, and
-count complete supported paths with saturation at two:
+The mapping is unique whenever it exists. Proof: each raw key is non-empty, so
+the concatenated code-point length strictly increases as a candidate group end
+advances. For a fixed canonical key, at most one candidate end can have equal
+length and exact value. Induction over canonical words therefore gives at
+most one complete partition. No ambiguity-counting branch exists and this
+contract never emits `DIVERGENCE_AMBIGUOUS`.
 
-- exactly one complete path: use it;
-- more than one complete path: reject `DIVERGENCE_AMBIGUOUS`;
-- no complete path: run the diagnostic below, then reject
-  `TRANSCRIPT_DIVERGENCE` if it does not apply.
+The implementation walks words and candidate group ends in increasing order.
+Exactly one cover is used. If no cover exists, a diagnostic dynamic program
+additionally allows one raw key to equal two or more consecutive canonical
+keys. If a complete cover requiring such an edge exists, reject
+`ADAPTER_PRECISION_OVERSTATED`; otherwise reject `TRANSCRIPT_DIVERGENCE`.
+No interval subdivision is allowed.
 
-One canonical word to multiple raw tokens is supported by the same rule.
-Its timing is first token `start_ms` through last token `end_ms`, its confidence
-is the group minimum when available, and `source_token_indices` is the exact
-non-empty tuple of consumed indices.
+Repeated words remain unique by consumed prefix. Punctuation/non-spoken tokens
+are excluded before mapping. Missing, extra, case-different, Unicode-different,
+skipped, reordered, or incompatible split/merge keys produce one of the two
+zero-cover outcomes. No text-search fallback exists.
 
-Many canonical words to one raw token is unsupported because the token has no
-genuine per-word boundary. After no supported path, a second dynamic program
-uses the same exact keys but additionally allows one raw key to equal the empty
-separator concatenation of two or more consecutive canonical keys. If any
-complete cover requires such an edge, reject `ADAPTER_PRECISION_OVERSTATED`.
-No interval subdivision is allowed. Other zero-path cases reject
-`TRANSCRIPT_DIVERGENCE`.
+One canonical word may consume multiple raw tokens. Its timing is the first
+token start through last token end, confidence is the minimum consumed value
+when available, and `source_token_indices` is the exact consumed-index tuple.
+The output has exactly one `WordTiming` per canonical word in ordinal order.
+Caller-declared `word_timings` MUST equal this computed tuple field by field.
 
-The computed output has exactly one `WordTiming` per canonical word, in
-canonical ordinal order, with exact `word_id`. Duplicate or missing word IDs,
-extra timings, reordered timings, unconsumed spoken tokens, and empty source
-token tuples are forbidden. The caller-declared `word_timings` MUST equal the
-computed tuple field by field; it is never an independent timing source.
+## 14. Timing and confidence invariants
 
-## 13. Timing invariants
+For every spoken observation and published timing:
 
-For every spoken observation and every published timing:
-
-- integers are exact built-in `int`, never `bool`, subclass, float, string, or
-  coerced value;
+- integers are exact built-in `int`, never boolean, subclass, float, string,
+  or coerced value;
 - `0 <= start_ms < end_ms`;
 - exact audio bound is
   `end_ms * 1000 * duration_us_denominator <= duration_us_numerator`;
-- spoken observations are ordered by index and satisfy
-  `previous.end_ms <= current.start_ms`;
-- published words satisfy the same non-overlap inequality;
-- equality at a boundary is allowed;
-- gaps before, between, or after words are allowed, are not filled, and have
-  no maximum in this bounded contract;
-- internal gaps among multiple tokens mapped to one word remain inside that
-  word's first-start/last-end interval and are not repaired;
-- zero duration, reversal, negative time, audio overflow, and overlap are
-  rejected before mapping publication.
+- token order satisfies `previous.end_ms <= current.start_ms`;
+- published word order satisfies the same inequality;
+- equality adjacency is allowed;
+- gaps before, between, and after words are allowed and are not filled;
+- internal gaps in a multi-token word remain inside first-start/last-end;
+- negative, zero-duration, reversed, overflow, and overlap inputs fail before
+  mapping publication.
 
-Manual and LLM-authored timestamps are forbidden. Only the raw observation
-bound through the genuine request and successful execution is a timing source.
+Root confidence equals successful execution confidence evidence:
 
-## 14. Canonical projection and envelope
+- `AVAILABLE`: every spoken confidence is exact integer `[0, 1_000_000]`;
+  grouped word confidence is the minimum.
+- `UNAVAILABLE`: all spoken and result confidence values are null.
+- `NOT_APPLICABLE`: all are null and request capability confidence output is
+  exact `UNSUPPORTED`.
 
-The hash projection contains every `AlignmentResult` field except
-`alignment_result_id` and `alignment_result_hash`. The envelope contains all
-fields. `WordTiming` contains all five fields. Explicit null confidence is
-retained. Arrays preserve semantic order; object members are emitted in
-ascending Unicode code-point order of their exact NFC names by
-`encode_canonical_json_bytes`.
+No float, percentage, decimal string, default, interpolation, threshold, or
+manual/LLM timestamp is permitted.
 
-Canonical encoding is UTF-8 without BOM or trailing newline, with no
-insignificant whitespace. Object keys are unique. Quote and backslash use
-`\"` and `\\`; U+0000-U+001F would use lowercase `\u00xx`, but controls are
-rejected before publication. Strings are exact NFC. Surrogates and Unicode
-noncharacters are forbidden. Integers use minimal base-10 syntax; `-0`, plus
-signs, leading zeroes, fractions, exponents, NaN, and infinities are forbidden.
-Booleans are not integers. Unknown fields are rejected at every level.
+## 15. Canonical serialization and identity
 
-`load_alignment_result` accepts exact built-in `bytes`, rejects BOM,
-non-UTF-8, duplicate keys, forbidden numeric syntax, and non-canonical bytes,
-and then uses the same logical materialization path. After full semantic and
-identity validation, source bytes MUST exactly equal the newly encoded
-canonical envelope.
+Result hash projection contains every result field except result ID/hash.
+Evidence hash projection follows section 9. Full envelopes contain all fields.
+`WordTiming` contains all five fields and explicit null confidence is retained.
 
-## 15. Identity and hash rules
+`encode_canonical_json_bytes` rules apply: UTF-8, no BOM/trailing newline or
+insignificant whitespace, unique keys, object keys in ascending Unicode
+code-point order, semantic array order, exact NFC strings, minimal base-10
+integers, and no float, exponent, NaN, infinity, negative zero, surrogate,
+noncharacter, C0, C1, or DEL value.
 
 ```text
-alignment_result_hash = lowercase_hex(
-    SHA256(exact canonical hash-projection bytes)
-)
-
+alignment_result_hash = lowercase_hex(SHA256(result_projection_bytes))
 alignment_result_id = "alr_" + alignment_result_hash[0:32]
 ```
 
-The hash is exactly 64 lowercase hexadecimal characters with no `sha256:`
-prefix. The ID is exactly 36 characters. Hash mismatch is checked before ID
-mismatch. Envelope SHA-256 is verification evidence only and is not the
-result identity. No upstream hash is recomputed from an ID string; genuine
-objects and their stored canonical identities are required.
+The hash is checked before ID. Envelope SHA-256 is verification evidence only.
+`load_alignment_result` accepts exact bytes, performs strict parsing, runs the
+same dependency and logical materialization path, then requires source bytes
+to equal the newly encoded envelope exactly.
 
-## 16. Error contract
+## 16. Result mutation resistance and publication registry
+
+The private result registry is keyed by `id(result)` and stores:
+
+```text
+(weakref.ref(exact_result), exact_canonical_envelope_bytes)
+```
+
+Genuineness requires exact type, present entry, live identical object, and a
+byte snapshot. The cleanup callback removes an entry only if it still owns the
+same weakref. Registration is transactional: construct and verify first,
+insert one entry, verify identity and snapshot, roll back only the owned entry
+on false/exception, and return only after success.
+
+`serialize_alignment_result` does not trust frozen-dataclass syntax. It:
+
+1. requires exact genuine object and registry snapshot;
+2. validates every current field and nested tuple without coercion;
+3. rebuilds projection, recomputes hash then ID;
+4. rebuilds the canonical envelope;
+5. requires exact equality with the registry snapshot;
+6. returns a bytes copy only after all checks pass.
+
+Any mutation, including `object.__setattr__`, coherent mutation of data plus
+hash/ID, nested replacement, or private-cache alteration, rejects at `/` with
+`CONTENT_DRIFT`, `issue_code=None`, and emits no bytes. Copy, deep copy,
+pickle, `dataclasses.replace`, direct construction, `object.__new__`, subclass,
+proxy, reconstruction, and field cloning do not transfer provenance.
+
+## 17. Closed container, key, pointer, and no-leak rules
+
+- Logical objects are exact built-in dicts; arrays are exact built-in lists.
+- JSON objects/arrays parse to exact dict/list only after duplicate-key and
+  number-syntax checks.
+- Every key is exact built-in NFC `str`. Nonconforming or unknown key text is
+  never appended to a pointer or message.
+- Unknown root key pointer is `/`.
+- Unknown raw payload key pointer is `/raw_package/payload`.
+- Unknown token key pointer is `/raw_package/payload/tokens/<index>`.
+- Unknown `WordTiming` key pointer is `/word_timings/<index>`.
+- Unknown evidence key pointer is `/timing_origin_evidence`.
+- Missing or invalid known fields use the fixed containing-object pointer:
+  `/` for the result root, `/timing_origin_evidence` for evidence,
+  `/raw_package/payload` for payload, and the implementation-generated indexed
+  token/timing object pointer for array members. Field order still determines
+  first failure, but no field or key text is copied into the pointer.
+- Decimal array indices are implementation-generated and are the only dynamic
+  pointer segments.
+
+Messages are exactly `Alignment result rejected: <REASON_VALUE>`. They never
+include offending values, dynamic keys, narration/token/provider text,
+credentials, authorization material, URI/path data, attacker hashes, or raw
+exceptions. Result/evidence serialization contains only defined identities,
+enums, integers, nulls, and arrays. No filesystem, network, database,
+environment, credential store, clock, random, provider, or locale operation
+participates.
+
+## 18. Error contract and stable issue codes
 
 ```python
 class AlignmentResultContractError(ValueError):
     pointer: str
     reason: AlignmentResultRejectionReason
     issue_code: str | None
-
-    def __init__(
-        self,
-        pointer: str,
-        reason: AlignmentResultRejectionReason,
-        issue_code: str | None = None,
-    ) -> None: ...
 ```
 
-Its constructor accepts only an exact built-in sanitized JSON Pointer, an
-exact enum member, and either null or one existing canonical member of
-`STABLE_ISSUE_CODES`. Its exact public message is:
+Constructor inputs are exact sanitized built-in pointer, exact enum member,
+and null or one exact canonical `STABLE_ISSUE_CODES` member. The error has no
+identity, bytes, or serialized artifact. Wrong/non-genuine dependencies raise
+sanitized `TypeError`. Internal construction/registry failures raise sanitized
+`RuntimeError`. Publication is `NONE` for every failure.
+
+Existing stable codes used are exactly:
 
 ```text
-Alignment result rejected: <REASON_VALUE>
+ADAPTER_FAILURE
+ADAPTER_PRECISION_OVERSTATED
+ALIGNMENT_REQUEST_IDENTITY_MISMATCH
+CANONICAL_COVERAGE_BLOCKER
+CANONICAL_WORD_ORDER_INVALID
+CONFIDENCE_REQUIRED_UNAVAILABLE
+LLM_TIMESTAMP_SOURCE_FORBIDDEN
+REPLAY_HASH_MISMATCH
+REPLAY_INPUT_MISMATCH
+TIMESTAMP_NON_MONOTONIC
+TIMESTAMP_OUT_OF_BOUNDS
+TIMESTAMP_OVERLAP
+TRANSCRIPT_DIVERGENCE
+UNSUPPORTED_CONTRACT_ENUM
+ZERO_DURATION_WORD
 ```
 
-The message and pointer never include offending values, narration text,
-normalized token text, provider data, credentials, authorization material,
-paths, URIs, hashes supplied by an attacker, or raw exception text. A contract
-error is not serialized, has no identity, and carries no canonical bytes.
+No inventory delta or alias is introduced.
 
-Wrong-type or non-genuine dependencies raise sanitized `TypeError` before
-input access. Internal construction, encoding verification, or registry
-failures propagate as sanitized `RuntimeError`; they publish nothing and are
-not converted to result artifacts.
+## 19. Deterministic validation precedence and oracle
 
-No stable issue-code inventory delta is introduced. Exact existing codes used
-by this contract are:
+First failing stage is authoritative:
 
-| Condition | Existing issue code |
-|---|---|
-| unsupported enum literal | `UNSUPPORTED_CONTRACT_ENUM` |
-| request/dependency identity mismatch | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| failed or blocked execution | `ADAPTER_FAILURE` |
-| manual/LLM or incompatible timing source | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
-| zero supported transcript mapping | `TRANSCRIPT_DIVERGENCE` |
-| multiple supported mappings | `DIVERGENCE_AMBIGUOUS` |
-| many canonical words would require one raw interval | `ADAPTER_PRECISION_OVERSTATED` |
-| incomplete/duplicate word coverage | `CANONICAL_COVERAGE_BLOCKER` |
-| canonical word order violation | `CANONICAL_WORD_ORDER_INVALID` |
-| missing required confidence | `CONFIDENCE_REQUIRED_UNAVAILABLE` |
-| confidence supplied when unavailable/not applicable or outside its range | `ADAPTER_PRECISION_OVERSTATED` |
-| negative or audio-overflow timestamp | `TIMESTAMP_OUT_OF_BOUNDS` |
-| reversed timestamp/order | `TIMESTAMP_NON_MONOTONIC` |
-| equal start and end | `ZERO_DURATION_WORD` |
-| temporal overlap | `TIMESTAMP_OVERLAP` |
+1. seven dependency type/genuineness checks in signature order;
+2. seven content-integrity recomputations in section 11 order;
+3. loader bytes/UTF-8/JSON/canonical syntax when applicable;
+4. exact root dict/key set, unknown before missing;
+5. root field types, schema/hash-scope/confidence literals;
+6. section 12 intrinsic bindings;
+7. execution status, then exact REPLAY mode/source;
+8. raw envelope/media/payload shape;
+9. raw payload fields and token list/items in array order;
+10. token index/time/confidence ordering and audio bounds;
+11. canonical word inventory;
+12. unique supported mapping, then many-to-one diagnostic;
+13. computed timing tuple;
+14. declared timing list/items and field comparison;
+15. sensitive-value/cycle scan;
+16. result projection hash, then ID;
+17. full envelope and loader source-byte equality;
+18. construction, re-encoding, atomic registration, snapshot verification.
 
-Structure, canonical-byte, result hash/ID, and internal publication failures
-use `issue_code=None`; no inaccurate alias is invented.
+Exact oracle:
 
-## 17. Deterministic validation and first-failure precedence
+| Condition | Stage | Fixed pointer | Reason | Issue code |
+|---|---:|---|---|---|
+| evidence source type is not exact built-in bytes | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence source is invalid UTF-8 | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence source is malformed JSON | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence source has a duplicate key | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence root is not an exact dict | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence root has an unknown key | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence root is missing a known key | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence root has a wrong field type | evidence loader | `/timing_origin_evidence` | `STRUCTURE_INVALID` | `None` |
+| evidence source is not byte-identical canonical JSON | evidence loader | `/timing_origin_evidence` | `NON_CANONICAL_SERIALIZATION` | `None` |
+| evidence schema version is unsupported | evidence loader | `/timing_origin_evidence` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
+| evidence hash-scope version is unsupported | evidence loader | `/timing_origin_evidence` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
+| evidence projection hash mismatches | evidence loader | `/timing_origin_evidence/timing_origin_evidence_hash` | `IDENTITY_MISMATCH` | `REPLAY_HASH_MISMATCH` |
+| evidence ID mismatches | evidence loader | `/timing_origin_evidence/timing_origin_evidence_id` | `IDENTITY_MISMATCH` | `REPLAY_HASH_MISMATCH` |
+| evidence is not the exact six-value allowlist member | evidence loader | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_INPUT_MISMATCH` |
+| raw package canonical content drifts | 2 | `/temporal_raw_package` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| raw package stored hash differs from recomputation | 2 | `/temporal_raw_package` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| narration document content drifts | 2 | `/narration_document` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| narration revision projection content drifts | 2 | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| narration revision stored hash differs from recomputation | 2 | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| narration revision stored ID differs from recomputation | 2 | `/narration_revision` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio artifact projection content drifts | 2 | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio artifact stored hash differs from recomputation | 2 | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio artifact stored ID differs from recomputation | 2 | `/audio_artifact` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| alignment request projection content drifts | 2 | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| alignment request stored hash differs from recomputation | 2 | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| alignment request stored ID differs from recomputation | 2 | `/alignment_request` | `DEPENDENCY_CONTENT_DRIFT` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| adapter execution projection content drifts | 2 | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| adapter execution stored hash differs from recomputation | 2 | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| adapter execution stored ID differs from recomputation | 2 | `/adapter_execution` | `DEPENDENCY_CONTENT_DRIFT` | `REPLAY_HASH_MISMATCH` |
+| timing evidence projection content drifts | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing evidence stored hash differs from recomputation | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing evidence stored ID differs from recomputation | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing evidence envelope differs from its registry snapshot | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| timing payload differs from its registry snapshot | 2 | `/timing_origin_evidence` | `TIMING_ORIGIN_EVIDENCE_INVALID` | `REPLAY_HASH_MISMATCH` |
+| result source type is not exact built-in bytes | 3 | `/` | `STRUCTURE_INVALID` | `None` |
+| result source is invalid UTF-8 | 3 | `/` | `STRUCTURE_INVALID` | `None` |
+| result source is malformed JSON | 3 | `/` | `STRUCTURE_INVALID` | `None` |
+| result source has a duplicate key | 3 | `/` | `STRUCTURE_INVALID` | `None` |
+| result source is not byte-identical canonical JSON | 3 | `/` | `NON_CANONICAL_SERIALIZATION` | `None` |
+| result root is not an exact dict | 4 | `/` | `STRUCTURE_INVALID` | `None` |
+| result root has an unknown key | 4 | `/` | `STRUCTURE_INVALID` | `None` |
+| result root is missing a known key | 4 | `/` | `STRUCTURE_INVALID` | `None` |
+| result root has a wrong field type | 5 | `/` | `STRUCTURE_INVALID` | `None` |
+| result schema version is unsupported | 5 | `/` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
+| result hash-scope version is unsupported | 5 | `/` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
+| result confidence availability is unsupported | 5 | `/` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
+| document project differs from revision project | 6 | `/narration_document/project_id` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| document ID differs from revision document ID | 6 | `/narration_document/document_id` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| current revision differs from revision ID | 6 | `/narration_document/current_revision_id` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| audio binding differs from revision | 6 | `/audio_artifact` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| request binding differs from its dependencies | 6 | `/alignment_request` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| execution binding differs from request | 6 | `/adapter_execution` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| evidence binding differs from dependency snapshots | 6 | `/timing_origin_evidence` | `DEPENDENCY_BINDING_INVALID` | `REPLAY_INPUT_MISMATCH` |
+| declared result binding differs from its dependencies | 6 | `/` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| execution status is FAILED | 7 | `/adapter_execution/status` | `EXECUTION_NOT_SUCCESSFUL` | `ADAPTER_FAILURE` |
+| execution status is BLOCKED | 7 | `/adapter_execution/status` | `EXECUTION_NOT_SUCCESSFUL` | `ADAPTER_FAILURE` |
+| execution mode is not REPLAY | 7 | `/adapter_execution/mode` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
+| request mode is not REPLAY | 7 | `/alignment_request/mode` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
+| capability mode is not REPLAY | 7 | `/alignment_request/adapter_capability/mode` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
+| result timing source is not REPLAY_VERIFIED | 7 | `/timing_source` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
+| raw envelope media type is not the exact observation media type | 8 | `/raw_package` | `RAW_OBSERVATION_INVALID` | `None` |
+| private timing payload snapshot is not valid canonical JSON | 8 | `/raw_package/payload` | `RAW_OBSERVATION_INVALID` | `None` |
+| raw payload has an unknown key | 9 | `/raw_package/payload` | `RAW_OBSERVATION_INVALID` | `None` |
+| raw payload is missing a known field | 9 | `/raw_package/payload` | `RAW_OBSERVATION_INVALID` | `None` |
+| raw payload has a wrong field type | 9 | `/raw_package/payload` | `RAW_OBSERVATION_INVALID` | `None` |
+| token container is not an exact list | 9 | `/raw_package/payload/tokens` | `RAW_OBSERVATION_INVALID` | `None` |
+| token list is empty | 9 | `/raw_package/payload/tokens` | `RAW_OBSERVATION_INVALID` | `None` |
+| token item has an unknown key | 9 | `/raw_package/payload/tokens/<index>` | `RAW_OBSERVATION_INVALID` | `None` |
+| token item is missing a known field | 9 | `/raw_package/payload/tokens/<index>` | `RAW_OBSERVATION_INVALID` | `None` |
+| token item has a wrong field type | 9 | `/raw_package/payload/tokens/<index>` | `RAW_OBSERVATION_INVALID` | `None` |
+| token kind is unsupported | 9 | `/raw_package/payload/tokens/<index>` | `RAW_OBSERVATION_INVALID` | `None` |
+| required token confidence is null | 9 | `/raw_package/payload/tokens/<index>` | `CONFIDENCE_INVALID` | `CONFIDENCE_REQUIRED_UNAVAILABLE` |
+| forbidden token confidence is non-null | 9 | `/raw_package/payload/tokens/<index>` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| token confidence is outside its closed range | 9 | `/raw_package/payload/tokens/<index>` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| token timestamp is negative | 10 | `/raw_package/payload/tokens/<index>` | `TIMING_INVALID` | `TIMESTAMP_OUT_OF_BOUNDS` |
+| token timestamp exceeds the closed maximum | 10 | `/raw_package/payload/tokens/<index>` | `TIMING_INVALID` | `TIMESTAMP_OUT_OF_BOUNDS` |
+| spoken token start equals end | 10 | `/raw_package/payload/tokens/<index>` | `TIMING_INVALID` | `ZERO_DURATION_WORD` |
+| spoken token start exceeds end | 10 | `/raw_package/payload/tokens/<index>` | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
+| spoken token order is non-monotonic | 10 | `/raw_package/payload/tokens/<index>` | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
+| spoken token interval overlaps the previous spoken interval | 10 | `/raw_package/payload/tokens/<index>` | `TIMING_INVALID` | `TIMESTAMP_OVERLAP` |
+| canonical word inventory is empty | 11 | `/narration_revision/canonical_words` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| canonical word inventory has a duplicate word ID | 11 | `/narration_revision/canonical_words` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| canonical word inventory has an invalid required field | 11 | `/narration_revision/canonical_words` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| canonical word order is invalid | 11 | `/narration_revision/canonical_words` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_WORD_ORDER_INVALID` |
+| only a forbidden many-canonical-to-one cover exists | 12 | `/raw_package/payload/tokens` | `TRANSCRIPT_DIVERGENCE` | `ADAPTER_PRECISION_OVERSTATED` |
+| no complete supported cover exists | 12 | `/raw_package/payload/tokens` | `TRANSCRIPT_DIVERGENCE` | `TRANSCRIPT_DIVERGENCE` |
+| timing container is not an exact list | 14 | `/word_timings` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| timing item count differs from canonical word count | 14 | `/word_timings` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| timing item has an unknown key | 14 | `/word_timings/<index>` | `STRUCTURE_INVALID` | `None` |
+| timing item is missing a known field | 14 | `/word_timings/<index>` | `STRUCTURE_INVALID` | `None` |
+| timing item has a wrong field type | 14 | `/word_timings/<index>` | `STRUCTURE_INVALID` | `None` |
+| timing item repeats an earlier word ID | 14 | `/word_timings/<index>` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| timing item contains a foreign word ID | 14 | `/word_timings/<index>` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| a canonical word ID is missing after item scan | 14 | `/word_timings` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
+| complete timing IDs are reordered | 14 | `/word_timings/<index>` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_WORD_ORDER_INVALID` |
+| declared start differs from computed start | 14 | `/word_timings/<index>` | `TIMING_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| declared end differs from computed end | 14 | `/word_timings/<index>` | `TIMING_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| declared confidence differs from computed confidence | 14 | `/word_timings/<index>` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| declared source indices differ from computed indices | 14 | `/word_timings/<index>` | `TIMING_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| a forbidden sensitive value is present | 15 | `/` | `SENSITIVE_DATA` | `None` |
+| a logical input cycle is present | 15 | `/` | `SENSITIVE_DATA` | `None` |
+| result projection hash mismatches | 16 | `/alignment_result_hash` | `IDENTITY_MISMATCH` | `None` |
+| result ID mismatches | 16 | `/alignment_result_id` | `IDENTITY_MISMATCH` | `None` |
+| serializer input is not a genuine result | serialize | `/` | `NOT_MATERIALIZED` | `None` |
+| genuine serializer input differs from its registry snapshot | serialize | `/` | `CONTENT_DRIFT` | `None` |
 
-The first failing stage is authoritative. Within a field list, the listed
-order is authoritative. Within unknown keys, the lexicographically first safe
-key wins; an unsafe key selects its containing-object pointer.
+For indexed rows, the lowest array index wins. For token known fields, field
+order is `index`, `kind`, `normalized_alignment_text`, `start_ms`, `end_ms`,
+`confidence_millionths`. For timing fields, `WordTiming` model order wins.
+Multi-fault input never masks an earlier stage.
 
-1. Preflight the six genuine dependencies in function-parameter order without
-   touching logical input.
-2. For loader input only, validate exact `bytes`, BOM, strict UTF-8, JSON
-   syntax, duplicate keys, and forbidden numeric syntax.
-3. Require root mapping and exact root key set. Unknown beats missing; missing
-   follows `AlignmentResult` field order.
-4. Validate exact root scalar/container types in model field order.
-5. Validate result schema and hash-scope literals, then timing-source and
-   confidence enums.
-6. Validate intrinsic genuine document/revision/audio/request/execution
-   bindings in section 10 order.
-7. Validate all declared result dependency identity fields in model order.
-8. Validate successful execution status.
-9. Parse the genuine raw canonical package envelope; require its exact media
-   type and payload mapping.
-10. Validate raw payload key set and fields in section 8 order.
-11. Validate raw revision/profile bindings, then timing-source/mode pairing.
-12. Validate token array presence and non-empty structure.
-13. Validate each token in array order: exact key set, index, kind, normalized
-    text presence/value, timestamp presence/type/range, confidence
-    presence/type/range.
-14. Validate strict token-index order, then spoken timestamp order,
-    non-overlap, and exact audio bounds.
-15. Validate canonical word inventory: non-empty, unique word IDs, contiguous
-    zero-based ordinal order, and non-empty exact normalized strings.
-16. Run the supported mapping path count; ambiguous wins before zero-path
-    diagnostic. If zero, run the many-to-one precision diagnostic, then
-    divergence.
-17. Compute the complete expected `WordTiming` tuple.
-18. Validate declared `word_timings` array shape and each object key/type.
-19. Compare declared word count; then ID multiset coverage; then ID order;
-    then start, end, confidence, and source indices against the computed tuple,
-    in that exact order.
-20. Scan the closed result envelope for forbidden/sensitive values and cycles;
-    only the defined safe identity strings, enums, integers, nulls, and arrays
-    can survive.
-21. Encode the hash projection and compute SHA-256.
-22. Check declared hash, then derived ID.
-23. Encode the full envelope; for loader input, compare exact source bytes.
-24. Construct frozen objects and independently re-encode the object envelope;
-    mismatch is an internal failure.
-25. Register atomically, verify genuineness, and return.
+## 20. Golden fixture `FX-ALR-01`
 
-No later stage may mask an earlier failure. No stage publishes a partial
-object, failure object, identity, hash, or canonical bytes.
+All values needed for clean-room reproduction follow.
 
-## 18. Complete bounded error oracle
-
-`Publication` is `NONE` for every row.
-
-| Invalid class | Stage | Exception | Pointer | Reason | Issue code |
-|---|---:|---|---|---|---|
-| wrong-type/non-genuine dependency | 1 | `TypeError` | n/a | n/a | n/a |
-| source not exact bytes | 2 | `AlignmentResultContractError` | `/` | `STRUCTURE_INVALID` | `None` |
-| BOM or non-canonical source encoding | 2/23 | `AlignmentResultContractError` | `/` | `NON_CANONICAL_SERIALIZATION` | `None` |
-| invalid UTF-8/JSON, duplicate key, float, exponent, or `-0` | 2 | `AlignmentResultContractError` | containing object or `/` | `STRUCTURE_INVALID` | `None` |
-| root not mapping, unknown/missing field, wrong field type | 3/4 | `AlignmentResultContractError` | exact selected pointer | `STRUCTURE_INVALID` | `None` |
-| unsupported schema/hash-scope literal | 5 | `AlignmentResultContractError` | exact field | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
-| unsupported timing/confidence enum | 5 | `AlignmentResultContractError` | exact field | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
-| genuine dependencies disagree | 6 | `AlignmentResultContractError` | dependency-role pointer | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| declared result dependency identity disagrees | 7 | `AlignmentResultContractError` | exact root field | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| execution `FAILED` or `BLOCKED` | 8 | `AlignmentResultContractError` | `/adapter_execution/status` | `EXECUTION_NOT_SUCCESSFUL` | `ADAPTER_FAILURE` |
-| raw media type differs from the exact profile media type | 9 | `AlignmentResultContractError` | `/raw_package/media_type` | `RAW_OBSERVATION_INVALID` | `None` |
-| raw payload is not a mapping | 9 | `AlignmentResultContractError` | `/raw_package/payload` | `RAW_OBSERVATION_INVALID` | `None` |
-| raw payload has an unknown key | 10 | `AlignmentResultContractError` | lexicographically first safe `/raw_package/payload/<key>`, otherwise `/raw_package/payload` | `RAW_OBSERVATION_INVALID` | `None` |
-| raw payload has no unknown key and is missing a required key | 10 | `AlignmentResultContractError` | first missing field in section 8 payload order | `RAW_OBSERVATION_INVALID` | `None` |
-| raw payload field has the wrong exact type | 10 | `AlignmentResultContractError` | exact payload field | `RAW_OBSERVATION_INVALID` | `None` |
-| raw payload schema is an unsupported exact string | 10 | `AlignmentResultContractError` | `/raw_package/payload/schema_version` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
-| raw revision/profile binding mismatch | 11 | `AlignmentResultContractError` | exact payload field | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
-| timing-source/mode mismatch | 11 | `AlignmentResultContractError` | `/raw_package/payload/timestamp_source` | `TIMESTAMP_SOURCE_FORBIDDEN` | `LLM_TIMESTAMP_SOURCE_FORBIDDEN` |
-| tokens has the wrong exact type | 10 | `AlignmentResultContractError` | `/raw_package/payload/tokens` | `RAW_OBSERVATION_INVALID` | `None` |
-| tokens array is empty | 12 | `AlignmentResultContractError` | `/raw_package/payload/tokens` | `RAW_OBSERVATION_INVALID` | `None` |
-| token key set is invalid | 13 | `AlignmentResultContractError` | exact selected token pointer | `RAW_OBSERVATION_INVALID` | `None` |
-| token kind has wrong exact type | 13 | `AlignmentResultContractError` | exact token kind pointer | `RAW_OBSERVATION_INVALID` | `None` |
-| token kind is an unsupported exact string | 13 | `AlignmentResultContractError` | exact token kind pointer | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
-| spoken normalized text invalid; non-spoken presence rule fails | 13 | `AlignmentResultContractError` | exact token field | `RAW_OBSERVATION_INVALID` | `None` |
-| confidence required but null | 13 | `AlignmentResultContractError` | token confidence pointer | `CONFIDENCE_INVALID` | `CONFIDENCE_REQUIRED_UNAVAILABLE` |
-| confidence forbidden or outside `[0,1000000]` | 13 | `AlignmentResultContractError` | token confidence pointer | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
-| negative/start or end beyond audio | 13/14 | `AlignmentResultContractError` | exact time pointer | `TIMING_INVALID` | `TIMESTAMP_OUT_OF_BOUNDS` |
-| start equals end | 13 | `AlignmentResultContractError` | token end pointer | `TIMING_INVALID` | `ZERO_DURATION_WORD` |
-| start exceeds end or token time order reverses | 13/14 | `AlignmentResultContractError` | exact time pointer | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
-| spoken intervals overlap | 14 | `AlignmentResultContractError` | later token start pointer | `TIMING_INVALID` | `TIMESTAMP_OVERLAP` |
-| canonical words empty/duplicate/missing | 15 | `AlignmentResultContractError` | `/narration_revision/canonical_words` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
-| canonical ordinal/order invalid | 15 | `AlignmentResultContractError` | exact canonical word pointer | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_WORD_ORDER_INVALID` |
-| more than one complete supported mapping | 16 | `AlignmentResultContractError` | `/raw_package/payload/tokens` | `MAPPING_AMBIGUOUS` | `DIVERGENCE_AMBIGUOUS` |
-| only a many-canonical-to-one-token cover exists | 16 | `AlignmentResultContractError` | `/raw_package/payload/tokens` | `TRANSCRIPT_DIVERGENCE` | `ADAPTER_PRECISION_OVERSTATED` |
-| no complete mapping exists | 16 | `AlignmentResultContractError` | `/raw_package/payload/tokens` | `TRANSCRIPT_DIVERGENCE` | `TRANSCRIPT_DIVERGENCE` |
-| declared timing count differs from canonical word count | 18 | `AlignmentResultContractError` | `/word_timings` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
-| declared word ID multiset has a duplicate, missing ID, or foreign ID | 19 | `AlignmentResultContractError` | first duplicate/foreign `/word_timings/<index>/word_id`, otherwise `/word_timings` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_COVERAGE_BLOCKER` |
-| declared IDs are the complete set but are reordered | 19 | `AlignmentResultContractError` | first reordered `/word_timings/<index>/word_id` | `TRANSCRIPT_DIVERGENCE` | `CANONICAL_WORD_ORDER_INVALID` |
-| declared start or end differs from computed evidence | 19 | `AlignmentResultContractError` | first differing time field | `TIMING_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
-| declared confidence differs from computed evidence | 19 | `AlignmentResultContractError` | first differing confidence field | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
-| declared source indices differ from the computed group | 19 | `AlignmentResultContractError` | first differing source-indices field | `TIMING_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
-| sensitive/unsafe value or cycle | 20 | `AlignmentResultContractError` | safe containing pointer | `SENSITIVE_DATA` | `None` |
-| result hash mismatch | 22 | `AlignmentResultContractError` | `/alignment_result_hash` | `IDENTITY_MISMATCH` | `None` |
-| result ID mismatch after correct hash | 22 | `AlignmentResultContractError` | `/alignment_result_id` | `IDENTITY_MISMATCH` | `None` |
-| loader bytes are semantically valid but not canonical | 23 | `AlignmentResultContractError` | `/` | `NON_CANONICAL_SERIALIZATION` | `None` |
-| serialize receives non-genuine/copy/proxy/subclass | preflight | `AlignmentResultContractError` | `/` | `NOT_MATERIALIZED` | `None` |
-| construction/registry insertion/verification fails | 24/25 | `RuntimeError` or original internal exception | n/a | n/a | n/a |
-
-For declared count failure, `/word_timings` is selected. For the first
-declared member mismatch, array order then `WordTiming` field order selects the
-pointer. Duplicate source indices, a non-increasing tuple, or a source index
-outside that word's computed group uses the source-indices pointer and
-`ADAPTER_PRECISION_OVERSTATED`.
-
-## 19. Security and no-leak invariants
-
-- The result serializes only closed dependency identities, timing-source and
-  confidence enums, word IDs, integer timings/confidence, and token indices.
-- It never serializes raw normalized strings, provider token text, provider
-  payload, model/endpoint/SDK data, credentials, cookies, API tokens,
-  authorization evidence, URI/path data, exception text, or runtime objects.
-- Exact-key validation prevents hidden extension channels.
-- Error messages are category-only; pointers use only static safe field names
-  and decimal array indices.
-- Input mappings are not retained. Raw package bytes are read only after all
-  six dependencies are proven genuine.
-- No filesystem, database, network, environment, credential store, clock,
-  random source, locale, or provider call participates in validation,
-  serialization, hash, or publication.
-
-Narration text is resolved later through the bound revision; it is deliberately
-not duplicated in this result.
-
-## 20. Immutability, genuine registry, and atomic publication
-
-`WordTiming` and `AlignmentResult` are exact frozen dataclasses. All incoming
-sequences become tuples; no caller mapping/list is retained. Canonical bytes,
-if privately cached, are immutable bytes and are never accepted as provenance
-for another object.
-
-The implementation owns a private weak registry keyed by `id(result)` whose
-value is a `weakref.ref` to the exact object. Genuineness requires exact
-`AlignmentResult` type, a present registry entry, and `entry() is result`.
-The weakref cleanup callback deletes the key only when the current registry
-value is the callback's own weakref. Collection of an old object therefore
-cannot remove a replacement entry after identity reuse.
-
-Publication is transactional:
-
-1. complete validation, hash/ID checks, construction, and canonical
-   re-encoding happen before registration;
-2. insert one weakref entry;
-3. verify exact genuineness;
-4. if insertion or verification raises or verification is false, delete only
-   the just-inserted owned entry, preserve any unrelated/replacement entry,
-   publish nothing, and propagate a sanitized internal failure;
-5. return only after verification succeeds.
-
-Copy, deep copy, pickle reconstruction, `dataclasses.replace`, direct
-constructor use, `object.__new__`, subclassing, proxying, field cloning, and
-mapping/envelope reconstruction do not transfer or mint provenance.
-Serialization rejects all such objects. Dependency collection after successful
-publication cannot alter result values or bytes; dependencies are validation
-inputs and are not mutable retained state.
-
-## 21. Golden fixture `FX-ALR-01`
-
-This fixture is independently reproducible from existing genuine fixture
-construction rules.
-
-1. Materialize the existing FX-34 narration (`Alpha beta. Gamma delta.`) with
-   `materialize_canonical_narration`. Its revision identity is:
+1. Materialize existing FX-34 narration from exact source
+`Alpha beta. Gamma delta.`. Required identities:
 
 ```text
-narrev_d60d7ae087efb0e309d4
-sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0
-normalization profile hash:
-sha256:fda29f7bd8d0cc018489dcb0a7163b8130022e3bfd5e8a0cb88918c2723bb862
+project_id=prj_fx34
+document_id=nardoc_fx34
+narration_revision_id=narrev_d60d7ae087efb0e309d4
+narration_revision_hash=sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0
+normalization_profile_hash=sha256:fda29f7bd8d0cc018489dcb0a7163b8130022e3bfd5e8a0cb88918c2723bb862
+narration_document_snapshot_hash=sha256:7b3111ff00144fff30daa73fc3024868f0f0a7107b722e25ccf6107e9307143b
 ```
 
-Its canonical words in order are:
+Canonical words are:
 
 ```text
 nword_5321ba14c2c4b28c31ab alpha
@@ -689,166 +793,198 @@ nword_49e85bb034c88ef36f26 gamma
 nword_d81fe913754f8b49c296 delta
 ```
 
-2. Generate the existing deterministic PCM WAVE fixture form with sample rate
-   8000, one channel, 32000 frames, signed little-endian S16, and frame sample
-   `((frame * 257 + 12345) % 65536) - 32768`. The exact file length is 64044
-   bytes and media hash is:
+2. Generate PCM WAVE: 8000 Hz, one channel, 32000 frames, little-endian S16,
+sample `((frame * 257 + 12345) % 65536) - 32768`.
 
 ```text
-sha256:913d5cfe5fb72e8586b42cee742d3bea4da16d3e97fb158835d4cd060ae3bd72
-```
-
-Materialize it with the FX-34 revision binding. The exact audio identities and
-duration are:
-
-```text
-aud_63d5743b733e34f12018
-sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968
+file length=64044
+media hash=sha256:913d5cfe5fb72e8586b42cee742d3bea4da16d3e97fb158835d4cd060ae3bd72
+audio ID=aud_63d5743b733e34f12018
+audio hash=sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968
 duration_us_numerator=4000000
 duration_us_denominator=1
 ```
 
-3. The exact canonical raw payload bytes are the following single line:
+3. Exact raw root inputs:
+
+```text
+schema_version=TRP-RAW-V1
+run_id=run_alignment_result_fx01
+raw_id=raw_alignment_result_fx01
+media_type=application/vnd.kurgu.alignment-token-observation+json
+issue_codes=[]
+```
+
+Exact payload bytes:
 
 ```json
-{"narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","normalization_profile_hash":"sha256:fda29f7bd8d0cc018489dcb0a7163b8130022e3bfd5e8a0cb88918c2723bb862","schema_version":"ALIGNMENT-TOKEN-OBSERVATION-V1","timestamp_source":"ADAPTER_MEASURED","tokens":[{"confidence_millionths":980000,"end_ms":500,"index":0,"kind":"SPOKEN","normalized_alignment_text":"alpha","start_ms":100},{"confidence_millionths":960000,"end_ms":900,"index":1,"kind":"SPOKEN","normalized_alignment_text":"beta","start_ms":520},{"confidence_millionths":null,"end_ms":null,"index":2,"kind":"NON_SPOKEN","normalized_alignment_text":null,"start_ms":null},{"confidence_millionths":940000,"end_ms":1700,"index":3,"kind":"SPOKEN","normalized_alignment_text":"gamma","start_ms":1200},{"confidence_millionths":920000,"end_ms":2300,"index":4,"kind":"SPOKEN","normalized_alignment_text":"delta","start_ms":1720},{"confidence_millionths":null,"end_ms":null,"index":5,"kind":"NON_SPOKEN","normalized_alignment_text":null,"start_ms":null}]}
+{"narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","normalization_profile_hash":"sha256:fda29f7bd8d0cc018489dcb0a7163b8130022e3bfd5e8a0cb88918c2723bb862","schema_version":"ALIGNMENT-TOKEN-OBSERVATION-V1","tokens":[{"confidence_millionths":980000,"end_ms":500,"index":0,"kind":"SPOKEN","normalized_alignment_text":"alpha","start_ms":100},{"confidence_millionths":960000,"end_ms":900,"index":1,"kind":"SPOKEN","normalized_alignment_text":"beta","start_ms":520},{"confidence_millionths":null,"end_ms":null,"index":2,"kind":"NON_SPOKEN","normalized_alignment_text":null,"start_ms":null},{"confidence_millionths":940000,"end_ms":1700,"index":3,"kind":"SPOKEN","normalized_alignment_text":"gamma","start_ms":1200},{"confidence_millionths":920000,"end_ms":2300,"index":4,"kind":"SPOKEN","normalized_alignment_text":"delta","start_ms":1720},{"confidence_millionths":null,"end_ms":null,"index":5,"kind":"NON_SPOKEN","normalized_alignment_text":null,"start_ms":null}]}
 ```
 
 ```text
-payload byte length=1100
-payload SHA-256=3b0400702d5472413b9428b1c852401c591f0bed71ac16978a377e7ef2775c37
-raw package canonical hash=sha256:57c6fd734242b7adb82de8f32f67fea350c78d50071acca1c3e4cac95b5e2a4d
-raw package canonical byte length=1397
+payload length=1062
+payload SHA-256=86497808c046ec4334395f23eaef5a8e9976780af61a2ec7278ade6137d0b0ad
+raw canonical length=1359
+raw canonical hash=sha256:21891739f58b8dfc512de572105c13dc666d42ebeb2e98e02f2d5abd32826a18
 ```
 
-4. Materialize a LOCAL request with adapter ID
-`adapter_alignment_fx01`, version `1.0.0`, confidence `SUPPORTED`, network
-`FORBIDDEN`, license `LOCAL`, and canonical transcript reference. Then
-materialize a LOCAL/SUCCEEDED execution with confidence `AVAILABLE`:
+4. Build a source LOCAL request and execution, then a current REPLAY request
+and execution. Both capabilities use adapter `adapter_alignment_fx01`, version
+`1.0.0`, English, `audio/wav`, confidence `SUPPORTED`, network `FORBIDDEN`,
+and canonical transcript reference. LOCAL license is `LOCAL`; REPLAY license
+is `REPLAY`. All statuses are `SUCCEEDED` and confidence is `AVAILABLE`.
 
 ```text
-alignment request ID=arq_5a457891dd4d800258a702662852cbaa
-alignment request hash=5a457891dd4d800258a702662852cbaa762ab41394f9922089bb6208badf12f9
-alignment request envelope length=1197
-adapter execution ID=aex_d34f77353dc56cb1b8390365e96a2733
-adapter execution hash=d34f77353dc56cb1b8390365e96a2733b27f14f99eacb107bc1a24ba9e96d56d
-adapter execution envelope length=684
+source LOCAL request ID=arq_0e915d69f6fc1f49dc9f3f00f05afd93
+source LOCAL request hash=0e915d69f6fc1f49dc9f3f00f05afd93e5bdbc660e5178610485165710dea57a
+source LOCAL request envelope length=1197
+source LOCAL request envelope SHA-256=de821f628dcef33ebdc38f179b7b22c5803d4f1a8a02b31d20608f2b06f4bf04
+source LOCAL execution ID=aex_cb5681908af17ff36bd5aadb84feda79
+source LOCAL execution hash=cb5681908af17ff36bd5aadb84feda79cb07411fbc54a964ba0e553cb5a95a21
+source LOCAL execution envelope length=684
+source LOCAL execution envelope SHA-256=ed591f632b90af4b1781322f7c0546fdb24223b8ddddf1e6c5513cee27c41922
+REPLAY request ID=arq_08487b276310e36fe3163499ffb773a0
+REPLAY request hash=08487b276310e36fe3163499ffb773a0f06b2d969640d798a1ac360523f01234
+REPLAY request envelope length=1200
+REPLAY request envelope SHA-256=db2c1ce2c0f01e4b949411da6edbc39e9523ba7cd1e71528c17766c11e1862d2
+REPLAY execution ID=aex_0d5a9c0a156e9e3ca7fbffc460b74c26
+REPLAY execution hash=0d5a9c0a156e9e3ca7fbffc460b74c261fa0f5f645580e10684d145e526b123b
+REPLAY execution envelope length=1056
+REPLAY execution envelope SHA-256=27389e31161c15d6e79442c97c5661d46c2f7d1d5b065d82a773b4c5910046e1
 ```
 
-5. The exact result hash-projection bytes are:
+Exact source LOCAL request envelope:
 
 ```json
-{"adapter_execution_hash":"d34f77353dc56cb1b8390365e96a2733b27f14f99eacb107bc1a24ba9e96d56d","adapter_execution_id":"aex_d34f77353dc56cb1b8390365e96a2733","alignment_request_hash":"5a457891dd4d800258a702662852cbaa762ab41394f9922089bb6208badf12f9","alignment_request_id":"arq_5a457891dd4d800258a702662852cbaa","audio_artifact_hash":"sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968","audio_artifact_id":"aud_63d5743b733e34f12018","confidence_availability":"AVAILABLE","document_id":"nardoc_fx34","hash_scope_version":"ALIGNMENT-RESULT-HASH-V1","narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","project_id":"prj_fx34","schema_version":"ALIGNMENT-RESULT-V1","temporal_raw_package_hash":"sha256:57c6fd734242b7adb82de8f32f67fea350c78d50071acca1c3e4cac95b5e2a4d","timing_source":"ADAPTER_MEASURED","word_timings":[{"confidence_millionths":980000,"end_ms":500,"source_token_indices":[0],"start_ms":100,"word_id":"nword_5321ba14c2c4b28c31ab"},{"confidence_millionths":960000,"end_ms":900,"source_token_indices":[1],"start_ms":520,"word_id":"nword_0cc9d55672a3cb4e9199"},{"confidence_millionths":940000,"end_ms":1700,"source_token_indices":[3],"start_ms":1200,"word_id":"nword_49e85bb034c88ef36f26"},{"confidence_millionths":920000,"end_ms":2300,"source_token_indices":[4],"start_ms":1720,"word_id":"nword_d81fe913754f8b49c296"}]}
+{"adapter_capability":{"adapter_id":"adapter_alignment_fx01","adapter_version":"1.0.0","confidence_output":"SUPPORTED","language_tag":"en","license_class":"LOCAL","media_type":"audio/wav","mode":"LOCAL","network_access":"FORBIDDEN","schema_version":"ADAPTER-CAPABILITY-V1"},"alignment_request_hash":"0e915d69f6fc1f49dc9f3f00f05afd93e5bdbc660e5178610485165710dea57a","alignment_request_id":"arq_0e915d69f6fc1f49dc9f3f00f05afd93","audio_artifact_hash":"sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968","audio_artifact_id":"aud_63d5743b733e34f12018","document_id":"nardoc_fx34","hash_scope_version":"ALIGNMENT-REQUEST-HASH-V1","mode":"LOCAL","narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","project_id":"prj_fx34","schema_version":"ALIGNMENT-REQUEST-V1","temporal_raw_package_hash":"sha256:21891739f58b8dfc512de572105c13dc666d42ebeb2e98e02f2d5abd32826a18","transcript_reference":{"narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","text_scope":"CANONICAL_NARRATION"}}
 ```
 
-```text
-projection byte length=1449
-projection SHA-256=cb0b9bc7c59f7fd636278a75a281fcdd9703335108766cebdb2e8553e306a338
-alignment_result_id=alr_cb0b9bc7c59f7fd636278a75a281fcdd
-```
-
-6. The exact canonical envelope bytes are:
+Exact source LOCAL execution envelope:
 
 ```json
-{"adapter_execution_hash":"d34f77353dc56cb1b8390365e96a2733b27f14f99eacb107bc1a24ba9e96d56d","adapter_execution_id":"aex_d34f77353dc56cb1b8390365e96a2733","alignment_request_hash":"5a457891dd4d800258a702662852cbaa762ab41394f9922089bb6208badf12f9","alignment_request_id":"arq_5a457891dd4d800258a702662852cbaa","alignment_result_hash":"cb0b9bc7c59f7fd636278a75a281fcdd9703335108766cebdb2e8553e306a338","alignment_result_id":"alr_cb0b9bc7c59f7fd636278a75a281fcdd","audio_artifact_hash":"sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968","audio_artifact_id":"aud_63d5743b733e34f12018","confidence_availability":"AVAILABLE","document_id":"nardoc_fx34","hash_scope_version":"ALIGNMENT-RESULT-HASH-V1","narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","project_id":"prj_fx34","schema_version":"ALIGNMENT-RESULT-V1","temporal_raw_package_hash":"sha256:57c6fd734242b7adb82de8f32f67fea350c78d50071acca1c3e4cac95b5e2a4d","timing_source":"ADAPTER_MEASURED","word_timings":[{"confidence_millionths":980000,"end_ms":500,"source_token_indices":[0],"start_ms":100,"word_id":"nword_5321ba14c2c4b28c31ab"},{"confidence_millionths":960000,"end_ms":900,"source_token_indices":[1],"start_ms":520,"word_id":"nword_0cc9d55672a3cb4e9199"},{"confidence_millionths":940000,"end_ms":1700,"source_token_indices":[3],"start_ms":1200,"word_id":"nword_49e85bb034c88ef36f26"},{"confidence_millionths":920000,"end_ms":2300,"source_token_indices":[4],"start_ms":1720,"word_id":"nword_d81fe913754f8b49c296"}]}
+{"adapter_execution_hash":"cb5681908af17ff36bd5aadb84feda79cb07411fbc54a964ba0e553cb5a95a21","adapter_execution_id":"aex_cb5681908af17ff36bd5aadb84feda79","adapter_id":"adapter_alignment_fx01","adapter_version":"1.0.0","alignment_request_hash":"0e915d69f6fc1f49dc9f3f00f05afd93e5bdbc660e5178610485165710dea57a","alignment_request_id":"arq_0e915d69f6fc1f49dc9f3f00f05afd93","confidence_availability_evidence":{"availability":"AVAILABLE","schema_version":"CONFIDENCE-AVAILABILITY-EVIDENCE-V1"},"hash_scope_version":"ADAPTER-EXECUTION-HASH-V1","mode":"LOCAL","paid_fallback_authorization_evidence":null,"replay_evidence":null,"schema_version":"ADAPTER-EXECUTION-V1","status":"SUCCEEDED"}
+```
+
+Exact REPLAY request envelope:
+
+```json
+{"adapter_capability":{"adapter_id":"adapter_alignment_fx01","adapter_version":"1.0.0","confidence_output":"SUPPORTED","language_tag":"en","license_class":"REPLAY","media_type":"audio/wav","mode":"REPLAY","network_access":"FORBIDDEN","schema_version":"ADAPTER-CAPABILITY-V1"},"alignment_request_hash":"08487b276310e36fe3163499ffb773a0f06b2d969640d798a1ac360523f01234","alignment_request_id":"arq_08487b276310e36fe3163499ffb773a0","audio_artifact_hash":"sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968","audio_artifact_id":"aud_63d5743b733e34f12018","document_id":"nardoc_fx34","hash_scope_version":"ALIGNMENT-REQUEST-HASH-V1","mode":"REPLAY","narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","project_id":"prj_fx34","schema_version":"ALIGNMENT-REQUEST-V1","temporal_raw_package_hash":"sha256:21891739f58b8dfc512de572105c13dc666d42ebeb2e98e02f2d5abd32826a18","transcript_reference":{"narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","text_scope":"CANONICAL_NARRATION"}}
+```
+
+Exact REPLAY execution envelope:
+
+```json
+{"adapter_execution_hash":"0d5a9c0a156e9e3ca7fbffc460b74c261fa0f5f645580e10684d145e526b123b","adapter_execution_id":"aex_0d5a9c0a156e9e3ca7fbffc460b74c26","adapter_id":"adapter_alignment_fx01","adapter_version":"1.0.0","alignment_request_hash":"08487b276310e36fe3163499ffb773a0f06b2d969640d798a1ac360523f01234","alignment_request_id":"arq_08487b276310e36fe3163499ffb773a0","confidence_availability_evidence":{"availability":"AVAILABLE","schema_version":"CONFIDENCE-AVAILABILITY-EVIDENCE-V1"},"hash_scope_version":"ADAPTER-EXECUTION-HASH-V1","mode":"REPLAY","paid_fallback_authorization_evidence":null,"replay_evidence":{"schema_version":"REPLAY-EVIDENCE-V1","source_adapter_execution_hash":"cb5681908af17ff36bd5aadb84feda79cb07411fbc54a964ba0e553cb5a95a21","source_adapter_execution_id":"aex_cb5681908af17ff36bd5aadb84feda79","source_alignment_request_hash":"0e915d69f6fc1f49dc9f3f00f05afd93e5bdbc660e5178610485165710dea57a","source_alignment_request_id":"arq_0e915d69f6fc1f49dc9f3f00f05afd93"},"schema_version":"ADAPTER-EXECUTION-V1","status":"SUCCEEDED"}
+```
+
+5. Exact timing-origin evidence canonical envelope bytes:
+
+```json
+{"adapter_execution_hash":"0d5a9c0a156e9e3ca7fbffc460b74c261fa0f5f645580e10684d145e526b123b","adapter_execution_id":"aex_0d5a9c0a156e9e3ca7fbffc460b74c26","alignment_request_hash":"08487b276310e36fe3163499ffb773a0f06b2d969640d798a1ac360523f01234","alignment_request_id":"arq_08487b276310e36fe3163499ffb773a0","audio_artifact_hash":"sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968","audio_artifact_id":"aud_63d5743b733e34f12018","fixture_id":"FX-ALR-01","hash_scope_version":"TIMING-ORIGIN-EVIDENCE-HASH-V1","narration_document_snapshot_hash":"sha256:7b3111ff00144fff30daa73fc3024868f0f0a7107b722e25ccf6107e9307143b","narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","schema_version":"TIMING-ORIGIN-EVIDENCE-V1","temporal_raw_package_hash":"sha256:21891739f58b8dfc512de572105c13dc666d42ebeb2e98e02f2d5abd32826a18","timing_origin_evidence_hash":"f140843e7e1f86817c7acc0bdc8eb775021ffd8c5a5a13809d5e33407c34ae03","timing_origin_evidence_id":"toe_f140843e7e1f86817c7acc0bdc8eb775","timing_payload_byte_hash":"sha256:86497808c046ec4334395f23eaef5a8e9976780af61a2ec7278ade6137d0b0ad"}
 ```
 
 ```text
-envelope byte length=1601
-envelope SHA-256=2555507a358fc0c1dfcde0ff73ba4a70f17fea0b339d45438e86350f8d35a0cb
+evidence length=1206
+evidence projection hash=f140843e7e1f86817c7acc0bdc8eb775021ffd8c5a5a13809d5e33407c34ae03
+evidence ID=toe_f140843e7e1f86817c7acc0bdc8eb775
+evidence envelope SHA-256=11ba9218006576fc87f0bcac1bf7cbe808dcdfc78a3fa3f957e97918960628a9
 ```
 
-The projection and envelope were independently encoded with the repository
-canonical encoder and with a separate UTF-8, sorted-key, compact JSON encoder;
-both methods produced byte-identical values, lengths, and SHA-256 digests.
+6. Exact result projection bytes:
 
-## 22. Mandatory future test matrix
+```json
+{"adapter_execution_hash":"0d5a9c0a156e9e3ca7fbffc460b74c261fa0f5f645580e10684d145e526b123b","adapter_execution_id":"aex_0d5a9c0a156e9e3ca7fbffc460b74c26","alignment_request_hash":"08487b276310e36fe3163499ffb773a0f06b2d969640d798a1ac360523f01234","alignment_request_id":"arq_08487b276310e36fe3163499ffb773a0","audio_artifact_hash":"sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968","audio_artifact_id":"aud_63d5743b733e34f12018","confidence_availability":"AVAILABLE","document_id":"nardoc_fx34","hash_scope_version":"ALIGNMENT-RESULT-HASH-V1","narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","project_id":"prj_fx34","schema_version":"ALIGNMENT-RESULT-V1","temporal_raw_package_hash":"sha256:21891739f58b8dfc512de572105c13dc666d42ebeb2e98e02f2d5abd32826a18","timing_origin_evidence_hash":"f140843e7e1f86817c7acc0bdc8eb775021ffd8c5a5a13809d5e33407c34ae03","timing_origin_evidence_id":"toe_f140843e7e1f86817c7acc0bdc8eb775","timing_source":"REPLAY_VERIFIED","word_timings":[{"confidence_millionths":980000,"end_ms":500,"source_token_indices":[0],"start_ms":100,"word_id":"nword_5321ba14c2c4b28c31ab"},{"confidence_millionths":960000,"end_ms":900,"source_token_indices":[1],"start_ms":520,"word_id":"nword_0cc9d55672a3cb4e9199"},{"confidence_millionths":940000,"end_ms":1700,"source_token_indices":[3],"start_ms":1200,"word_id":"nword_49e85bb034c88ef36f26"},{"confidence_millionths":920000,"end_ms":2300,"source_token_indices":[4],"start_ms":1720,"word_id":"nword_d81fe913754f8b49c296"}]}
+```
 
-The focused future test module MUST cover:
+```text
+projection length=1612
+projection SHA-256=1521f195a591df09edaa968d8f5fa91ed367be1c7190a3f614823d74b3cd36bb
+alignment_result_id=alr_1521f195a591df09edaa968d8f5fa91e
+```
 
-- exact constants, enum inheritance/member order/values/no aliases, dataclass
-  fields/order/types, function signatures, exports, and forbidden exports;
-- genuine FX-34 narration, deterministic 4-second audio, raw package, request,
-  and execution construction for `FX-ALR-01`;
-- exact golden projection/envelope bytes, lengths, hash, ID, envelope SHA-256,
-  two independent materializations, and load/serialize equality;
-- each error-oracle row, exact stage, pointer, reason, issue code, safe message,
-  publication `NONE`, and no sensitive leakage;
-- multi-fault tests proving dependency preflight, unknown-before-missing,
-  type-before-enum, dependency-before-execution, raw shape-before-mapping,
-  timing-before-mapping, ambiguity-before zero-path diagnostic, semantic
-  validation before identity, and hash-before-ID precedence;
-- exact built-in type resistance for every string and integer, including bool,
-  subclasses, arbitrary Enums, floats, decimal strings, and coercible objects;
-- duplicate JSON keys at root and nested timing objects, BOM, invalid UTF-8,
-  forbidden number syntax, Unicode/NFC/control boundaries, whitespace and
-  member-order non-canonical bytes;
-- every genuine dependency role with wrong type, copy, deep copy, pickle,
-  replace, reconstruction, proxy, subclass, role swap, distinct genuine
-  mismatch, stale registry, and collection cases;
-- `SUCCEEDED` for LOCAL/REPLAY/FREE_API/PAID_API/MANUAL_UI, rejection of every
-  FAILED/BLOCKED execution, MANUAL_UI transport versus timing-origin
-  separation, and timing-source mode parity;
-- AVAILABLE/UNAVAILABLE/NOT_APPLICABLE confidence presence, bounds `0` and
-  `1000000`, out-of-range values, group-min aggregation, and capability parity;
-- punctuation and non-spoken exclusion, one-to-one, one canonical to multiple
-  raw tokens, forbidden many canonical to one raw token, no mapping, ambiguous
-  mapping, exact-case mismatch, no fuzzy/search fallback, skipped/extra/reused
-  tokens, and complete coverage;
-- timing boundaries at zero and exact audio end, one millisecond duration,
-  equality adjacency, arbitrary allowed gaps, negative, zero, reversed,
-  overlap, audio overflow, non-monotonic indices, duplicate indices, duplicate
-  word IDs, missing/extra/reordered words, and wrong source-token tuples;
-- result field mutation, nested tuple mutation attempts, source input mutation,
-  private projection-copy mutation, bytes-copy mutation, direct construction,
-  object reconstruction, and serialize-not-genuine rejection;
-- weak-registry collection cleanup, stale replacement safety, insertion
-  exception rollback, verification false/exception rollback, unrelated-entry
-  preservation, and no strong dependency retention;
-- static import direction and proof that production has no filesystem,
-  database, network, provider, clock, random, UI, frame, caption, emphasis, or
-  Phase 3 dependency.
+7. Exact result envelope bytes:
 
-Every golden oracle is a literal test constant. Tests MUST NOT derive the
-expected hash or ID by calling the production projection helper under test.
+```json
+{"adapter_execution_hash":"0d5a9c0a156e9e3ca7fbffc460b74c261fa0f5f645580e10684d145e526b123b","adapter_execution_id":"aex_0d5a9c0a156e9e3ca7fbffc460b74c26","alignment_request_hash":"08487b276310e36fe3163499ffb773a0f06b2d969640d798a1ac360523f01234","alignment_request_id":"arq_08487b276310e36fe3163499ffb773a0","alignment_result_hash":"1521f195a591df09edaa968d8f5fa91ed367be1c7190a3f614823d74b3cd36bb","alignment_result_id":"alr_1521f195a591df09edaa968d8f5fa91e","audio_artifact_hash":"sha256:63d5743b733e34f120180d3a787d78cb0a26119395bbee1aa2e45c257713d968","audio_artifact_id":"aud_63d5743b733e34f12018","confidence_availability":"AVAILABLE","document_id":"nardoc_fx34","hash_scope_version":"ALIGNMENT-RESULT-HASH-V1","narration_revision_hash":"sha256:d60d7ae087efb0e309d4e3f28fedea074d15e11405046249a23b2c7bb42fe0c0","narration_revision_id":"narrev_d60d7ae087efb0e309d4","project_id":"prj_fx34","schema_version":"ALIGNMENT-RESULT-V1","temporal_raw_package_hash":"sha256:21891739f58b8dfc512de572105c13dc666d42ebeb2e98e02f2d5abd32826a18","timing_origin_evidence_hash":"f140843e7e1f86817c7acc0bdc8eb775021ffd8c5a5a13809d5e33407c34ae03","timing_origin_evidence_id":"toe_f140843e7e1f86817c7acc0bdc8eb775","timing_source":"REPLAY_VERIFIED","word_timings":[{"confidence_millionths":980000,"end_ms":500,"source_token_indices":[0],"start_ms":100,"word_id":"nword_5321ba14c2c4b28c31ab"},{"confidence_millionths":960000,"end_ms":900,"source_token_indices":[1],"start_ms":520,"word_id":"nword_0cc9d55672a3cb4e9199"},{"confidence_millionths":940000,"end_ms":1700,"source_token_indices":[3],"start_ms":1200,"word_id":"nword_49e85bb034c88ef36f26"},{"confidence_millionths":920000,"end_ms":2300,"source_token_indices":[4],"start_ms":1720,"word_id":"nword_d81fe913754f8b49c296"}]}
+```
 
-## 23. Backward compatibility and non-claims
+```text
+envelope length=1764
+envelope SHA-256=c2bab562863094ae6c1d29964a86316641dfc22cc5aa2d68dcc7542d9e4aef99
+```
 
-This is an additive candidate. It does not change TRP-RAW-V1 canonicalization,
-the narration hierarchy or word IDs, AudioArtifact identity/security,
-AlignmentRequest, AdapterExecution, stable issue-code inventory, existing
-exports, or any accepted Slice 1-5 byte/hash oracle. The raw observation
-profile is a consumer profile inside the existing opaque TRP payload boundary;
-it does not broaden Slice 1 validation.
+Repository canonical encoding and an independent compact sorted-key UTF-8
+encoder MUST produce byte-identical payload, evidence, projection, and
+envelope values.
 
-This document does not claim that the candidate is accepted, implementation is
-authorized, code or tests exist, the timing file is written, quality gates
-pass, another Slice number exists, a total Phase 2 Slice count is known, a
-completion percentage exists, or Phase 2 is closed.
+## 21. Mandatory future tests
 
-## 24. Specification acceptance and future authorization gates
+The focused module MUST cover:
 
-Before acceptance, all of the following are required:
+- exact constants, enums, dataclass fields/order/types, signatures, exports,
+  and forbidden exports;
+- exact evidence allowlist membership, canonical bytes, hash/ID, direct
+  construction/copy/proxy rejection, and no runtime allowlist extension;
+- the complete FX-ALR-01 construction including exact run/raw IDs, source
+  LOCAL lineage, REPLAY lineage, all bytes, lengths, hashes, and IDs;
+- caller-authored arbitrary valid milliseconds through genuine Slice 1-5
+  public materializers rejected because evidence raw/payload/execution binding
+  does not match;
+- rejection of LOCAL/FREE_API/PAID_API/MANUAL_UI publication, every
+  FAILED/BLOCKED state, mode downgrade, and former `ADAPTER_MEASURED` input;
+- mutation via `object.__setattr__` for every dependency and evidence;
+  recomputation must reject the first drift pointer before logical input;
+- result ordinary/coherent mutation, nested replacement, copy/deepcopy,
+  pickle/replace/direct/new/subclass/proxy and serializer snapshot checks;
+- exact one-to-one and one-word-to-many-token mapping, repeated words,
+  punctuation/non-spoken exclusion, many-words-to-one rejection, missing,
+  extra, case/Unicode mismatch, reorder, and proof-oriented exhaustive small
+  search showing complete path count never exceeds one;
+- confidence modes/bounds/group minimum and every timing boundary;
+- exact logical dict/list acceptance and rejection of tuple, arbitrary
+  Mapping/Sequence, subclasses, strings, bytes, iterators, and coercion;
+- duplicate/unknown/missing keys at every object level, fixed pointers,
+  attacker-key no-leak, multi-fault precedence, and every oracle row;
+- strict loader syntax, canonical round trips, hash-before-ID, two independent
+  result materializations, registry rollback/stale cleanup, and no mutable
+  alias retention;
+- static import direction and absence of filesystem, database, network,
+  provider, clock, random, UI, frame, caption, emphasis, or Phase 3 imports.
 
-1. manual end-to-end normative review;
-2. independent read-only audit of fields, bindings, mapping, timing,
-   confidence, serialization, identity, error precedence, security, registry,
-   golden bytes, and test completeness;
-3. bounded corrections for every material finding;
-4. independent golden byte/hash recomputation;
-5. exact file SHA-256 and byte-length verification;
-6. a bodyless specification commit and normal remote closure;
-7. consistent documentation synchronization recording acceptance only after
-   those gates pass.
+Golden expected constants MUST be literal and not derived through production
+projection helpers under test.
+
+## 22. Backward compatibility and non-claims
+
+This additive candidate does not change TRP-RAW-V1, narration identities,
+AudioArtifact, AlignmentRequest, AdapterExecution, stable issue inventory, or
+accepted Slice 1-5 bytes/hashes. Its raw profile is a consumer profile inside
+the opaque Slice 1 payload boundary.
+
+The candidate does not claim general provider timing support. Only exact
+allowlisted repository replay evidence can publish. No implementation, test,
+timing file, quality gate, new Slice number, total Slice count, completion
+percentage, or Phase 2 closure is claimed.
+
+## 23. Acceptance and future authorization gates
+
+Before acceptance:
+
+1. targeted independent read-only re-audit must close F1-F5;
+2. golden bytes/hashes/lengths/IDs must be independently recomputed;
+3. exact file SHA-256 and byte length must be verified;
+4. this correction commit must be normally remote closed;
+5. a later documentation task may record acceptance only after those gates.
 
 Acceptance permits only a separate implementation-authorization decision.
-Implementation remains forbidden until that decision explicitly verifies
-bounded paths, public delta, tests, regression boundary, and commit scope.
+That later decision must verify exact paths, public delta, tests, regression
+boundary, and commit scope.
 
 ```text
 SPECIFICATION_STATUS=CANDIDATE
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
 PHASE2_CLOSED=NO
-NEXT_REQUIRED_GATE=INDEPENDENT_READ_ONLY_AUDIT
+INDEPENDENT_AUDIT_FINDINGS_F1_F5=REPAIRED_PENDING_TARGETED_REAUDIT
+NEXT_REQUIRED_GATE=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
 ```
