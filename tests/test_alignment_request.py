@@ -187,6 +187,29 @@ SLICE4_PUBLIC_EXPORTS = frozenset(
         "serialize_alignment_request",
     }
 )
+SLICE5_PUBLIC_EXPORTS = frozenset(
+    {
+        "ADAPTER_EXECUTION_V1",
+        "ADAPTER_EXECUTION_HASH_V1",
+        "PAID_FALLBACK_AUTHORIZATION_EVIDENCE_V1",
+        "REPLAY_EVIDENCE_V1",
+        "CONFIDENCE_AVAILABILITY_EVIDENCE_V1",
+        "AdapterExecutionMode",
+        "AdapterExecutionStatus",
+        "PaidFallbackAuthorizationSource",
+        "PaidFallbackAuthorizationDecision",
+        "ConfidenceAvailability",
+        "PaidFallbackAuthorizationEvidence",
+        "ReplayEvidence",
+        "ConfidenceAvailabilityEvidence",
+        "AdapterExecution",
+        "AdapterExecutionRejectionReason",
+        "AdapterExecutionContractError",
+        "materialize_adapter_execution",
+        "load_adapter_execution",
+        "serialize_adapter_execution",
+    }
+)
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -903,7 +926,13 @@ def test_alignment_request_public_exports_are_exact() -> None:
     import engine.contracts as contracts
 
     current_exports = set(contracts.__all__)
-    assert current_exports - PRE_SLICE4_PUBLIC_EXPORTS == SLICE4_PUBLIC_EXPORTS
+    assert current_exports & SLICE4_PUBLIC_EXPORTS == SLICE4_PUBLIC_EXPORTS
+    assert current_exports - PRE_SLICE4_PUBLIC_EXPORTS == (
+        SLICE4_PUBLIC_EXPORTS | SLICE5_PUBLIC_EXPORTS
+    )
+    assert current_exports - (
+        PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
+    ) == SLICE5_PUBLIC_EXPORTS
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")
     assert not hasattr(contracts, "_is_materialized_alignment_request")
