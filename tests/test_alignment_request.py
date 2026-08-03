@@ -210,6 +210,25 @@ SLICE5_PUBLIC_EXPORTS = frozenset(
         "serialize_adapter_execution",
     }
 )
+ALIGNMENT_RESULT_PUBLIC_EXPORTS = frozenset(
+    {
+        "ALIGNMENT_RESULT_V1",
+        "ALIGNMENT_RESULT_HASH_V1",
+        "ALIGNMENT_TOKEN_OBSERVATION_V1",
+        "TIMING_ORIGIN_EVIDENCE_V1",
+        "TIMING_ORIGIN_EVIDENCE_HASH_V1",
+        "AlignmentTimingSource",
+        "AlignmentResultRejectionReason",
+        "TimingOriginEvidence",
+        "WordTiming",
+        "AlignmentResult",
+        "AlignmentResultContractError",
+        "load_repository_timing_origin_evidence",
+        "materialize_alignment_result",
+        "load_alignment_result",
+        "serialize_alignment_result",
+    }
+)
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -929,10 +948,11 @@ def test_alignment_request_public_exports_are_exact() -> None:
     assert current_exports & SLICE4_PUBLIC_EXPORTS == SLICE4_PUBLIC_EXPORTS
     assert current_exports - PRE_SLICE4_PUBLIC_EXPORTS == (
         SLICE4_PUBLIC_EXPORTS | SLICE5_PUBLIC_EXPORTS
+        | ALIGNMENT_RESULT_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
-    ) == SLICE5_PUBLIC_EXPORTS
+    ) == SLICE5_PUBLIC_EXPORTS | ALIGNMENT_RESULT_PUBLIC_EXPORTS
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")
     assert not hasattr(contracts, "_is_materialized_alignment_request")
