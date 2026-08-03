@@ -181,7 +181,7 @@ SLICE5_IMPLEMENTATION_ACCEPTED=YES
 SLICE5_STATUS=CLOSED
 SLICE5_REMOTE_CLOSED=YES
 PHASE2_CLOSED=NO
-POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+POST_SLICE5_SCOPE_RECONCILIATION_STATUS=CLOSED
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 ```
 
@@ -268,14 +268,58 @@ scope. This does not establish provider execution, downstream canonical
 timing results, renderer integration, production readiness, or Phase 2
 overall acceptance.
 
+## Post-Slice-5 scope reconciliation
+
+The read-only post-Slice-5 scope reconciliation is complete and recorded in:
+
+```text
+baseline/phase2_post_slice5_scope_report.md
+```
+
+The reconciliation passed with the Slice 1-5 evidence chain intact. It found
+that the Master Roadmap Phase 2 deliverables and acceptance criteria are not
+complete. Canonical word-timing results and downstream timeline, grouping,
+report, frame-compilation, and preview evidence remain absent or partial.
+
+The selected next bounded candidate is **Canonical Successful Alignment
+Word-Timing Result Contract**. Its bounded specification-path decision is
+recorded in:
+
+```text
+baseline/phase2_next_bounded_candidate_specification_path_decision_report.md
+```
+
+The exact selected future specification path is:
+
+```text
+docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
+```
+
+The path decision assigns no new Slice number. The specification is not
+drafted or accepted, implementation is not authorized, and Phase 2 remains
+IN_PROGRESS / NOT CLOSED.
+
+```text
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=NO
+NEXT_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```
+
 ## Current next move
 
-Perform a read-only Phase 2 post-Slice-5 scope reconciliation and next
-bounded-task decision. Reconcile completed Slice 1-5 evidence against the
-Master Roadmap Phase 2 deliverables and acceptance criteria, without inventing
-a Slice name, authorizing another implementation, closing Phase 2, or stating
-a total Slice count or completion percentage without authoritative evidence.
-No next implementation is currently authorized.
+Draft only the bounded specification for the Canonical Successful Alignment
+Word-Timing Result Contract at the exact selected path. Do not implement,
+authorize implementation, assign a Slice number, state a total Slice count or
+completion percentage, or close Phase 2. No next implementation is currently
+authorized.
 
 ## Phase 1 closure references
 

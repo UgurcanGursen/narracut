@@ -110,7 +110,7 @@ General status: IN_PROGRESS / NOT CLOSED
 | Slice 4 canonical AlignmentRequest contract | SATISFIED / REMOTE CLOSED | `2af9778de57f692f698a356f330b3bf3ede11106`; `origin/main=d32e66585d660bc3e37a1896dbb7df050a8bc849` |
 | Slice 4 mutation-resistance hardening | SATISFIED | `d32e66585d660bc3e37a1896dbb7df050a8bc849`; independent closure re-audit PASS |
 | Slice 4 golden oracle | SATISFIED | projection 1034 bytes / `bfd2a97af22b1f105c2ebe9356ce2fe684b0add89be14fea09e6b21cfbe54e51`; envelope 1188 bytes / `b2b0d24b02932b90c315bae348071aba2d3295d1f8d12281feb9f100e8a8ea45` |
-| Phase 2 overall acceptance | OPEN / NOT CLOSED | Completed Slice 1-5 evidence requires post-Slice-5 reconciliation against the Master Roadmap Phase 2 criteria |
+| Phase 2 overall acceptance | OPEN / NOT CLOSED | Post-Slice-5 reconciliation concluded `MORE_BOUNDED_PHASE2_WORK_REQUIRED`; Master deliverables and acceptance criteria remain incomplete |
 | Total Phase 2 Slice decomposition | NOT RECONCILED | The remote-closed scope report does not establish a total Slice count |
 | Post-Slice-4 scope reconciliation closure | SATISFIED / REMOTE CLOSED | `baseline/phase2_post_slice4_scope_report.md`; commit `f89e10156a940016deef4e94b6aef8863837dbf6`; parent `47727dbcbf2fdbdc6334b04bdfea7b3c1f7f6878`; subject `docs: reconcile phase 2 post-slice-4 scope`; SHA-256 `aefaacf8e19e94c1f1f31615550d6e76c2d1184cb290ce34c12264df4cc3703f` |
 | Slice 5 specification-path decision | SATISFIED / REMOTE CLOSED | `baseline/phase2_slice5_specification_path_decision_report.md`; commit `d61500d861762bb6215e0f3041c144e25ea10752`; parent `013c154f0612d7e45e4411656d033372a3241f34`; subject `docs: add slice 5 specification path decision`; SHA-256 `cab27022625b6edd19562070ff35950a57eb591b10e58b1cd9621eb028295049`; byte length `5668` |
@@ -122,6 +122,8 @@ General status: IN_PROGRESS / NOT CLOSED
 | Slice 5 original implementation audit | FIX_REQUIRED / RESOLVED | `S5-IMPL-AUD-001` BLOCKER -> CLOSED; `S5-IMPL-AUD-002` MAJOR -> CLOSED |
 | Slice 5 targeted implementation re-audit | PASS | Findings BLOCKER=0 / MAJOR=0 / MINOR=0 / INFO=0 |
 | Slice 5 management status | CLOSED / REMOTE CLOSED | Implementation acceptance documentation synchronization is normally pushed and remote closed |
+| Post-Slice-5 scope reconciliation | PASS / CLOSED | `baseline/phase2_post_slice5_scope_report.md`; Slice 1-5 evidence chain PASS; Master deliverables complete NO; Master acceptance criteria complete NO |
+| Next bounded candidate specification-path decision | CLOSED | `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`; selected path `docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md` |
 
 The corrected Slice 5 implementation boundary is exactly:
 
@@ -236,7 +238,7 @@ SLICE5_IMPLEMENTATION_ACCEPTED=YES
 SLICE5_STATUS=CLOSED
 SLICE5_REMOTE_CLOSED=YES
 PHASE2_CLOSED=NO
-POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+POST_SLICE5_SCOPE_RECONCILIATION_STATUS=CLOSED
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 ```
 
@@ -269,19 +271,55 @@ This evidence closes only the bounded Slice 5 immutable AdapterExecution
 provenance implementation. It does not establish provider execution,
 canonical WordTiming results, AlignmentResult, AlignmentReport, failure
 artifacts, renderer or EDL integration, production readiness, or Phase 2
-overall acceptance. Post-Slice-5 scope reconciliation remains required.
+overall acceptance. The separate post-Slice-5 scope reconciliation is now
+complete and its current decision is recorded below.
 
 ### Master Roadmap Phase 2 acceptance reconciliation
 
 | Master Roadmap criterion | Status |
 |---|---|
-| Every narration word has start/end timing | PENDING_RECONCILIATION |
-| Cues can bind to word-ID ranges instead of string search | PENDING_RECONCILIATION |
-| Kinetic text differs from narration by at most one frame | PENDING_RECONCILIATION |
-| V5 and V6 do not occlude each other | PENDING_RECONCILIATION |
-| Low confidence is explicitly reported | PENDING_RECONCILIATION |
-| LLM does not generate manual seconds | PENDING_RECONCILIATION |
+| Every narration word has start/end timing | NOT_SATISFIED |
+| Cues can bind to word-ID ranges instead of string search | PARTIALLY_SATISFIED |
+| Kinetic text differs from narration by at most one frame | NOT_SATISFIED |
+| V5 and V6 do not occlude each other | NOT_SATISFIED |
+| Low confidence is explicitly reported | PARTIALLY_SATISFIED |
+| LLM does not generate manual seconds | PARTIALLY_SATISFIED |
 
 Phase 2 Slice 1-5 are completed bounded work items. Slice 5 is CLOSED / REMOTE
-CLOSED. Phase 2 overall is not proven closed, and no next implementation is
-authorized before post-Slice-5 scope reconciliation.
+CLOSED. The post-Slice-5 reconciliation is PASS and concludes that more
+bounded Phase 2 work is required. No next implementation is authorized.
+
+### Post-Slice-5 scope and path-decision closure
+
+The reconciliation report classifies all six Master deliverables as missing,
+legacy-only, schema-only, or partial rather than accepted canonical Phase 2
+outputs. It selects the earliest bounded candidate without assigning a Slice
+number:
+
+```text
+Canonical Successful Alignment Word-Timing Result Contract
+```
+
+The exact future specification path is:
+
+```text
+docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
+```
+
+The specification has not been drafted or accepted. Implementation is not
+authorized. The next gate is bounded specification drafting followed by
+manual verification and independent read-only audit.
+
+```text
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=NO
+NEXT_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```

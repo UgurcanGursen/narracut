@@ -1,5 +1,43 @@
 # Changelog
 
+## 2026-08-03 - Phase 2 post-Slice-5 scope and path-decision closure
+
+- Completed the read-only post-Slice-5 reconciliation against the Master
+  Roadmap Phase 2 pipeline, deliverables, and acceptance criteria.
+- Reconciliation report:
+  `baseline/phase2_post_slice5_scope_report.md`.
+- Slice 1-5 remain CLOSED; Slice 4 and Slice 5 remain REMOTE CLOSED.
+- The Slice 1-5 evidence chain passed without reopening any closed Slice.
+- Master deliverables complete: NO.
+- Master acceptance criteria complete: NO.
+- Decision: `MORE_BOUNDED_PHASE2_WORK_REQUIRED`.
+- Selected bounded candidate: Canonical Successful Alignment Word-Timing
+  Result Contract.
+- Completed its bounded specification-path decision in
+  `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`.
+- Exact selected future path:
+  `docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md`.
+- No Slice number is assigned; the total official decomposition remains
+  unknown and no completion percentage is stated.
+- The specification is not drafted or accepted. Implementation is not
+  authorized or allowed. Phase 2 remains IN_PROGRESS / NOT CLOSED.
+- The next single task is bounded specification drafting at the selected path,
+  followed by manual verification and independent read-only audit.
+
+```text
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=NO
+NEXT_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```
+
 ## 2026-08-03 - Phase 2 Slice 5 implementation acceptance closure
 
 - Accepted the bounded immutable AdapterExecution provenance implementation.
@@ -35,7 +73,7 @@ SLICE5_IMPLEMENTATION_ACCEPTED=YES
 SLICE5_STATUS=CLOSED
 SLICE5_REMOTE_CLOSED=YES
 PHASE2_CLOSED=NO
-POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED_AT_THAT_COMMIT=YES
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 ```
 

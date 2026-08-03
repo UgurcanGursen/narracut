@@ -123,8 +123,8 @@ Son guncelleme: 3 Agustos 2026
 - Phase 2 overall closure is not established.
 - The total official Phase 2 Slice count is not reconciled.
 - No Phase 2 completion percentage is claimed.
-- Post-Slice-5 scope reconciliation is required before selecting or
-  authorizing another implementation task.
+- Post-Slice-5 scope reconciliation is complete. Its report is
+  `baseline/phase2_post_slice5_scope_report.md`.
 - The Slice 1-3 historical focused-test evidence gap is closed by the bounded
   read-only closure reconciliation: Slice 1 `47 passed`, Slice 2 `150 passed`,
   and Slice 3 `84 passed`, for `281 passed` total.
@@ -139,6 +139,21 @@ Son guncelleme: 3 Agustos 2026
   provenance contract. It does not prove provider execution, runtime timing
   correctness, downstream result artifacts, renderer behavior, performance,
   or production readiness.
+- The reconciliation decision is
+  `MORE_BOUNDED_PHASE2_WORK_REQUIRED`; no Master Phase 2 deliverable is proven
+  complete by Slice 1-5 alone.
+- The selected bounded candidate is Canonical Successful Alignment
+  Word-Timing Result Contract.
+- Its specification-path decision is CLOSED and recorded in
+  `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`.
+- The exact selected future specification path is
+  `docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md`.
+- The specification is not drafted or accepted. No implementation is
+  authorized or allowed.
+- Remaining Phase 2 gaps include canonical successful word timing,
+  deterministic token-to-word mapping, complete confidence/report evidence,
+  caption grouping, emphasis mapping, word-to-frame compilation, and V5/V6
+  preview/collision validation.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
@@ -153,8 +168,22 @@ SLICE5_IMPLEMENTATION_ACCEPTED=YES
 SLICE5_STATUS=CLOSED
 SLICE5_REMOTE_CLOSED=YES
 PHASE2_CLOSED=NO
-POST_SLICE5_SCOPE_RECONCILIATION_REQUIRED=YES
+POST_SLICE5_SCOPE_RECONCILIATION_STATUS=CLOSED
 NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+```
+
+```text
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=NO
+NEXT_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 ```
 
 ## Environment and test limitations
