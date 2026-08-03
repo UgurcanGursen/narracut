@@ -6,54 +6,45 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 This is the single authoritative next task.
 
-Draft the bounded specification for the **Canonical Successful Alignment
-Word-Timing Result Contract** at exactly:
+Implement the accepted **Canonical Successful Alignment Word-Timing Result
+Contract** exactly as specified in:
 
 ```text
 docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
 ```
 
-The specification draft is bounded to:
-
-- successful-result provenance bound to genuine closed Slice 1-5 contracts;
-- deterministic alignment-token to canonical narration `word_id` mapping;
-- canonical millisecond word timings and confidence representation;
-- coverage, ordering, bounds, and non-overlap invariants;
-- immutable canonical serialization, hash, derived identity, publication, and
-  fail-closed security/no-leak rules.
-
-The drafting task must not:
-
-- implement or authorize implementation;
-- define provider/network/API execution;
-- add a failure artifact or `AlignmentReport`;
-- add caption grouping, emphasis mapping, frame compilation, preview, or
-  collision validation;
-- enter Phase 3, renderer, Studio API, or UI work;
-- assign a new Slice number;
-- establish a total Phase 2 Slice count or completion percentage; or
-- close Phase 2.
-
-The post-Slice-5 scope reconciliation and bounded specification-path decision
-are closed by the documentation commit containing:
-
-- `baseline/phase2_post_slice5_scope_report.md`;
-- `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`.
-
-Slice 1-5 remain CLOSED; Slice 4 and Slice 5 remain REMOTE CLOSED. No next
-implementation is authorized. After drafting, the specification must pass
-manual verification and independent read-only audit before acceptance or any
-separate implementation-authorization decision.
+Implementation is authorized only in:
 
 ```text
-PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
-NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
-SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
-SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=NO
-SPECIFICATION_ACCEPTED=NO
-SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=NO
-NEXT_IMPLEMENTATION_ALLOWED=NO
+engine/contracts/alignment_result.py
+engine/contracts/__init__.py
+tests/test_alignment_result.py
+```
+
+The authoritative combined acceptance and authorization record is:
+
+```text
+baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md
+```
+
+The implementation must reproduce the accepted golden oracle and cover the
+complete success, provenance, mutation, rollback, validation-precedence,
+no-leak, and deterministic mapping test matrix. After focused and relevant
+Slice 1-5 regression tests pass, an independent read-only implementation audit
+is required before implementation acceptance.
+
+Provider/runtime orchestration, network/API/payment/retry/queue behavior,
+failure artifacts, `AlignmentReport`, caption grouping, emphasis mapping,
+word-to-frame compilation, preview, V5/V6 collision validation, Phase 3,
+renderer, Studio API, UI, database, and cache integration remain out of scope.
+
+```text
+PHASE2_ALIGNMENT_RESULT_SPECIFICATION_ACCEPTED=YES
+PHASE2_ALIGNMENT_RESULT_IMPLEMENTATION_AUTHORIZED=YES
+PHASE2_ALIGNMENT_RESULT_IMPLEMENTATION_ALLOWED=YES
+IMPLEMENTATION_START_ALLOWED=YES
+IMPLEMENTATION_STATUS=NOT_STARTED
+IMPLEMENTATION_ACCEPTANCE=OPEN
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED

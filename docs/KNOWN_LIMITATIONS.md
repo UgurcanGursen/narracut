@@ -148,8 +148,14 @@ Son guncelleme: 3 Agustos 2026
   `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`.
 - The exact selected future specification path is
   `docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md`.
-- The specification is not drafted or accepted. No implementation is
-  authorized or allowed.
+- The specification is accepted and its exact three-path bounded
+  implementation is authorized by
+  `baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md`.
+- The accepted bounded implementation is not started or accepted yet.
+- Successful result publication is limited to the exact repository-owned
+  allowlisted `REPLAY` timing evidence. `MANUAL_UI`, `FREE_API`, and `PAID_API`
+  successful publication require a separately specified trusted runtime
+  producer and are deterministically rejected without silent downgrade.
 - Remaining Phase 2 gaps include canonical successful word timing,
   deterministic token-to-word mapping, complete confidence/report evidence,
   caption grouping, emphasis mapping, word-to-frame compilation, and V5/V6
@@ -177,10 +183,10 @@ PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=NO
-SPECIFICATION_ACCEPTED=NO
-SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=NO
-NEXT_IMPLEMENTATION_ALLOWED=NO
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_ACCEPTED=YES
+SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=YES
+NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED

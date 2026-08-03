@@ -80,6 +80,35 @@ Slice 1-3 focused-test closure reconciliation base identity:
 
 ## Phase 2 reconciliation state
 
+The Canonical Successful Alignment Word-Timing Result Contract is accepted and
+its bounded implementation is authorized by:
+
+```text
+baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md
+```
+
+- Audited specification commit: `488ef56659c037b5597adac0e11387296503985e`.
+- Specification SHA-256:
+  `c102f51cb8620f84494822a13cb6e6402466c11dfd14cf01777058311ad22320`.
+- Specification UTF-8 byte length: `67186`.
+- Final targeted independent read-only re-audit: PASS.
+- Findings `F1`-`F5`: CLOSED.
+- New blocking findings: `0`.
+- Implementation readiness: YES.
+- Phase 2: `IN_PROGRESS / NOT CLOSED`.
+
+The exact authorized implementation boundary is:
+
+```text
+engine/contracts/alignment_result.py
+engine/contracts/__init__.py
+tests/test_alignment_result.py
+```
+
+Successful publication is currently limited to repository-owned allowlisted
+`REPLAY` timing evidence. Other execution modes require a separately specified
+trusted runtime producer and are not silently downgraded.
+
 The corrected Phase 2 Slice 5 specification is remote closed and accepted by
 the external decision record
 `baseline/phase2_slice5_specification_acceptance_decision_report.md`.
@@ -295,19 +324,20 @@ The exact selected future specification path is:
 docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
 ```
 
-The path decision assigns no new Slice number. The specification is not
-drafted or accepted, implementation is not authorized, and Phase 2 remains
-IN_PROGRESS / NOT CLOSED.
+The path decision assigns no new Slice number. The specification was drafted,
+repaired, independently re-audited with PASS, accepted, and authorized for the
+exact three-path implementation boundary above. Phase 2 remains IN_PROGRESS /
+NOT CLOSED.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=NO
-SPECIFICATION_ACCEPTED=NO
-SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=NO
-NEXT_IMPLEMENTATION_ALLOWED=NO
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_ACCEPTED=YES
+SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=YES
+NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
@@ -315,11 +345,12 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Draft only the bounded specification for the Canonical Successful Alignment
-Word-Timing Result Contract at the exact selected path. Do not implement,
-authorize implementation, assign a Slice number, state a total Slice count or
-completion percentage, or close Phase 2. No next implementation is currently
-authorized.
+Implement only the accepted Canonical Successful Alignment Word-Timing Result
+Contract in `engine/contracts/alignment_result.py`,
+`engine/contracts/__init__.py`, and `tests/test_alignment_result.py`. Run the
+focused and relevant Slice 1-5 regression gates, then perform an independent
+read-only implementation audit. Do not assign a Slice number, state a total
+Slice count or completion percentage, or close Phase 2.
 
 ## Phase 1 closure references
 
