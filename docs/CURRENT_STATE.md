@@ -1,11 +1,16 @@
 # Current State
 
-Son guncelleme: 2 Agustos 2026
+Son guncelleme: 3 Agustos 2026
 Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 IN_PROGRESS**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-Remote-closed corrected Slice 5 candidate specification identity:
+Slice 5 specification acceptance decision base identity:
+
+- `HEAD=21d555568ea8b5e6383c29e6f284e5c4591da4bc`
+- `origin/main=21d555568ea8b5e6383c29e6f284e5c4591da4bc`
+
+Remote-closed corrected Slice 5 specification identity:
 
 - `HEAD=e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
 - `origin/main=e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
@@ -70,8 +75,10 @@ Slice 1-3 focused-test closure reconciliation base identity:
 
 ## Phase 2 reconciliation state
 
-The corrected Phase 2 Slice 5 candidate specification commit is remote
-closed. This does not accept the specification or authorize implementation.
+The corrected Phase 2 Slice 5 specification is remote closed and accepted by
+the external decision record
+`baseline/phase2_slice5_specification_acceptance_decision_report.md`. This
+does not authorize implementation.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -89,14 +96,17 @@ closed. This does not accept the specification or authorize implementation.
 - Local HEAD, `origin/main`, and remote `refs/heads/main`:
   `e262b9d0ce60c01f2e88519b2c0e58d7a9417ea6`
 - Corrected specification remote closure: PASS
-- Specification document status: Candidate specification
-- Specification accepted: NO
+- Embedded specification document status: Candidate specification
+- Embedded historical acceptance field: `Accepted: No` (unchanged)
+- External specification acceptance decision: ACCEPT
+- Specification accepted: YES
 - Specification implementation: NOT STARTED
 - Implementation authorization: NO
 - Phase 2: IN_PROGRESS / NOT CLOSED
 
-The corrected specification closes all open specification audit findings but
-does not change its intentional candidate status. Slice 1-3 implementation
+The corrected specification closes all open specification audit findings. Its
+immutable embedded candidate metadata remains unchanged; the external report
+is the authoritative acceptance record. Slice 1-3 implementation
 and hardening commits are `origin/main` ancestors. The bounded read-only
 focused-test closure audit passed with Slice 1 `47 passed`, Slice 2
 `150 passed`, and Slice 3 `84 passed`, for `281 passed` total. Cache provider
@@ -107,10 +117,11 @@ unreconciled classification no longer applies.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
-PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
 SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=NO
-NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+SLICE5_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION_ALLOWED=YES
 PHASE2_CLOSED=NO
 ```
 
@@ -194,9 +205,8 @@ Phase 2 implementation has started after Slice 4.
 
 ## Current next move
 
-Perform the Phase 2 Slice 5 corrected candidate specification acceptance
-decision. This is a decision-only task: it must not modify the specification,
-authorize or start implementation, or close Phase 2.
+Perform the Phase 2 Slice 5 implementation-authorization decision. This is a
+decision-only task: it must not start implementation or close Phase 2.
 
 Slice 5 implementation is not authorized and has not started. Slice 4 remains
 CLOSED / REMOTE CLOSED. Phase 2 remains in progress and open. The official

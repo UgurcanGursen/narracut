@@ -6,14 +6,13 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 This is the single authoritative next task.
 
-Phase 2 Slice 5 corrected candidate specification acceptance decision.
+Phase 2 Slice 5 implementation-authorization decision.
 
 The task must:
 
-- decide only whether the corrected candidate specification is accepted;
+- decide only whether Slice 5 implementation may be authorized;
 - preserve the specification text unchanged;
 - not implement Slice 5;
-- not grant implementation authorization;
 - not close Phase 2; and
 - not invent a total Slice count or completion percentage.
 
@@ -27,17 +26,19 @@ Slice 1, Slice 2, and Slice 3 are CLOSED after focused-test closure
 reconciliation: `47 passed`, `150 passed`, and `84 passed`, for `281 passed`
 total. Their evidence block is cleared.
 
-Slice 5 implementation is not the next task. The specification remains a
-candidate, is not accepted, and implementation is not authorized.
-Specification implementation must not start. Slice 4 remains CLOSED / REMOTE
-CLOSED. Phase 2 is not closed. The official total Phase 2 Slice count is
-UNKNOWN, and completion percentage is NOT_STATED.
+The corrected Slice 5 specification is accepted by
+`baseline/phase2_slice5_specification_acceptance_decision_report.md`. Its
+immutable embedded `Accepted: No` field remains historical metadata. Slice 5
+implementation is not authorized and must not start. Slice 4 remains CLOSED /
+REMOTE CLOSED. Phase 2 is not closed. The official total Phase 2 Slice count
+is UNKNOWN, and completion percentage is NOT_STATED.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
-PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
 SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=NO
-NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+SLICE5_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION_ALLOWED=YES
 PHASE2_CLOSED=NO
 ```

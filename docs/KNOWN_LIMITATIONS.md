@@ -1,6 +1,6 @@
 # Known Limitations
 
-Son guncelleme: 2 Agustos 2026
+Son guncelleme: 3 Agustos 2026
 
 ## Known limitations ve follow-up'lar
 
@@ -88,8 +88,12 @@ Son guncelleme: 2 Agustos 2026
 - Corrected specification UTF-8 byte length: `104240`.
 - Independent corrected-specification re-audit: PASS with 0 BLOCKER /
   0 MAJOR / 0 MINOR findings.
-- The corrected specification remains a candidate and is not accepted.
+- The corrected specification is accepted by the external decision record
+  `baseline/phase2_slice5_specification_acceptance_decision_report.md`.
+- The immutable specification file retains its historical `Accepted: No`
+  metadata and remains byte-for-byte unchanged.
 - Slice 5 implementation is not authorized.
+- Slice 5 implementation authorization remains pending.
 - Slice 5 implementation has not started.
 - No `AdapterExecution` production contract exists yet.
 - No focused Slice 5 implementation tests exist yet.
@@ -109,13 +113,17 @@ Son guncelleme: 2 Agustos 2026
   classification and evidence blocker no longer apply.
 - The corrected Slice 5 specification itself has zero open audit findings.
 - Downstream canonical timing deliverables are not proven complete.
+- Specification acceptance does not prove implementation, integration,
+  provider execution, runtime behavior, timing correctness, renderer
+  correctness, performance, or production readiness.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
-PHASE2_SLICE5_SPECIFICATION_ACCEPTED=NO
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
 SLICE1_3_EVIDENCE_BLOCK=CLEARED
 SLICE5_IMPLEMENTATION_AUTHORIZED=NO
-NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
+SLICE5_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION_ALLOWED=YES
 PHASE2_CLOSED=NO
 ```
 

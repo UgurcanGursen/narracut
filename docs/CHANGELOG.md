@@ -1,5 +1,31 @@
 # Changelog
 
+## 2026-08-03 - Phase 2 Slice 5 specification acceptance documentation sync
+
+- The corrected bounded Slice 5 specification acceptance decision is ACCEPT.
+- Acceptance report:
+  `baseline/phase2_slice5_specification_acceptance_decision_report.md`.
+- The accepted specification remains byte-for-byte unchanged at SHA-256
+  `e6de8c1cdf52498a8e5c657962e48fc9915f58065621c8cb586c0c213ab7d71f`
+  and UTF-8 byte length `104240`.
+- Its embedded `Accepted: No` field is retained as immutable historical
+  candidate metadata; the external report is the authoritative acceptance
+  record.
+- Slice 1-4 dependencies are CLOSED, `SLICE1_3_EVIDENCE_BLOCK=CLEARED`, and
+  the corrected-specification audit has 0 BLOCKER / 0 MAJOR / 0 MINOR.
+- Acceptance does not authorize or start implementation and does not prove
+  integration, runtime behavior, timing output, renderer behavior,
+  performance, or production readiness.
+- The next gate is the Phase 2 Slice 5 implementation-authorization decision.
+
+```text
+PHASE2_SLICE5_SPECIFICATION_ACCEPTED=YES
+SLICE5_IMPLEMENTATION_AUTHORIZED=NO
+SLICE5_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION_ALLOWED=YES
+PHASE2_CLOSED=NO
+```
+
 ## 2026-08-02 - Phase 2 Slice 1-3 focused-test closure reconciliation
 
 - Slice 1 - Temporal Raw Package focused test: `47 passed`; status CLOSED.
