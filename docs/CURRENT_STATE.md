@@ -371,8 +371,13 @@ blob is remote closed at `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`,
 SHA-256 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`,
 UTF-8 byte length `43985`. Targeted independent re-audit passed with
 BLOCKER/MAJOR/MINOR/INFO `0/0/0/0`; `CGS-SPEC-AUD-001` is CLOSED. The
-specification is accepted by the external decision record. Implementation is
-not authorized.
+specification is accepted by the external decision record. Its separate
+read-only implementation-authorization decision is `AUTHORIZE`, recorded in
+`baseline/phase2_canonical_phrase_grouping_caption_groups_implementation_authorization_decision_report.md`.
+Implementation is authorized but not started or accepted. The exact future
+implementation boundary is `engine/contracts/caption_groups.py`, additive
+exports in `engine/contracts/__init__.py`, `tests/test_caption_groups.py`, and
+the mechanical exact-export oracle in `tests/test_alignment_request.py`.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -386,9 +391,12 @@ ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
 TARGETED_SPECIFICATION_REAUDIT=PASS
 CGS_SPEC_AUD_001_STATUS=CLOSED
 SPECIFICATION_ACCEPTED=YES
-IMPLEMENTATION_AUTHORIZED=NO
-NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
-NEXT_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
+IMPLEMENTATION_AUTHORIZED=YES
+IMPLEMENTATION_STATUS=NOT_STARTED
+IMPLEMENTATION_ACCEPTANCE=OPEN
+NEXT_ACTION=BOUNDED_IMPLEMENTATION
+NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
@@ -396,11 +404,14 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Perform only a bounded read-only implementation-authorization decision for the
-accepted Canonical Phrase Grouping and Caption Groups Contract. Reconcile exact
-paths, exports, tests, regression gates, resources, and no-I/O/API scope. Do
-not implement production code/tests in that decision, assign a Slice number,
-state a total Slice count or completion percentage, or close Phase 2.
+Implement only the accepted Canonical Phrase Grouping and Caption Groups
+Contract at the exact four authorized paths. Preserve the accepted blob,
+upstream contracts, no-I/O/API boundary, exact 13-symbol export delta, closed
+error oracle, golden identity, linear resource bound, and transactional weak
+registry. Run focused and upstream regression gates, then remote close the
+candidate for independent read-only implementation audit. Do not assign a
+Slice number, state a total Slice count or completion percentage, or close
+Phase 2.
 
 ## Phase 1 closure references
 

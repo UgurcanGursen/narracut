@@ -6,8 +6,8 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 This is the single authoritative next task.
 
-Perform a bounded, read-only implementation-authorization decision for the
-accepted Canonical Phrase Grouping and Caption Groups Contract:
+Implement only the accepted Canonical Phrase Grouping and Caption Groups
+Contract within this exact four-path boundary:
 
 ```text
 docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
@@ -15,24 +15,34 @@ SHA256=c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf
 UTF8_BYTES=43985
 ```
 
-The decision must verify exact implementation/test paths, import direction,
-the additive public export delta, mechanical export-oracle compatibility,
-mandatory focused/adversarial tests, regression gates, resource/no-I/O rules,
-REPLAY-first and commercial-API-off policy, and a minimal reversible commit
-boundary.
+```text
+engine/contracts/caption_groups.py
+engine/contracts/__init__.py
+tests/test_caption_groups.py
+tests/test_alignment_request.py
+```
 
-This task is decision-only. Do not implement code/tests, alter the accepted
-specification, start provider/API/queue work, assign a Slice number, or close
-Phase 2. If authorization is granted, implementation may begin only after the
-authorization documentation is remote closed.
+`engine/contracts/__init__.py` is additive export wiring only.
+`tests/test_alignment_request.py` is limited to the mechanical exact-export
+oracle update. Implement the exact 13-symbol public delta, deterministic
+compile/load/serialize contract, closed error oracle, golden identity,
+transactional weak-registry behavior, and mandatory focused/adversarial tests.
+Run focused and accepted-upstream regression gates, then remote close the exact
+candidate for independent read-only implementation audit.
+
+Do not alter the accepted specification or any path outside the four-path
+boundary. Do not add filesystem publication, providers, network/API/queue
+behavior, presentation/layout, renderer, frame compilation, or emphasis. Do
+not assign a Slice number or close Phase 2.
 
 ```text
-SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
 SPECIFICATION_ACCEPTED=YES
-IMPLEMENTATION_AUTHORIZED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
+IMPLEMENTATION_AUTHORIZED=YES
 IMPLEMENTATION_STATUS=NOT_STARTED
-NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
-NEXT_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_ACCEPTANCE=OPEN
+NEXT_ACTION=BOUNDED_IMPLEMENTATION
+NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED

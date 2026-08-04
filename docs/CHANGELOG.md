@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 caption-groups implementation authorization
+
+- Authorized one bounded implementation of the accepted Canonical Phrase
+  Grouping and Caption Groups Contract.
+- Decision report:
+  `baseline/phase2_canonical_phrase_grouping_caption_groups_implementation_authorization_decision_report.md`.
+- Exact implementation boundary: `engine/contracts/caption_groups.py`,
+  additive wiring in `engine/contracts/__init__.py`,
+  `tests/test_caption_groups.py`, and only the mechanical export-oracle update
+  in `tests/test_alignment_request.py`.
+- The public delta is exactly 13 symbols. Pure in-memory, deterministic,
+  no-I/O/API, REPLAY-first, linear-resource, and transactional registry rules
+  remain mandatory.
+- Implementation is authorized but not started or accepted. A remote-closed
+  candidate will require independent read-only implementation audit.
+- Phase 2 remains open; no Slice number, total count, or completion percentage
+  is claimed.
+
+```text
+IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
+IMPLEMENTATION_AUTHORIZED=YES
+IMPLEMENTATION_STATUS=NOT_STARTED
+IMPLEMENTATION_ACCEPTANCE=OPEN
+NEXT_ACTION=BOUNDED_IMPLEMENTATION
+PHASE2_CLOSED=NO
+```
+
 ## 2026-08-04 - Phase 2 caption-groups specification acceptance
 
 - Targeted independent re-audit of corrected commit

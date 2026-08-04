@@ -172,8 +172,9 @@ Son guncelleme: 3 Agustos 2026
   and the candidate specification is drafted and remote closed. The initial
   audit returned `FIX_REQUIRED` with one MAJOR error-oracle ambiguity. A bounded
   repair is remote closed, targeted re-audit passed, and the corrected
-  specification is accepted. Implementation authorization remains open; no
-  artifact producer is authorized or implemented.
+  specification is accepted. The exact four-path bounded implementation is
+  authorized but not started or accepted; no artifact producer or filesystem
+  publication is implemented.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
@@ -204,9 +205,12 @@ ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
 TARGETED_SPECIFICATION_REAUDIT=PASS
 CGS_SPEC_AUD_001_STATUS=CLOSED
 SPECIFICATION_ACCEPTED=YES
-IMPLEMENTATION_AUTHORIZED=NO
-NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
-NEXT_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
+IMPLEMENTATION_AUTHORIZED=YES
+IMPLEMENTATION_STATUS=NOT_STARTED
+IMPLEMENTATION_ACCEPTANCE=OPEN
+NEXT_ACTION=BOUNDED_IMPLEMENTATION
+NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
