@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 Canonical Emphasis Events candidate draft
+
+- Drafted the bounded candidate at
+  `docs/specifications/phase2_canonical_emphasis_events_contract.md`.
+- The candidate binds exact word-ID ranges to accepted alignment timings and
+  caption groups; no string search or authored seconds/frames are accepted.
+- Emphasis type vocabulary remains versioned Domain Pack visual grammar;
+  core adds no domain-specific type enum or service-level domain conditional.
+- Exact 23-section structure and four literal golden JSON projection/envelope
+  blocks passed independent local encoder length/hash/ID checks.
+- Candidate commit `d4c978eb0df8d11ab033edbd50dc2eca17eab74a`, SHA-256
+  `5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7`,
+  UTF-8 byte length `45380`, is remote closed.
+- Independent specification audit, acceptance, implementation authorization,
+  artifact publication, and Phase 2 closure remain open.
+
 ## 2026-08-04 - Phase 2 post-caption-groups scope reconciliation
 
 - Accepted Caption Groups implementation was reconciled read-only against all

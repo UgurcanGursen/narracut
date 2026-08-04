@@ -421,12 +421,19 @@ their roadmap filesystem publication is absent. Canonical emphasis events,
 word-to-frame compilation, caption preview/V5-V6 collision validation, and
 `AlignmentReport` remain missing.
 
-The selected next bounded candidate is **Canonical Emphasis Events Contract**
-at the exact future path
-`docs/specifications/phase2_canonical_emphasis_events_contract.md`. The path
-decision is closed; the specification is not yet drafted or accepted, and no
-implementation is authorized. The next move is specification drafting only.
-Phase 2 remains IN_PROGRESS / NOT CLOSED.
+The selected bounded **Canonical Emphasis Events Contract** candidate is now
+drafted and remote closed at
+`d4c978eb0df8d11ab033edbd50dc2eca17eab74a`. Its exact path is
+`docs/specifications/phase2_canonical_emphasis_events_contract.md`, SHA-256 is
+`5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7`,
+and UTF-8 byte length is `45380`. Manual section and four-block golden
+serialization/hash/ID verification passed. This is not independent audit or
+acceptance evidence.
+
+The specification remains `Candidate`, `Accepted: No`, and
+`Implementation authorized: No`. The next move is an independent read-only
+adversarial audit of the exact remote-closed bytes. Phase 2 remains
+IN_PROGRESS / NOT CLOSED.
 
 ```text
 POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
@@ -434,10 +441,15 @@ PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_emphasis_events_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=NO
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_STATUS=CANDIDATE_REMOTE_CLOSED
+SPECIFICATION_COMMIT=d4c978eb0df8d11ab033edbd50dc2eca17eab74a
+SPECIFICATION_SHA256=5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7
+SPECIFICATION_UTF8_BYTES=45380
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-NEXT_ACTION=SPECIFICATION_DRAFTING
+INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
+NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

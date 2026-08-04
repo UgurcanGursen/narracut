@@ -237,15 +237,22 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
   and `AlignmentReport` remain absent as accepted canonical implementations.
 - Low-confidence data is representable but not yet explicitly classified and
   emitted through an accepted report boundary.
-- The next selected work is specification-only for Canonical Emphasis Events;
-  no implementation or downstream frame/preview/report work is authorized.
+- The Canonical Emphasis Events candidate is drafted and remote closed, but it
+  has not received independent read-only audit or specification acceptance.
+  Its Domain Pack policy, intent/range, canonical oracle, mutation/no-leak, and
+  implementation-feasibility decisions remain unaccepted until that audit.
+- No emphasis implementation or downstream frame/preview/report work is
+  authorized.
 
 ```text
 POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_emphasis_events_contract.md
-SPECIFICATION_DRAFTED=NO
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_STATUS=CANDIDATE_REMOTE_CLOSED
+SPECIFICATION_ACCEPTED=NO
+INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
 IMPLEMENTATION_AUTHORIZED=NO
 PHASE2_CLOSED=NO
 ```
