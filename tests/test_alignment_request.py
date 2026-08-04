@@ -265,6 +265,42 @@ EMPHASIS_EVENTS_PUBLIC_EXPORTS = frozenset(
         "serialize_emphasis_events",
     }
 )
+WORD_TO_FRAME_PUBLIC_EXPORTS = frozenset(
+    {
+        "WORD_TO_FRAME_V1",
+        "WORD_TO_FRAME_HASH_V1",
+        "WORD_TO_FRAME_POLICY_V1",
+        "TemporalFrameRate",
+        "TemporalFrameSpanKind",
+        "TemporalCompiledFrameSpan",
+        "WordToFrameArtifact",
+        "WordToFrameRejectionReason",
+        "WordToFrameContractError",
+        "compile_word_to_frame",
+        "load_word_to_frame",
+        "serialize_word_to_frame",
+    }
+)
+ALIGNMENT_REPORT_PUBLIC_EXPORTS = frozenset(
+    {
+        "ALIGNMENT_REPORT_V1",
+        "ALIGNMENT_REPORT_HASH_V1",
+        "ALIGNMENT_REPORT_FINDING_V1",
+        "ALIGNMENT_REPORT_FINDING_HASH_V1",
+        "ALIGNMENT_REPORT_POLICY_V1",
+        "AlignmentReportStatus",
+        "AlignmentFindingSeverity",
+        "AlignmentFindingScope",
+        "AlignmentReportRejectionReason",
+        "AlignmentReportPolicy",
+        "AlignmentReportFinding",
+        "AlignmentReport",
+        "AlignmentReportContractError",
+        "compile_alignment_report",
+        "load_alignment_report",
+        "serialize_alignment_report",
+    }
+)
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -986,6 +1022,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         SLICE4_PUBLIC_EXPORTS | SLICE5_PUBLIC_EXPORTS
         | ALIGNMENT_RESULT_PUBLIC_EXPORTS | CAPTION_GROUPS_PUBLIC_EXPORTS
         | EMPHASIS_EVENTS_PUBLIC_EXPORTS
+        | WORD_TO_FRAME_PUBLIC_EXPORTS | ALIGNMENT_REPORT_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
@@ -994,6 +1031,8 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | ALIGNMENT_RESULT_PUBLIC_EXPORTS
         | CAPTION_GROUPS_PUBLIC_EXPORTS
         | EMPHASIS_EVENTS_PUBLIC_EXPORTS
+        | WORD_TO_FRAME_PUBLIC_EXPORTS
+        | ALIGNMENT_REPORT_PUBLIC_EXPORTS
     )
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")
