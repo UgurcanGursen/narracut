@@ -40,7 +40,7 @@ The only test/evidence files that may change or be added are:
 tests/test_timing_publication.py
 tests/test_phase2_timing_publication_end_to_end.py
 tests/test_alignment_request.py                       # mechanical exact-export oracle only
-tests/test_alignment_result.py                        # static allowlist fixture coverage only
+tests/test_alignment_result.py                        # static allowlist coverage and one reusable test-only builder
 tests/fixtures/phase2/timing_publication_replay_v1.json
 ```
 
@@ -48,7 +48,10 @@ The fixture is immutable UTF-8 source evidence consumed only by
 `tests/test_phase2_timing_publication_end_to_end.py`; it is not a runtime project artifact. The only allowed upstream expansion is one immutable,
 statically declared high-cardinality REPLAY evidence/payload allowlist entry in
 `alignment_result.py`, covered by `test_alignment_result.py`; no existing entry
-or accepted behavior may change. The publisher imports only
+or accepted behavior may change. That test module may expose exactly one
+test-only `build_phase2_high_cardinality_replay` helper for the E2E test; it
+must use only public contract materializers and the new static allowlist entry.
+The publisher imports only
 `pathlib`, `os`, `stat`, `hashlib`, `dataclasses`, the repository canonical JSON
 encoder, and public types/serializers from `alignment_result`, `caption_groups`,
 `emphasis_events`, and `word_to_frame`. It imports no private helper from any
