@@ -246,6 +246,25 @@ CAPTION_GROUPS_PUBLIC_EXPORTS = frozenset(
         "serialize_caption_groups",
     }
 )
+EMPHASIS_EVENTS_PUBLIC_EXPORTS = frozenset(
+    {
+        "EMPHASIS_EVENT_V1",
+        "EMPHASIS_EVENT_HASH_V1",
+        "EMPHASIS_EVENTS_V1",
+        "EMPHASIS_EVENTS_HASH_V1",
+        "EMPHASIS_MAPPING_POLICY_V1",
+        "EmphasisIntensity",
+        "EmphasisEventsRejectionReason",
+        "EmphasisTypeRef",
+        "EmphasisIntent",
+        "EmphasisEvent",
+        "EmphasisEventsArtifact",
+        "EmphasisEventsContractError",
+        "compile_emphasis_events",
+        "load_emphasis_events",
+        "serialize_emphasis_events",
+    }
+)
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -966,6 +985,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
     assert current_exports - PRE_SLICE4_PUBLIC_EXPORTS == (
         SLICE4_PUBLIC_EXPORTS | SLICE5_PUBLIC_EXPORTS
         | ALIGNMENT_RESULT_PUBLIC_EXPORTS | CAPTION_GROUPS_PUBLIC_EXPORTS
+        | EMPHASIS_EVENTS_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
@@ -973,6 +993,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         SLICE5_PUBLIC_EXPORTS
         | ALIGNMENT_RESULT_PUBLIC_EXPORTS
         | CAPTION_GROUPS_PUBLIC_EXPORTS
+        | EMPHASIS_EVENTS_PUBLIC_EXPORTS
     )
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")
