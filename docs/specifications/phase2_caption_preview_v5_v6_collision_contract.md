@@ -415,6 +415,18 @@ preview via `DEPENDENCY_BINDING_INVALID` before producing SVG.
 
 ## 13. Literal REPLAY goldens
 
+The authoritative current REPLAY baseline is the real public pipeline used by
+`tests/test_caption_preview.py` (`_deps()` plus `_policy()`), not the compact
+illustrative values retained below. Its canonical preview envelope is exactly
+2,739 UTF-8 bytes with SHA-256
+`d85d1cf0b3901b7d2e7a17ef99c48def9b82c01dbbdb9829eb257d97646c21d9`;
+its pure diagnostic SVG is exactly 874 UTF-8 bytes with SHA-256
+`c497c9509f37e82ed6ce44203cabff2bfedf609970945d7661472a4ce783704b`.
+Focused tests must keep independent literal byte fixtures for those outputs,
+assert the stated lengths and digests, and recompute identities with a compact
+sorted-key canonical encoder. The older compact fixture text below is
+non-normative explanatory history and must not be used as an acceptance oracle.
+
 The focused fixture uses accepted canonical inputs whose frame projections are
 as follows (all omitted accepted dependency fields are fixed fixture bytes):
 
@@ -484,7 +496,15 @@ dependency drift vs binding; every frame source binding; V5 proxy/no-text and
 V6 exact display-text behavior; safe boundaries; all positive/edge/corner/time
 intersection cases; same-track ignored; identity mutation; weak registry GC;
 error pointer/reason/issue-code precedence; no forbidden imports; and bounded
-large REPLAY fixtures.
+representative REPLAY fixtures.
+
+Collision-level tests must use genuine current preview artifacts for temporal
+non-overlap and edge/corner contact. Existing WordToFrame REPLAY tests remain
+the prerequisite evidence for temporal half-open mapping and bounded frame
+compilation. A high-cardinality end-to-end fixture belongs to the subsequent
+timing-publication and Phase 2 closure macro, where a larger authoritative
+input is introduced; it is not an acceptance precondition for this sparse
+preview contract.
 
 Complexity is `O(C + E + S + F)`, where `C` caption frames, `E` emphasis
 frames, `S=C+E` scenes, and `F` emitted findings.  The implementation must use

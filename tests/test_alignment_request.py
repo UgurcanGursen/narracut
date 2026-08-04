@@ -301,6 +301,42 @@ ALIGNMENT_REPORT_PUBLIC_EXPORTS = frozenset(
         "serialize_alignment_report",
     }
 )
+CAPTION_PREVIEW_PUBLIC_EXPORTS = frozenset(
+    {
+        "CAPTION_PREVIEW_V1",
+        "CAPTION_PREVIEW_HASH_V1",
+        "CAPTION_PREVIEW_POLICY_V1",
+        "PreviewTrack",
+        "PreviewRect",
+        "CaptionPreviewLayoutPolicy",
+        "PreviewScene",
+        "CaptionPreviewArtifact",
+        "CaptionPreviewRejectionReason",
+        "CaptionPreviewContractError",
+        "compile_caption_preview",
+        "load_caption_preview",
+        "serialize_caption_preview",
+        "render_caption_preview_diagnostic_svg",
+    }
+)
+V5_V6_COLLISION_PUBLIC_EXPORTS = frozenset(
+    {
+        "V5_V6_COLLISION_REPORT_V1",
+        "V5_V6_COLLISION_REPORT_HASH_V1",
+        "V5_V6_COLLISION_FINDING_V1",
+        "V5_V6_COLLISION_FINDING_HASH_V1",
+        "V5V6CollisionFindingKind",
+        "V5V6CollisionSeverity",
+        "V5V6CollisionRejectionReason",
+        "V5V6CollisionFinding",
+        "V5V6CollisionReport",
+        "V5V6CollisionContractError",
+        "compile_v5_v6_collision_report",
+        "load_v5_v6_collision_report",
+        "serialize_v5_v6_collision_report",
+        "render_v5_v6_collision_diagnostic_svg",
+    }
+)
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -1023,6 +1059,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | ALIGNMENT_RESULT_PUBLIC_EXPORTS | CAPTION_GROUPS_PUBLIC_EXPORTS
         | EMPHASIS_EVENTS_PUBLIC_EXPORTS
         | WORD_TO_FRAME_PUBLIC_EXPORTS | ALIGNMENT_REPORT_PUBLIC_EXPORTS
+        | CAPTION_PREVIEW_PUBLIC_EXPORTS | V5_V6_COLLISION_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
@@ -1033,6 +1070,8 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | EMPHASIS_EVENTS_PUBLIC_EXPORTS
         | WORD_TO_FRAME_PUBLIC_EXPORTS
         | ALIGNMENT_REPORT_PUBLIC_EXPORTS
+        | CAPTION_PREVIEW_PUBLIC_EXPORTS
+        | V5_V6_COLLISION_PUBLIC_EXPORTS
     )
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")
