@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 caption-groups specification acceptance
+
+- Targeted independent re-audit of corrected commit
+  `5bd2401544693a9a0bfe9e3e9d398f96b786cb27` returned `PASS`.
+- `CGS-SPEC-AUD-001`: CLOSED; new blocking findings: `0`; final findings
+  BLOCKER/MAJOR/MINOR/INFO `0/0/0/0`.
+- Accepted corrected specification SHA-256
+  `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`,
+  UTF-8 byte length `43985`.
+- Acceptance report:
+  `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_acceptance_decision_report.md`.
+- Grouping `1..1000`, exhaustive legal partitions `4..24`, 10 coverage/timing
+  outcomes, 5 confidence outcomes, 45 loader-oracle rows, FX-CGS-01 golden,
+  upstream compatibility, closed pointer/issue inventory, and encoding passed.
+- The specification is accepted. Implementation remains not authorized and
+  not started. Phase 2 remains open.
+- The next single task is a bounded read-only implementation-authorization
+  decision.
+
+```text
+CAPTION_GROUPS_SPECIFICATION_TARGETED_REAUDIT=PASS
+CGS_SPEC_AUD_001_STATUS=CLOSED
+SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
+SPECIFICATION_ACCEPTED=YES
+IMPLEMENTATION_AUTHORIZED=NO
+IMPLEMENTATION_STATUS=NOT_STARTED
+NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
+PHASE2_CLOSED=NO
+```
+
 ## 2026-08-04 - Phase 2 caption-groups specification audit and repair
 
 - Independent adversarial audit of the original candidate returned

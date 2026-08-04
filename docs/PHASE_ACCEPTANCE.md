@@ -129,7 +129,8 @@ General status: IN_PROGRESS / NOT CLOSED
 | Canonical successful alignment word-timing implementation | ACCEPT / REMOTE CLOSED | `87eb330922a5a1295de861544b44859ddd001911`; independent audit PASS; P0/P1/P2 `0/0/0`; focused `471 passed`; exact four-path implementation/test boundary |
 | Canonical phrase grouping/caption-groups specification-path decision | CLOSED / REMOTE CLOSED | `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`; selected future path `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`; no acceptance or implementation authorization granted by the path decision |
 | Canonical phrase grouping/caption-groups candidate specification | DRAFTED / REMOTE CLOSED / INITIAL AUDIT FIX_REQUIRED | `171078ca1c50a43ac9a395fe135e6bc044079b28`; SHA-256 `d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`; `35784` bytes; audit findings BLOCKER/MAJOR/MINOR/INFO `0/1/0/0` |
-| Canonical phrase grouping/caption-groups bounded specification repair | REMOTE CLOSED / TARGETED RE-AUDIT REQUIRED | `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`; corrected SHA-256 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`; `43985` bytes; `CGS-SPEC-AUD-001` repaired pending independent confirmation |
+| Canonical phrase grouping/caption-groups bounded specification repair | REMOTE CLOSED / TARGETED RE-AUDIT PASS | `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`; corrected SHA-256 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`; `43985` bytes; `CGS-SPEC-AUD-001` CLOSED; new findings `0` |
+| Canonical phrase grouping/caption-groups specification acceptance | ACCEPT / IMPLEMENTATION NOT AUTHORIZED | `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_acceptance_decision_report.md`; corrected blob accepted after targeted PASS; implementation requires separate authorization decision |
 
 The corrected Slice 5 implementation boundary is exactly:
 
@@ -331,8 +332,10 @@ grouping-length verification passed. The initial independent audit returned
 repair is remote closed at `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`,
 corrected SHA-256
 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`,
-`43985` bytes. The specification is not accepted and implementation is not
-authorized. The next gate is targeted independent read-only re-audit.
+`43985` bytes. Targeted independent re-audit passed with zero findings and
+closed `CGS-SPEC-AUD-001`. The corrected specification is accepted by the
+external decision record; implementation is not authorized. The next gate is
+a separate read-only implementation-authorization decision.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -343,11 +346,11 @@ SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
 ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
-CGS_SPEC_AUD_001_STATUS=REPAIRED_PENDING_TARGETED_REAUDIT
-SPECIFICATION_ACCEPTED=NO
+TARGETED_SPECIFICATION_REAUDIT=PASS
+CGS_SPEC_AUD_001_STATUS=CLOSED
+SPECIFICATION_ACCEPTED=YES
 IMPLEMENTATION_AUTHORIZED=NO
-TARGETED_SPECIFICATION_REAUDIT_REQUIRED=YES
-NEXT_ACTION=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
+NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

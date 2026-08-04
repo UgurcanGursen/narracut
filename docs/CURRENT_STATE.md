@@ -166,8 +166,11 @@ baseline/phase2_canonical_successful_alignment_word_timing_result_implementation
 - The initial independent audit returned `FIX_REQUIRED` with one MAJOR
   deterministic-error-oracle finding. Its bounded repair is remote closed at
   `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`.
-- The sole next task is a targeted independent read-only re-audit of the
-  corrected blob; acceptance and implementation authorization remain closed.
+- Targeted independent re-audit: `PASS`; `CGS-SPEC-AUD-001` CLOSED; new
+  findings `0`.
+- The corrected specification is accepted by the external acceptance decision.
+  The sole next task is a read-only implementation-authorization decision;
+  implementation remains closed.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -366,8 +369,10 @@ UTF-8 byte length `35784`. Manual structure, golden identity, and grouping
 length probes passed. The initial audit returned `FIX_REQUIRED`; the corrected
 blob is remote closed at `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`,
 SHA-256 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`,
-UTF-8 byte length `43985`. The specification is not accepted, implementation
-is not authorized, and targeted independent re-audit remains required.
+UTF-8 byte length `43985`. Targeted independent re-audit passed with
+BLOCKER/MAJOR/MINOR/INFO `0/0/0/0`; `CGS-SPEC-AUD-001` is CLOSED. The
+specification is accepted by the external decision record. Implementation is
+not authorized.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -378,11 +383,11 @@ SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
 ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
-CGS_SPEC_AUD_001_STATUS=REPAIRED_PENDING_TARGETED_REAUDIT
-SPECIFICATION_ACCEPTED=NO
+TARGETED_SPECIFICATION_REAUDIT=PASS
+CGS_SPEC_AUD_001_STATUS=CLOSED
+SPECIFICATION_ACCEPTED=YES
 IMPLEMENTATION_AUTHORIZED=NO
-TARGETED_SPECIFICATION_REAUDIT_REQUIRED=YES
-NEXT_ACTION=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
+NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
@@ -391,12 +396,11 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Perform only a targeted independent adversarial read-only re-audit of corrected
-commit `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`. Decide whether
-`CGS-SPEC-AUD-001` is closed and regression-check previously passing
-dimensions. Do not edit or accept the specification, assign a Slice number,
-authorize or implement production code, state a total Slice count or completion
-percentage, or close Phase 2.
+Perform only a bounded read-only implementation-authorization decision for the
+accepted Canonical Phrase Grouping and Caption Groups Contract. Reconcile exact
+paths, exports, tests, regression gates, resources, and no-I/O/API scope. Do
+not implement production code/tests in that decision, assign a Slice number,
+state a total Slice count or completion percentage, or close Phase 2.
 
 ## Phase 1 closure references
 

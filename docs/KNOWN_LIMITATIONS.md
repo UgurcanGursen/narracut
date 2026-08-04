@@ -171,7 +171,8 @@ Son guncelleme: 3 Agustos 2026
   `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`,
   and the candidate specification is drafted and remote closed. The initial
   audit returned `FIX_REQUIRED` with one MAJOR error-oracle ambiguity. A bounded
-  repair is remote closed, but targeted re-audit and acceptance remain open; no
+  repair is remote closed, targeted re-audit passed, and the corrected
+  specification is accepted. Implementation authorization remains open; no
   artifact producer is authorized or implemented.
 
 ```text
@@ -200,11 +201,11 @@ SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
 ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
-CGS_SPEC_AUD_001_STATUS=REPAIRED_PENDING_TARGETED_REAUDIT
-SPECIFICATION_ACCEPTED=NO
+TARGETED_SPECIFICATION_REAUDIT=PASS
+CGS_SPEC_AUD_001_STATUS=CLOSED
+SPECIFICATION_ACCEPTED=YES
 IMPLEMENTATION_AUTHORIZED=NO
-TARGETED_SPECIFICATION_REAUDIT_REQUIRED=YES
-NEXT_ACTION=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
+NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
