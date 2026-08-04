@@ -10,6 +10,9 @@ Implementation authorized: No
 
 Phase 2 closed: No
 
+Repair state: bounded correction for independent audit finding
+`CGS-SPEC-AUD-001` (non-deterministic error oracle)
+
 This document is the bounded candidate selected by
 `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`.
 It is subordinate to `docs/MASTER_ROADMAP.md` and defines only the canonical
@@ -333,11 +336,26 @@ The genuine alignment result must contain exactly `N` timings. Timing index
 integer/non-boolean, satisfies `0 <= start_ms < end_ms`, and the sequence
 satisfies `previous.end_ms <= current.start_ms`.
 
-Coverage, ID, order, or sentence-run failure rejects before grouping with
-`CANONICAL_COVERAGE_INVALID`. Applicable issue codes are
-`CANONICAL_COVERAGE_BLOCKER`, `CANONICAL_WORD_ORDER_INVALID`, or
-`TRANSCRIPT_DIVERGENCE`. Timing failure uses `TIMING_INVALID` with
-`ZERO_DURATION_WORD`, `TIMESTAMP_NON_MONOTONIC`, or `TIMESTAMP_OVERLAP`.
+Coverage and timing failures reject before grouping according to this exact
+closed mapping; rows are evaluated top to bottom and lower word/timing index
+wins within a row:
+
+| Condition | Pointer | Reason | Issue code |
+|---|---|---|---|
+| canonical word inventory is empty, wrong exact container/item type, has an invalid/duplicate ID, or fails word-to-token field equality | `/narration_revision` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| canonical word ordinal, text order, or word-to-spoken-token order differs from its exact index | `/narration_revision` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_WORD_ORDER_INVALID` |
+| a sentence word run is non-contiguous, hierarchy order differs, or the ordered runs do not cover every word exactly once | `/narration_revision` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| timing tuple length differs from canonical word count | `/alignment_result` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| timing word ID at index `i` differs from canonical word ID at `i` | `/alignment_result` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_WORD_ORDER_INVALID` |
+| timing `start_ms` or `end_ms` is not an exact non-boolean integer | `/alignment_result` | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
+| timing start is negative | `/alignment_result` | `TIMING_INVALID` | `TIMESTAMP_OUT_OF_BOUNDS` |
+| timing start equals end | `/alignment_result` | `TIMING_INVALID` | `ZERO_DURATION_WORD` |
+| timing start exceeds end | `/alignment_result` | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
+| timing at index `i > 0` starts before timing `i - 1` ends | `/alignment_result` | `TIMING_INVALID` | `TIMESTAMP_OVERLAP` |
+
+The accepted upstream serializer normally makes these rows unreachable for an
+unchanged genuine dependency. They remain mandatory defense-in-depth checks
+with one exact outcome, not alternate mappings.
 
 No string search, fuzzy matching, token re-alignment, omitted-word fallback,
 or fabricated timing is permitted.
@@ -455,9 +473,15 @@ Confidence derives from the exact root availability:
   null.
 
 Mixed null/non-null confidence, floats, booleans, strings, percentages,
-averages, defaults, and thresholds are forbidden. Failure reason is
-`CONFIDENCE_INVALID`, using `CONFIDENCE_REQUIRED_UNAVAILABLE` or
-`ADAPTER_PRECISION_OVERSTATED` as applicable.
+averages, defaults, and thresholds are forbidden. Exact failure mapping is:
+
+| Condition | Pointer | Reason | Issue code |
+|---|---|---|---|
+| root availability is `AVAILABLE` and any word confidence is null | `/alignment_result` | `CONFIDENCE_INVALID` | `CONFIDENCE_REQUIRED_UNAVAILABLE` |
+| root availability is `AVAILABLE` and any non-null word confidence is not an exact non-boolean integer in `[0, 1_000_000]` | `/alignment_result` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| root availability is `UNAVAILABLE` or `NOT_APPLICABLE` and any word confidence is non-null | `/alignment_result` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| loaded group confidence is null when the derived `AVAILABLE` minimum is non-null | `/caption_groups/<index>` | `CONFIDENCE_INVALID` | `CONFIDENCE_REQUIRED_UNAVAILABLE` |
+| loaded group confidence has any other inequality with the derived value, including non-null under a null mode | `/caption_groups/<index>` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
 
 ## 15. Group identity
 
@@ -503,6 +527,13 @@ checks. It derives the expected artifact independently from dependencies and
 requires every declared field, group projection hash/ID, root projection
 hash/ID, and final source byte to equal the deterministic result. A canonical
 but different grouping cannot load.
+
+A loader `source` that is not exact built-in `bytes` raises sanitized
+`TypeError`. BOM, invalid UTF-8, invalid/trailing JSON, duplicate keys,
+forbidden number syntax, or any source that cannot be parsed and re-encoded as
+canonical JSON rejects at `/` with `NON_CANONICAL_SERIALIZATION` and null issue
+code. A logically valid value encoded with non-canonical whitespace/key order
+reaches the same exact outcome.
 
 ## 17. Mutation resistance and publication registry
 
@@ -572,12 +603,11 @@ CANONICAL_WORD_ORDER_INVALID
 CONFIDENCE_REQUIRED_UNAVAILABLE
 REPLAY_HASH_MISMATCH
 TIMESTAMP_NON_MONOTONIC
+TIMESTAMP_OUT_OF_BOUNDS
 TIMESTAMP_OVERLAP
-TRANSCRIPT_DIVERGENCE
 UNSUPPORTED_CONTRACT_ENUM
 WORD_RANGE_OUT_OF_BOUNDS
 WORD_RANGE_REVERSED
-WORD_RANGE_REVISION_MISMATCH
 ZERO_DURATION_WORD
 ```
 
@@ -591,13 +621,18 @@ First failure is authoritative:
 2. document, revision, then alignment-result current-content integrity;
 3. loader bytes/UTF-8/JSON/canonical syntax, when loading;
 4. dependency bindings in section 10 order;
-5. narration word, hierarchy, sentence-run, and token coverage;
-6. alignment-result word-ID coverage, time order, then confidence mode;
+5. narration word, hierarchy, sentence-run, and token coverage using the exact
+   section 11 table;
+6. alignment-result word-ID coverage, time order, then confidence using the
+   exact section 11 and 14 tables;
 7. deterministic boundaries sentence by sentence;
 8. display-token coverage and display-text derivation group by group;
-9. derived range, timing, confidence, and word-count-policy fields;
-10. group projection hash then group ID in ordinal order;
-11. root fields, confidence literal, and exact group list;
+9. loader root exact key set, container/scalar types, closed constants,
+   dependency declarations, policy, and confidence declaration;
+10. loader caption-group list and each group in ordinal order: exact key set,
+    types, constants, dependency declarations, range, membership/order,
+    sentence, word-count policy, display text, timing, then confidence;
+11. group projection hash then group ID in ordinal order;
 12. root projection hash then root ID;
 13. full canonical envelope and loader source-byte equality;
 14. transactional registry publication.
@@ -607,7 +642,7 @@ checks then follow the model order in section 8. Within arrays, lower index
 wins. A loader source with multiple faults never masks an earlier dependency
 or stage failure.
 
-### 19.1 Minimum rejection oracle
+### 19.1 Closed loader rejection oracle
 
 | Fault | Pointer | Reason | Issue code |
 |---|---|---|---|
@@ -616,20 +651,54 @@ or stage failure.
 | project/document/revision mismatch | `/alignment_result` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
 | missing/extra/reordered word timing | `/alignment_result` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
 | overlapping word timing | `/alignment_result` | `TIMING_INVALID` | `TIMESTAMP_OVERLAP` |
-| unsupported root/group enum | containing object | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
-| range gap/overlap/reversal | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `WORD_RANGE_REVERSED` or `WORD_RANGE_OUT_OF_BOUNDS` |
-| group crosses sentence | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| root is not an exact dict, has unknown/missing keys, or a root field has wrong scalar/container type | `/` | `STRUCTURE_INVALID` | null |
+| group list is not an exact list | `/caption_groups` | `STRUCTURE_INVALID` | null |
+| group at index is not an exact dict, has unknown/missing keys, or a group field has wrong scalar/container type | `/caption_groups/<index>` | `STRUCTURE_INVALID` | null |
+| a known non-display root string fails its required NFC, stable-ID, hash, or safe-string syntax before equality comparison | `/` | `STRUCTURE_INVALID` | null |
+| a known non-display group string fails its required NFC, stable-ID, hash, or safe-string syntax before equality comparison | `/caption_groups/<index>` | `STRUCTURE_INVALID` | null |
+| group display text is empty, non-NFC, or contains a forbidden code point | `/caption_groups/<index>` | `DISPLAY_TEXT_INVALID` | null |
+| unsupported root schema/hash/policy/confidence literal | `/` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
+| unsupported group schema/hash/policy/word-count-policy literal | `/caption_groups/<index>` | `UNSUPPORTED_VALUE` | `UNSUPPORTED_CONTRACT_ENUM` |
+| declared root dependency identity differs from preflight dependency | `/` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| declared root confidence availability is a supported literal but differs from the alignment result | `/` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| declared group-list length differs from the independently derived group count | `/caption_groups` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| declared group revision/result/policy identity differs from root | `/caption_groups/<index>` | `DEPENDENCY_BINDING_INVALID` | `ALIGNMENT_REQUEST_IDENTITY_MISMATCH` |
+| group ordinal differs from its list index | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `CANONICAL_WORD_ORDER_INVALID` |
+| range start exceeds exclusive end | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `WORD_RANGE_REVERSED` |
+| range is empty, negative, or has an endpoint greater than canonical word count | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `WORD_RANGE_OUT_OF_BOUNDS` |
+| first range does not start at zero | `/caption_groups/0` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| later range start is greater than the previous exclusive end (gap) | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| later range start is less than the previous exclusive end (overlap) | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| final range exclusive end differs from canonical word count | `/caption_groups/<index>` where index is the final list index | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| `word_ids` length differs from range length | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| `start_word_id` differs from the canonical range start | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| `end_word_id` differs from the canonical range final word | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| `word_ids` has the exact expected unique members and length but a different sequence | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_WORD_ORDER_INVALID` |
+| `word_ids` differs from the canonical range and the preceding same-members/different-sequence row did not match | `/caption_groups/<index>` | `CANONICAL_COVERAGE_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| range spans more than one canonical sentence, or declared sentence ID differs from the range's single sentence | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
 | preferred group outside 4-9 | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `WORD_RANGE_OUT_OF_BOUNDS` |
-| undeclared short exception | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| `SHORT_SENTENCE_1_TO_3` is used for a count outside 1-3 | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| `PREFERRED_4_TO_9` is used for a count inside 1-3 | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
+| range is valid but differs from the deterministic section 12 boundary | `/caption_groups/<index>` | `GROUPING_POLICY_INVALID` | `CANONICAL_COVERAGE_BLOCKER` |
 | display text differs | `/caption_groups/<index>` | `DISPLAY_TEXT_INVALID` | null |
-| timing differs from endpoints | `/caption_groups/<index>` | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
-| confidence differs from minimum/null mode | `/caption_groups/<index>` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
+| start time differs from its derived endpoint | `/caption_groups/<index>` | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
+| end time differs from its derived endpoint | `/caption_groups/<index>` | `TIMING_INVALID` | `TIMESTAMP_NON_MONOTONIC` |
+| loaded `AVAILABLE` confidence is null while derived minimum is non-null | `/caption_groups/<index>` | `CONFIDENCE_INVALID` | `CONFIDENCE_REQUIRED_UNAVAILABLE` |
+| loaded confidence has any other inequality with the derived value | `/caption_groups/<index>` | `CONFIDENCE_INVALID` | `ADAPTER_PRECISION_OVERSTATED` |
 | group hash mismatch | `/caption_groups/<index>` | `IDENTITY_MISMATCH` | null |
-| root hash or ID mismatch | `/` | `IDENTITY_MISMATCH` | null |
-| canonical parsed content differs from derivation | first containing object | reason for first differing field | applicable code |
-| non-canonical but logically equal bytes | `/` | `NON_CANONICAL_SERIALIZATION` | null |
+| root hash mismatch | `/` | `IDENTITY_MISMATCH` | null |
+| root ID mismatch after hash passed | `/` | `IDENTITY_MISMATCH` | null |
+| loader source has invalid/BOM/trailing JSON, duplicate keys, forbidden number syntax, or non-canonical but logically equal bytes | `/` | `NON_CANONICAL_SERIALIZATION` | null |
 | serialized genuine object mutated | `/` | `CONTENT_DRIFT` | null |
 | direct/unregistered object serialized | `/` | `NOT_MATERIALIZED` | null |
+
+Every possible inequality between a parsed canonical envelope and the
+independently derived artifact is consumed by exactly one row before identity.
+There is no catch-all “applicable” code, alternate code, dynamic pointer, or
+reason selected by an implementer. Within loader stage 10, table row order is
+normative after the earlier exact key/type/constant checks. When multiple rows
+are true, section 19 stage order, then this table order, then lower group index,
+then model field order select exactly one.
 
 ## 20. Golden fixture `FX-CGS-01`
 
@@ -716,6 +785,9 @@ The focused module must cover:
   strict loader round trip, and two independent equivalent compilations;
 - duplicate/unknown/missing keys, container subclasses, number syntax, invalid
   UTF-8, BOM, trailing bytes/newline, field-order and array-index precedence;
+- every row of the section 11, section 14, and section 19.1 closed oracles,
+  including exact multi-fault pointer/reason/code precedence with no alternate
+  accepted outcome;
 - group/root hash-before-ID, canonical-but-different boundary rejection,
   mutated serialized artifact rejection, registry rollback/collision/stale-ID/
   cleanup behavior, and no mutable alias retention; and
@@ -776,10 +848,11 @@ authorization decision. It does not itself authorize code or tests.
 ```text
 SPECIFICATION_STATUS=CANDIDATE
 SPECIFICATION_DRAFTED=YES
+SPECIFICATION_REPAIR_STATUS=CGS_SPEC_AUD_001_REPAIRED_PENDING_TARGETED_REAUDIT
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
-NEXT_REQUIRED_GATE=MANUAL_VERIFICATION_AND_INDEPENDENT_READ_ONLY_AUDIT
+NEXT_REQUIRED_GATE=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
 ```
