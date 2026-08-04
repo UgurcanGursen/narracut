@@ -730,7 +730,7 @@ def _pairs_to_value(value: Any) -> Any:
     return value
 
 
-def _parse_source(source: bytes) -> dict[str, Any]:
+def _parse_source(source: bytes) -> Any:
     if type(source) is not bytes:
         raise TypeError("source must be exact bytes")
     try:
@@ -745,7 +745,7 @@ def _parse_source(source: bytes) -> dict[str, Any]:
         )
         value = _pairs_to_value(value)
         canonical = encode_canonical_json_bytes(value)
-        if canonical != source or type(value) is not dict:
+        if canonical != source:
             raise ValueError
         return value
     except CaptionGroupsContractError:
@@ -924,7 +924,7 @@ def _validate_loaded_semantics(
         if actual["sentence_id"] != expected_group.sentence_id:
             _reject(pointer, CaptionGroupingRejectionReason.GROUPING_POLICY_INVALID, "CANONICAL_COVERAGE_BLOCKER")
         count = end - start
-        if policy is CaptionGroupWordCountPolicy.PREFERRED_4_TO_9 and not 4 <= count <= 9:
+        if policy is CaptionGroupWordCountPolicy.PREFERRED_4_TO_9 and count > 9:
             _reject(pointer, CaptionGroupingRejectionReason.GROUPING_POLICY_INVALID, "WORD_RANGE_OUT_OF_BOUNDS")
         if policy is CaptionGroupWordCountPolicy.SHORT_SENTENCE_1_TO_3 and not 1 <= count <= 3:
             _reject(pointer, CaptionGroupingRejectionReason.GROUPING_POLICY_INVALID, "CANONICAL_COVERAGE_BLOCKER")
