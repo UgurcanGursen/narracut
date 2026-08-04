@@ -343,6 +343,18 @@ TIMING_PUBLICATION_PUBLIC_EXPORTS = frozenset({
     "PublishedTimingFile", "TimingPublicationReceipt",
     "publish_timing_artifacts", "serialize_timing_publication_receipt",
 })
+EDL_PUBLIC_EXPORTS = frozenset({
+    "VIDEO_EDL_V1", "VIDEO_EDL_HASH_V1", "VIDEO_CLOCK_V1", "TimelineTrack",
+    "EdlTrackKind", "EdlPayloadKind", "SourcePlaybackMode", "SourceFitMode",
+    "CueWordRange", "SourceDescriptor", "VideoEditIntent", "EdlRenderPayload",
+    "EdlVideoEvent", "EdlTrack", "VideoEdlArtifact", "VideoEdlRejectionReason",
+    "VideoEdlContractError", "compile_video_edl", "load_video_edl", "serialize_video_edl",
+})
+TIMELINE_DEBUG_PUBLIC_EXPORTS = frozenset({
+    "TIMELINE_DEBUG_V1", "TIMELINE_DEBUG_HASH_V1", "TimelineDebugEntry",
+    "TimelineDebugArtifact", "TimelineDebugRejectionReason", "TimelineDebugContractError",
+    "compile_timeline_debug", "load_timeline_debug", "serialize_timeline_debug",
+})
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -1067,6 +1079,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | WORD_TO_FRAME_PUBLIC_EXPORTS | ALIGNMENT_REPORT_PUBLIC_EXPORTS
         | CAPTION_PREVIEW_PUBLIC_EXPORTS | V5_V6_COLLISION_PUBLIC_EXPORTS
         | TIMING_PUBLICATION_PUBLIC_EXPORTS
+        | EDL_PUBLIC_EXPORTS | TIMELINE_DEBUG_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
@@ -1080,6 +1093,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | CAPTION_PREVIEW_PUBLIC_EXPORTS
         | V5_V6_COLLISION_PUBLIC_EXPORTS
         | TIMING_PUBLICATION_PUBLIC_EXPORTS
+        | EDL_PUBLIC_EXPORTS | TIMELINE_DEBUG_PUBLIC_EXPORTS
     )
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")

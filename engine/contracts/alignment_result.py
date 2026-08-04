@@ -262,6 +262,29 @@ _PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD = encode_canonical_json_bytes({
 _PHASE2_HIGH_CARDINALITY_EVIDENCE = (
     b'{"adapter_execution_hash":"043a793b1cd5fbcde85fb6af3ca57e7b68f01b4e5d5119fb26da52137b83784b","adapter_execution_id":"aex_043a793b1cd5fbcde85fb6af3ca57e7b","alignment_request_hash":"d294a0934a8f723bc3fb9b9d032c8ff86133d526d41dec81ada12a3cb24f3044","alignment_request_id":"arq_d294a0934a8f723bc3fb9b9d032c8ff8","audio_artifact_hash":"sha256:7c385f9c5a28f6eba07034230e6dd50e694e39c3208872d79d10e3da2e2aa25e","audio_artifact_id":"aud_7c385f9c5a28f6eba070","fixture_id":"FX-PHASE2-TPUB-96-REPLAY","hash_scope_version":"TIMING-ORIGIN-EVIDENCE-HASH-V1","narration_document_snapshot_hash":"sha256:213321afdc145caa0a9f55aa8919e8e56cb5430710d1b1dcf5756e2fe968948c","narration_revision_hash":"sha256:13a438803b51312eb6a3eca955a679208689e67166bf05ef48c910f340659f54","narration_revision_id":"narrev_13a438803b51312eb6a3","schema_version":"TIMING-ORIGIN-EVIDENCE-V1","temporal_raw_package_hash":"sha256:95466ce63f3e210edf68c8dd292a87d72ae637b4b8949bca7ed91d839973c392","timing_origin_evidence_hash":"f20b2c2b1efb5f29b156cc2735f33947069c2ab62f60d71dc654338d513b5088","timing_origin_evidence_id":"toe_f20b2c2b1efb5f29b156cc2735f33947","timing_payload_byte_hash":"sha256:899fb3af1d748910e8e47a858c4a34c4426d459944ffa965c64dde3c8ba166c7"}'
 )
+_PHASE3_EDL_HIGH_CARDINALITY_WORDS = tuple(
+    f"token-{index:05d}" for index in range(10_000)
+)
+_PHASE3_EDL_HIGH_CARDINALITY_TIMING_PAYLOAD = encode_canonical_json_bytes({
+    "schema_version": ALIGNMENT_TOKEN_OBSERVATION_V1,
+    "narration_revision_id": "narrev_dd7762a76fa6a6a25018",
+    "narration_revision_hash": "sha256:dd7762a76fa6a6a250184d968782288d45509c6041d1ce05e18073de834a1599",
+    "normalization_profile_hash": "sha256:fda29f7bd8d0cc018489dcb0a7163b8130022e3bfd5e8a0cb88918c2723bb862",
+    "tokens": [
+        {
+            "index": index, "kind": "SPOKEN", "normalized_alignment_text": word,
+            "start_ms": index * 40, "end_ms": index * 40 + 40,
+            "confidence_millionths": 980000,
+        }
+        for index, word in enumerate(_PHASE3_EDL_HIGH_CARDINALITY_WORDS)
+    ] + [{
+        "index": 10_000, "kind": "NON_SPOKEN", "normalized_alignment_text": None,
+        "start_ms": None, "end_ms": None, "confidence_millionths": None,
+    }],
+})
+_PHASE3_EDL_HIGH_CARDINALITY_EVIDENCE = (
+    b'{"adapter_execution_hash":"d59b91bfa2f9f12e5b11ecd1ed917b32ae199cb6010aa8469f15d3a2478488b6","adapter_execution_id":"aex_d59b91bfa2f9f12e5b11ecd1ed917b32","alignment_request_hash":"6b3c678e406e433f5b3484132a1461377da3797aa75c6af66ab910a4fd9c4b78","alignment_request_id":"arq_6b3c678e406e433f5b3484132a146137","audio_artifact_hash":"sha256:a37cd73ddede54a7f6404186ac2ede408bb5cc80facb634e2b61f450c0ffe7a2","audio_artifact_id":"aud_a37cd73ddede54a7f640","fixture_id":"FX-PHASE3-EDL-10000-REPLAY","hash_scope_version":"TIMING-ORIGIN-EVIDENCE-HASH-V1","narration_document_snapshot_hash":"sha256:2e5163bc592632193ee37bb75d50893672ca5cf6801e317b91c9baec3b9b1f7f","narration_revision_hash":"sha256:dd7762a76fa6a6a250184d968782288d45509c6041d1ce05e18073de834a1599","narration_revision_id":"narrev_dd7762a76fa6a6a25018","schema_version":"TIMING-ORIGIN-EVIDENCE-V1","temporal_raw_package_hash":"sha256:7cdaeb058e432334bd978f42d745616ebdf37e48778c0afd7b34b351cab7db57","timing_origin_evidence_hash":"e76005d1fa87e6ba9fd706b823cc8f9c9699f9e089387c165cf006ea8d1d4b4b","timing_origin_evidence_id":"toe_e76005d1fa87e6ba9fd706b823cc8f9c","timing_payload_byte_hash":"sha256:74d61291bd09fc5b50f9dfcb8d04fd6cbbe2190f8e8518e022a02860988b839f"}'
+)
 _ALLOWLIST_KEY = (
     "FX-ALR-01",
     "f140843e7e1f86817c7acc0bdc8eb775021ffd8c5a5a13809d5e33407c34ae03",
@@ -278,9 +301,18 @@ _PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY = (
     "899fb3af1d748910e8e47a858c4a34c4426d459944ffa965c64dde3c8ba166c7",
     12802,
 )
+_PHASE3_EDL_HIGH_CARDINALITY_ALLOWLIST_KEY = (
+    "FX-PHASE3-EDL-10000-REPLAY",
+    "e76005d1fa87e6ba9fd706b823cc8f9c9699f9e089387c165cf006ea8d1d4b4b",
+    "ab1ac17d6b7e712762cd79e3277959c019150cd18118183c7fd990f65d456391",
+    1223,
+    "74d61291bd09fc5b50f9dfcb8d04fd6cbbe2190f8e8518e022a02860988b839f",
+    1373784,
+)
 _EVIDENCE_ALLOWLIST = MappingProxyType({
     _ALLOWLIST_KEY: (_GOLDEN_EVIDENCE, _GOLDEN_TIMING_PAYLOAD),
     _PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY: (_PHASE2_HIGH_CARDINALITY_EVIDENCE, _PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD),
+    _PHASE3_EDL_HIGH_CARDINALITY_ALLOWLIST_KEY: (_PHASE3_EDL_HIGH_CARDINALITY_EVIDENCE, _PHASE3_EDL_HIGH_CARDINALITY_TIMING_PAYLOAD),
 })
 _MATERIALIZED_TIMING_ORIGIN_EVIDENCE: dict[
     int, tuple[weakref.ReferenceType[TimingOriginEvidence], bytes, bytes]
@@ -389,6 +421,7 @@ def _allowlist_lookup(
     _owned_entries: tuple[tuple[tuple[Any, ...], bytes, bytes], ...] = (
         (_ALLOWLIST_KEY, _GOLDEN_EVIDENCE, _GOLDEN_TIMING_PAYLOAD),
         (_PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY, _PHASE2_HIGH_CARDINALITY_EVIDENCE, _PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD),
+        (_PHASE3_EDL_HIGH_CARDINALITY_ALLOWLIST_KEY, _PHASE3_EDL_HIGH_CARDINALITY_EVIDENCE, _PHASE3_EDL_HIGH_CARDINALITY_TIMING_PAYLOAD),
     ),
 ) -> tuple[bytes, bytes] | None:
     """Use definition-time immutable values; rebinding module globals cannot grow trust."""
@@ -404,6 +437,7 @@ def _allowlisted_payload_for_evidence(
     _owned_entries: tuple[tuple[tuple[Any, ...], bytes, bytes], ...] = (
         (_ALLOWLIST_KEY, _GOLDEN_EVIDENCE, _GOLDEN_TIMING_PAYLOAD),
         (_PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY, _PHASE2_HIGH_CARDINALITY_EVIDENCE, _PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD),
+        (_PHASE3_EDL_HIGH_CARDINALITY_ALLOWLIST_KEY, _PHASE3_EDL_HIGH_CARDINALITY_EVIDENCE, _PHASE3_EDL_HIGH_CARDINALITY_TIMING_PAYLOAD),
     ),
 ) -> bytes | None:
     for key, evidence, payload in _owned_entries:

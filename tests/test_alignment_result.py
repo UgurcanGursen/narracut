@@ -166,6 +166,136 @@ def build_phase2_high_cardinality_replay(
     return narration.document, narration.revision, result
 
 
+def build_phase3_edl_high_cardinality_replay(
+    fixture: Mapping[str, Any],
+):
+    """Materialize the immutable 10k REPLAY seed through public contracts only."""
+    expected_policy = {
+        "first_start_ms": 0, "word_duration_ms": 40,
+        "inter_word_gap_ms": 0, "default_confidence_millionths": 980000,
+    }
+    if (
+        type(fixture) is not dict
+        or fixture.get("fixture_id") != "FX-PHASE3-EDL-10000-REPLAY"
+        or fixture.get("word_template") != "token-{ordinal:05d}"
+        or fixture.get("word_count") != 10_000
+        or fixture.get("timing_policy") != expected_policy
+    ):
+        raise ValueError("fixture does not match the immutable Phase 3 EDL REPLAY allowlist")
+    words = result_contracts._PHASE3_EDL_HIGH_CARDINALITY_WORDS
+    source_text = " ".join(words) + "."
+    candidate = fx34_value()
+    candidate["title"] = "FX-PHASE3-10000"
+    sentence_ranges: list[dict[str, Any]] = []
+    sentence_start = 0
+    for ordinal in range(2_000):
+        sentence_end = sentence_start + sum(
+            len(word) for word in words[ordinal * 5:ordinal * 5 + 5]
+        ) + 4
+        sentence_ranges.append({
+            "order": ordinal, "source_start": sentence_start,
+            "source_end": len(source_text) if ordinal == 1_999 else sentence_end,
+            "segmentation_rule_version": "fx34-sentence-v1", "extensions": {},
+        })
+        sentence_start = sentence_end + 1
+    candidate["sections"] = [{
+        "order": 0, "source_start": 0, "source_end": len(source_text),
+        "paragraphs": [{
+            "order": 0, "source_start": 0, "source_end": len(source_text),
+            "sentences": sentence_ranges, "extensions": {},
+        }], "extensions": {},
+    }]
+    tokens: list[dict[str, Any]] = []
+    canonical_words: list[dict[str, int]] = []
+    offset = 0
+    for ordinal, word in enumerate(words):
+        end = offset + len(word)
+        tokens.append({
+            "kind": "SPOKEN", "display_text": word,
+            "normalized_alignment_text": word, "text_order": ordinal,
+            "canonical_word_ordinal": ordinal, "source_start": offset,
+            "source_end": end, "section_order": 0, "paragraph_order": 0,
+            "sentence_order": ordinal // 5, "extensions": {},
+        })
+        canonical_words.append({"text_order": ordinal, "canonical_word_ordinal": ordinal})
+        offset = end + 1
+    tokens.append({
+        "kind": "PUNCTUATION", "display_text": ".", "normalized_alignment_text": None,
+        "text_order": 10_000, "canonical_word_ordinal": None,
+        "source_start": len(source_text) - 1, "source_end": len(source_text),
+        "section_order": 0, "paragraph_order": 0, "sentence_order": 1_999,
+        "extensions": {},
+    })
+    candidate["text_tokens"] = tokens
+    candidate["canonical_words"] = canonical_words
+    narration = materialize_fx34(candidate, source_bytes=source_text.encode("utf-8"))
+    payload_bytes = result_contracts._PHASE3_EDL_HIGH_CARDINALITY_TIMING_PAYLOAD
+    payload = json.loads(payload_bytes)
+    raw = canonicalize_temporal_raw_package({
+        "schema_version": "TRP-RAW-V1", "run_id": "run_phase3_edl_10000",
+        "raw_id": "raw_phase3_edl_10000", "payload": payload,
+        "payload_byte_hash": "sha256:" + hashlib.sha256(payload_bytes).hexdigest(),
+        "media_type": "application/vnd.kurgu.alignment-token-observation+json",
+        "issue_codes": [],
+    }, payload_bytes=payload_bytes)
+    wave = _phase3_edl_high_cardinality_wave()
+    audio = materialize_audio_artifact({
+        "schema_version": "AUDIO-ARTIFACT-INPUT-V1",
+        "project_id": narration.document.project_id, "document_id": narration.document.document_id,
+        "narration_revision_id": narration.revision.revision_id,
+        "narration_revision_hash": narration.revision.revision_hash,
+        "logical_input": {"schema_version": "SECURE-AUDIO-INPUT-V1", "kind": "LOCAL_FILE", "logical_path": "audio/narration.wav"},
+        "declared_media_byte_hash": "sha256:" + hashlib.sha256(wave).hexdigest(),
+        "declared_sample_rate_hz": 8000, "declared_channel_count": 1,
+        "declared_sample_frame_count": 3_200_000, "extensions": {},
+    }, narration_binding=NarrationRevisionBinding.from_validated_revision(narration.revision),
+       runtime=AudioArtifactMaterializationRuntime(TrustedRootReference("C:/trusted/root"), _Reader(wave)))
+    base = raw, narration.document, narration.revision, audio
+    source_request = materialize_alignment_request(_request_value(base, "LOCAL"), temporal_raw_package=raw, narration_document=narration.document, narration_revision=narration.revision, audio_artifact=audio)
+    source_execution = materialize_adapter_execution(_execution_value(source_request, "LOCAL"), alignment_request=source_request)
+    request = materialize_alignment_request(_request_value(base, "REPLAY"), temporal_raw_package=raw, narration_document=narration.document, narration_revision=narration.revision, audio_artifact=audio)
+    replay = {"schema_version": "REPLAY-EVIDENCE-V1", "source_adapter_execution_id": source_execution.adapter_execution_id, "source_adapter_execution_hash": source_execution.adapter_execution_hash, "source_alignment_request_id": source_request.alignment_request_id, "source_alignment_request_hash": source_request.alignment_request_hash}
+    execution = materialize_adapter_execution(_execution_value(request, "REPLAY", replay=replay), alignment_request=request, source_alignment_request=source_request, source_execution=source_execution)
+    evidence = load_repository_timing_origin_evidence(result_contracts._PHASE3_EDL_HIGH_CARDINALITY_EVIDENCE)
+    value = {
+        "schema_version": ALIGNMENT_RESULT_V1, "hash_scope_version": ALIGNMENT_RESULT_HASH_V1,
+        "alignment_result_id": "alr_" + "0" * 32, "alignment_result_hash": "0" * 64,
+        "project_id": narration.document.project_id, "document_id": narration.document.document_id,
+        "temporal_raw_package_hash": raw.canonical_hash, "narration_revision_id": narration.revision.revision_id,
+        "narration_revision_hash": narration.revision.revision_hash, "audio_artifact_id": audio.audio_artifact_id,
+        "audio_artifact_hash": audio.audio_artifact_hash, "alignment_request_id": request.alignment_request_id,
+        "alignment_request_hash": request.alignment_request_hash, "adapter_execution_id": execution.adapter_execution_id,
+        "adapter_execution_hash": execution.adapter_execution_hash, "timing_origin_evidence_id": evidence.timing_origin_evidence_id,
+        "timing_origin_evidence_hash": evidence.timing_origin_evidence_hash,
+        "timing_source": "REPLAY_VERIFIED", "confidence_availability": "AVAILABLE",
+        "word_timings": [
+            {"word_id": word.word_id, "start_ms": ordinal * 40, "end_ms": ordinal * 40 + 40,
+             "confidence_millionths": 980000, "source_token_indices": [ordinal]}
+            for ordinal, word in enumerate(narration.revision.canonical_words)
+        ],
+    }
+    result = materialize_alignment_result(_rehash(value, "alignment_result_id", "alignment_result_hash", "alr_"), temporal_raw_package=raw, narration_document=narration.document, narration_revision=narration.revision, audio_artifact=audio, alignment_request=request, adapter_execution=execution, timing_origin_evidence=evidence)
+    return narration.document, narration.revision, result
+
+
+def test_phase3_edl_high_cardinality_builder_is_allowlisted_and_materialized() -> None:
+    fixture = {
+        "fixture_id": "FX-PHASE3-EDL-10000-REPLAY",
+        "word_template": "token-{ordinal:05d}", "word_count": 10_000,
+        "timing_policy": {
+            "first_start_ms": 0, "word_duration_ms": 40,
+            "inter_word_gap_ms": 0, "default_confidence_millionths": 980000,
+        },
+    }
+    document, revision, result = build_phase3_edl_high_cardinality_replay(fixture)
+    assert (document.document_id, revision.revision_id, len(result.word_timings)) == (
+        "nardoc_fx34", "narrev_dd7762a76fa6a6a25018", 10_000,
+    )
+    assert result.timing_origin_evidence_id == "toe_e76005d1fa87e6ba9fd706b823cc8f9c"
+    with pytest.raises(ValueError):
+        build_phase3_edl_high_cardinality_replay({**fixture, "word_count": 9_999})
+
+
 def _canonical(value) -> bytes:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
 
@@ -216,6 +346,17 @@ def _phase2_high_cardinality_wave() -> bytes:
         b"RIFF" + struct.pack("<I", 320036) + b"WAVEfmt "
         + struct.pack("<IHHIIHH", 16, 1, 1, 8000, 16000, 2, 16)
         + b"data" + struct.pack("<I", 320000) + bytes(samples)
+    )
+
+
+def _phase3_edl_high_cardinality_wave() -> bytes:
+    samples = bytearray()
+    for frame in range(3_200_000):
+        samples += struct.pack("<h", ((frame * 257 + 12345) % 65536) - 32768)
+    return (
+        b"RIFF" + struct.pack("<I", 6400036) + b"WAVEfmt "
+        + struct.pack("<IHHIIHH", 16, 1, 1, 8000, 16000, 2, 16)
+        + b"data" + struct.pack("<I", 6400000) + bytes(samples)
     )
 
 

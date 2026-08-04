@@ -1,0 +1,25 @@
+{
+  "schema_version": "PHASE3-EDL-HIGH-CARDINALITY-REPLAY-V1",
+  "fixture_id": "FX-PHASE3-EDL-10000-REPLAY",
+  "word_template": "token-{ordinal:05d}",
+  "timing_policy": {
+    "first_start_ms": 0,
+    "word_duration_ms": 40,
+    "inter_word_gap_ms": 0,
+    "default_confidence_millionths": 980000
+  },
+  "word_count": 10000,
+  "caption_group_count": 2000,
+  "caption_group_span_words": 5,
+  "emphasis_event_count": 1000,
+  "emphasis_span_words": 2,
+  "caller_intent_count": 5000,
+  "caller_span_words": 1,
+  "frame_rate": {"numerator": 30, "denominator": 1},
+  "expected": {
+    "video_event_count": 8000,
+    "audio_track_count": 5,
+    "linear_work_bound": "O(W+C+E+I+O)",
+    "no_per_frame_materialization": true
+  }
+}

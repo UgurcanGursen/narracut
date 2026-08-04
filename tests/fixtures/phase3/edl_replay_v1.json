@@ -1,0 +1,32 @@
+{
+  "schema_version": "PHASE3-EDL-REPLAY-V1",
+  "fixture_id": "FX-PHASE3-EDL-REPLAY-V1",
+  "words": [
+    "Alpha", "beta", "Gamma", "delta"
+  ],
+  "repeated_word_probe": ["repeat", "repeat"],
+  "timing_policy": {
+    "first_start_ms": 0,
+    "word_duration_ms": 180,
+    "inter_word_gap_ms": 20,
+    "default_confidence_millionths": 980000
+  },
+  "emphasis_ranges": [
+    {"start_word_ordinal": 0, "end_exclusive_word_ordinal": 2, "intensity": "STRONG"}
+  ],
+  "caller_intents": [
+    {"intent_id": "intent_base", "track": "V1", "start_word_ordinal": 0, "end_word_ordinal": 3, "editorial_role": "base_footage", "playback_mode": "HOLD", "fit_mode": "COVER"},
+    {"intent_id": "intent_broll", "track": "V2", "start_word_ordinal": 0, "end_word_ordinal": 1, "editorial_role": "secondary_insert", "playback_mode": "LOOP", "fit_mode": "CONTAIN"},
+    {"intent_id": "intent_evidence", "track": "V3", "start_word_ordinal": 1, "end_word_ordinal": 2, "editorial_role": "source_evidence", "playback_mode": "FIT", "fit_mode": "STRETCH"},
+    {"intent_id": "intent_chart", "track": "V4", "start_word_ordinal": 2, "end_word_ordinal": 3, "editorial_role": "metric_chart", "playback_mode": "HOLD", "fit_mode": "COVER"},
+    {"intent_id": "intent_brand", "track": "V7", "start_word_ordinal": 3, "end_word_ordinal": 3, "editorial_role": "brand_reservation", "playback_mode": "HOLD", "fit_mode": "CONTAIN"}
+  ],
+  "expected": {
+    "word_count": 4,
+    "caller_event_count": 5,
+    "minimum_caption_group_count": 2,
+    "emphasis_event_count": 1,
+    "video_track_event_counts": {"V1": 1, "V2": 1, "V3": 1, "V4": 1, "V5": 1, "V6": 2, "V7": 1},
+    "audio_track_count": 5
+  }
+}

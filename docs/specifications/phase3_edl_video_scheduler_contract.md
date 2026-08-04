@@ -47,6 +47,7 @@ The exact new production paths are:
 ```text
 engine/contracts/edl.py
 engine/contracts/timeline_debug.py
+engine/contracts/alignment_result.py  # one immutable 10k REPLAY allowlist entry only
 ```
 
 The exact focused test paths are:
@@ -54,7 +55,16 @@ The exact focused test paths are:
 ```text
 tests/test_edl.py
 tests/test_timeline_debug.py
+tests/test_alignment_result.py         # one test-only high-cardinality builder only
+tests/fixtures/phase3/edl_high_cardinality_replay_v1.json
 ```
+
+The sole permitted upstream expansion is a definition-time immutable
+`FX-PHASE3-EDL-10000-REPLAY` AlignmentResult evidence/payload allowlist entry
+and a test-only public builder that consumes the checked-in declarative
+fixture. It must use public materializers, no monkeypatch, no private registry
+write, no network, and no existing allowlist-entry change. This expansion is
+required to prove the section 10 10k chain; no other Phase 2 behavior changes.
 
 Only the integration owner may make additive exports in
 `engine/contracts/__init__.py` and update the exact-export oracle in
@@ -307,7 +317,16 @@ silently invent it.
 For caller intents, only V1/V2/V3/V4/V7 are legal. Caller `ordinal` is one
 global namespace: tuple order is strictly increasing contiguous uint32 values
 beginning at zero, `intent_id` is unique, and it must not begin `emphasis:` or
-`caption:`. Per-track `EdlVideoEvent.ordinal` is a separate namespace and is
+`caption:`. Before the scheduler receives any caller row, the tuple must also
+already be in strictly increasing resolved global `(start_frame,
+end_exclusive_frame, intent_id)` order. This is a caller-input prerequisite,
+not a scheduler sort: an out-of-order tuple is rejected as
+`CUE_RESOLUTION_INVALID` at its `/intents/<ordinal>` pointer, even where the
+same-track intervals would otherwise be non-overlapping. It keeps compilation
+linear and leaves a true positive same-track temporal overlap to the later
+`TRACK_COLLISION` check. The global key deliberately contains no track, so
+correctly ordered cross-track layering remains valid. Per-track
+`EdlVideoEvent.ordinal` is a separate namespace and is
 contiguous from zero after all generated/caller events are placed in canonical
 temporal order. V5 comes solely from every
 accepted `EmphasisEvent` using its exact word-ID bounds, source ID, source
@@ -336,7 +355,8 @@ null matrix. Any mismatch is `DEPENDENCY_BINDING_INVALID`; the compiler never
 substitutes a visually similar scene.
 
 The compiler rejects duplicate intent IDs, noncontiguous/incorrect caller
-ordinals, a source/cue mismatch, a V5/V6 caller intent, unknown track, any
+ordinals, caller tuples outside their required resolved ordering, a source/cue
+mismatch, a V5/V6 caller intent, unknown track, any
 unresolved word ID, inverted cue, empty event range, same-track overlap, or
 unbound dependency.  It builds no per-frame array.  It derives
 the fixed sequence-local duration described above (including an empty sequence
