@@ -539,3 +539,24 @@ PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 ```
+
+## Phase 2 Caption Preview + V5/V6 Collision Validation closure — 2026-08-04
+
+The cohesive Caption Preview + V5/V6 Collision Validation macro-package is
+`ACCEPTED / CLOSED` at `218c4bd277867b29d6812715311993a500e19d33`.
+It establishes sparse canonical preview geometry, fail-closed collision
+reports, half-open overlap semantics, and diagnostic SVG output only. Final
+independent audit findings are BLOCKER/MAJOR/MINOR `0/0/0`; focused/export
+evidence is `66 passed` and broad non-FastAPI regression is `2237 passed, 1
+skipped`.
+
+Named timing-file publication/lifecycle and final Phase 2 end-to-end
+reconciliation remain open. This acceptance establishes no production media
+renderer, provider, UI, queueing, or Phase 2 closure.
+
+```text
+CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_REMOTE_CLOSED=YES
+NEXT_MACRO_PACKAGE=Timing Publication + Phase 2 End-to-End Closure
+PHASE2_CLOSED=NO
+```

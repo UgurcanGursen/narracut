@@ -390,6 +390,27 @@ NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
 PHASE2_CLOSED=NO
 ```
 
+## Caption Preview + V5/V6 Collision Validation acceptance — 2026-08-04
+
+| Acceptance item | Status | Evidence |
+|---|---|---|
+| Sparse preview and collision contracts | ACCEPT / REMOTE CLOSED | Commit `218c4bd277867b29d6812715311993a500e19d33` |
+| Final independent audit | PASS | BLOCKER/MAJOR/MINOR `0/0/0` |
+| Focused/export gate | PASS | `66 passed` |
+| Broad non-FastAPI regression | PASS | `2237 passed, 1 skipped` |
+| Phase 2 overall | OPEN / NOT CLOSED | Timing publication and end-to-end closure remain open |
+
+Acceptance report:
+`baseline/phase2_caption_preview_v5_v6_collision_implementation_acceptance_report.md`.
+
+```text
+CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_STATUS=CLOSED
+CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_REMOTE_CLOSED=YES
+NEXT_MACRO_PACKAGE=Timing Publication + Phase 2 End-to-End Closure
+PHASE2_CLOSED=NO
+```
+
 ### Temporal Compilation + Alignment Report implementation acceptance — 2026-08-04
 
 | Acceptance item | Status | Evidence |

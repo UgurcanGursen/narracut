@@ -62,6 +62,16 @@ Son guncelleme: 4 Agustos 2026
 
 ## Faz 2 status note
 
+- Caption Preview + V5/V6 Collision Validation is accepted and remote closed
+  at `218c4bd277867b29d6812715311993a500e19d33`; it is a sparse canonical
+  preview/collision contract, not a production caption renderer.
+- Canonical named timing-file publication, its atomic artifact lifecycle, and
+  final Phase 2 end-to-end reconciliation remain open. The preview contract
+  deliberately defers its high-cardinality authoritative fixture to that
+  closure macro.
+- No Remotion/EDL render, provider execution, queue/retry service, UI, or
+  production media output is established by this acceptance.
+
 - Slice 1-4 repository evidence reconciliation completed.
 - Post-Slice-4 scope reconciliation is no longer a blocker; the scope report is
   remote closed at `f89e10156a940016deef4e94b6aef8863837dbf6`.

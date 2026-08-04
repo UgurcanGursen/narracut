@@ -4,17 +4,17 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 ## NEXT AUTHORITATIVE TASK
 
-Prepare and execute one cohesive **Caption Preview + V5/V6 Collision
-Validation** macro-package for Phase 2.
+Prepare and execute one cohesive **Timing Publication + Phase 2 End-to-End
+Closure** macro-package for Phase 2.
 
 The package must reconcile and specify together:
 
 ```text
-CaptionPreviewRenderer
-Deterministic V5/V6 collision validation
+canonical named timing-file publication
+accepted-contract end-to-end acceptance reconciliation
 ```
 
-It may consume only accepted canonical inputs and frame artifacts:
+It may consume the already accepted canonical inputs and artifacts:
 
 ```text
 CaptionGroupsArtifact
@@ -24,13 +24,13 @@ WordToFrameArtifact
 
 Required outcomes:
 
-- deterministic, reviewable caption preview output from canonical frame spans;
-- explicit V5/V6 layout ownership and collision rules;
-- fail-closed collision findings with stable IDs, provenance, and sanitized
-  error behavior;
-- no string search, caller-authored seconds/frames, or renderer-global timing;
-- bounded memory/runtime behavior with no per-video unbounded retention;
-- REPLAY-only focused, visual-oracle, and upstream regression fixtures.
+- explicit canonical named-file publication policy for accepted timing
+  artifacts;
+- end-to-end REPLAY fixture proving artifact lineage, publication, and the
+  accepted preview/collision boundary without production media rendering;
+- high-cardinality authoritative fixture for the performance evidence deferred
+  by the sparse preview contract;
+- final Master Roadmap Phase 2 acceptance reconciliation.
 
 Use one specification, one implementation integration, one independent audit,
 and one acceptance/documentation closure. Internal helpers do not receive
@@ -38,8 +38,8 @@ separate specification/authorization/remote-closure cycles. Disjoint modules
 may be developed by parallel agents; shared exports, integration, git, and
 documentation remain single-owner.
 
-Do not yet implement timing-file publication, Remotion/EDL production work,
-providers, UI, additional Domain Packs, or any later-phase feature. Do not
+Do not introduce Remotion/EDL production work, providers, UI, additional
+Domain Packs, or any later-phase feature. Do not
 assign a Slice number, total Slice count, or Phase 2 completion percentage.
 
 ## Current evidence boundary
@@ -56,13 +56,15 @@ assign a Slice number, total Slice count, or Phase 2 completion percentage.
   active environment.
 - `timing/word_timeline.json`, `timing/caption_groups.json`, and
   `timing/emphasis_events.json` filesystem publication remains open.
-- `CaptionPreviewRenderer`, V5/V6 collision validation, and named timing-file
-  publication remain incomplete.
+- Caption Preview and V5/V6 collision validation are accepted at
+  `218c4bd277867b29d6812715311993a500e19d33`.
+- Named timing-file publication and final Phase 2 reconciliation remain open.
 
 ```text
 TEMPORAL_COMPILATION_ALIGNMENT_REPORT_IMPLEMENTATION_ACCEPTED=YES
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
-NEXT_MACRO_PACKAGE=Caption Preview + V5/V6 Collision Validation
+CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_ACCEPTED=YES
+NEXT_MACRO_PACKAGE=Timing Publication + Phase 2 End-to-End Closure
 NEXT_ACTION=MACRO_PACKAGE_SPECIFICATION_AND_IMPLEMENTATION
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

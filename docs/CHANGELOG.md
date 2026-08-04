@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 Caption Preview + V5/V6 Collision acceptance
+
+- Accepted and remote closed sparse canonical Caption Preview and deterministic
+  V5/V6 collision contracts at `218c4bd277867b29d6812715311993a500e19d33`.
+- Final independent audit passed with BLOCKER/MAJOR/MINOR `0/0/0`.
+- Final gates: focused/export `66 passed`; broad non-FastAPI upstream
+  `2237 passed, 1 skipped`.
+- Added fail-closed canonical loading, immutable layout policy snapshots,
+  diagnostic SVG oracles, weak-registry non-retention, half-open geometry, and
+  deterministic V5-to-V6 collision findings.
+- Named timing-file publication and final end-to-end Phase 2 reconciliation
+  remain open; Phase 2 is not closed.
+
 ## 2026-08-04 - Phase 2 Temporal Compilation + Alignment Report acceptance
 
 - Accepted the exact rational `WordToFrame` compiler contract and canonical
