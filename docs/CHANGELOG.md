@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 Temporal Compilation + Alignment Report acceptance
+
+- Accepted the exact rational `WordToFrame` compiler contract and canonical
+  `AlignmentReport` implementation at
+  `8eafe6e012d71bbca67f9902d8fe55fcad252973`.
+- Final independent audit passed with BLOCKER/MAJOR/MINOR `0/0/0`.
+- Final gates: focused `253 passed`, exact public exports `1 passed`, upstream
+  `1840 passed`, broad top-level non-FastAPI `2204 passed, 1 skipped`.
+- Closed inventory/partition/timing binding, child emphasis revision binding,
+  strict loader precedence, recursive exact-type/object-identity mutation,
+  registry rollback/non-retention, and independent three-state literal golden
+  coverage.
+- The next cohesive Phase 2 package is `Caption Preview + V5/V6 Collision
+  Validation`. Timing-file publication and final end-to-end reconciliation
+  remain open; Phase 2 is not closed.
+
 ## 2026-08-04 - Phase 2 Canonical Emphasis Events implementation acceptance
 
 - Accepted and remote closed the Canonical Emphasis Events implementation at

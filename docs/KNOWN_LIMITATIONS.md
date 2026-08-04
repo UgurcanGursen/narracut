@@ -310,3 +310,30 @@ EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
 NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
 PHASE2_CLOSED=NO
 ```
+
+## Post-Temporal Compilation + Alignment Report limitations — 2026-08-04
+
+- The accepted implementation at
+  `8eafe6e012d71bbca67f9902d8fe55fcad252973` supersedes earlier statements
+  that `WordToFrameCompiler` and `AlignmentReport` are absent.
+- Exact rational word/caption/emphasis frame compilation and explicit
+  confidence-report states are accepted canonical contracts.
+- Atomic workspace publication/lifecycle for `timing/word_timeline.json`,
+  `timing/caption_groups.json`, and `timing/emphasis_events.json` remains
+  absent.
+- `CaptionPreviewRenderer` and deterministic V5/V6 collision validation remain
+  absent; therefore the preview/collision acceptance criteria are not closed.
+- Optional `fastapi` is absent in the active environment. The definitive broad
+  gate is `2204 passed, 1 skipped` with only
+  `tests/test_control_plane_openapi_foundation.py` excluded; a full FastAPI
+  collection is not claimed.
+- Provider execution, queue/retry orchestration, renderer/EDL publication,
+  durable persistence, UI, and production readiness are not established by
+  this bounded acceptance.
+- Phase 2 remains open. No Slice total or completion percentage is asserted.
+
+```text
+TEMPORAL_COMPILATION_ALIGNMENT_REPORT_IMPLEMENTATION_ACCEPTED=YES
+NEXT_MACRO_PACKAGE=Caption Preview + V5/V6 Collision Validation
+PHASE2_CLOSED=NO
+```

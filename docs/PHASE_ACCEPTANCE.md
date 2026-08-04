@@ -390,6 +390,41 @@ NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
 PHASE2_CLOSED=NO
 ```
 
+### Temporal Compilation + Alignment Report implementation acceptance — 2026-08-04
+
+| Acceptance item | Status | Evidence |
+|---|---|---|
+| Accepted specification | ACCEPT / REMOTE CLOSED | Commit `6458c9dad8d3e3173ef54783e220f4c5009577a4`; `68310` bytes; SHA-256 `129a2565ed2a3912ca751bb4b32b41cabac0e80379f2bc18f0c074bfbd62852d` |
+| WordToFrame implementation | ACCEPT / CLOSED | Commit `8eafe6e012d71bbca67f9902d8fe55fcad252973`; rational frame mapping, dependency inventory, drift and mutation gates |
+| AlignmentReport implementation | ACCEPT / CLOSED | Same commit; AVAILABLE/UNAVAILABLE/NOT_APPLICABLE plus PASS/REVIEW_REQUIRED/BLOCKED states |
+| Final independent audit | PASS | BLOCKER/MAJOR/MINOR `0/0/0` |
+| Focused and export gates | PASS | `253 passed`; exact public exports `1 passed` |
+| Upstream regression | PASS | `1840 passed` |
+| Broad non-FastAPI regression | PASS | `2204 passed, 1 skipped` |
+| Phase 2 overall | OPEN / NOT CLOSED | Preview/collision, named timing publication, and final end-to-end reconciliation remain open |
+
+Acceptance report:
+`baseline/phase2_temporal_compilation_alignment_report_implementation_acceptance_report.md`.
+
+Current Master criterion reconciliation:
+
+| Master Roadmap criterion | Current status |
+|---|---|
+| Every narration word has start/end timing | PARTIALLY_SATISFIED — canonical semantics accepted; named-file publication pending |
+| Cues bind to word-ID ranges instead of string search | PARTIALLY_SATISFIED — canonical caption/emphasis/frame contracts accepted; publication/runtime consumer pending |
+| Kinetic text differs from narration by at most one frame | PARTIALLY_SATISFIED — exact compiler drift proof accepted; preview/runtime consumer pending |
+| V5 and V6 do not occlude each other | NOT_SATISFIED |
+| Low confidence is explicitly reported | SATISFIED at canonical report-contract boundary; publication/review integration pending |
+| LLM does not generate manual seconds | SATISFIED at accepted temporal/frame contract boundary; publication/runtime integration pending |
+
+```text
+TEMPORAL_COMPILATION_ALIGNMENT_REPORT_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+TEMPORAL_COMPILATION_ALIGNMENT_REPORT_IMPLEMENTATION_STATUS=CLOSED
+TEMPORAL_COMPILATION_ALIGNMENT_REPORT_FINAL_AUDIT=PASS
+NEXT_MACRO_PACKAGE=Caption Preview + V5/V6 Collision Validation
+PHASE2_CLOSED=NO
+```
+
 ### Canonical Emphasis Events implementation acceptance — 2026-08-04
 
 | Acceptance item | Status | Evidence |
@@ -504,5 +539,20 @@ EMPHASIS_EVENTS_IMPLEMENTATION_ACCEPTANCE=ACCEPT
 EMPHASIS_EVENTS_IMPLEMENTATION_STATUS=CLOSED
 EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
 NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
+PHASE2_CLOSED=NO
+```
+
+## Latest authoritative Phase 2 state after temporal compilation — 2026-08-04
+
+The historical frame-compilation/report-open statement immediately above is
+superseded by the accepted Temporal Compilation + Alignment Report
+implementation at `8eafe6e012d71bbca67f9902d8fe55fcad252973` and its acceptance section in
+this document. The next bounded macro-package is Caption Preview + V5/V6
+Collision Validation. Named timing publication and final Phase 2 end-to-end
+reconciliation remain open.
+
+```text
+TEMPORAL_COMPILATION_ALIGNMENT_REPORT_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+NEXT_MACRO_PACKAGE=Caption Preview + V5/V6 Collision Validation
 PHASE2_CLOSED=NO
 ```
