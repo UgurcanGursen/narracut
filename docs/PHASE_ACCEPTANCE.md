@@ -127,6 +127,7 @@ General status: IN_PROGRESS / NOT CLOSED
 | Canonical successful alignment word-timing specification | ACCEPTED / FINAL RE-AUDIT PASS | SHA-256 `c102f51cb8620f84494822a13cb6e6402466c11dfd14cf01777058311ad22320`; `67186` bytes; F1-F5 CLOSED; 0 new blockers |
 | Canonical successful alignment word-timing implementation authorization | AUTHORIZED | `baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md`; exact four-path implementation/test boundary including the mechanical export assertion |
 | Canonical successful alignment word-timing implementation | ACCEPT / REMOTE CLOSED | `87eb330922a5a1295de861544b44859ddd001911`; independent audit PASS; P0/P1/P2 `0/0/0`; focused `471 passed`; exact four-path implementation/test boundary |
+| Canonical phrase grouping/caption-groups specification-path decision | CLOSED / REMOTE CLOSED | `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`; selected future path `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`; specification not drafted or accepted; implementation not authorized |
 
 The corrected Slice 5 implementation boundary is exactly:
 
@@ -315,21 +316,27 @@ read-only re-audit. Its bounded implementation is accepted and remote closed at
 report records the PASS audit and `471 passed` focused gate. The exact
 implementation/test boundary was `engine/contracts/alignment_result.py`,
 `engine/contracts/__init__.py`, `tests/test_alignment_result.py`, and the
-mechanical export assertion in `tests/test_alignment_request.py`. The next
-gate is a read-only bounded scope and specification-path decision for roadmap
-phrase grouping / `timing/caption_groups.json`.
+mechanical export assertion in `tests/test_alignment_request.py`.
+
+The bounded phrase-grouping scope and specification-path decision is closed in
+`baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`.
+It selects
+`docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`
+without assigning a Slice number. The specification does not yet exist, is not
+accepted, and implementation is not authorized. The next gate is bounded
+specification drafting only.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 COMPLETED_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
-SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
-SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=YES
-SPECIFICATION_ACCEPTED=YES
-SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=YES
 ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
-NEXT_BOUNDED_CANDIDATE_TITLE=Phrase grouping / timing/caption_groups.json
-NEXT_BOUNDED_SCOPE_DECISION_REQUIRED=YES
+BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

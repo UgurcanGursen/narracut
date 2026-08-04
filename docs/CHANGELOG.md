@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 phrase-grouping specification-path decision closure
+
+- Closed the bounded, read-only scope and specification-path decision for the
+  Master Roadmap phrase-grouping / `timing/caption_groups.json` deliverable.
+- Decision report:
+  `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`.
+- Selected candidate: Canonical Phrase Grouping and Caption Groups Contract.
+- Selected future specification path:
+  `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
+- The future contract is bounded to deterministic caption-group partitioning,
+  derived word/time/confidence bindings, 4-9-word preference semantics,
+  canonical identity/serialization, validation, and no-leak behavior.
+- Emphasis, frame compilation, preview/layout/collision, renderer, provider and
+  runtime orchestration, API/queue/payment behavior, Phase 3, and Phase 2
+  closure remain outside this decision.
+- No specification was drafted or accepted and no implementation was
+  authorized. No Slice number, total Slice count, or completion percentage is
+  claimed.
+- The next single task is drafting only the selected candidate specification.
+
+```text
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```
+
 ## 2026-08-04 - Phase 2 alignment result implementation acceptance closure
 
 - Accepted and remote closed the bounded Canonical Successful Alignment

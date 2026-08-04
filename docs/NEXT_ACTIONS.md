@@ -6,31 +6,40 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 This is the single authoritative next task.
 
-Perform a bounded, read-only Phase 2 scope reconciliation and
-specification-path decision for the next Master Roadmap deliverable:
+Draft the bounded candidate specification:
 
 ```text
-Phrase grouping / timing/caption_groups.json
+docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 ```
 
-This task may inspect the roadmap, accepted Phase 2 evidence, and repository
-conventions, then select one exact future specification path. It must not draft
-or accept the specification, assign a Slice number, authorize implementation,
-implement phrase grouping, or close Phase 2.
-
-Provider/runtime orchestration, network/API/payment/retry/queue behavior,
-failure artifacts, `AlignmentReport`, caption grouping, emphasis mapping,
-word-to-frame compilation, preview, V5/V6 collision validation, Phase 3,
-renderer, Studio API, UI, database, and cache integration remain out of scope.
+Candidate title:
 
 ```text
-PHASE2_ALIGNMENT_RESULT_SPECIFICATION_ACCEPTED=YES
-PHASE2_ALIGNMENT_RESULT_IMPLEMENTATION_AUTHORIZED=YES
-PHASE2_ALIGNMENT_RESULT_IMPLEMENTATION_ALLOWED=NO
-IMPLEMENTATION_STATUS=ACCEPTED_REMOTE_CLOSED
-IMPLEMENTATION_ACCEPTANCE=ACCEPT
-NEXT_BOUNDED_CANDIDATE_TITLE=Phrase grouping / timing/caption_groups.json
-NEXT_BOUNDED_SCOPE_DECISION_REQUIRED=YES
+Canonical Phrase Grouping and Caption Groups Contract
+```
+
+The draft must define the canonical `timing/caption_groups.json` contract that
+consumes genuine canonical narration and accepted canonical alignment-result
+evidence. It must resolve deterministic complete, contiguous, order-preserving
+word partitioning; derived timing and confidence; stable identity and canonical
+serialization; punctuation/sentence boundary policy; the exact 4-9-word
+preference and bounded exception precedence; validation/error taxonomy;
+mutation resistance; and secret/no-leak behavior.
+
+This task is specification drafting only. Do not accept the specification,
+authorize or implement production code, assign a Slice number, or close Phase
+2. Emphasis mapping, frame compilation, layout/line wrapping, safe-area and
+V5/V6 collision validation, preview rendering, `AlignmentReport`, failure
+artifacts, provider/runtime/network/retry/queue/API/payment behavior, database,
+cache, Studio API, UI, and Phase 3 remain out of scope.
+
+```text
+PHRASE_GROUPING_SPECIFICATION_PATH_DECISION=CLOSED
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

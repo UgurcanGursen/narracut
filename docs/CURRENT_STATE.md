@@ -161,8 +161,9 @@ baseline/phase2_canonical_successful_alignment_word_timing_result_implementation
   `ACCEPTED / REMOTE CLOSED`.
 - Phase 2 remains `IN_PROGRESS / NOT CLOSED`; no total Slice count or
   completion percentage is claimed.
-- The sole next task is a read-only bounded scope and specification-path
-  reconciliation for roadmap phrase grouping / `timing/caption_groups.json`.
+- The bounded phrase-grouping specification-path decision is closed. The sole
+  next task is drafting
+  `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -350,17 +351,24 @@ implementation was accepted and remote closed at
 `87eb330922a5a1295de861544b44859ddd001911`. Phase 2 remains IN_PROGRESS /
 NOT CLOSED.
 
+The next bounded path decision is closed in
+`baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`.
+It selects the Canonical Phrase Grouping and Caption Groups Contract at
+`docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
+The specification is not drafted or accepted, and implementation is not
+authorized.
+
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 COMPLETED_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
-SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
-SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=YES
-SPECIFICATION_ACCEPTED=YES
-SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=YES
 ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
-NEXT_BOUNDED_CANDIDATE_TITLE=Phrase grouping / timing/caption_groups.json
-NEXT_BOUNDED_SCOPE_DECISION_REQUIRED=YES
+BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
@@ -369,11 +377,11 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Perform only a read-only bounded Phase 2 scope reconciliation and
-specification-path decision for roadmap phrase grouping /
-`timing/caption_groups.json`. Do not draft or accept its specification,
-assign a Slice number, authorize implementation, implement phrase grouping,
-state a total Slice count or completion percentage, or close Phase 2.
+Draft only the bounded Canonical Phrase Grouping and Caption Groups Contract at
+`docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
+Do not accept the draft, assign a Slice number, authorize or implement
+production code, state a total Slice count or completion percentage, or close
+Phase 2.
 
 ## Phase 1 closure references
 

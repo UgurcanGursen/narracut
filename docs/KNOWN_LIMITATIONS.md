@@ -167,6 +167,10 @@ Son guncelleme: 3 Agustos 2026
   confidence/report integration, emphasis mapping, word-to-frame compilation,
   and V5/V6 preview/collision validation. The accepted implementation covers
   only the bounded canonical successful alignment result contract.
+- The phrase-grouping scope and specification path are selected in
+  `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`,
+  but the specification has not been drafted or accepted and no artifact
+  producer is authorized or implemented.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
@@ -188,14 +192,14 @@ NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 COMPLETED_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
-SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
-SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=YES
-SPECIFICATION_ACCEPTED=YES
-SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=YES
 ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
-NEXT_BOUNDED_CANDIDATE_TITLE=Phrase grouping / timing/caption_groups.json
-NEXT_BOUNDED_SCOPE_DECISION_REQUIRED=YES
+BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
