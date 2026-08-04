@@ -229,6 +229,23 @@ ALIGNMENT_RESULT_PUBLIC_EXPORTS = frozenset(
         "serialize_alignment_result",
     }
 )
+CAPTION_GROUPS_PUBLIC_EXPORTS = frozenset(
+    {
+        "CAPTION_GROUP_V1",
+        "CAPTION_GROUP_HASH_V1",
+        "CAPTION_GROUPS_V1",
+        "CAPTION_GROUPS_HASH_V1",
+        "PHRASE_GROUPING_POLICY_V1",
+        "CaptionGroupWordCountPolicy",
+        "CaptionGroupingRejectionReason",
+        "CaptionGroup",
+        "CaptionGroupsArtifact",
+        "CaptionGroupsContractError",
+        "compile_caption_groups",
+        "load_caption_groups",
+        "serialize_caption_groups",
+    }
+)
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -948,11 +965,15 @@ def test_alignment_request_public_exports_are_exact() -> None:
     assert current_exports & SLICE4_PUBLIC_EXPORTS == SLICE4_PUBLIC_EXPORTS
     assert current_exports - PRE_SLICE4_PUBLIC_EXPORTS == (
         SLICE4_PUBLIC_EXPORTS | SLICE5_PUBLIC_EXPORTS
-        | ALIGNMENT_RESULT_PUBLIC_EXPORTS
+        | ALIGNMENT_RESULT_PUBLIC_EXPORTS | CAPTION_GROUPS_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
-    ) == SLICE5_PUBLIC_EXPORTS | ALIGNMENT_RESULT_PUBLIC_EXPORTS
+    ) == (
+        SLICE5_PUBLIC_EXPORTS
+        | ALIGNMENT_RESULT_PUBLIC_EXPORTS
+        | CAPTION_GROUPS_PUBLIC_EXPORTS
+    )
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")
     assert not hasattr(contracts, "_is_materialized_alignment_request")
