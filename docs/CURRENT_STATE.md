@@ -1,6 +1,6 @@
 # Current State
 
-Son guncelleme: 3 Agustos 2026
+Son guncelleme: 4 Agustos 2026
 Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 IN_PROGRESS**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
@@ -168,9 +168,10 @@ baseline/phase2_canonical_successful_alignment_word_timing_result_implementation
   `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`.
 - Targeted independent re-audit: `PASS`; `CGS-SPEC-AUD-001` CLOSED; new
   findings `0`.
-- The corrected specification is accepted by the external acceptance decision.
-  The sole next task is a read-only implementation-authorization decision;
-  implementation remains closed.
+- The corrected specification and bounded implementation are accepted. The
+  implementation audit repair is remote closed at
+  `8b77c4d5bbd6f176d11a92f6a491a707e7b47ac6`; the sole next task is a
+  read-only post-caption-groups Phase 2 scope reconciliation.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -374,8 +375,10 @@ BLOCKER/MAJOR/MINOR/INFO `0/0/0/0`; `CGS-SPEC-AUD-001` is CLOSED. The
 specification is accepted by the external decision record. Its separate
 read-only implementation-authorization decision is `AUTHORIZE`, recorded in
 `baseline/phase2_canonical_phrase_grouping_caption_groups_implementation_authorization_decision_report.md`.
-Implementation is authorized but not started or accepted. The exact future
-implementation boundary is `engine/contracts/caption_groups.py`, additive
+Implementation is accepted and remote closed after its initial two-MAJOR audit
+findings were repaired and targeted independent re-audit passed at
+`8b77c4d5bbd6f176d11a92f6a491a707e7b47ac6`. The exact implementation
+boundary was `engine/contracts/caption_groups.py`, additive
 exports in `engine/contracts/__init__.py`, `tests/test_caption_groups.py`, and
 the mechanical exact-export oracle in `tests/test_alignment_request.py`.
 
@@ -393,10 +396,16 @@ CGS_SPEC_AUD_001_STATUS=CLOSED
 SPECIFICATION_ACCEPTED=YES
 IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
 IMPLEMENTATION_AUTHORIZED=YES
-IMPLEMENTATION_STATUS=NOT_STARTED
-IMPLEMENTATION_ACCEPTANCE=OPEN
-NEXT_ACTION=BOUNDED_IMPLEMENTATION
-NEXT_IMPLEMENTATION_ALLOWED=YES
+IMPLEMENTATION_STATUS=CLOSED
+IMPLEMENTATION_ACCEPTANCE=ACCEPT
+IMPLEMENTATION_ACCEPTED=YES
+IMPLEMENTATION_REMOTE_CLOSED=YES
+ORIGINAL_IMPLEMENTATION_AUDIT=FIX_REQUIRED
+TARGETED_IMPLEMENTATION_REAUDIT=PASS
+CGS_IMPL_AUD_001_STATUS=CLOSED
+CGS_IMPL_AUD_002_STATUS=CLOSED
+NEXT_ACTION=POST_CAPTION_GROUPS_SCOPE_RECONCILIATION
+NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
@@ -404,14 +413,12 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Implement only the accepted Canonical Phrase Grouping and Caption Groups
-Contract at the exact four authorized paths. Preserve the accepted blob,
-upstream contracts, no-I/O/API boundary, exact 13-symbol export delta, closed
-error oracle, golden identity, linear resource bound, and transactional weak
-registry. Run focused and upstream regression gates, then remote close the
-candidate for independent read-only implementation audit. Do not assign a
-Slice number, state a total Slice count or completion percentage, or close
-Phase 2.
+Perform only a bounded read-only reconciliation of remaining Master Roadmap
+Phase 2 deliverables and acceptance criteria after the accepted caption-groups
+implementation. Classify evidence and select at most one next bounded candidate
+and exact future specification path. Do not implement, assign a Slice number,
+state a total Slice count or completion percentage, or close Phase 2 without
+complete evidence.
 
 ## Phase 1 closure references
 

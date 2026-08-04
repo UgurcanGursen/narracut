@@ -172,8 +172,9 @@ Son guncelleme: 3 Agustos 2026
   and the candidate specification is drafted and remote closed. The initial
   audit returned `FIX_REQUIRED` with one MAJOR error-oracle ambiguity. A bounded
   repair is remote closed, targeted re-audit passed, and the corrected
-  specification is accepted. The exact four-path bounded implementation is
-  authorized but not started or accepted; no artifact producer or filesystem
+  specification is accepted. The exact four-path bounded implementation and
+  its two-path audit repair are accepted and remote closed at
+  `8b77c4d5bbd6f176d11a92f6a491a707e7b47ac6`; no filesystem artifact
   publication is implemented.
 
 ```text
@@ -207,10 +208,13 @@ CGS_SPEC_AUD_001_STATUS=CLOSED
 SPECIFICATION_ACCEPTED=YES
 IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
 IMPLEMENTATION_AUTHORIZED=YES
-IMPLEMENTATION_STATUS=NOT_STARTED
-IMPLEMENTATION_ACCEPTANCE=OPEN
-NEXT_ACTION=BOUNDED_IMPLEMENTATION
-NEXT_IMPLEMENTATION_ALLOWED=YES
+IMPLEMENTATION_STATUS=CLOSED
+IMPLEMENTATION_ACCEPTANCE=ACCEPT
+IMPLEMENTATION_ACCEPTED=YES
+IMPLEMENTATION_REMOTE_CLOSED=YES
+TARGETED_IMPLEMENTATION_REAUDIT=PASS
+NEXT_ACTION=POST_CAPTION_GROUPS_SCOPE_RECONCILIATION
+NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
@@ -218,6 +222,10 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Environment and test limitations
 
+- The caption-groups full repository collection attempt stops in two
+  FastAPI-dependent test areas because the active Python environment does not
+  contain `fastapi`. The top-level non-FastAPI gate passes with
+  `1855 passed, 1 skipped`; no full-suite pass is claimed.
 - Legacy full Python collection, committed manifestlerde olmayan `pyloudnorm`
   nedeniyle `v2.audio_engine` import zincirindeki uc collection'da durur.
 - Starlette/HTTPX TestClient deprecation warning'i non-blockingdir.

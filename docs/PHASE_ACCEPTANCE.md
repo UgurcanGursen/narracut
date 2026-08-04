@@ -97,7 +97,7 @@ gerektirir. Bu Faz 1 deliverable'i degil, future-phase acceptance kaydidir.
 
 ## Faz 2 — Temporal Annotation and Word-Level Alignment Contract
 
-Evaluation date: 3 Agustos 2026
+Evaluation date: 4 Agustos 2026
 
 General status: IN_PROGRESS / NOT CLOSED
 
@@ -131,7 +131,8 @@ General status: IN_PROGRESS / NOT CLOSED
 | Canonical phrase grouping/caption-groups candidate specification | DRAFTED / REMOTE CLOSED / INITIAL AUDIT FIX_REQUIRED | `171078ca1c50a43ac9a395fe135e6bc044079b28`; SHA-256 `d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`; `35784` bytes; audit findings BLOCKER/MAJOR/MINOR/INFO `0/1/0/0` |
 | Canonical phrase grouping/caption-groups bounded specification repair | REMOTE CLOSED / TARGETED RE-AUDIT PASS | `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`; corrected SHA-256 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`; `43985` bytes; `CGS-SPEC-AUD-001` CLOSED; new findings `0` |
 | Canonical phrase grouping/caption-groups specification acceptance | ACCEPT | `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_acceptance_decision_report.md`; corrected blob accepted after targeted PASS |
-| Canonical phrase grouping/caption-groups implementation authorization | AUTHORIZED / NOT STARTED | `baseline/phase2_canonical_phrase_grouping_caption_groups_implementation_authorization_decision_report.md`; exact four-path boundary with mechanical export-oracle update; acceptance remains open |
+| Canonical phrase grouping/caption-groups implementation authorization | AUTHORIZED | `baseline/phase2_canonical_phrase_grouping_caption_groups_implementation_authorization_decision_report.md`; exact four-path boundary with mechanical export-oracle update |
+| Canonical phrase grouping/caption-groups implementation | ACCEPT / REMOTE CLOSED | original `d8c600c6851cb26728e6dab1485e6447cd8c3c0b`; repair `8b77c4d5bbd6f176d11a92f6a491a707e7b47ac6`; original audit `FIX_REQUIRED` with two MAJOR findings; targeted re-audit PASS; final `0/0/0/0`; focused `1137 passed`; upstream `1575 passed`; broad non-FastAPI `1855 passed, 1 skipped` |
 
 The corrected Slice 5 implementation boundary is exactly:
 
@@ -341,7 +342,9 @@ external decision record. The separate read-only implementation decision is
 It authorizes only `engine/contracts/caption_groups.py`, additive exports in
 `engine/contracts/__init__.py`, `tests/test_caption_groups.py`, and the
 mechanical exact-export oracle in `tests/test_alignment_request.py`.
-Implementation remains not started and not accepted; Phase 2 remains open.
+Implementation is accepted and remote closed at
+`8b77c4d5bbd6f176d11a92f6a491a707e7b47ac6` after both MAJOR audit findings
+were closed by targeted independent re-audit. Phase 2 remains open.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -357,10 +360,16 @@ CGS_SPEC_AUD_001_STATUS=CLOSED
 SPECIFICATION_ACCEPTED=YES
 IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
 IMPLEMENTATION_AUTHORIZED=YES
-IMPLEMENTATION_STATUS=NOT_STARTED
-IMPLEMENTATION_ACCEPTANCE=OPEN
-NEXT_ACTION=BOUNDED_IMPLEMENTATION
-NEXT_IMPLEMENTATION_ALLOWED=YES
+IMPLEMENTATION_STATUS=CLOSED
+IMPLEMENTATION_ACCEPTANCE=ACCEPT
+IMPLEMENTATION_ACCEPTED=YES
+IMPLEMENTATION_REMOTE_CLOSED=YES
+ORIGINAL_IMPLEMENTATION_AUDIT=FIX_REQUIRED
+TARGETED_IMPLEMENTATION_REAUDIT=PASS
+CGS_IMPL_AUD_001_STATUS=CLOSED
+CGS_IMPL_AUD_002_STATUS=CLOSED
+NEXT_ACTION=POST_CAPTION_GROUPS_SCOPE_RECONCILIATION
+NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED

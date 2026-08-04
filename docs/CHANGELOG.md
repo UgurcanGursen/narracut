@@ -1,5 +1,35 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 caption-groups implementation acceptance
+
+- Original bounded implementation commit:
+  `d8c600c6851cb26728e6dab1485e6447cd8c3c0b`.
+- Independent implementation audit: `FIX_REQUIRED`; findings
+  BLOCKER/MAJOR/MINOR/INFO `0/2/0/0`.
+- Bounded two-path repair commit:
+  `8b77c4d5bbd6f176d11a92f6a491a707e7b47ac6`.
+- `CGS-IMPL-AUD-001` and `CGS-IMPL-AUD-002`: CLOSED.
+- Targeted independent re-audit: `PASS`; final findings `0/0/0/0`;
+  implementation acceptance ready.
+- Final gates: focused `1137 passed`; seven Phase 2 modules `1575 passed`;
+  top-level non-FastAPI `1855 passed, 1 skipped`.
+- Full collection was attempted but the active environment lacks `fastapi` in
+  two collection areas; no full-suite pass is claimed.
+- Acceptance report:
+  `baseline/phase2_canonical_phrase_grouping_caption_groups_implementation_acceptance_report.md`.
+- The bounded implementation is accepted and remote closed. Filesystem
+  publication and downstream Phase 2 deliverables remain open; Phase 2 is not
+  closed.
+
+```text
+IMPLEMENTATION_ACCEPTANCE_DECISION=ACCEPT
+IMPLEMENTATION_ACCEPTED=YES
+IMPLEMENTATION_REMOTE_CLOSED=YES
+TARGETED_IMPLEMENTATION_REAUDIT=PASS
+NEXT_ACTION=POST_CAPTION_GROUPS_SCOPE_RECONCILIATION
+PHASE2_CLOSED=NO
+```
+
 ## 2026-08-04 - Phase 2 caption-groups implementation authorization
 
 - Authorized one bounded implementation of the accepted Canonical Phrase
