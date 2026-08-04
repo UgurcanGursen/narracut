@@ -241,6 +241,27 @@ _GOLDEN_EVIDENCE = (
     b'"timing_origin_evidence_id":"toe_f140843e7e1f86817c7acc0bdc8eb775","timing_payload_byte_hash":'
     b'"sha256:86497808c046ec4334395f23eaef5a8e9976780af61a2ec7278ade6137d0b0ad"}'
 )
+_PHASE2_HIGH_CARDINALITY_WORDS = tuple(f"word{index:03d}" for index in range(96))
+_PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD = encode_canonical_json_bytes({
+    "schema_version": ALIGNMENT_TOKEN_OBSERVATION_V1,
+    "narration_revision_id": "narrev_13a438803b51312eb6a3",
+    "narration_revision_hash": "sha256:13a438803b51312eb6a3eca955a679208689e67166bf05ef48c910f340659f54",
+    "normalization_profile_hash": "sha256:fda29f7bd8d0cc018489dcb0a7163b8130022e3bfd5e8a0cb88918c2723bb862",
+    "tokens": [
+        {
+            "index": index, "kind": "SPOKEN", "normalized_alignment_text": word,
+            "start_ms": index * 200, "end_ms": index * 200 + 180,
+            "confidence_millionths": 940000 if index == 17 else 980000,
+        }
+        for index, word in enumerate(_PHASE2_HIGH_CARDINALITY_WORDS)
+    ] + [{
+        "index": 96, "kind": "NON_SPOKEN", "normalized_alignment_text": None,
+        "start_ms": None, "end_ms": None, "confidence_millionths": None,
+    }],
+})
+_PHASE2_HIGH_CARDINALITY_EVIDENCE = (
+    b'{"adapter_execution_hash":"043a793b1cd5fbcde85fb6af3ca57e7b68f01b4e5d5119fb26da52137b83784b","adapter_execution_id":"aex_043a793b1cd5fbcde85fb6af3ca57e7b","alignment_request_hash":"d294a0934a8f723bc3fb9b9d032c8ff86133d526d41dec81ada12a3cb24f3044","alignment_request_id":"arq_d294a0934a8f723bc3fb9b9d032c8ff8","audio_artifact_hash":"sha256:7c385f9c5a28f6eba07034230e6dd50e694e39c3208872d79d10e3da2e2aa25e","audio_artifact_id":"aud_7c385f9c5a28f6eba070","fixture_id":"FX-PHASE2-TPUB-96-REPLAY","hash_scope_version":"TIMING-ORIGIN-EVIDENCE-HASH-V1","narration_document_snapshot_hash":"sha256:213321afdc145caa0a9f55aa8919e8e56cb5430710d1b1dcf5756e2fe968948c","narration_revision_hash":"sha256:13a438803b51312eb6a3eca955a679208689e67166bf05ef48c910f340659f54","narration_revision_id":"narrev_13a438803b51312eb6a3","schema_version":"TIMING-ORIGIN-EVIDENCE-V1","temporal_raw_package_hash":"sha256:95466ce63f3e210edf68c8dd292a87d72ae637b4b8949bca7ed91d839973c392","timing_origin_evidence_hash":"f20b2c2b1efb5f29b156cc2735f33947069c2ab62f60d71dc654338d513b5088","timing_origin_evidence_id":"toe_f20b2c2b1efb5f29b156cc2735f33947","timing_payload_byte_hash":"sha256:899fb3af1d748910e8e47a858c4a34c4426d459944ffa965c64dde3c8ba166c7"}'
+)
 _ALLOWLIST_KEY = (
     "FX-ALR-01",
     "f140843e7e1f86817c7acc0bdc8eb775021ffd8c5a5a13809d5e33407c34ae03",
@@ -249,7 +270,18 @@ _ALLOWLIST_KEY = (
     "86497808c046ec4334395f23eaef5a8e9976780af61a2ec7278ade6137d0b0ad",
     1062,
 )
-_EVIDENCE_ALLOWLIST = MappingProxyType({_ALLOWLIST_KEY: (_GOLDEN_EVIDENCE, _GOLDEN_TIMING_PAYLOAD)})
+_PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY = (
+    "FX-PHASE2-TPUB-96-REPLAY",
+    "f20b2c2b1efb5f29b156cc2735f33947069c2ab62f60d71dc654338d513b5088",
+    "72d12e72a053a34d2d97971710d94bb599016d5d0d30323f347c7397380a5844",
+    1221,
+    "899fb3af1d748910e8e47a858c4a34c4426d459944ffa965c64dde3c8ba166c7",
+    12802,
+)
+_EVIDENCE_ALLOWLIST = MappingProxyType({
+    _ALLOWLIST_KEY: (_GOLDEN_EVIDENCE, _GOLDEN_TIMING_PAYLOAD),
+    _PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY: (_PHASE2_HIGH_CARDINALITY_EVIDENCE, _PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD),
+})
 _MATERIALIZED_TIMING_ORIGIN_EVIDENCE: dict[
     int, tuple[weakref.ReferenceType[TimingOriginEvidence], bytes, bytes]
 ] = {}
@@ -354,14 +386,30 @@ def _hash(data: bytes, *, prefixed: bool = False) -> str:
 def _allowlist_lookup(
     key: tuple[Any, ...],
     *,
-    _owned_key: tuple[Any, ...] = _ALLOWLIST_KEY,
-    _owned_evidence: bytes = _GOLDEN_EVIDENCE,
-    _owned_payload: bytes = _GOLDEN_TIMING_PAYLOAD,
+    _owned_entries: tuple[tuple[tuple[Any, ...], bytes, bytes], ...] = (
+        (_ALLOWLIST_KEY, _GOLDEN_EVIDENCE, _GOLDEN_TIMING_PAYLOAD),
+        (_PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY, _PHASE2_HIGH_CARDINALITY_EVIDENCE, _PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD),
+    ),
 ) -> tuple[bytes, bytes] | None:
     """Use definition-time immutable values; rebinding module globals cannot grow trust."""
-    if key != _owned_key:
-        return None
-    return _owned_evidence, _owned_payload
+    for owned_key, evidence, payload in _owned_entries:
+        if key == owned_key:
+            return evidence, payload
+    return None
+
+
+def _allowlisted_payload_for_evidence(
+    fixture_id: str, evidence_hash: str, evidence_envelope_hash: str, evidence_length: int,
+    *,
+    _owned_entries: tuple[tuple[tuple[Any, ...], bytes, bytes], ...] = (
+        (_ALLOWLIST_KEY, _GOLDEN_EVIDENCE, _GOLDEN_TIMING_PAYLOAD),
+        (_PHASE2_HIGH_CARDINALITY_ALLOWLIST_KEY, _PHASE2_HIGH_CARDINALITY_EVIDENCE, _PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD),
+    ),
+) -> bytes | None:
+    for key, evidence, payload in _owned_entries:
+        if key[:4] == (fixture_id, evidence_hash, evidence_envelope_hash, evidence_length):
+            return payload
+    return None
 
 
 def _evidence_dict(value: TimingOriginEvidence) -> dict[str, Any]:
@@ -434,10 +482,16 @@ def load_repository_timing_origin_evidence(source: bytes) -> TimingOriginEvidenc
         _reject(pointer + "/timing_origin_evidence_hash", AlignmentResultRejectionReason.IDENTITY_MISMATCH, "REPLAY_HASH_MISMATCH")
     if data["timing_origin_evidence_id"] != "toe_" + digest[:32]:
         _reject(pointer + "/timing_origin_evidence_id", AlignmentResultRejectionReason.IDENTITY_MISMATCH, "REPLAY_HASH_MISMATCH")
-    payload_digest = _hash(_GOLDEN_TIMING_PAYLOAD)
-    key = (data["fixture_id"], digest, _hash(source), len(source), payload_digest, len(_GOLDEN_TIMING_PAYLOAD))
+    payload = _allowlisted_payload_for_evidence(data["fixture_id"], digest, _hash(source), len(source))
+    # Legacy adversarial tests deliberately replace the closed lookup hook; keep
+    # their pre-existing golden-payload probe while production trust remains
+    # captured by the definition-time lookup defaults above.
+    if payload is None:
+        payload = _GOLDEN_TIMING_PAYLOAD
+    payload_digest = _hash(payload)
+    key = (data["fixture_id"], digest, _hash(source), len(source), payload_digest, len(payload))
     owned = _allowlist_lookup(key)
-    if owned is None or source != owned[0] or _GOLDEN_TIMING_PAYLOAD != owned[1]:
+    if owned is None or source != owned[0] or payload != owned[1]:
         _reject(pointer, AlignmentResultRejectionReason.TIMING_ORIGIN_EVIDENCE_INVALID, "REPLAY_INPUT_MISMATCH")
     value = _evidence_from_dict(data)
     if encode_canonical_json_bytes(_evidence_dict(value)) != source:

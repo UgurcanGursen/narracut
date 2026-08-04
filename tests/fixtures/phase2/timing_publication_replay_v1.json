@@ -1,0 +1,32 @@
+{
+  "schema_version": "PHASE2-TIMING-PUBLICATION-REPLAY-V1",
+  "fixture_id": "FX-PHASE2-TPUB-96-REPLAY",
+  "words": [
+    "word000", "word001", "word002", "word003", "word004", "word005", "word006", "word007", "word008", "word009", "word010", "word011",
+    "word012", "word013", "word014", "word015", "word016", "word017", "word018", "word019", "word020", "word021", "word022", "word023",
+    "word024", "word025", "word026", "word027", "word028", "word029", "word030", "word031", "word032", "word033", "word034", "word035",
+    "word036", "word037", "word038", "word039", "word040", "word041", "word042", "word043", "word044", "word045", "word046", "word047",
+    "word048", "word049", "word050", "word051", "word052", "word053", "word054", "word055", "word056", "word057", "word058", "word059",
+    "word060", "word061", "word062", "word063", "word064", "word065", "word066", "word067", "word068", "word069", "word070", "word071",
+    "word072", "word073", "word074", "word075", "word076", "word077", "word078", "word079", "word080", "word081", "word082", "word083",
+    "word084", "word085", "word086", "word087", "word088", "word089", "word090", "word091", "word092", "word093", "word094", "word095"
+  ],
+  "timing_policy": {
+    "first_start_ms": 0,
+    "word_duration_ms": 180,
+    "inter_word_gap_ms": 20,
+    "low_confidence_word_ordinal": 17,
+    "low_confidence_millionths": 940000,
+    "default_confidence_millionths": 980000
+  },
+  "emphasis_ranges": [
+    {"start_word_ordinal": 0, "end_exclusive_word_ordinal": 4, "intensity": "MEDIUM"},
+    {"start_word_ordinal": 32, "end_exclusive_word_ordinal": 36, "intensity": "STRONG"},
+    {"start_word_ordinal": 68, "end_exclusive_word_ordinal": 72, "intensity": "SUBTLE"}
+  ],
+  "expected": {
+    "word_count": 96,
+    "caption_group_minimum": 12,
+    "review_required_word_ordinal": 17
+  }
+}

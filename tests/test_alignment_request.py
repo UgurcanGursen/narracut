@@ -337,6 +337,12 @@ V5_V6_COLLISION_PUBLIC_EXPORTS = frozenset(
         "render_v5_v6_collision_diagnostic_svg",
     }
 )
+TIMING_PUBLICATION_PUBLIC_EXPORTS = frozenset({
+    "TIMING_PUBLICATION_V1", "TIMING_PUBLICATION_HASH_V1",
+    "TimingPublicationRejectionReason", "TimingPublicationContractError",
+    "PublishedTimingFile", "TimingPublicationReceipt",
+    "publish_timing_artifacts", "serialize_timing_publication_receipt",
+})
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -1060,6 +1066,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | EMPHASIS_EVENTS_PUBLIC_EXPORTS
         | WORD_TO_FRAME_PUBLIC_EXPORTS | ALIGNMENT_REPORT_PUBLIC_EXPORTS
         | CAPTION_PREVIEW_PUBLIC_EXPORTS | V5_V6_COLLISION_PUBLIC_EXPORTS
+        | TIMING_PUBLICATION_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
@@ -1072,6 +1079,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | ALIGNMENT_REPORT_PUBLIC_EXPORTS
         | CAPTION_PREVIEW_PUBLIC_EXPORTS
         | V5_V6_COLLISION_PUBLIC_EXPORTS
+        | TIMING_PUBLICATION_PUBLIC_EXPORTS
     )
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")

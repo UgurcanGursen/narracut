@@ -129,6 +129,12 @@ from .word_to_frame import (
     load_word_to_frame,
     serialize_word_to_frame,
 )
+from .timing_publication import (
+    TIMING_PUBLICATION_HASH_V1, TIMING_PUBLICATION_V1, PublishedTimingFile,
+    TimingPublicationContractError, TimingPublicationReceipt,
+    TimingPublicationRejectionReason, publish_timing_artifacts,
+    serialize_timing_publication_receipt,
+)
 from .v5_v6_collision import (
     V5_V6_COLLISION_FINDING_HASH_V1,
     V5_V6_COLLISION_FINDING_V1,
@@ -351,6 +357,7 @@ __all__ = [
     "PreviewRect",
     "PreviewScene",
     "PreviewTrack",
+    "PublishedTimingFile",
     "SECURE_AUDIO_INPUT_V1",
     "SchemaCatalog",
     "SecureAudioInputReference",
@@ -365,6 +372,11 @@ __all__ = [
     "TIMING_ORIGIN_EVIDENCE_HASH_V1",
     "TIMING_ORIGIN_EVIDENCE_V1",
     "TimingOriginEvidence",
+    "TIMING_PUBLICATION_HASH_V1",
+    "TIMING_PUBLICATION_V1",
+    "TimingPublicationContractError",
+    "TimingPublicationReceipt",
+    "TimingPublicationRejectionReason",
     "TokenKind",
     "TemporalCompiledFrameSpan",
     "TemporalFrameRate",
@@ -418,6 +430,7 @@ __all__ = [
     "materialize_alignment_result",
     "normalization_profile_hash",
     "policy_snapshot_hash",
+    "publish_timing_artifacts",
     "resolve_word_range",
     "serialize_audio_artifact",
     "serialize_alignment_request",
@@ -428,6 +441,7 @@ __all__ = [
     "serialize_caption_preview",
     "serialize_emphasis_events",
     "serialize_word_to_frame",
+    "serialize_timing_publication_receipt",
     "validate_artifact_graph",
     "validate_issue_codes",
     "validate_retention_policy",

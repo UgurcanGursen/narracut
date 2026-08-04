@@ -52,7 +52,7 @@ or accepted behavior may change. That test module may expose exactly one
 test-only `build_phase2_high_cardinality_replay` helper for the E2E test; it
 must use only public contract materializers and the new static allowlist entry.
 The publisher imports only
-`pathlib`, `os`, `stat`, `hashlib`, `dataclasses`, the repository canonical JSON
+`pathlib`, `os`, `stat`, `hashlib`, `dataclasses`, `weakref`, `enum`, `typing`, the repository canonical JSON
 encoder, and public types/serializers from `alignment_result`, `caption_groups`,
 `emphasis_events`, and `word_to_frame`. It imports no private helper from any
 contract and no forbidden subsystem named in section 1. Focused import tests

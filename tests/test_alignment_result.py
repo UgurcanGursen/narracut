@@ -8,6 +8,8 @@ import json
 import struct
 import gc
 import weakref
+from collections.abc import Mapping
+from typing import Any
 
 import pytest
 
@@ -42,13 +44,126 @@ from engine.contracts import (
     materialize_audio_artifact,
     serialize_alignment_result,
 )
-from tests.test_canonical_narration import materialize_fx34
+from tests.test_canonical_narration import fx34_value, materialize_fx34
 
 
 EVIDENCE_BYTES = result_contracts._GOLDEN_EVIDENCE
 PAYLOAD_BYTES = result_contracts._GOLDEN_TIMING_PAYLOAD
 RESULT_HASH = "1521f195a591df09edaa968d8f5fa91ed367be1c7190a3f614823d74b3cd36bb"
 RESULT_ID = "alr_" + RESULT_HASH[:32]
+
+
+def build_phase2_high_cardinality_replay(
+    fixture: Mapping[str, Any],
+):
+    """Materialize the immutable, public Phase 2 96-word REPLAY chain seed."""
+    if type(fixture) is not dict:
+        raise TypeError("fixture must be an exact dict")
+    words = fixture.get("words")
+    policy = fixture.get("timing_policy")
+    if (
+        fixture.get("fixture_id") != "FX-PHASE2-TPUB-96-REPLAY"
+        or type(words) is not list
+        or tuple(words) != result_contracts._PHASE2_HIGH_CARDINALITY_WORDS
+        or type(policy) is not dict
+        or policy != {
+            "first_start_ms": 0,
+            "word_duration_ms": 180,
+            "inter_word_gap_ms": 20,
+            "low_confidence_word_ordinal": 17,
+            "low_confidence_millionths": 940000,
+            "default_confidence_millionths": 980000,
+        }
+    ):
+        raise ValueError("fixture does not match the immutable Phase 2 REPLAY allowlist")
+
+    source_text = " ".join(words) + "."
+    candidate = fx34_value()
+    candidate["title"] = "FX-96"
+    candidate["sections"] = [{
+        "order": 0, "source_start": 0, "source_end": len(source_text),
+        "paragraphs": [{
+            "order": 0, "source_start": 0, "source_end": len(source_text),
+            "sentences": [{
+                "order": 0, "source_start": 0, "source_end": len(source_text),
+                "segmentation_rule_version": "fx34-sentence-v1", "extensions": {},
+            }],
+            "extensions": {},
+        }], "extensions": {},
+    }]
+    tokens: list[dict[str, Any]] = []
+    canonical_words: list[dict[str, int]] = []
+    offset = 0
+    for ordinal, word in enumerate(words):
+        end = offset + len(word)
+        tokens.append({
+            "kind": "SPOKEN", "display_text": word,
+            "normalized_alignment_text": word, "text_order": ordinal,
+            "canonical_word_ordinal": ordinal, "source_start": offset,
+            "source_end": end, "section_order": 0, "paragraph_order": 0,
+            "sentence_order": 0, "extensions": {},
+        })
+        canonical_words.append({"text_order": ordinal, "canonical_word_ordinal": ordinal})
+        offset = end + 1
+    tokens.append({
+        "kind": "PUNCTUATION", "display_text": ".", "normalized_alignment_text": None,
+        "text_order": 96, "canonical_word_ordinal": None,
+        "source_start": len(source_text) - 1, "source_end": len(source_text),
+        "section_order": 0, "paragraph_order": 0, "sentence_order": 0,
+        "extensions": {},
+    })
+    candidate["text_tokens"] = tokens
+    candidate["canonical_words"] = canonical_words
+    narration = materialize_fx34(candidate, source_bytes=source_text.encode("utf-8"))
+
+    payload_bytes = result_contracts._PHASE2_HIGH_CARDINALITY_TIMING_PAYLOAD
+    payload = json.loads(payload_bytes)
+    raw = canonicalize_temporal_raw_package({
+        "schema_version": "TRP-RAW-V1", "run_id": "run_phase2_tpub_96",
+        "raw_id": "raw_phase2_tpub_96", "payload": payload,
+        "payload_byte_hash": "sha256:" + hashlib.sha256(payload_bytes).hexdigest(),
+        "media_type": "application/vnd.kurgu.alignment-token-observation+json",
+        "issue_codes": [],
+    }, payload_bytes=payload_bytes)
+    wave = _phase2_high_cardinality_wave()
+    audio = materialize_audio_artifact({
+        "schema_version": "AUDIO-ARTIFACT-INPUT-V1",
+        "project_id": narration.document.project_id, "document_id": narration.document.document_id,
+        "narration_revision_id": narration.revision.revision_id,
+        "narration_revision_hash": narration.revision.revision_hash,
+        "logical_input": {"schema_version": "SECURE-AUDIO-INPUT-V1", "kind": "LOCAL_FILE", "logical_path": "audio/narration.wav"},
+        "declared_media_byte_hash": "sha256:" + hashlib.sha256(wave).hexdigest(),
+        "declared_sample_rate_hz": 8000, "declared_channel_count": 1,
+        "declared_sample_frame_count": 160000, "extensions": {},
+    }, narration_binding=NarrationRevisionBinding.from_validated_revision(narration.revision),
+       runtime=AudioArtifactMaterializationRuntime(TrustedRootReference("C:/trusted/root"), _Reader(wave)))
+    base = raw, narration.document, narration.revision, audio
+    source_request = materialize_alignment_request(_request_value(base, "LOCAL"), temporal_raw_package=raw, narration_document=narration.document, narration_revision=narration.revision, audio_artifact=audio)
+    source_execution = materialize_adapter_execution(_execution_value(source_request, "LOCAL"), alignment_request=source_request)
+    request = materialize_alignment_request(_request_value(base, "REPLAY"), temporal_raw_package=raw, narration_document=narration.document, narration_revision=narration.revision, audio_artifact=audio)
+    replay = {"schema_version": "REPLAY-EVIDENCE-V1", "source_adapter_execution_id": source_execution.adapter_execution_id, "source_adapter_execution_hash": source_execution.adapter_execution_hash, "source_alignment_request_id": source_request.alignment_request_id, "source_alignment_request_hash": source_request.alignment_request_hash}
+    execution = materialize_adapter_execution(_execution_value(request, "REPLAY", replay=replay), alignment_request=request, source_alignment_request=source_request, source_execution=source_execution)
+    evidence = load_repository_timing_origin_evidence(result_contracts._PHASE2_HIGH_CARDINALITY_EVIDENCE)
+    value = {
+        "schema_version": ALIGNMENT_RESULT_V1, "hash_scope_version": ALIGNMENT_RESULT_HASH_V1,
+        "alignment_result_id": "alr_" + "0" * 32, "alignment_result_hash": "0" * 64,
+        "project_id": narration.document.project_id, "document_id": narration.document.document_id,
+        "temporal_raw_package_hash": raw.canonical_hash, "narration_revision_id": narration.revision.revision_id,
+        "narration_revision_hash": narration.revision.revision_hash, "audio_artifact_id": audio.audio_artifact_id,
+        "audio_artifact_hash": audio.audio_artifact_hash, "alignment_request_id": request.alignment_request_id,
+        "alignment_request_hash": request.alignment_request_hash, "adapter_execution_id": execution.adapter_execution_id,
+        "adapter_execution_hash": execution.adapter_execution_hash, "timing_origin_evidence_id": evidence.timing_origin_evidence_id,
+        "timing_origin_evidence_hash": evidence.timing_origin_evidence_hash,
+        "timing_source": "REPLAY_VERIFIED", "confidence_availability": "AVAILABLE",
+        "word_timings": [
+            {"word_id": word.word_id, "start_ms": ordinal * 200, "end_ms": ordinal * 200 + 180,
+             "confidence_millionths": 940000 if ordinal == 17 else 980000,
+             "source_token_indices": [ordinal]}
+            for ordinal, word in enumerate(narration.revision.canonical_words)
+        ],
+    }
+    result = materialize_alignment_result(_rehash(value, "alignment_result_id", "alignment_result_hash", "alr_"), temporal_raw_package=raw, narration_document=narration.document, narration_revision=narration.revision, audio_artifact=audio, alignment_request=request, adapter_execution=execution, timing_origin_evidence=evidence)
+    return narration.document, narration.revision, result
 
 
 def _canonical(value) -> bytes:
@@ -90,6 +205,17 @@ def _wave() -> bytes:
         b"RIFF" + struct.pack("<I", 64036) + b"WAVEfmt "
         + struct.pack("<IHHIIHH", 16, 1, 1, 8000, 16000, 2, 16)
         + b"data" + struct.pack("<I", 64000) + bytes(samples)
+    )
+
+
+def _phase2_high_cardinality_wave() -> bytes:
+    samples = bytearray()
+    for frame in range(160_000):
+        samples += struct.pack("<h", ((frame * 257 + 12345) % 65536) - 32768)
+    return (
+        b"RIFF" + struct.pack("<I", 320036) + b"WAVEfmt "
+        + struct.pack("<IHHIIHH", 16, 1, 1, 8000, 16000, 2, 16)
+        + b"data" + struct.pack("<I", 320000) + bytes(samples)
     )
 
 
