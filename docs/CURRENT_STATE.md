@@ -87,7 +87,7 @@ its bounded implementation is authorized by:
 baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md
 ```
 
-- Audited specification commit: `488ef56659c037b5597adac0e11387296503985e`.
+- Audited implementation commit: `87eb330922a5a1295de861544b44859ddd001911`.
 - Specification SHA-256:
   `c102f51cb8620f84494822a13cb6e6402466c11dfd14cf01777058311ad22320`.
 - Specification UTF-8 byte length: `67186`.
@@ -103,6 +103,7 @@ The exact authorized implementation boundary is:
 engine/contracts/alignment_result.py
 engine/contracts/__init__.py
 tests/test_alignment_result.py
+tests/test_alignment_request.py (mechanical export assertion only)
 ```
 
 Successful publication is currently limited to repository-owned allowlisted
@@ -143,6 +144,25 @@ implementation acceptance decision is recorded by
 - Slice 5 implementation: `IMPLEMENTED / ACCEPTED / REMOTE CLOSED`.
 - Slice 5 management status after this documentation remote closure: `CLOSED`.
 - Phase 2: `IN_PROGRESS / NOT CLOSED`.
+
+The bounded implementation acceptance is recorded by:
+
+```text
+baseline/phase2_canonical_successful_alignment_word_timing_result_implementation_acceptance_report.md
+```
+
+- Implementation audit: PASS; P0/P1/P2 findings: `0/0/0`.
+- Focused deterministic gate: `471 passed`.
+- Golden result identity: `alr_1521f195a591df09edaa968d8f5fa91e`;
+  projection SHA-256 `1521f195a591df09edaa968d8f5fa91ed367be1c7190a3f614823d74b3cd36bb`.
+- Successful publication remains limited to repository-owned allowlisted
+  `REPLAY` timing evidence.
+- Canonical successful alignment word-timing implementation:
+  `ACCEPTED / REMOTE CLOSED`.
+- Phase 2 remains `IN_PROGRESS / NOT CLOSED`; no total Slice count or
+  completion percentage is claimed.
+- The sole next task is a read-only bounded scope and specification-path
+  reconciliation for roadmap phrase grouping / `timing/caption_groups.json`.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -325,19 +345,23 @@ docs/specifications/phase2_canonical_successful_alignment_word_timing_result_con
 ```
 
 The path decision assigns no new Slice number. The specification was drafted,
-repaired, independently re-audited with PASS, accepted, and authorized for the
-exact three-path implementation boundary above. Phase 2 remains IN_PROGRESS /
+repaired, independently re-audited with PASS, accepted, and its bounded
+implementation was accepted and remote closed at
+`87eb330922a5a1295de861544b44859ddd001911`. Phase 2 remains IN_PROGRESS /
 NOT CLOSED.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
-NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
+COMPLETED_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
 SPECIFICATION_ACCEPTED=YES
 SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=YES
-NEXT_IMPLEMENTATION_ALLOWED=YES
+ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
+NEXT_BOUNDED_CANDIDATE_TITLE=Phrase grouping / timing/caption_groups.json
+NEXT_BOUNDED_SCOPE_DECISION_REQUIRED=YES
+NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
@@ -345,12 +369,11 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Implement only the accepted Canonical Successful Alignment Word-Timing Result
-Contract in `engine/contracts/alignment_result.py`,
-`engine/contracts/__init__.py`, and `tests/test_alignment_result.py`. Run the
-focused and relevant Slice 1-5 regression gates, then perform an independent
-read-only implementation audit. Do not assign a Slice number, state a total
-Slice count or completion percentage, or close Phase 2.
+Perform only a read-only bounded Phase 2 scope reconciliation and
+specification-path decision for roadmap phrase grouping /
+`timing/caption_groups.json`. Do not draft or accept its specification,
+assign a Slice number, authorize implementation, implement phrase grouping,
+state a total Slice count or completion percentage, or close Phase 2.
 
 ## Phase 1 closure references
 

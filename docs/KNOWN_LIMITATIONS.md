@@ -148,18 +148,25 @@ Son guncelleme: 3 Agustos 2026
   `baseline/phase2_next_bounded_candidate_specification_path_decision_report.md`.
 - The exact selected future specification path is
   `docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md`.
-- The specification is accepted and its exact three-path bounded
+- The specification is accepted and its exact four-path bounded
   implementation is authorized by
   `baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md`.
-- The accepted bounded implementation is not started or accepted yet.
+- The accepted bounded implementation is remote closed at
+  `87eb330922a5a1295de861544b44859ddd001911` and recorded by
+  `baseline/phase2_canonical_successful_alignment_word_timing_result_implementation_acceptance_report.md`.
+- Independent implementation audit: PASS; P0/P1/P2 findings: `0/0/0`;
+  focused deterministic gate: `471 passed`.
+- The first test collection attempt lacked the repository `PYTHONPATH`; the
+  rerun with an explicit repository-root `PYTHONPATH` passed. This is an
+  environment-only note, not a product regression or FastAPI blocker.
 - Successful result publication is limited to the exact repository-owned
   allowlisted `REPLAY` timing evidence. `MANUAL_UI`, `FREE_API`, and `PAID_API`
   successful publication require a separately specified trusted runtime
   producer and are deterministically rejected without silent downgrade.
-- Remaining Phase 2 gaps include canonical successful word timing,
-  deterministic token-to-word mapping, complete confidence/report evidence,
-  caption grouping, emphasis mapping, word-to-frame compilation, and V5/V6
-  preview/collision validation.
+- Remaining Phase 2 gaps include phrase/caption grouping, complete
+  confidence/report integration, emphasis mapping, word-to-frame compilation,
+  and V5/V6 preview/collision validation. The accepted implementation covers
+  only the bounded canonical successful alignment result contract.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
@@ -180,13 +187,16 @@ NEXT_SLICE_IMPLEMENTATION_ALLOWED=NO
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
-NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
+COMPLETED_BOUNDED_CANDIDATE_TITLE=Canonical Successful Alignment Word-Timing Result Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_successful_alignment_word_timing_result_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
 SPECIFICATION_ACCEPTED=YES
 SELECTED_CANDIDATE_IMPLEMENTATION_AUTHORIZED=YES
-NEXT_IMPLEMENTATION_ALLOWED=YES
+ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
+NEXT_BOUNDED_CANDIDATE_TITLE=Phrase grouping / timing/caption_groups.json
+NEXT_BOUNDED_SCOPE_DECISION_REQUIRED=YES
+NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
