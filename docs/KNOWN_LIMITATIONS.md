@@ -283,3 +283,30 @@ PHASE2_CLOSED=NO
   authoritative development, push, sharing veya public archive icin
   kullanilmaz. Tek authoritative repository bu dokumanda kayitli sanitized
   Freesound repository'dir.
+
+## Post-Emphasis Events Phase 2 limitations — 2026-08-04
+
+- Canonical Emphasis Events implementation is accepted and remote closed at
+  `9bfdceed69b3fd769d02b6a9130f62235fbd630e`; earlier statements that it is
+  unimplemented or unaudited are superseded by this section.
+- Canonical semantic serializers exist for word timing, caption groups, and
+  emphasis events, but atomic workspace publication/lifecycle for
+  `timing/word_timeline.json`, `timing/caption_groups.json`, and
+  `timing/emphasis_events.json` remains absent.
+- `WordToFrameCompiler` remains absent; the at-most-one-frame drift criterion
+  is not yet accepted.
+- `AlignmentReport` remains absent; low-confidence data exists but is not yet
+  emitted through an accepted canonical report boundary.
+- `CaptionPreviewRenderer` and deterministic V5/V6 collision validation remain
+  absent.
+- The optional FastAPI dependency is not installed in the active environment;
+  the definitive non-FastAPI gate is `1951 passed, 1 skipped`, not a claimed
+  full collection pass.
+- Phase 2 remains open. No Slice total or completion percentage is asserted.
+
+```text
+EMPHASIS_EVENTS_IMPLEMENTATION_ACCEPTED=YES
+EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
+NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
+PHASE2_CLOSED=NO
+```

@@ -4,51 +4,70 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 ## NEXT AUTHORITATIVE TASK
 
-This is the single authoritative next task.
+Prepare and execute one cohesive **Temporal Compilation + Alignment Report**
+macro-package for Phase 2.
 
-Implement only the authorized bounded **Canonical Emphasis Events Contract**:
+The package must reconcile and specify together:
 
 ```text
-docs/specifications/phase2_canonical_emphasis_events_contract.md
-COMMIT=d4c978eb0df8d11ab033edbd50dc2eca17eab74a
-SHA256=5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7
-UTF8_BYTES=45380
+WordToFrameCompiler
+AlignmentReport
 ```
 
-The read-only authorization decision is `AUTHORIZE` and is recorded in
-`baseline/phase2_canonical_emphasis_events_implementation_authorization_decision_report.md`.
-
-Change exactly:
+It may reuse only accepted canonical inputs:
 
 ```text
-engine/contracts/emphasis_events.py
-engine/contracts/__init__.py
-tests/test_emphasis_events.py
-tests/test_alignment_request.py
+AlignmentResult
+CaptionGroupsArtifact
+EmphasisEventsArtifact
 ```
 
-Implement the exact 15-symbol surface and every normative behavior/test oracle
-from the accepted specification. Domain Packs and upstream contracts are
-read-only. Run focused, eight-module upstream, broad non-FastAPI, and available
-full-collection gates using REPLAY-only fixtures.
+Required outcomes:
 
-Do not change any other path, publish the roadmap artifact, execute providers,
-add frames/preview/report work, assign a Slice number, state a total Slice count
-or completion percentage, accept the implementation, or close Phase 2.
+- explicit rational/integer frame-rate policy;
+- deterministic word, caption, and emphasis frame boundaries;
+- no caller/LLM-authored seconds or frames;
+- at most one-frame boundary drift under the accepted mapping policy;
+- explicit low-confidence, confidence-unavailable, and confidence-not-applicable
+  report states with stable issue codes;
+- canonical bytes, stable IDs/hashes, provenance, mutation resistance, and
+  sanitized fail-closed errors;
+- REPLAY-only focused and upstream regression fixtures.
+
+Use one specification, one implementation integration, one independent audit,
+and one acceptance/documentation closure for this macro-package. Internal
+helpers do not receive separate specification/authorization/remote-closure
+cycles. Disjoint production/test modules may be developed by parallel agents;
+shared exports, integration, git, and documentation remain single-owner.
+
+Do not yet implement Caption Preview/V5-V6 collision validation, timing-file
+publication, Remotion/EDL work, providers, UI, additional Domain Packs, or any
+later-phase feature. Do not assign a Slice number, total Slice count, or Phase
+2 completion percentage.
+
+## Current evidence boundary
+
+- Canonical Emphasis Events implementation is accepted and remote closed at
+  `9bfdceed69b3fd769d02b6a9130f62235fbd630e`.
+- Acceptance report:
+  `baseline/phase2_canonical_emphasis_events_implementation_acceptance_report.md`.
+- Final targeted audit: PASS; findings `0 BLOCKER / 0 MAJOR / 0 MINOR`.
+- Final focused compatibility gate: `280 passed`.
+- Upstream contract regression: `1674 passed`.
+- Broad top-level non-FastAPI regression: `1951 passed, 1 skipped`.
+- Full collection is not claimed because optional FastAPI is absent from the
+  active environment.
+- `timing/word_timeline.json`, `timing/caption_groups.json`, and
+  `timing/emphasis_events.json` filesystem publication remains open.
+- `CaptionPreviewRenderer`, V5/V6 collision validation, and `AlignmentReport`
+  remain incomplete until their respective macro-packages close.
 
 ```text
-POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
+EMPHASIS_EVENTS_IMPLEMENTATION_ACCEPTED=YES
+EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
-NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
-SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=YES
-SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
-SPECIFICATION_ACCEPTED=YES
-IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
-IMPLEMENTATION_AUTHORIZED=YES
-IMPLEMENTATION_STATUS=NOT_STARTED
-NEXT_ACTION=BOUNDED_IMPLEMENTATION
-NEXT_IMPLEMENTATION_ALLOWED=YES
+NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
+NEXT_ACTION=MACRO_PACKAGE_SPECIFICATION_AND_IMPLEMENTATION
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED

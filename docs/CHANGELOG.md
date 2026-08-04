@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 Canonical Emphasis Events implementation acceptance
+
+- Accepted and remote closed the Canonical Emphasis Events implementation at
+  `9bfdceed69b3fd769d02b6a9130f62235fbd630e`.
+- Final targeted independent audit passed with findings
+  BLOCKER/MAJOR/MINOR `0/0/0`.
+- Final gates: focused compatibility `280 passed`, upstream `1674 passed`,
+  broad top-level non-FastAPI `1951 passed, 1 skipped`.
+- Closed deterministic loader precedence, policy/error oracle, linear
+  pre-indexing, uint32/domain validation, registry rollback/no-leak, and
+  literal golden coverage.
+- Added canonical narration document/revision fingerprints after audit proved
+  that valid-field dependency mutation was previously undetectable; retained
+  Caption Groups drift/binding compatibility.
+- The next cohesive Phase 2 package is `Temporal Compilation + Alignment
+  Report`. Phase 2 remains open; no Slice total or completion percentage is
+  asserted.
+
 ## 2026-08-04 - Phase 2 Emphasis Events implementation authorization
 
 - Authorized one bounded implementation of the accepted Canonical Emphasis

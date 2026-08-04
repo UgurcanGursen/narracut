@@ -476,3 +476,38 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 - Closure documentation commit:
   `99585b1b4fd9f70ff165d5d9710c05b5e835a0c9`
 - Independent final closure entry: PASS_WITH_FINDINGS
+
+## Phase 2 Emphasis Events implementation closure — 2026-08-04
+
+Canonical Emphasis Events is now `ACCEPTED / CLOSED / REMOTE CLOSED`.
+The final repair commit is
+`9bfdceed69b3fd769d02b6a9130f62235fbd630e`; the acceptance record is
+`baseline/phase2_canonical_emphasis_events_implementation_acceptance_report.md`.
+
+The final targeted independent audit passed with BLOCKER/MAJOR/MINOR
+`0/0/0`. Final gates were focused compatibility `280 passed`, upstream
+contract regression `1674 passed`, and broad top-level non-FastAPI
+`1951 passed, 1 skipped`. Narration document/revision fingerprint hardening
+and Caption Groups compatibility were included because the audit proved that
+valid-field dependency mutation could otherwise pass undetected.
+
+This closure advances `timing/emphasis_events.json` to an accepted canonical
+semantic contract. Filesystem publication/lifecycle for all three named timing
+files remains open. `WordToFrameCompiler`, `AlignmentReport`,
+`CaptionPreviewRenderer`, and V5/V6 collision validation remain incomplete.
+Phase 2 therefore remains `IN_PROGRESS / NOT CLOSED`.
+
+The next cohesive package is `Temporal Compilation + Alignment Report`; it
+will use one specification/implementation/audit/acceptance cycle rather than
+micro-slice closure loops.
+
+```text
+EMPHASIS_EVENTS_IMPLEMENTATION_ACCEPTED=YES
+EMPHASIS_EVENTS_IMPLEMENTATION_STATUS=CLOSED
+EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
+EMPHASIS_EVENTS_FINAL_AUDIT=PASS
+NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```

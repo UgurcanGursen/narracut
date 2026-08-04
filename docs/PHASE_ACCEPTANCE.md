@@ -375,6 +375,55 @@ TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 ```
 
+## Final authoritative Phase 2 status — 2026-08-04
+
+The later Emphasis Events implementation acceptance section in this document
+supersedes the historical post-caption-groups `NOT_STARTED` block above.
+Canonical Emphasis Events is `ACCEPTED / CLOSED / REMOTE CLOSED` at
+`9bfdceed69b3fd769d02b6a9130f62235fbd630e`. Phase 2 overall remains open.
+
+```text
+EMPHASIS_EVENTS_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+EMPHASIS_EVENTS_IMPLEMENTATION_STATUS=CLOSED
+EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
+NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
+PHASE2_CLOSED=NO
+```
+
+### Canonical Emphasis Events implementation acceptance — 2026-08-04
+
+| Acceptance item | Status | Evidence |
+|---|---|---|
+| Accepted specification implementation | ACCEPT / CLOSED | Initial `ae4269f9e12663e38f1c34839320847876211d40`; repairs `30acc5a485a0813e46dda627643c7974cbf1da23` and `9bfdceed69b3fd769d02b6a9130f62235fbd630e` |
+| Final independent targeted audit | PASS | BLOCKER/MAJOR/MINOR `0/0/0` |
+| Focused compatibility gate | PASS | `280 passed` |
+| Upstream contract regression | PASS | `1674 passed` |
+| Broad top-level non-FastAPI regression | PASS | `1951 passed, 1 skipped` |
+| Remote closure | SATISFIED | `origin/main=9bfdceed69b3fd769d02b6a9130f62235fbd630e` before documentation closure |
+| Phase 2 overall | OPEN / NOT CLOSED | Frame compiler, report, preview/collision, and timing publication remain open |
+
+Acceptance report:
+`baseline/phase2_canonical_emphasis_events_implementation_acceptance_report.md`.
+
+Current Master criterion reconciliation:
+
+| Master Roadmap criterion | Current status |
+|---|---|
+| Every narration word has start/end timing | PARTIALLY_SATISFIED — canonical semantics accepted; named-file publication pending |
+| Cues bind to word-ID ranges instead of string search | PARTIALLY_SATISFIED — canonical Emphasis mapping accepted; publication/runtime consumer pending |
+| Kinetic text differs from narration by at most one frame | NOT_SATISFIED |
+| V5 and V6 do not occlude each other | NOT_SATISFIED |
+| Low confidence is explicitly reported | PARTIALLY_SATISFIED |
+| LLM does not generate manual seconds | PARTIALLY_SATISFIED — canonical timing/emphasis inputs forbid it; frame/report/publication closure pending |
+
+```text
+EMPHASIS_EVENTS_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
+PHASE2_CLOSED=NO
+```
+
 ### Post-caption-groups Master Roadmap reconciliation
 
 The bounded read-only reconciliation is PASS and is recorded in
@@ -440,4 +489,20 @@ NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```
+
+## Latest authoritative Phase 2 acceptance state — 2026-08-04
+
+The historical `IMPLEMENTATION_STATUS=NOT_STARTED` block immediately above is
+superseded. Canonical Emphasis Events is accepted, closed, and remote closed at
+`9bfdceed69b3fd769d02b6a9130f62235fbd630e`. Its final independent audit is
+PASS with no blocker, major, or minor findings. Phase 2 overall remains open
+for frame compilation, reporting, preview/collision, and timing publication.
+
+```text
+EMPHASIS_EVENTS_IMPLEMENTATION_ACCEPTANCE=ACCEPT
+EMPHASIS_EVENTS_IMPLEMENTATION_STATUS=CLOSED
+EMPHASIS_EVENTS_IMPLEMENTATION_REMOTE_CLOSED=YES
+NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
+PHASE2_CLOSED=NO
 ```
