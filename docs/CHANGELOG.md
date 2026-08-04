@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 post-caption-groups scope reconciliation
+
+- Accepted Caption Groups implementation was reconciled read-only against all
+  six Master Roadmap Phase 2 deliverables and acceptance criteria.
+- Canonical word timing and caption groups were classified as partial because
+  semantic contracts are accepted while roadmap filesystem publication and
+  broader runtime boundaries remain absent.
+- Canonical emphasis events, word-to-frame compilation, caption preview/V5-V6
+  collision validation, and AlignmentReport remain unsatisfied.
+- More bounded Phase 2 work is required; Phase 2 remains open.
+- The next bounded candidate is Canonical Emphasis Events Contract at
+  `docs/specifications/phase2_canonical_emphasis_events_contract.md`.
+- The path decision is closed, but the specification is not drafted or
+  accepted and implementation is not authorized.
+- No production code, tests, roadmap content, or protected debug artifact was
+  changed.
+
 ## 2026-08-04 - Phase 2 caption-groups implementation acceptance
 
 - Original bounded implementation commit:

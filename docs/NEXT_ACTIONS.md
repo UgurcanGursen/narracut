@@ -6,37 +6,39 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 This is the single authoritative next task.
 
-Perform one bounded, read-only post-caption-groups scope reconciliation against
-the Master Roadmap Phase 2 deliverables and acceptance criteria.
+Draft only the bounded **Canonical Emphasis Events Contract** specification at
+the exact selected path:
 
 ```text
-docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
-SHA256=c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf
-UTF8_BYTES=43985
+docs/specifications/phase2_canonical_emphasis_events_contract.md
 ```
 
-The caption-groups implementation and audit repair are accepted and remote
-closed at `8b77c4d5bbd6f176d11a92f6a491a707e7b47ac6`. Reconcile what is now
-satisfied, partial, or missing for canonical timing artifacts, confidence/
-report integration, emphasis, word-to-frame compilation, V5/V6 preview and
-collision evidence, and the six Master acceptance criteria. Select at most one
-next bounded candidate and exact future specification path if more Phase 2 work
-is required.
+The read-only post-caption-groups reconciliation is PASS and recorded in
+`baseline/phase2_post_caption_groups_scope_reconciliation_report.md`. It
+concludes that more bounded Phase 2 work is required and closes the exact path
+decision above without assigning a Slice number.
 
-This task is decision-only. Do not implement code/tests, publish
-`timing/caption_groups.json`, alter the accepted specification, assign a Slice
-number, state a total Slice count or completion percentage, or close Phase 2
-without complete evidence.
+The draft must define a domain-neutral immutable emphasis artifact bound to
+exact canonical word-ID ranges, with timing derived only from accepted
+alignment words. It must decide provenance, identity/hash/serialization,
+validation/error precedence, atomic non-publication, no-leak, mutation
+resistance, and an exact fixture oracle. It must preserve the Domain Pack
+boundary for vocabulary/policy ownership.
+
+Do not implement code/tests, execute an LLM/provider, use fuzzy string search
+as a canonical binding, accept manual seconds/frames, publish the roadmap file,
+add frame compilation/preview/report behavior, assign a Slice number, state a
+total Slice count or completion percentage, or close Phase 2.
 
 ```text
-SPECIFICATION_ACCEPTED=YES
-IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
-IMPLEMENTATION_AUTHORIZED=YES
-IMPLEMENTATION_STATUS=CLOSED
-IMPLEMENTATION_ACCEPTANCE=ACCEPT
-IMPLEMENTATION_ACCEPTED=YES
-IMPLEMENTATION_REMOTE_CLOSED=YES
-NEXT_ACTION=POST_CAPTION_GROUPS_SCOPE_RECONCILIATION
+POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

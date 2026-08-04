@@ -374,3 +374,51 @@ PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 ```
+
+### Post-caption-groups Master Roadmap reconciliation
+
+The bounded read-only reconciliation is PASS and is recorded in
+`baseline/phase2_post_caption_groups_scope_reconciliation_report.md`.
+Caption Groups acceptance advances phrase grouping, but it does not complete
+Phase 2. The current evidence classification is:
+
+| Master Roadmap deliverable | Status |
+|---|---|
+| `timing/word_timeline.json` | PARTIALLY_SATISFIED |
+| `timing/caption_groups.json` | PARTIALLY_SATISFIED |
+| `timing/emphasis_events.json` | NOT_SATISFIED |
+| `WordToFrameCompiler` | NOT_SATISFIED |
+| `CaptionPreviewRenderer` | NOT_SATISFIED |
+| `AlignmentReport` | NOT_SATISFIED |
+
+| Master Roadmap acceptance criterion | Status |
+|---|---|
+| Every narration word has start/end timing | PARTIALLY_SATISFIED |
+| Cues bind to word-ID ranges instead of string search | PARTIALLY_SATISFIED |
+| Kinetic text differs from narration by at most one frame | NOT_SATISFIED |
+| V5 and V6 do not occlude each other | NOT_SATISFIED |
+| Low confidence is explicitly reported | PARTIALLY_SATISFIED |
+| LLM does not generate manual seconds | PARTIALLY_SATISFIED |
+
+The next bounded candidate is **Canonical Emphasis Events Contract**. Its
+exact future specification path is
+`docs/specifications/phase2_canonical_emphasis_events_contract.md`. This path
+decision assigns no Slice number and grants no implementation authorization.
+
+```text
+POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
+MASTER_PHASE2_DELIVERABLES_COMPLETE=NO
+MASTER_PHASE2_ACCEPTANCE_CRITERIA_COMPLETE=NO
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_emphasis_events_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
+NEXT_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```

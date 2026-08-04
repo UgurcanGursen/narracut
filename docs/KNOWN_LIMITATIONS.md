@@ -1,6 +1,6 @@
 # Known Limitations
 
-Son guncelleme: 3 Agustos 2026
+Son guncelleme: 4 Agustos 2026
 
 ## Known limitations ve follow-up'lar
 
@@ -221,6 +221,34 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 ```
 
 ## Environment and test limitations
+
+## Post-caption-groups Phase 2 limitations
+
+- The read-only reconciliation is PASS, but none of the six Master Roadmap
+  deliverables is claimed fully complete at its named runtime/publication
+  boundary.
+- Accepted `AlignmentResult` and `CaptionGroupsArtifact` provide canonical
+  semantic bytes and stable identities; `timing/word_timeline.json` and
+  `timing/caption_groups.json` filesystem publication/lifecycle are not
+  implemented.
+- Phase 1 generic `text_emphasis_events` envelopes and empty fixture values do
+  not satisfy the canonical Phase 2 `timing/emphasis_events.json` deliverable.
+- `WordToFrameCompiler`, `CaptionPreviewRenderer`, V5/V6 collision validation,
+  and `AlignmentReport` remain absent as accepted canonical implementations.
+- Low-confidence data is representable but not yet explicitly classified and
+  emitted through an accepted report boundary.
+- The next selected work is specification-only for Canonical Emphasis Events;
+  no implementation or downstream frame/preview/report work is authorized.
+
+```text
+POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_emphasis_events_contract.md
+SPECIFICATION_DRAFTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+PHASE2_CLOSED=NO
+```
 
 - The caption-groups full repository collection attempt stops in two
   FastAPI-dependent test areas because the active Python environment does not

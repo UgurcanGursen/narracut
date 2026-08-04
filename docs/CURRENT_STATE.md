@@ -413,12 +413,36 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Perform only a bounded read-only reconciliation of remaining Master Roadmap
-Phase 2 deliverables and acceptance criteria after the accepted caption-groups
-implementation. Classify evidence and select at most one next bounded candidate
-and exact future specification path. Do not implement, assign a Slice number,
-state a total Slice count or completion percentage, or close Phase 2 without
-complete evidence.
+The bounded post-caption-groups scope reconciliation is PASS and recorded in
+`baseline/phase2_post_caption_groups_scope_reconciliation_report.md`. It finds
+the Master Roadmap Phase 2 deliverables and acceptance criteria incomplete.
+Canonical word timing and caption grouping are accepted semantic contracts but
+their roadmap filesystem publication is absent. Canonical emphasis events,
+word-to-frame compilation, caption preview/V5-V6 collision validation, and
+`AlignmentReport` remain missing.
+
+The selected next bounded candidate is **Canonical Emphasis Events Contract**
+at the exact future path
+`docs/specifications/phase2_canonical_emphasis_events_contract.md`. The path
+decision is closed; the specification is not yet drafted or accepted, and no
+implementation is authorized. The next move is specification drafting only.
+Phase 2 remains IN_PROGRESS / NOT CLOSED.
+
+```text
+POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
+PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
+NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
+SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_emphasis_events_contract.md
+SPECIFICATION_PATH_DECISION=CLOSED
+SPECIFICATION_DRAFTED=NO
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=SPECIFICATION_DRAFTING
+NEXT_IMPLEMENTATION_ALLOWED=NO
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```
 
 ## Phase 1 closure references
 
