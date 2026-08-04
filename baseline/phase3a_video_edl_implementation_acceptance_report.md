@@ -1,6 +1,6 @@
 # Phase 3A Video EDL Implementation Acceptance Report
 
-Date: 2026-08-04  
+Date: 2026-08-04
 Scope: Phase 3A only — deterministic, video-frame-grid EDL and timeline-debug
 contracts. This report does not close Phase 3.
 
@@ -40,7 +40,7 @@ video EDL/debug events without network or paid-provider execution.
 
 ## Decision
 
-`PHASE3A_VIDEO_EDL_IMPLEMENTATION_ACCEPTANCE=ACCEPT`  
-`PHASE3A_VIDEO_EDL_IMPLEMENTATION_REMOTE_CLOSED=YES`  
-`PHASE3_CLOSED=NO`  
+`PHASE3A_VIDEO_EDL_IMPLEMENTATION_ACCEPTANCE=ACCEPT`
+`PHASE3A_VIDEO_EDL_IMPLEMENTATION_REMOTE_CLOSED=YES`
+`PHASE3_CLOSED=NO`
 `NEXT_AUTHORITATIVE_TASK=PHASE3B_AUDIO_SAMPLE_GRID_AND_BOUNDARY_CONTRACT`
