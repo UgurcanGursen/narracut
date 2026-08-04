@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 Emphasis Events implementation authorization
+
+- Authorized one bounded implementation of the accepted Canonical Emphasis
+  Events Contract.
+- Exact boundary: new contract/test modules, additive 15-symbol exports, and
+  the mechanical exact-export oracle only.
+- Domain Packs, upstream contracts, specification, artifact publication,
+  frames, preview/collision, AlignmentReport, providers, and UI remain outside
+  authorization.
+- Implementation, audit, and acceptance remain open; Phase 2 is not closed.
+
 ## 2026-08-04 - Phase 2 Emphasis Events specification acceptance
 
 - Independent read-only adversarial audit verified the exact remote-closed

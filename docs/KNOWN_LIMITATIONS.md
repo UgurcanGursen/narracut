@@ -240,8 +240,9 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 - The Canonical Emphasis Events candidate is drafted, independently audited
   with `PASS` and zero findings, and externally accepted. The accepted
   specification remains unimplemented.
-- No emphasis implementation or downstream frame/preview/report work is
-  authorized.
+- The exact four-path Emphasis Events implementation is authorized but not yet
+  implemented, tested, independently audited, or accepted. Downstream frame,
+  preview, report, publication, and Domain Pack edits are not authorized.
 
 ```text
 POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
@@ -253,8 +254,9 @@ SPECIFICATION_STATUS=CANDIDATE_REMOTE_CLOSED
 SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
 SPECIFICATION_ACCEPTED=YES
 INDEPENDENT_SPECIFICATION_AUDIT=PASS
-IMPLEMENTATION_AUTHORIZATION_DECISION=PENDING
-IMPLEMENTATION_AUTHORIZED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
+IMPLEMENTATION_AUTHORIZED=YES
+IMPLEMENTATION_STATUS=NOT_STARTED
 PHASE2_CLOSED=NO
 ```
 

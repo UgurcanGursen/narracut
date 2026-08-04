@@ -436,9 +436,14 @@ oracle, no-string-search/no-manual-time, feasibility, and pre/post parity gates
 all passed. The exact candidate is accepted externally without modifying its
 audited bytes.
 
-Implementation remains unauthorized. The next move is a separate bounded
-read-only implementation-authorization decision. Phase 2 remains IN_PROGRESS /
-NOT CLOSED.
+The separate bounded read-only implementation-authorization decision is
+`AUTHORIZE`. It permits exactly
+`engine/contracts/emphasis_events.py`, additive exports in
+`engine/contracts/__init__.py`, `tests/test_emphasis_events.py`, and the
+mechanical export oracle in `tests/test_alignment_request.py`. Domain Packs,
+upstream contracts, specification, roadmap, publication, frames, preview, and
+report work are excluded. Implementation has not started and is not accepted.
+Phase 2 remains IN_PROGRESS / NOT CLOSED.
 
 ```text
 POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
@@ -454,10 +459,11 @@ SPECIFICATION_UTF8_BYTES=45380
 SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
 SPECIFICATION_ACCEPTED=YES
 INDEPENDENT_SPECIFICATION_AUDIT=PASS
-IMPLEMENTATION_AUTHORIZED=NO
-IMPLEMENTATION_AUTHORIZATION_DECISION=PENDING
-NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
-NEXT_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
+IMPLEMENTATION_AUTHORIZED=YES
+IMPLEMENTATION_STATUS=NOT_STARTED
+NEXT_ACTION=BOUNDED_IMPLEMENTATION
+NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED

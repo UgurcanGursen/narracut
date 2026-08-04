@@ -411,7 +411,9 @@ UTF-8 byte length `45380`. Manual structural and exact golden checks passed.
 The independent read-only adversarial audit returned `PASS` with zero findings
 and confirmed golden, Domain Pack, closed-error-oracle, no-string-search/
 no-manual-time, feasibility, and repository-parity gates. The exact immutable
-candidate is externally accepted. Implementation authorization remains open.
+candidate is externally accepted. The separate read-only implementation
+decision is `AUTHORIZE` for exactly the new contract/test module, additive
+exports, and mechanical export oracle. No implementation acceptance is claimed.
 
 ```text
 POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
@@ -429,10 +431,12 @@ SPECIFICATION_UTF8_BYTES=45380
 SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
 SPECIFICATION_ACCEPTED=YES
 INDEPENDENT_SPECIFICATION_AUDIT=PASS
-IMPLEMENTATION_AUTHORIZED=NO
-IMPLEMENTATION_AUTHORIZATION_DECISION=PENDING
-NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
-NEXT_IMPLEMENTATION_ALLOWED=NO
+IMPLEMENTATION_AUTHORIZATION_DECISION=AUTHORIZE
+IMPLEMENTATION_AUTHORIZED=YES
+IMPLEMENTATION_STATUS=NOT_STARTED
+IMPLEMENTATION_ACCEPTANCE=OPEN
+NEXT_ACTION=BOUNDED_IMPLEMENTATION
+NEXT_IMPLEMENTATION_ALLOWED=YES
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
