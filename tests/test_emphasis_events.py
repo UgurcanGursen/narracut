@@ -144,6 +144,24 @@ def test_fx_eme_01_golden_roundtrip(fx):
     assert serialize_emphasis_events(loaded) == GOLDEN_BYTES
 
 
+def test_all_four_golden_projections_are_independently_recomputed_from_literal_envelope():
+    root_envelope = json.loads(GOLDEN_BYTES)
+    event_envelope = root_envelope["emphasis_events"][0]
+    event_projection = dict(event_envelope)
+    event_projection.pop("emphasis_event_id")
+    event_projection.pop("emphasis_event_hash")
+    event_projection_bytes = json.dumps(event_projection, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+    event_envelope_bytes = json.dumps(event_envelope, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+    artifact_projection = dict(root_envelope)
+    artifact_projection.pop("emphasis_events_id")
+    artifact_projection.pop("emphasis_events_hash")
+    artifact_projection_bytes = json.dumps(artifact_projection, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+    assert (len(event_projection_bytes), hashlib.sha256(event_projection_bytes).hexdigest()) == (913, GOLDEN_EVENT_HASH)
+    assert (len(event_envelope_bytes), hashlib.sha256(event_envelope_bytes).hexdigest()) == (1062, "3fa29852cb8dd7c22c10d69f5afd9123bddac3431ff8f2f27230bfc22e71d8e9")
+    assert (len(artifact_projection_bytes), hashlib.sha256(artifact_projection_bytes).hexdigest()) == (1970, GOLDEN_HASH)
+    assert (len(GOLDEN_BYTES), hashlib.sha256(GOLDEN_BYTES).hexdigest()) == (2121, GOLDEN_ENVELOPE_SHA)
+
+
 def test_empty_intents_are_valid_and_deterministic(fx):
     first = compile_emphasis_events(**_kwargs(fx, intents=()))
     second = compile_emphasis_events(**_kwargs(fx, intents=()))
@@ -181,6 +199,38 @@ def test_range_revision_unknown_type_overlap_and_cross_group(fx):
         _error(exc, reason, "/intents/0" if len(intents) == 1 else "/intents/1", issue)
 
 
+def test_adjacent_intents_pass_and_reverse_order_fails(fx):
+    revision = fx[1]
+    type_ref = EmphasisTypeRef("business-tech", "earnings_sting", "0.1.0")
+    first = EmphasisIntent(WordRangeReference(revision.revision_id, 0, 1), type_ref, EmphasisIntensity.SUBTLE)
+    second = EmphasisIntent(WordRangeReference(revision.revision_id, 1, 2), type_ref, EmphasisIntensity.MEDIUM)
+    artifact = compile_emphasis_events(**_kwargs(fx, intents=(first, second)))
+    assert [event.start_word_ordinal for event in artifact.emphasis_events] == [0, 1]
+    with pytest.raises(EmphasisEventsContractError) as exc:
+        compile_emphasis_events(**_kwargs(fx, intents=(second, first)))
+    _error(exc, EmphasisEventsRejectionReason.ORDERING_INVALID, "/intents/1", "CANONICAL_WORD_ORDER_INVALID")
+
+
+def test_policy_snapshot_immutable_and_raw_manifest_drift_fail_closed(fx):
+    snapshot, registry = fx[4], fx[5]
+    object.__setattr__(snapshot, "immutable", False)
+    try:
+        with pytest.raises(EmphasisEventsContractError) as exc:
+            compile_emphasis_events(**_kwargs(fx))
+        _error(exc, EmphasisEventsRejectionReason.POLICY_INVALID, "/domain_policy_snapshot")
+    finally:
+        object.__setattr__(snapshot, "immutable", True)
+    pack = registry._packs[("business-tech", "0.1.0")]
+    original = pack.raw_manifest
+    object.__setattr__(pack, "raw_manifest", {**original, "display_name": "drift"})
+    try:
+        with pytest.raises(EmphasisEventsContractError) as exc:
+            compile_emphasis_events(**_kwargs(fx))
+        _error(exc, EmphasisEventsRejectionReason.POLICY_INVALID, "/domain_policy_snapshot")
+    finally:
+        object.__setattr__(pack, "raw_manifest", original)
+
+
 def test_serialization_rejects_direct_copy_proxy_subclass_and_mutation(fx):
     artifact = compile_emphasis_events(**_kwargs(fx))
     class Subclass(EmphasisEventsArtifact):
@@ -191,6 +241,57 @@ def test_serialization_rejects_direct_copy_proxy_subclass_and_mutation(fx):
         with pytest.raises((EmphasisEventsContractError, TypeError)):
             serialize_emphasis_events(forged)
     object.__setattr__(artifact, "emphasis_events_hash", "0" * 64)
+    with pytest.raises(EmphasisEventsContractError) as exc:
+        serialize_emphasis_events(artifact)
+    _error(exc, EmphasisEventsRejectionReason.CONTENT_DRIFT, "/")
+
+
+@pytest.mark.parametrize(
+    ("path", "value", "reason", "issue"),
+    [
+        (("schema_version",), "OTHER", EmphasisEventsRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM"),
+        (("schema_version",), 1, EmphasisEventsRejectionReason.STRUCTURE_INVALID, None),
+        (("emphasis_events", 0, "intensity"), "OTHER", EmphasisEventsRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM"),
+        (("emphasis_events", 0, "ordinal"), "0", EmphasisEventsRejectionReason.STRUCTURE_INVALID, None),
+    ],
+)
+def test_loader_type_and_literal_oracle(fx, path, value, reason, issue):
+    data = json.loads(GOLDEN_BYTES)
+    target = data
+    for part in path[:-1]:
+        target = target[part]
+    target[path[-1]] = value
+    source = json.dumps(data, ensure_ascii=False, separators=(",", ":"), sort_keys=True).encode()
+    with pytest.raises(EmphasisEventsContractError) as exc:
+        load_emphasis_events(source, **_kwargs(fx))
+    pointer = "/" if len(path) == 1 else "/emphasis_events/0"
+    _error(exc, reason, pointer, issue)
+
+
+def test_forged_registry_manifest_model_is_rejected(fx):
+    registry = fx[5]
+    key = ("business-tech", "0.1.0")
+    pack = registry._packs[key]
+    forged_manifest = dataclasses.replace(pack.manifest, domain_id="forged")
+    registry._packs[key] = dataclasses.replace(pack, manifest=forged_manifest)
+    try:
+        with pytest.raises(EmphasisEventsContractError) as exc:
+            compile_emphasis_events(**_kwargs(fx))
+        _error(exc, EmphasisEventsRejectionReason.POLICY_INVALID, "/domain_policy_snapshot")
+    finally:
+        registry._packs[key] = pack
+
+
+@pytest.mark.parametrize("mutation", ["events_list", "word_ids_list", "equal_type_ref"])
+def test_recursive_equal_value_mutations_are_rejected(fx, mutation):
+    artifact = compile_emphasis_events(**_kwargs(fx))
+    event = artifact.emphasis_events[0]
+    if mutation == "events_list":
+        object.__setattr__(artifact, "emphasis_events", list(artifact.emphasis_events))
+    elif mutation == "word_ids_list":
+        object.__setattr__(event, "word_ids", list(event.word_ids))
+    else:
+        object.__setattr__(event, "emphasis_type_ref", dataclasses.replace(event.emphasis_type_ref))
     with pytest.raises(EmphasisEventsContractError) as exc:
         serialize_emphasis_events(artifact)
     _error(exc, EmphasisEventsRejectionReason.CONTENT_DRIFT, "/")

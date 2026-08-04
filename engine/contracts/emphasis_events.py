@@ -16,6 +16,7 @@ from .alignment_execution import ConfidenceAvailability
 from .alignment_result import AlignmentResult, serialize_alignment_result
 from .caption_groups import (
     CaptionGroupsArtifact,
+    CaptionGroupsContractError,
     compile_caption_groups,
     serialize_caption_groups,
 )
@@ -154,7 +155,14 @@ class _ResolvedEmphasisPolicy:
     allowed: frozenset[tuple[str, str]]
 
 
-_MATERIALIZED: dict[int, tuple[weakref.ReferenceType[EmphasisEventsArtifact], bytes]] = {}
+_MATERIALIZED: dict[int, tuple[weakref.ReferenceType[EmphasisEventsArtifact], bytes, tuple[int, ...]]] = {}
+
+
+def _identity_signature(artifact: EmphasisEventsArtifact) -> tuple[int, ...]:
+    values = [id(artifact.emphasis_events)]
+    for event in artifact.emphasis_events:
+        values.extend((id(event), id(event.word_ids), id(event.emphasis_type_ref), id(event.intensity)))
+    return tuple(values)
 
 
 def _reject(
@@ -228,6 +236,12 @@ def _resolve_policy(
     except Exception:
         _reject("/domain_policy_snapshot", EmphasisEventsRejectionReason.POLICY_INVALID)
     if snapshot.manifest_hash != manifest_hash:
+        _reject("/domain_policy_snapshot", EmphasisEventsRejectionReason.POLICY_INVALID)
+    model_manifest = {
+        field: _plain(getattr(pack.manifest, field))
+        for field in pack.manifest.__dataclass_fields__
+    }
+    if model_manifest != manifest:
         _reject("/domain_policy_snapshot", EmphasisEventsRejectionReason.POLICY_INVALID)
     resolved = data["resolved_policy"]
     if type(resolved) is not dict or set(resolved) != {
@@ -348,8 +362,18 @@ def _preflight(
             narration_document=document, narration_revision=revision, alignment_result=result
         )
         expected_bytes = serialize_caption_groups(expected)
+    except TypeError:
+        raise
+    except CaptionGroupsContractError as error:
+        pointer = error.pointer if error.pointer in {
+            "/narration_document", "/narration_revision", "/alignment_result"
+        } else "/alignment_result"
+        code = "REPLAY_HASH_MISMATCH" if pointer == "/alignment_result" else "ALIGNMENT_REQUEST_IDENTITY_MISMATCH"
+        _reject(pointer, EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT, code)
+    try:
         actual_bytes = serialize_caption_groups(groups)
-        serialize_alignment_result(result)
+    except TypeError:
+        raise
     except Exception:
         _reject("/caption_groups", EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT, "REPLAY_HASH_MISMATCH")
     if expected_bytes != actual_bytes:
@@ -463,7 +487,7 @@ def _register(artifact: EmphasisEventsArtifact, envelope: bytes) -> None:
         if current is not None and current[0] is reference:
             _MATERIALIZED.pop(key, None)
     reference = weakref.ref(artifact, forget)
-    entry = (reference, envelope)
+    entry = (reference, envelope, _identity_signature(artifact))
     try:
         _MATERIALIZED[key] = entry
         if _MATERIALIZED.get(key) is not entry:
@@ -554,6 +578,12 @@ def load_emphasis_events(
     expected_value = _artifact_dict(expected)
     if set(value) != set(expected_value):
         _reject("/", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+    root_string_fields = set(expected_value) - {"emphasis_events"}
+    for field in root_string_fields:
+        if type(value[field]) is not str:
+            _reject("/", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+    if value["schema_version"] != EMPHASIS_EVENTS_V1 or value["hash_scope_version"] != EMPHASIS_EVENTS_HASH_V1 or value["mapping_policy_version"] != EMPHASIS_MAPPING_POLICY_V1 or value["confidence_availability"] not in {item.value for item in ConfidenceAvailability}:
+        _reject("/", EmphasisEventsRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM")
     events = value.get("emphasis_events")
     if type(events) is not list:
         _reject("/emphasis_events", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
@@ -563,6 +593,24 @@ def load_emphasis_events(
         pointer = f"/emphasis_events/{index}"
         if type(actual) is not dict or set(actual) != set(wanted):
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        string_fields = set(wanted) - {
+            "ordinal", "start_word_ordinal", "end_exclusive_word_ordinal",
+            "word_ids", "emphasis_type_ref", "start_ms", "end_ms",
+            "confidence_millionths",
+        }
+        if any(type(actual[field]) is not str for field in string_fields):
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        if any(type(actual[field]) is not int for field in ("ordinal", "start_word_ordinal", "end_exclusive_word_ordinal", "start_ms", "end_ms")):
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        if actual["confidence_millionths"] is not None and type(actual["confidence_millionths"]) is not int:
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        if type(actual["word_ids"]) is not list or not all(type(item) is str for item in actual["word_ids"]):
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        type_value = actual["emphasis_type_ref"]
+        if type(type_value) is not dict or set(type_value) != {"domain_id", "name", "version"} or not all(type(item) is str for item in type_value.values()):
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        if actual["schema_version"] != EMPHASIS_EVENT_V1 or actual["hash_scope_version"] != EMPHASIS_EVENT_HASH_V1 or actual["mapping_policy_version"] != EMPHASIS_MAPPING_POLICY_V1 or actual["intensity"] not in {item.value for item in EmphasisIntensity}:
+            _reject(pointer, EmphasisEventsRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM")
         for field in wanted:
             if actual[field] == wanted[field]:
                 continue
@@ -602,6 +650,13 @@ def serialize_emphasis_events(artifact: EmphasisEventsArtifact) -> bytes:
     entry = _MATERIALIZED.get(id(artifact))
     if entry is None or entry[0]() is not artifact:
         _reject("/", EmphasisEventsRejectionReason.NOT_MATERIALIZED)
+    if _identity_signature(artifact) != entry[2]:
+        _reject("/", EmphasisEventsRejectionReason.CONTENT_DRIFT)
+    if type(artifact.emphasis_events) is not tuple:
+        _reject("/", EmphasisEventsRejectionReason.CONTENT_DRIFT)
+    for event in artifact.emphasis_events:
+        if type(event) is not EmphasisEvent or type(event.word_ids) is not tuple or type(event.emphasis_type_ref) is not EmphasisTypeRef or type(event.intensity) is not EmphasisIntensity:
+            _reject("/", EmphasisEventsRejectionReason.CONTENT_DRIFT)
     try:
         current = encode_canonical_json_bytes(_artifact_dict(artifact))
         projection_hash = _digest(encode_canonical_json_bytes(_artifact_projection(artifact)))
