@@ -6,40 +6,41 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 This is the single authoritative next task.
 
-Draft the bounded candidate specification:
+Perform an independent, adversarial, read-only specification audit of the exact
+remote-closed candidate:
 
 ```text
 docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 ```
 
-Candidate title:
+Audit identity:
 
 ```text
-Canonical Phrase Grouping and Caption Groups Contract
+COMMIT=171078ca1c50a43ac9a395fe135e6bc044079b28
+SHA256=d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46
+UTF8_BYTES=35784
 ```
 
-The draft must define the canonical `timing/caption_groups.json` contract that
-consumes genuine canonical narration and accepted canonical alignment-result
-evidence. It must resolve deterministic complete, contiguous, order-preserving
-word partitioning; derived timing and confidence; stable identity and canonical
-serialization; punctuation/sentence boundary policy; the exact 4-9-word
-preference and bounded exception precedence; validation/error taxonomy;
-mutation resistance; and secret/no-leak behavior.
+The audit must verify roadmap alignment, upstream contract compatibility,
+deterministic grouping and remainder safety, punctuation/display derivation,
+complete word coverage, timing/confidence propagation, canonical identity and
+serialization, validation precedence, mutation/provenance/no-leak rules,
+performance bounds, golden values, exact scope, and implementation feasibility.
+Findings must be reported as BLOCKER/MAJOR/MINOR/INFO with exact section and
+repair guidance.
 
-This task is specification drafting only. Do not accept the specification,
-authorize or implement production code, assign a Slice number, or close Phase
-2. Emphasis mapping, frame compilation, layout/line wrapping, safe-area and
-V5/V6 collision validation, preview rendering, `AlignmentReport`, failure
-artifacts, provider/runtime/network/retry/queue/API/payment behavior, database,
-cache, Studio API, UI, and Phase 3 remain out of scope.
+This task is read-only. Do not edit the specification or any repository file,
+accept the specification, authorize implementation, assign a Slice number, or
+close Phase 2. If findings exist, the next gate is bounded specification repair;
+otherwise the next gate is a separate acceptance decision.
 
 ```text
-PHRASE_GROUPING_SPECIFICATION_PATH_DECISION=CLOSED
-SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
-SPECIFICATION_DRAFTED=NO
+SPECIFICATION_STATUS=CANDIDATE_REMOTE_CLOSED
+SPECIFICATION_DRAFTED=YES
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-NEXT_ACTION=SPECIFICATION_DRAFTING
+INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
+NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

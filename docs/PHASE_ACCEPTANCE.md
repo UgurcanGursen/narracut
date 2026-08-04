@@ -127,7 +127,8 @@ General status: IN_PROGRESS / NOT CLOSED
 | Canonical successful alignment word-timing specification | ACCEPTED / FINAL RE-AUDIT PASS | SHA-256 `c102f51cb8620f84494822a13cb6e6402466c11dfd14cf01777058311ad22320`; `67186` bytes; F1-F5 CLOSED; 0 new blockers |
 | Canonical successful alignment word-timing implementation authorization | AUTHORIZED | `baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md`; exact four-path implementation/test boundary including the mechanical export assertion |
 | Canonical successful alignment word-timing implementation | ACCEPT / REMOTE CLOSED | `87eb330922a5a1295de861544b44859ddd001911`; independent audit PASS; P0/P1/P2 `0/0/0`; focused `471 passed`; exact four-path implementation/test boundary |
-| Canonical phrase grouping/caption-groups specification-path decision | CLOSED / REMOTE CLOSED | `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`; selected future path `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`; specification not drafted or accepted; implementation not authorized |
+| Canonical phrase grouping/caption-groups specification-path decision | CLOSED / REMOTE CLOSED | `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`; selected future path `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`; no acceptance or implementation authorization granted by the path decision |
+| Canonical phrase grouping/caption-groups candidate specification | DRAFTED / REMOTE CLOSED / ACCEPTANCE OPEN | `171078ca1c50a43ac9a395fe135e6bc044079b28`; SHA-256 `d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`; `35784` bytes; manual structure/golden/property verification PASS; independent read-only audit required |
 
 The corrected Slice 5 implementation boundary is exactly:
 
@@ -322,9 +323,11 @@ The bounded phrase-grouping scope and specification-path decision is closed in
 `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`.
 It selects
 `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`
-without assigning a Slice number. The specification does not yet exist, is not
-accepted, and implementation is not authorized. The next gate is bounded
-specification drafting only.
+without assigning a Slice number. The candidate is drafted and remote closed
+at `171078ca1c50a43ac9a395fe135e6bc044079b28`; manual structural, golden, and
+grouping-length verification passed. It is not accepted and implementation is
+not authorized. The next gate is an independent adversarial read-only audit of
+the exact candidate.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -333,10 +336,12 @@ ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
 BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=NO
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_REMOTE_CLOSED=YES
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-NEXT_ACTION=SPECIFICATION_DRAFTING
+INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
+NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

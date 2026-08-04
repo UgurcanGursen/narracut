@@ -161,9 +161,10 @@ baseline/phase2_canonical_successful_alignment_word_timing_result_implementation
   `ACCEPTED / REMOTE CLOSED`.
 - Phase 2 remains `IN_PROGRESS / NOT CLOSED`; no total Slice count or
   completion percentage is claimed.
-- The bounded phrase-grouping specification-path decision is closed. The sole
-  next task is drafting
-  `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
+- The bounded phrase-grouping candidate specification is drafted and remote
+  closed at `171078ca1c50a43ac9a395fe135e6bc044079b28`.
+- The sole next task is an independent adversarial read-only audit of that
+  exact candidate; acceptance and implementation authorization remain closed.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -355,8 +356,12 @@ The next bounded path decision is closed in
 `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`.
 It selects the Canonical Phrase Grouping and Caption Groups Contract at
 `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
-The specification is not drafted or accepted, and implementation is not
-authorized.
+The candidate specification is drafted and remote closed at
+`171078ca1c50a43ac9a395fe135e6bc044079b28`, SHA-256
+`d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`,
+UTF-8 byte length `35784`. Manual structure, golden identity, and grouping
+length probes passed. The specification is not accepted, implementation is not
+authorized, and independent read-only audit remains required.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -365,10 +370,12 @@ ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
 BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=NO
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_REMOTE_CLOSED=YES
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-NEXT_ACTION=SPECIFICATION_DRAFTING
+INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
+NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
@@ -377,11 +384,11 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Draft only the bounded Canonical Phrase Grouping and Caption Groups Contract at
-`docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
-Do not accept the draft, assign a Slice number, authorize or implement
-production code, state a total Slice count or completion percentage, or close
-Phase 2.
+Perform only an independent adversarial read-only audit of the exact
+remote-closed Canonical Phrase Grouping and Caption Groups Contract. Report
+severity-ranked findings and repair guidance. Do not edit or accept the
+specification, assign a Slice number, authorize or implement production code,
+state a total Slice count or completion percentage, or close Phase 2.
 
 ## Phase 1 closure references
 

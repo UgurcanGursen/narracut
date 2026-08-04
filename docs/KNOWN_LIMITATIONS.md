@@ -169,8 +169,9 @@ Son guncelleme: 3 Agustos 2026
   only the bounded canonical successful alignment result contract.
 - The phrase-grouping scope and specification path are selected in
   `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`,
-  but the specification has not been drafted or accepted and no artifact
-  producer is authorized or implemented.
+  and the candidate specification is drafted and remote closed. Independent
+  audit and acceptance remain open; no artifact producer is authorized or
+  implemented.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
@@ -196,10 +197,12 @@ ALIGNMENT_RESULT_IMPLEMENTATION_ACCEPTED=YES
 BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
-SPECIFICATION_DRAFTED=NO
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_REMOTE_CLOSED=YES
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-NEXT_ACTION=SPECIFICATION_DRAFTING
+INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
+NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

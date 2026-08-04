@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 caption-groups candidate specification draft closure
+
+- Drafted and remote closed the bounded Canonical Phrase Grouping and Caption
+  Groups Contract.
+- Specification:
+  `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`.
+- Commit: `171078ca1c50a43ac9a395fe135e6bc044079b28`.
+- SHA-256:
+  `d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`;
+  UTF-8 byte length: `35784`.
+- Draft report:
+  `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_draft_report.md`.
+- Manual verification passed for 24-section structure, embedded golden JSON,
+  group/root hashes and IDs, canonical lengths, and sentence lengths 1-1000.
+- The draft defines deterministic sentence-bounded grouping, explicit 1-3-word
+  exception semantics, otherwise mandatory 4-9-word groups, derived
+  display/timing/confidence, canonical identity, no-leak, and resource bounds.
+- The specification is not accepted and implementation is not authorized.
+  Phase 2 remains open.
+- The next single task is an independent adversarial read-only audit of the
+  exact remote-closed candidate.
+
+```text
+SPECIFICATION_STATUS=CANDIDATE_REMOTE_CLOSED
+SPECIFICATION_DRAFTED=YES
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
+NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
+PHASE2_CLOSED=NO
+TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
+PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
+```
+
 ## 2026-08-04 - Phase 2 phrase-grouping specification-path decision closure
 
 - Closed the bounded, read-only scope and specification-path decision for the
