@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-04 - Phase 3A Video EDL acceptance
+
+- Accepted and remote closed the deterministic video-frame-grid EDL and
+  timeline-debug implementation at `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f`.
+- Final independent audit passed with `0 BLOCKER / 0 MAJOR / 0 MINOR`.
+- Focused contract, integration, high-cardinality and export gate: `113 passed`.
+- Scope is deliberately video-only; fixed A1–A5 tracks are empty. Phase 3
+  remains open for the 48 kHz audio sample-grid and audio boundary contract.
+
 ## 2026-08-04 - Phase 2 final acceptance and closure
 
 - Closed Phase 2 at `3e535bcf1fd9ddb4e6bcbd6a4f431286ae99d950`.

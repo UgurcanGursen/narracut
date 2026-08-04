@@ -67,6 +67,18 @@ Son guncelleme: 4 Agustos 2026
 - Faz 3 EDL, scheduler and audio sample-grid work; Faz 4 renderer work; and
   provider/UI/queue/retry production capabilities remain outside this closure.
 
+## Faz 3A status note
+
+- Video-frame-grid EDL and timeline-debug contracts are accepted at
+  `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f`; this is not a Phase 3 closure.
+- A1–A5 remain intentionally empty in the accepted Video EDL. There is no
+  accepted 48 kHz AudioSampleGrid, PCM normalization, encoder delay/padding
+  compensation, zero-crossing/fade/crossfade planning, boundary collision
+  resolution, planned-silence protection, or click/pop proof yet.
+- Phase 3A does not render assets or media. Remotion, FFmpeg final mux,
+  artifact registration, terminal-job temp cleanup and overwrite protection
+  remain explicitly Phase 4 work.
+
 - Caption Preview + V5/V6 Collision Validation is accepted and remote closed
   at `218c4bd277867b29d6812715311993a500e19d33`; it is a sparse canonical
   preview/collision contract, not a production caption renderer.
