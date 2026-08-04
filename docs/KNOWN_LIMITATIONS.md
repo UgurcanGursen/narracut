@@ -169,9 +169,10 @@ Son guncelleme: 3 Agustos 2026
   only the bounded canonical successful alignment result contract.
 - The phrase-grouping scope and specification path are selected in
   `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`,
-  and the candidate specification is drafted and remote closed. Independent
-  audit and acceptance remain open; no artifact producer is authorized or
-  implemented.
+  and the candidate specification is drafted and remote closed. The initial
+  audit returned `FIX_REQUIRED` with one MAJOR error-oracle ambiguity. A bounded
+  repair is remote closed, but targeted re-audit and acceptance remain open; no
+  artifact producer is authorized or implemented.
 
 ```text
 PHASE2_SLICE5_CORRECTED_SPECIFICATION_REMOTE_CLOSED=YES
@@ -198,11 +199,12 @@ BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
-SPECIFICATION_REMOTE_CLOSED=YES
+ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
+CGS_SPEC_AUD_001_STATUS=REPAIRED_PENDING_TARGETED_REAUDIT
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
-NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
+TARGETED_SPECIFICATION_REAUDIT_REQUIRED=YES
+NEXT_ACTION=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

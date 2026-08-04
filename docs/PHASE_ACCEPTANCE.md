@@ -128,7 +128,8 @@ General status: IN_PROGRESS / NOT CLOSED
 | Canonical successful alignment word-timing implementation authorization | AUTHORIZED | `baseline/phase2_canonical_successful_alignment_word_timing_result_contract_acceptance_and_implementation_authorization_report.md`; exact four-path implementation/test boundary including the mechanical export assertion |
 | Canonical successful alignment word-timing implementation | ACCEPT / REMOTE CLOSED | `87eb330922a5a1295de861544b44859ddd001911`; independent audit PASS; P0/P1/P2 `0/0/0`; focused `471 passed`; exact four-path implementation/test boundary |
 | Canonical phrase grouping/caption-groups specification-path decision | CLOSED / REMOTE CLOSED | `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_path_decision_report.md`; selected future path `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`; no acceptance or implementation authorization granted by the path decision |
-| Canonical phrase grouping/caption-groups candidate specification | DRAFTED / REMOTE CLOSED / ACCEPTANCE OPEN | `171078ca1c50a43ac9a395fe135e6bc044079b28`; SHA-256 `d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`; `35784` bytes; manual structure/golden/property verification PASS; independent read-only audit required |
+| Canonical phrase grouping/caption-groups candidate specification | DRAFTED / REMOTE CLOSED / INITIAL AUDIT FIX_REQUIRED | `171078ca1c50a43ac9a395fe135e6bc044079b28`; SHA-256 `d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`; `35784` bytes; audit findings BLOCKER/MAJOR/MINOR/INFO `0/1/0/0` |
+| Canonical phrase grouping/caption-groups bounded specification repair | REMOTE CLOSED / TARGETED RE-AUDIT REQUIRED | `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`; corrected SHA-256 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`; `43985` bytes; `CGS-SPEC-AUD-001` repaired pending independent confirmation |
 
 The corrected Slice 5 implementation boundary is exactly:
 
@@ -325,9 +326,13 @@ It selects
 `docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md`
 without assigning a Slice number. The candidate is drafted and remote closed
 at `171078ca1c50a43ac9a395fe135e6bc044079b28`; manual structural, golden, and
-grouping-length verification passed. It is not accepted and implementation is
-not authorized. The next gate is an independent adversarial read-only audit of
-the exact candidate.
+grouping-length verification passed. The initial independent audit returned
+`FIX_REQUIRED` with one MAJOR deterministic-error-oracle finding. Its bounded
+repair is remote closed at `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`,
+corrected SHA-256
+`c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`,
+`43985` bytes. The specification is not accepted and implementation is not
+authorized. The next gate is targeted independent read-only re-audit.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -337,11 +342,12 @@ BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
-SPECIFICATION_REMOTE_CLOSED=YES
+ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
+CGS_SPEC_AUD_001_STATUS=REPAIRED_PENDING_TARGETED_REAUDIT
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
-NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
+TARGETED_SPECIFICATION_REAUDIT_REQUIRED=YES
+NEXT_ACTION=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

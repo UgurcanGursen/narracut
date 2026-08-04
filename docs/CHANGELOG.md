@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 caption-groups specification audit and repair
+
+- Independent adversarial audit of the original candidate returned
+  `FIX_REQUIRED`: BLOCKER/MAJOR/MINOR/INFO findings `0/1/0/0`.
+- `CGS-SPEC-AUD-001` found non-deterministic alternatives in the error oracle;
+  grouping, scope, upstream compatibility, golden identity, and remainder
+  properties passed.
+- Audit/repair report:
+  `baseline/phase2_canonical_phrase_grouping_caption_groups_specification_audit_and_repair_report.md`.
+- Bounded repair commit:
+  `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`.
+- Corrected specification SHA-256:
+  `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`;
+  UTF-8 byte length: `43985`.
+- Repair changed only the specification and closed alternative/catch-all
+  pointer/reason/code mappings into explicit ordered oracle rows. Golden
+  artifact bytes and identities remain unchanged.
+- Manual correction checks passed; independent targeted re-audit remains
+  required. The specification is not accepted and implementation is not
+  authorized. Phase 2 remains open.
+
+```text
+ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
+CGS_SPEC_AUD_001_STATUS=REPAIRED_PENDING_TARGETED_REAUDIT
+CORRECTED_SPECIFICATION_COMMIT=5bd2401544693a9a0bfe9e3e9d398f96b786cb27
+CORRECTED_SPECIFICATION_SHA256=c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf
+SPECIFICATION_ACCEPTED=NO
+IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
+PHASE2_CLOSED=NO
+```
+
 ## 2026-08-04 - Phase 2 caption-groups candidate specification draft closure
 
 - Drafted and remote closed the bounded Canonical Phrase Grouping and Caption

@@ -163,8 +163,11 @@ baseline/phase2_canonical_successful_alignment_word_timing_result_implementation
   completion percentage is claimed.
 - The bounded phrase-grouping candidate specification is drafted and remote
   closed at `171078ca1c50a43ac9a395fe135e6bc044079b28`.
-- The sole next task is an independent adversarial read-only audit of that
-  exact candidate; acceptance and implementation authorization remain closed.
+- The initial independent audit returned `FIX_REQUIRED` with one MAJOR
+  deterministic-error-oracle finding. Its bounded repair is remote closed at
+  `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`.
+- The sole next task is a targeted independent read-only re-audit of the
+  corrected blob; acceptance and implementation authorization remain closed.
 
 - Specification path:
   `docs/specifications/phase2_slice5_canonical_adapter_execution_provenance_contract.md`
@@ -360,8 +363,11 @@ The candidate specification is drafted and remote closed at
 `171078ca1c50a43ac9a395fe135e6bc044079b28`, SHA-256
 `d379e02e84883a08da66fd6289ca973d0f49a89f007bf68a524c7981dc7cbd46`,
 UTF-8 byte length `35784`. Manual structure, golden identity, and grouping
-length probes passed. The specification is not accepted, implementation is not
-authorized, and independent read-only audit remains required.
+length probes passed. The initial audit returned `FIX_REQUIRED`; the corrected
+blob is remote closed at `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`,
+SHA-256 `c0e8925e598bac0414c1c7b96adf256ed0f4072d2196efedf3b90b0961859baf`,
+UTF-8 byte length `43985`. The specification is not accepted, implementation
+is not authorized, and targeted independent re-audit remains required.
 
 ```text
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
@@ -371,11 +377,12 @@ BOUNDED_CANDIDATE_TITLE=Canonical Phrase Grouping and Caption Groups Contract
 SELECTED_SPECIFICATION_PATH=docs/specifications/phase2_canonical_phrase_grouping_caption_groups_contract.md
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
-SPECIFICATION_REMOTE_CLOSED=YES
+ORIGINAL_SPECIFICATION_AUDIT=FIX_REQUIRED
+CGS_SPEC_AUD_001_STATUS=REPAIRED_PENDING_TARGETED_REAUDIT
 SPECIFICATION_ACCEPTED=NO
 IMPLEMENTATION_AUTHORIZED=NO
-INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
-NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
+TARGETED_SPECIFICATION_REAUDIT_REQUIRED=YES
+NEXT_ACTION=TARGETED_INDEPENDENT_READ_ONLY_REAUDIT
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
@@ -384,11 +391,12 @@ PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 
 ## Current next move
 
-Perform only an independent adversarial read-only audit of the exact
-remote-closed Canonical Phrase Grouping and Caption Groups Contract. Report
-severity-ranked findings and repair guidance. Do not edit or accept the
-specification, assign a Slice number, authorize or implement production code,
-state a total Slice count or completion percentage, or close Phase 2.
+Perform only a targeted independent adversarial read-only re-audit of corrected
+commit `5bd2401544693a9a0bfe9e3e9d398f96b786cb27`. Decide whether
+`CGS-SPEC-AUD-001` is closed and regression-check previously passing
+dimensions. Do not edit or accept the specification, assign a Slice number,
+authorize or implement production code, state a total Slice count or completion
+percentage, or close Phase 2.
 
 ## Phase 1 closure references
 
