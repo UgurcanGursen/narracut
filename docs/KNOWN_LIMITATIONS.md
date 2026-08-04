@@ -62,6 +62,11 @@ Son guncelleme: 4 Agustos 2026
 
 ## Faz 2 status note
 
+- Faz 2 is CLOSED. The accepted timing publisher provides bounded no-replace
+  three-file publication, not Faz 14 crash-durable artifact lifecycle.
+- Faz 3 EDL, scheduler and audio sample-grid work; Faz 4 renderer work; and
+  provider/UI/queue/retry production capabilities remain outside this closure.
+
 - Caption Preview + V5/V6 Collision Validation is accepted and remote closed
   at `218c4bd277867b29d6812715311993a500e19d33`; it is a sparse canonical
   preview/collision contract, not a production caption renderer.

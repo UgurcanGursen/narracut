@@ -390,6 +390,17 @@ NEXT_MACRO_PACKAGE=Temporal Compilation + Alignment Report
 PHASE2_CLOSED=NO
 ```
 
+## Final Phase 2 acceptance — 2026-08-04
+
+All six Phase 2 Master Roadmap deliverables and acceptance criteria are
+accepted. See `baseline/phase2_final_acceptance_report.md`.
+
+```text
+PHASE2_FINAL_ACCEPTANCE=ACCEPT
+PHASE2_CLOSED=YES
+NEXT_ACTION=PLAN_PHASE3_PHASE4
+```
+
 ## Caption Preview + V5/V6 Collision Validation acceptance — 2026-08-04
 
 | Acceptance item | Status | Evidence |

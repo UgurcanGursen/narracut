@@ -1,17 +1,16 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED.
 
 ## NEXT AUTHORITATIVE TASK
 
-Prepare and execute one cohesive **Timing Publication + Phase 2 End-to-End
-Closure** macro-package for Phase 2.
+Prepare a **planning-only Faz 3 + Faz 4 implementation roadmap**.
 
 The package must reconcile and specify together:
 
 ```text
-canonical named timing-file publication
-accepted-contract end-to-end acceptance reconciliation
+Faz 3 Multi-track EDL and Timeline Compiler
+Faz 4 Motion Renderer Foundation
 ```
 
 It may consume the already accepted canonical inputs and artifacts:
@@ -38,8 +37,8 @@ separate specification/authorization/remote-closure cycles. Disjoint modules
 may be developed by parallel agents; shared exports, integration, git, and
 documentation remain single-owner.
 
-Do not introduce Remotion/EDL production work, providers, UI, additional
-Domain Packs, or any later-phase feature. Do not
+Do not implement Faz 3/4 production work before the user approves the plan.
+Do not
 assign a Slice number, total Slice count, or Phase 2 completion percentage.
 
 ## Current evidence boundary
@@ -63,10 +62,9 @@ assign a Slice number, total Slice count, or Phase 2 completion percentage.
 ```text
 TEMPORAL_COMPILATION_ALIGNMENT_REPORT_IMPLEMENTATION_ACCEPTED=YES
 PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
-CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_ACCEPTED=YES
-NEXT_MACRO_PACKAGE=Timing Publication + Phase 2 End-to-End Closure
-NEXT_ACTION=MACRO_PACKAGE_SPECIFICATION_AND_IMPLEMENTATION
-PHASE2_CLOSED=NO
+PHASE2_FINAL_ACCEPTANCE=ACCEPT
+PHASE2_CLOSED=YES
+NEXT_ACTION=PLAN_PHASE3_PHASE4
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
 PHASE2_COMPLETION_PERCENTAGE=NOT_STATED
 ```

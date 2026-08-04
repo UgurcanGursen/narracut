@@ -560,3 +560,17 @@ CAPTION_PREVIEW_V5_V6_COLLISION_IMPLEMENTATION_REMOTE_CLOSED=YES
 NEXT_MACRO_PACKAGE=Timing Publication + Phase 2 End-to-End Closure
 PHASE2_CLOSED=NO
 ```
+
+## Final authoritative Phase 2 closure — 2026-08-04
+
+Faz 2 is `CLOSED` after Timing Publication + End-to-End Closure at
+`3e535bcf1fd9ddb4e6bcbd6a4f431286ae99d950`. Final acceptance evidence is
+`baseline/phase2_final_acceptance_report.md`: focused/export/e2e `97 passed,
+2 skipped`; broad non-FastAPI `2273 passed, 3 skipped`; final independent
+audit `0/0/0`.
+
+```text
+PHASE2_FINAL_ACCEPTANCE=ACCEPT
+PHASE2_CLOSED=YES
+NEXT_ACTION=PLAN_PHASE3_PHASE4
+```

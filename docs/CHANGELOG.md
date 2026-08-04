@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 final acceptance and closure
+
+- Closed Phase 2 at `3e535bcf1fd9ddb4e6bcbd6a4f431286ae99d950`.
+- Added fail-closed three-file canonical timing publication and a real
+  96-word REPLAY end-to-end acceptance fixture.
+- Final audit: `0/0/0`; focused/export/e2e `97 passed, 2 skipped`; broad
+  non-FastAPI `2273 passed, 3 skipped`.
+- Next work is planning-only Faz 3 + Faz 4; no implementation is authorized.
+
 ## 2026-08-04 - Phase 2 Caption Preview + V5/V6 Collision acceptance
 
 - Accepted and remote closed sparse canonical Caption Preview and deterministic
