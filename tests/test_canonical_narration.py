@@ -618,6 +618,48 @@ def test_fx34_exact_source_hierarchy_and_canonical_bytes() -> None:
     assert result.revision is revision
 
 
+@pytest.mark.parametrize(
+    ("target_name", "field_name", "replacement"),
+    [
+        ("document", "title", "FX-34 provenance mutation"),
+        ("revision", "source_text", "Alpha beta. Gamma delta!"),
+    ],
+)
+def test_valid_field_mutation_invalidates_materialized_narration_fingerprint(
+    target_name: str,
+    field_name: str,
+    replacement,
+) -> None:
+    result = materialize_fx34()
+    document = result.document
+    revision = result.revision
+    target = document if target_name == "document" else revision
+    predicate = (
+        narration_contracts._is_materialized_narration_document
+        if target_name == "document"
+        else narration_contracts._is_materialized_narration_revision
+    )
+    peer_predicate = (
+        narration_contracts._is_materialized_narration_revision
+        if target_name == "document"
+        else narration_contracts._is_materialized_narration_document
+    )
+    peer = revision if target_name == "document" else document
+    original = getattr(target, field_name)
+
+    assert predicate(target)
+    assert peer_predicate(peer)
+    object.__setattr__(target, field_name, replacement)
+    try:
+        assert not predicate(target)
+        assert peer_predicate(peer)
+    finally:
+        object.__setattr__(target, field_name, original)
+
+    assert predicate(target)
+    assert peer_predicate(peer)
+
+
 def test_narration_registries_release_collected_pair() -> None:
     result = materialize_fx34()
     document = result.document
@@ -628,6 +670,14 @@ def test_narration_registries_release_collected_pair() -> None:
     revision_key = id(revision)
     registered_document_reference = document_registry[document_key]
     registered_revision_reference = revision_registry[revision_key]
+    document_fingerprint_registry = (
+        narration_contracts._NARRATION_DOCUMENT_FINGERPRINTS
+    )
+    revision_fingerprint_registry = (
+        narration_contracts._NARRATION_REVISION_FINGERPRINTS
+    )
+    document_fingerprint_entry = document_fingerprint_registry[document_key]
+    revision_fingerprint_entry = revision_fingerprint_registry[revision_key]
     external_document_reference = weakref.ref(document)
     external_revision_reference = weakref.ref(revision)
 
@@ -635,6 +685,10 @@ def test_narration_registries_release_collected_pair() -> None:
     assert revision_registry[revision_key] is registered_revision_reference
     assert registered_document_reference() is document
     assert registered_revision_reference() is revision
+    assert document_fingerprint_entry[0] is registered_document_reference
+    assert revision_fingerprint_entry[0] is registered_revision_reference
+    assert type(document_fingerprint_entry[1]) is bytes
+    assert type(revision_fingerprint_entry[1]) is bytes
 
     del result
     del document
@@ -645,11 +699,19 @@ def test_narration_registries_release_collected_pair() -> None:
     assert external_revision_reference() is None
     assert document_key not in document_registry
     assert revision_key not in revision_registry
+    assert document_key not in document_fingerprint_registry
+    assert revision_key not in revision_fingerprint_registry
 
 
 def test_narration_stale_cleanup_preserves_replacement_entries() -> None:
     document_registry = narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS
     revision_registry = narration_contracts._MATERIALIZED_NARRATION_REVISIONS
+    document_fingerprint_registry = (
+        narration_contracts._NARRATION_DOCUMENT_FINGERPRINTS
+    )
+    revision_fingerprint_registry = (
+        narration_contracts._NARRATION_REVISION_FINGERPRINTS
+    )
     original = materialize_fx34()
     replacement = materialize_fx34()
     original_document = original.document
@@ -664,6 +726,12 @@ def test_narration_stale_cleanup_preserves_replacement_entries() -> None:
     original_revision_reference = revision_registry[original_revision_key]
     replacement_document_reference = document_registry[replacement_document_key]
     replacement_revision_reference = revision_registry[replacement_revision_key]
+    replacement_document_fingerprint = document_fingerprint_registry[
+        replacement_document_key
+    ]
+    replacement_revision_fingerprint = revision_fingerprint_registry[
+        replacement_revision_key
+    ]
     external_document_reference = weakref.ref(original_document)
     external_revision_reference = weakref.ref(original_revision)
 
@@ -678,6 +746,12 @@ def test_narration_stale_cleanup_preserves_replacement_entries() -> None:
 
     document_registry[original_document_key] = replacement_document_reference
     revision_registry[original_revision_key] = replacement_revision_reference
+    document_fingerprint_registry[
+        original_document_key
+    ] = replacement_document_fingerprint
+    revision_fingerprint_registry[
+        original_revision_key
+    ] = replacement_revision_fingerprint
     try:
         del original
         del original_document
@@ -696,6 +770,14 @@ def test_narration_stale_cleanup_preserves_replacement_entries() -> None:
         assert (
             revision_registry.get(original_revision_key)
             is replacement_revision_reference
+        )
+        assert (
+            document_fingerprint_registry.get(original_document_key)
+            is replacement_document_fingerprint
+        )
+        assert (
+            revision_fingerprint_registry.get(original_revision_key)
+            is replacement_revision_fingerprint
         )
         assert (
             document_registry[replacement_document_key]
@@ -722,6 +804,52 @@ def test_narration_stale_cleanup_preserves_replacement_entries() -> None:
             is replacement_revision_reference
         ):
             del revision_registry[original_revision_key]
+        if (
+            document_fingerprint_registry.get(original_document_key)
+            is replacement_document_fingerprint
+        ):
+            del document_fingerprint_registry[original_document_key]
+        if (
+            revision_fingerprint_registry.get(original_revision_key)
+            is replacement_revision_fingerprint
+        ):
+            del revision_fingerprint_registry[original_revision_key]
+
+
+def test_narration_live_pair_collision_preserves_original_provenance() -> None:
+    result = materialize_fx34()
+    document_reference = narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS[
+        id(result.document)
+    ]
+    revision_reference = narration_contracts._MATERIALIZED_NARRATION_REVISIONS[
+        id(result.revision)
+    ]
+    document_fingerprint = narration_contracts._NARRATION_DOCUMENT_FINGERPRINTS[
+        id(result.document)
+    ]
+    revision_fingerprint = narration_contracts._NARRATION_REVISION_FINGERPRINTS[
+        id(result.revision)
+    ]
+
+    with pytest.raises(RuntimeError, match="provenance collision"):
+        narration_contracts._register_materialized_narration_pair(
+            result.document, result.revision
+        )
+
+    assert narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS[
+        id(result.document)
+    ] is document_reference
+    assert narration_contracts._MATERIALIZED_NARRATION_REVISIONS[
+        id(result.revision)
+    ] is revision_reference
+    assert narration_contracts._NARRATION_DOCUMENT_FINGERPRINTS[
+        id(result.document)
+    ] is document_fingerprint
+    assert narration_contracts._NARRATION_REVISION_FINGERPRINTS[
+        id(result.revision)
+    ] is revision_fingerprint
+    assert narration_contracts._is_materialized_narration_document(result.document)
+    assert narration_contracts._is_materialized_narration_revision(result.revision)
 
 
 def test_narration_envelope_contains_exact_registered_identities() -> None:
@@ -860,8 +988,12 @@ def test_narration_transaction_rolls_back_revision_insertion_failure(
         FailingRevisionRegistry(),
     )
 
-    with pytest.raises(RuntimeError, match="revision insertion failed"):
+    with pytest.raises(
+        RuntimeError,
+        match="^canonical narration provenance registration failed$",
+    ) as error:
         materialize_fx34()
+    assert "revision insertion failed" not in str(error.value)
 
     assert captured["document"] is not None
     assert captured["revision"] is not None
@@ -883,6 +1015,62 @@ def test_narration_transaction_rolls_back_revision_insertion_failure(
         original_revision_registry[id(existing.revision)]()
         is existing.revision
     )
+
+
+def test_narration_transaction_rolls_back_revision_fingerprint_failure(
+    monkeypatch,
+) -> None:
+    existing = materialize_fx34()
+    captured = {}
+    original_envelope = narration_contracts.CanonicalNarrationMaterialization
+    original_revision_fingerprints = (
+        narration_contracts._NARRATION_REVISION_FINGERPRINTS
+    )
+
+    def capture_envelope(**kwargs):
+        captured.update(kwargs)
+        return original_envelope(**kwargs)
+
+    class RejectingFingerprintRegistry(dict):
+        def __setitem__(self, key, value):
+            raise RuntimeError("revision fingerprint insertion failed")
+
+    rejecting = RejectingFingerprintRegistry()
+    monkeypatch.setattr(
+        narration_contracts,
+        "CanonicalNarrationMaterialization",
+        capture_envelope,
+    )
+    monkeypatch.setattr(
+        narration_contracts,
+        "_NARRATION_REVISION_FINGERPRINTS",
+        rejecting,
+    )
+
+    with pytest.raises(
+        RuntimeError,
+        match="^canonical narration provenance registration failed$",
+    ) as error:
+        materialize_fx34()
+    assert "revision fingerprint insertion failed" not in str(error.value)
+
+    document = captured["document"]
+    revision = captured["revision"]
+    assert narration_contracts._MATERIALIZED_NARRATION_DOCUMENTS.get(
+        id(document)
+    ) is None
+    assert narration_contracts._NARRATION_DOCUMENT_FINGERPRINTS.get(
+        id(document)
+    ) is None
+    assert narration_contracts._MATERIALIZED_NARRATION_REVISIONS.get(
+        id(revision)
+    ) is None
+    assert not rejecting
+    assert original_revision_fingerprints.get(id(revision)) is None
+    assert narration_contracts._is_materialized_narration_document(
+        existing.document
+    )
+    assert original_revision_fingerprints[id(existing.revision)][0]() is existing.revision
 
 
 def test_narration_transaction_rolls_back_post_commit_verification_failure(

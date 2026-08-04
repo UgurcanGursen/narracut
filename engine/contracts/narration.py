@@ -35,6 +35,12 @@ _MATERIALIZED_NARRATION_DOCUMENTS: dict[
 _MATERIALIZED_NARRATION_REVISIONS: dict[
     int, weakref.ReferenceType["NarrationRevision"]
 ] = {}
+_NARRATION_DOCUMENT_FINGERPRINTS: dict[
+    int, tuple[weakref.ReferenceType["CanonicalNarrationDocument"], bytes]
+] = {}
+_NARRATION_REVISION_FINGERPRINTS: dict[
+    int, tuple[weakref.ReferenceType["NarrationRevision"], bytes]
+] = {}
 
 
 class TokenKind(str, Enum):
@@ -602,6 +608,24 @@ def _register_materialized_narration_pair(
 ) -> None:
     document_key = id(document)
     revision_key = id(revision)
+    document_fingerprint = _narration_document_fingerprint(document)
+    revision_fingerprint = _narration_revision_fingerprint(revision)
+
+    existing_document = _MATERIALIZED_NARRATION_DOCUMENTS.get(document_key)
+    existing_revision = _MATERIALIZED_NARRATION_REVISIONS.get(revision_key)
+    existing_document_fingerprint = _NARRATION_DOCUMENT_FINGERPRINTS.get(
+        document_key
+    )
+    existing_revision_fingerprint = _NARRATION_REVISION_FINGERPRINTS.get(
+        revision_key
+    )
+    if (
+        _live_narration_reference(existing_document)
+        or _live_narration_reference(existing_revision)
+        or _live_narration_fingerprint_entry(existing_document_fingerprint)
+        or _live_narration_fingerprint_entry(existing_revision_fingerprint)
+    ):
+        raise RuntimeError("canonical narration provenance collision")
 
     def _remove_document(
         registered_reference: weakref.ReferenceType[CanonicalNarrationDocument],
@@ -611,6 +635,13 @@ def _register_materialized_narration_pair(
             is registered_reference
         ):
             del _MATERIALIZED_NARRATION_DOCUMENTS[document_key]
+        fingerprint_entry = _NARRATION_DOCUMENT_FINGERPRINTS.get(document_key)
+        if (
+            type(fingerprint_entry) is tuple
+            and len(fingerprint_entry) == 2
+            and fingerprint_entry[0] is registered_reference
+        ):
+            del _NARRATION_DOCUMENT_FINGERPRINTS[document_key]
 
     def _remove_revision(
         registered_reference: weakref.ReferenceType[NarrationRevision],
@@ -620,16 +651,33 @@ def _register_materialized_narration_pair(
             is registered_reference
         ):
             del _MATERIALIZED_NARRATION_REVISIONS[revision_key]
+        fingerprint_entry = _NARRATION_REVISION_FINGERPRINTS.get(revision_key)
+        if (
+            type(fingerprint_entry) is tuple
+            and len(fingerprint_entry) == 2
+            and fingerprint_entry[0] is registered_reference
+        ):
+            del _NARRATION_REVISION_FINGERPRINTS[revision_key]
 
     document_reference = weakref.ref(document, _remove_document)
     revision_reference = weakref.ref(revision, _remove_revision)
-    document_committed = False
-    revision_committed = False
+    document_fingerprint_entry = (
+        document_reference,
+        document_fingerprint,
+    )
+    revision_fingerprint_entry = (
+        revision_reference,
+        revision_fingerprint,
+    )
     try:
         _MATERIALIZED_NARRATION_DOCUMENTS[document_key] = document_reference
-        document_committed = True
+        _NARRATION_DOCUMENT_FINGERPRINTS[
+            document_key
+        ] = document_fingerprint_entry
         _MATERIALIZED_NARRATION_REVISIONS[revision_key] = revision_reference
-        revision_committed = True
+        _NARRATION_REVISION_FINGERPRINTS[
+            revision_key
+        ] = revision_fingerprint_entry
         if not (
             _is_materialized_narration_document(document)
             and _is_materialized_narration_revision(revision)
@@ -639,38 +687,147 @@ def _register_materialized_narration_pair(
                 "$",
                 "Canonical narration materialization provenance failed.",
             )
-    except Exception:
+    except Exception as error:
         if (
-            document_committed
-            and _MATERIALIZED_NARRATION_DOCUMENTS.get(document_key)
+            _MATERIALIZED_NARRATION_DOCUMENTS.get(document_key)
             is document_reference
         ):
             del _MATERIALIZED_NARRATION_DOCUMENTS[document_key]
         if (
-            revision_committed
-            and _MATERIALIZED_NARRATION_REVISIONS.get(revision_key)
+            _NARRATION_DOCUMENT_FINGERPRINTS.get(document_key)
+            is document_fingerprint_entry
+        ):
+            del _NARRATION_DOCUMENT_FINGERPRINTS[document_key]
+        if (
+            _MATERIALIZED_NARRATION_REVISIONS.get(revision_key)
             is revision_reference
         ):
             del _MATERIALIZED_NARRATION_REVISIONS[revision_key]
-        raise
+        if (
+            _NARRATION_REVISION_FINGERPRINTS.get(revision_key)
+            is revision_fingerprint_entry
+        ):
+            del _NARRATION_REVISION_FINGERPRINTS[revision_key]
+        if type(error) is NarrationContractError:
+            raise
+        raise RuntimeError(
+            "canonical narration provenance registration failed"
+        ) from None
+
+
+def _narration_document_fingerprint(
+    value: CanonicalNarrationDocument,
+) -> bytes:
+    return hashlib.sha256(
+        encode_canonical_json_bytes(_document_to_dict(value))
+    ).digest()
+
+
+def _live_narration_reference(value: Any) -> bool:
+    if value is None:
+        return False
+    if not isinstance(value, weakref.ReferenceType):
+        return True
+    try:
+        return value() is not None
+    except Exception:
+        return True
+
+
+def _live_narration_fingerprint_entry(value: Any) -> bool:
+    if value is None:
+        return False
+    if type(value) is not tuple or len(value) != 2:
+        return True
+    return _live_narration_reference(value[0])
+
+
+def _narration_revision_fingerprint(value: NarrationRevision) -> bytes:
+    return hashlib.sha256(
+        encode_canonical_json_bytes(_revision_to_dict(value))
+    ).digest()
+
+
+def _has_materialized_narration_document_identity(value: Any) -> bool:
+    if type(value) is not CanonicalNarrationDocument:
+        return False
+    key = id(value)
+    reference = _MATERIALIZED_NARRATION_DOCUMENTS.get(key)
+    if reference is None:
+        return False
+    registered = reference()
+    if registered is value:
+        return True
+    if registered is None:
+        if _MATERIALIZED_NARRATION_DOCUMENTS.get(key) is reference:
+            _MATERIALIZED_NARRATION_DOCUMENTS.pop(key, None)
+        fingerprint_entry = _NARRATION_DOCUMENT_FINGERPRINTS.get(key)
+        if (
+            type(fingerprint_entry) is tuple
+            and len(fingerprint_entry) == 2
+            and fingerprint_entry[0] is reference
+        ):
+            _NARRATION_DOCUMENT_FINGERPRINTS.pop(key, None)
+    return False
+
+
+def _has_materialized_narration_revision_identity(value: Any) -> bool:
+    if type(value) is not NarrationRevision:
+        return False
+    key = id(value)
+    reference = _MATERIALIZED_NARRATION_REVISIONS.get(key)
+    if reference is None:
+        return False
+    registered = reference()
+    if registered is value:
+        return True
+    if registered is None:
+        if _MATERIALIZED_NARRATION_REVISIONS.get(key) is reference:
+            _MATERIALIZED_NARRATION_REVISIONS.pop(key, None)
+        fingerprint_entry = _NARRATION_REVISION_FINGERPRINTS.get(key)
+        if (
+            type(fingerprint_entry) is tuple
+            and len(fingerprint_entry) == 2
+            and fingerprint_entry[0] is reference
+        ):
+            _NARRATION_REVISION_FINGERPRINTS.pop(key, None)
+    return False
 
 
 def _is_materialized_narration_document(value: Any) -> bool:
+    if not _has_materialized_narration_document_identity(value):
+        return False
     reference = _MATERIALIZED_NARRATION_DOCUMENTS.get(id(value))
-    return (
-        type(value) is CanonicalNarrationDocument
-        and reference is not None
-        and reference() is value
-    )
+    fingerprint_entry = _NARRATION_DOCUMENT_FINGERPRINTS.get(id(value))
+    if (
+        type(fingerprint_entry) is not tuple
+        or len(fingerprint_entry) != 2
+        or fingerprint_entry[0] is not reference
+        or type(fingerprint_entry[1]) is not bytes
+    ):
+        return False
+    try:
+        return _narration_document_fingerprint(value) == fingerprint_entry[1]
+    except Exception:
+        return False
 
 
 def _is_materialized_narration_revision(value: Any) -> bool:
+    if not _has_materialized_narration_revision_identity(value):
+        return False
     reference = _MATERIALIZED_NARRATION_REVISIONS.get(id(value))
-    return (
-        type(value) is NarrationRevision
-        and reference is not None
-        and reference() is value
-    )
+    fingerprint_entry = _NARRATION_REVISION_FINGERPRINTS.get(id(value))
+    if (
+        type(fingerprint_entry) is not tuple
+        or len(fingerprint_entry) != 2
+        or fingerprint_entry[0] is not reference
+        or type(fingerprint_entry[1]) is not bytes
+    ):
+        return False
+    try:
+        return _narration_revision_fingerprint(value) == fingerprint_entry[1]
+    except Exception:
+        return False
 
 
 def resolve_word_range(

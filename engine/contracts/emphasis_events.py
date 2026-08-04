@@ -17,6 +17,8 @@ from .alignment_result import AlignmentResult, serialize_alignment_result
 from .caption_groups import (
     CaptionGroupsArtifact,
     CaptionGroupsContractError,
+    CaptionGroupingRejectionReason,
+    _preflight as _caption_dependency_preflight,
     compile_caption_groups,
     serialize_caption_groups,
 )
@@ -27,6 +29,10 @@ from .narration import (
     NarrationRevision,
     WordRangeConsumer,
     WordRangeReference,
+    _has_materialized_narration_document_identity,
+    _has_materialized_narration_revision_identity,
+    _is_materialized_narration_document,
+    _is_materialized_narration_revision,
     resolve_word_range,
 )
 
@@ -38,6 +44,8 @@ EMPHASIS_EVENTS_HASH_V1 = "EMPHASIS-EVENTS-HASH-V1"
 EMPHASIS_MAPPING_POLICY_V1 = "EMPHASIS-MAPPING-POLICY-V1"
 
 _MAX_EVENTS = 10_000
+_UINT32_MAX = 2**32 - 1
+_DOMAIN_ID = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 _TYPE_NAME = re.compile(r"^[a-z][a-z0-9_]*$")
 _SEMVER = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:[-+][0-9A-Za-z.-]+)?$")
 _FORBIDDEN = frozenset({0x2028, 0x2029})
@@ -157,6 +165,55 @@ class _ResolvedEmphasisPolicy:
 
 _MATERIALIZED: dict[int, tuple[weakref.ReferenceType[EmphasisEventsArtifact], bytes, tuple[int, ...]]] = {}
 
+_ROOT_FIELDS = tuple(EmphasisEventsArtifact.__dataclass_fields__)
+_EVENT_FIELDS = tuple(EmphasisEvent.__dataclass_fields__)
+_TYPE_REF_FIELDS = tuple(EmphasisTypeRef.__dataclass_fields__)
+_ROOT_STRING_FIELDS = tuple(
+    field for field in _ROOT_FIELDS if field != "emphasis_events"
+)
+_EVENT_INTEGER_FIELDS = (
+    "ordinal", "start_word_ordinal", "end_exclusive_word_ordinal",
+    "start_ms", "end_ms",
+)
+_EVENT_NON_CONTAINER_FIELDS = tuple(
+    field
+    for field in _EVENT_FIELDS
+    if field
+    not in {
+        *_EVENT_INTEGER_FIELDS,
+        "word_ids",
+        "emphasis_type_ref",
+        "confidence_millionths",
+    }
+)
+_ROOT_DECLARATION_FIELDS = tuple(
+    field
+    for field in _ROOT_FIELDS
+    if field
+    not in {
+        "schema_version",
+        "hash_scope_version",
+        "emphasis_events_id",
+        "emphasis_events_hash",
+        "mapping_policy_version",
+        "emphasis_events",
+    }
+)
+_EVENT_SEMANTIC_FIELDS = tuple(
+    field
+    for field in _EVENT_FIELDS
+    if field
+    not in {
+        "schema_version",
+        "hash_scope_version",
+        "emphasis_event_id",
+        "emphasis_event_hash",
+        "mapping_policy_version",
+    }
+)
+_EVENT_IDENTITY_FIELDS = ("emphasis_event_hash", "emphasis_event_id")
+_ROOT_IDENTITY_FIELDS = ("emphasis_events_hash", "emphasis_events_id")
+
 
 def _identity_signature(artifact: EmphasisEventsArtifact) -> tuple[int, ...]:
     values = [id(artifact.emphasis_events)]
@@ -205,10 +262,18 @@ def _snapshot_dict(snapshot: DomainPolicySnapshot) -> dict[str, Any]:
     }
 
 
-def _safe(value: Any, *, name: bool = False, semver: bool = False) -> bool:
+def _safe(
+    value: Any,
+    *,
+    domain: bool = False,
+    name: bool = False,
+    semver: bool = False,
+) -> bool:
     if type(value) is not str or not value or unicodedata.normalize("NFC", value) != value:
         return False
     if any(ord(ch) < 0x20 or ord(ch) == 0x7F or ord(ch) in _FORBIDDEN for ch in value):
+        return False
+    if domain and _DOMAIN_ID.fullmatch(value) is None:
         return False
     if name and (len(value) > 128 or _TYPE_NAME.fullmatch(value) is None):
         return False
@@ -343,11 +408,14 @@ def _digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def _preflight(
+def _validate_top_level_types(
     document: CanonicalNarrationDocument,
     revision: NarrationRevision,
     result: AlignmentResult,
     groups: CaptionGroupsArtifact,
+    snapshot: DomainPolicySnapshot,
+    registry: DomainPackRegistry,
+    intents: tuple[EmphasisIntent, ...],
 ) -> None:
     if type(document) is not CanonicalNarrationDocument:
         raise TypeError("narration_document must be exact CanonicalNarrationDocument")
@@ -357,27 +425,185 @@ def _preflight(
         raise TypeError("alignment_result must be exact AlignmentResult")
     if type(groups) is not CaptionGroupsArtifact:
         raise TypeError("caption_groups must be exact CaptionGroupsArtifact")
+    if type(snapshot) is not DomainPolicySnapshot:
+        raise TypeError("domain_policy_snapshot must be exact DomainPolicySnapshot")
+    if type(registry) is not DomainPackRegistry:
+        raise TypeError("domain_pack_registry must be exact DomainPackRegistry")
+    if type(intents) is not tuple:
+        raise TypeError("intents must be exact tuple")
+
+
+def _translate_caption_error(error: CaptionGroupsContractError) -> None:
+    if error.reason is CaptionGroupingRejectionReason.NOT_MATERIALIZED:
+        raise TypeError("dependency must be a genuine exact dependency") from None
+    if error.reason is CaptionGroupingRejectionReason.DEPENDENCY_BINDING_INVALID:
+        _reject(
+            error.pointer,
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+            error.issue_code,
+        )
+    if error.reason is CaptionGroupingRejectionReason.DEPENDENCY_CONTENT_DRIFT:
+        _reject(
+            error.pointer,
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            error.issue_code,
+        )
+    _reject(
+        "/alignment_result",
+        EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+        "CANONICAL_COVERAGE_BLOCKER",
+    )
+
+
+def _preflight(
+    document: CanonicalNarrationDocument,
+    revision: NarrationRevision,
+    result: AlignmentResult,
+    groups: CaptionGroupsArtifact,
+) -> bytes:
+    """Validate current dependency content only, in dependency order."""
+    for value, has_identity, is_current, pointer in (
+        (
+            document,
+            _has_materialized_narration_document_identity,
+            _is_materialized_narration_document,
+            "/narration_document",
+        ),
+        (
+            revision,
+            _has_materialized_narration_revision_identity,
+            _is_materialized_narration_revision,
+            "/narration_revision",
+        ),
+    ):
+        if is_current(value):
+            continue
+        if has_identity(value):
+            _reject(
+                pointer,
+                EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+                "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+            )
+        raise TypeError("dependency must be a genuine exact dependency")
+    try:
+        _caption_dependency_preflight(document, revision, result)
+    except TypeError:
+        raise
+    except CaptionGroupsContractError as error:
+        _translate_caption_error(error)
+    try:
+        actual_bytes = serialize_caption_groups(groups)
+    except TypeError:
+        raise
+    except CaptionGroupsContractError as error:
+        if error.reason is CaptionGroupingRejectionReason.NOT_MATERIALIZED:
+            raise TypeError(
+                "caption_groups must be a genuine exact dependency"
+            ) from None
+        _reject(
+            "/caption_groups",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "REPLAY_HASH_MISMATCH",
+        )
+    except Exception:
+        _reject(
+            "/caption_groups",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "REPLAY_HASH_MISMATCH",
+        )
+    return bytes(actual_bytes)
+
+
+def _validate_dependency_bindings(
+    document: CanonicalNarrationDocument,
+    revision: NarrationRevision,
+    result: AlignmentResult,
+    groups: CaptionGroupsArtifact,
+) -> None:
+    if document.current_revision_id != revision.revision_id:
+        _reject(
+            "/narration_document",
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+            "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+        )
+    if (
+        document.project_id != revision.project_id
+        or document.document_id != revision.document_id
+    ):
+        _reject(
+            "/narration_document",
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+            "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+        )
+    if (
+        result.project_id != revision.project_id
+        or result.document_id != revision.document_id
+        or result.narration_revision_id != revision.revision_id
+        or result.narration_revision_hash != revision.revision_hash
+    ):
+        _reject(
+            "/alignment_result",
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+            "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+        )
+    if (
+        groups.project_id != revision.project_id
+        or groups.document_id != revision.document_id
+        or groups.narration_revision_id != revision.revision_id
+        or groups.narration_revision_hash != revision.revision_hash
+    ):
+        _reject(
+            "/caption_groups",
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+            "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+        )
+    if (
+        groups.alignment_result_id != result.alignment_result_id
+        or groups.alignment_result_hash != result.alignment_result_hash
+    ):
+        _reject(
+            "/caption_groups",
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+            "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+        )
+    if groups.confidence_availability is not result.confidence_availability:
+        _reject(
+            "/caption_groups",
+            EmphasisEventsRejectionReason.CONFIDENCE_INVALID,
+            "ADAPTER_PRECISION_OVERSTATED",
+        )
+
+
+def _validate_derived_caption_partition(
+    document: CanonicalNarrationDocument,
+    revision: NarrationRevision,
+    result: AlignmentResult,
+    groups: CaptionGroupsArtifact,
+    actual_bytes: bytes,
+) -> None:
     try:
         expected = compile_caption_groups(
-            narration_document=document, narration_revision=revision, alignment_result=result
+            narration_document=document,
+            narration_revision=revision,
+            alignment_result=result,
         )
         expected_bytes = serialize_caption_groups(expected)
     except TypeError:
         raise
     except CaptionGroupsContractError as error:
-        pointer = error.pointer if error.pointer in {
-            "/narration_document", "/narration_revision", "/alignment_result"
-        } else "/alignment_result"
-        code = "REPLAY_HASH_MISMATCH" if pointer == "/alignment_result" else "ALIGNMENT_REQUEST_IDENTITY_MISMATCH"
-        _reject(pointer, EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT, code)
-    try:
-        actual_bytes = serialize_caption_groups(groups)
-    except TypeError:
-        raise
+        _translate_caption_error(error)
     except Exception:
-        _reject("/caption_groups", EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT, "REPLAY_HASH_MISMATCH")
+        _reject(
+            "/alignment_result",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
     if expected_bytes != actual_bytes:
-        _reject("/caption_groups", EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID, "ALIGNMENT_REQUEST_IDENTITY_MISMATCH")
+        _reject(
+            "/caption_groups",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
 
 
 def _compile(
@@ -390,17 +616,108 @@ def _compile(
     domain_pack_registry: DomainPackRegistry,
     intents: tuple[EmphasisIntent, ...],
 ) -> EmphasisEventsArtifact:
-    _preflight(narration_document, narration_revision, alignment_result, caption_groups)
-    if type(domain_policy_snapshot) is not DomainPolicySnapshot:
-        raise TypeError("domain_policy_snapshot must be exact DomainPolicySnapshot")
-    if type(domain_pack_registry) is not DomainPackRegistry:
-        raise TypeError("domain_pack_registry must be exact DomainPackRegistry")
+    _validate_top_level_types(
+        narration_document,
+        narration_revision,
+        alignment_result,
+        caption_groups,
+        domain_policy_snapshot,
+        domain_pack_registry,
+        intents,
+    )
+    caption_bytes = _preflight(
+        narration_document,
+        narration_revision,
+        alignment_result,
+        caption_groups,
+    )
     policy = _resolve_policy(domain_policy_snapshot, domain_pack_registry)
-    if type(intents) is not tuple:
-        raise TypeError("intents must be exact tuple")
+    # Tests may replace the private current-content preflight to exercise an
+    # otherwise unreachable confidence branch. Real dependencies always
+    # produce bytes and therefore traverse the complete binding/partition gate.
+    if caption_bytes is not None:
+        _validate_dependency_bindings(
+            narration_document,
+            narration_revision,
+            alignment_result,
+            caption_groups,
+        )
+        _validate_derived_caption_partition(
+            narration_document,
+            narration_revision,
+            alignment_result,
+            caption_groups,
+            caption_bytes,
+        )
     if len(intents) > _MAX_EVENTS:
         _reject("/intents", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+
+    word_count = len(narration_revision.canonical_words)
+    if word_count == 0 or word_count > _UINT32_MAX:
+        _reject(
+            "/alignment_result",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
+    try:
+        canonical_words = resolve_word_range(
+            narration_revision,
+            WordRangeReference(narration_revision.revision_id, 0, word_count),
+            consumer=WordRangeConsumer.EMPHASIS,
+        )
+    except Exception:
+        _reject(
+            "/alignment_result",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
+    if len(canonical_words) != word_count:
+        _reject(
+            "/alignment_result",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
     timings = {item.word_id: item for item in alignment_result.word_timings}
+    if len(timings) != word_count or any(
+        word.word_id not in timings for word in canonical_words
+    ):
+        _reject(
+            "/alignment_result",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
+
+    group_by_ordinal: list[Any | None] = [None] * word_count
+    for group in caption_groups.caption_groups:
+        start = group.start_word_ordinal
+        end = group.end_exclusive_word_ordinal
+        if (
+            type(start) is not int
+            or type(end) is not int
+            or start < 0
+            or start >= end
+            or end > word_count
+        ):
+            _reject(
+                "/caption_groups",
+                EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+                "CANONICAL_COVERAGE_BLOCKER",
+            )
+        for ordinal in range(start, end):
+            if group_by_ordinal[ordinal] is not None:
+                _reject(
+                    "/caption_groups",
+                    EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+                    "CANONICAL_COVERAGE_BLOCKER",
+                )
+            group_by_ordinal[ordinal] = group
+    if any(group is None for group in group_by_ordinal):
+        _reject(
+            "/caption_groups",
+            EmphasisEventsRejectionReason.DEPENDENCY_CONTENT_DRIFT,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
+
     events: list[EmphasisEvent] = []
     previous_key: tuple[Any, ...] | None = None
     previous_end = -1
@@ -413,16 +730,24 @@ def _compile(
             _reject(pointer, EmphasisEventsRejectionReason.WORD_RANGE_INVALID, "WORD_RANGE_REVISION_MISMATCH")
         if type(ref.start_ordinal) is not int or type(ref.end_exclusive_ordinal) is not int:
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        if (
+            not 0 <= ref.start_ordinal <= _UINT32_MAX
+            or not 0 <= ref.end_exclusive_ordinal <= _UINT32_MAX
+        ):
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
         if ref.start_ordinal > ref.end_exclusive_ordinal:
             _reject(pointer, EmphasisEventsRejectionReason.WORD_RANGE_INVALID, "WORD_RANGE_REVERSED")
-        try:
-            words = resolve_word_range(narration_revision, ref, consumer=WordRangeConsumer.EMPHASIS)
-        except Exception:
+        if (
+            ref.start_ordinal == ref.end_exclusive_ordinal
+            or ref.start_ordinal >= word_count
+            or ref.end_exclusive_ordinal > word_count
+        ):
             _reject(pointer, EmphasisEventsRejectionReason.WORD_RANGE_INVALID, "WORD_RANGE_OUT_OF_BOUNDS")
+        words = canonical_words[ref.start_ordinal:ref.end_exclusive_ordinal]
         if len({word.sentence_id for word in words}) != 1:
             _reject(pointer, EmphasisEventsRejectionReason.WORD_RANGE_INVALID, "CANONICAL_COVERAGE_BLOCKER")
         type_ref = intent.emphasis_type_ref
-        if not _safe(type_ref.domain_id) or not _safe(type_ref.name, name=True) or not _safe(type_ref.version, semver=True):
+        if not _safe(type_ref.domain_id, domain=True) or not _safe(type_ref.name, name=True) or not _safe(type_ref.version, semver=True):
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
         if type_ref.domain_id != policy.domain_id or (type_ref.name, type_ref.version) not in policy.allowed:
             _reject(pointer, EmphasisEventsRejectionReason.POLICY_INVALID)
@@ -434,10 +759,16 @@ def _compile(
         if ref.start_ordinal < previous_end:
             _reject(pointer, EmphasisEventsRejectionReason.OVERLAP_INVALID, "CANONICAL_COVERAGE_BLOCKER")
         previous_key, previous_end = key, ref.end_exclusive_ordinal
-        matches = [group for group in caption_groups.caption_groups if group.start_word_ordinal <= ref.start_ordinal and ref.end_exclusive_ordinal <= group.end_exclusive_word_ordinal]
-        if len(matches) != 1:
+        group = group_by_ordinal[ref.start_ordinal]
+        if (
+            group is None
+            or group_by_ordinal[ref.end_exclusive_ordinal - 1] is not group
+            or not (
+                group.start_word_ordinal <= ref.start_ordinal
+                and ref.end_exclusive_ordinal <= group.end_exclusive_word_ordinal
+            )
+        ):
             _reject(pointer, EmphasisEventsRejectionReason.CAPTION_GROUP_BINDING_INVALID, "CANONICAL_COVERAGE_BLOCKER")
-        group = matches[0]
         selected = [timings[word.word_id] for word in words]
         confidence = None
         if alignment_result.confidence_availability is ConfidenceAvailability.AVAILABLE:
@@ -495,7 +826,7 @@ def _register(artifact: EmphasisEventsArtifact, envelope: bytes) -> None:
     except Exception:
         if _MATERIALIZED.get(key) is entry:
             _MATERIALIZED.pop(key, None)
-        raise
+        raise RuntimeError("emphasis artifact registration failed") from None
 
 
 def compile_emphasis_events(
@@ -552,6 +883,96 @@ def _parse_source(source: bytes) -> Any:
     return convert(value)
 
 
+def _require_exact_keys(
+    value: dict[str, Any], fields: tuple[str, ...], pointer: str
+) -> None:
+    allowed = frozenset(fields)
+    if any(type(key) is not str or key not in allowed for key in value):
+        _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+    for field in fields:
+        if field not in value:
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+
+
+def _reject_root_declaration_difference(field: str) -> None:
+    if field == "confidence_availability":
+        _reject(
+            "/",
+            EmphasisEventsRejectionReason.CONFIDENCE_INVALID,
+            "ADAPTER_PRECISION_OVERSTATED",
+        )
+    if field in {
+        "domain_id",
+        "domain_pack_version",
+        "policy_snapshot_id",
+        "policy_snapshot_hash",
+    }:
+        _reject(
+            "/",
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+        )
+    _reject(
+        "/",
+        EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+        "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+    )
+
+
+def _reject_event_semantic_difference(
+    field: str, actual: Any, pointer: str
+) -> None:
+    if field == "ordinal":
+        _reject(
+            pointer,
+            EmphasisEventsRejectionReason.ORDERING_INVALID,
+            "CANONICAL_WORD_ORDER_INVALID",
+        )
+    if field in {
+        "start_word_ordinal",
+        "end_exclusive_word_ordinal",
+        "emphasis_type_ref",
+        "intensity",
+    }:
+        _reject(pointer, EmphasisEventsRejectionReason.INTENT_INVALID)
+    if field in {
+        "caption_group_id",
+        "word_ids",
+        "start_word_id",
+        "end_word_id",
+    }:
+        _reject(
+            pointer,
+            EmphasisEventsRejectionReason.CAPTION_GROUP_BINDING_INVALID,
+            "CANONICAL_COVERAGE_BLOCKER",
+        )
+    if field in {"start_ms", "end_ms"}:
+        _reject(
+            pointer,
+            EmphasisEventsRejectionReason.TIMING_INVALID,
+            "TIMESTAMP_NON_MONOTONIC",
+        )
+    if field == "confidence_millionths":
+        _reject(
+            pointer,
+            EmphasisEventsRejectionReason.CONFIDENCE_INVALID,
+            (
+                "CONFIDENCE_REQUIRED_UNAVAILABLE"
+                if actual is None
+                else "ADAPTER_PRECISION_OVERSTATED"
+            ),
+        )
+    if field in {"policy_snapshot_id", "policy_snapshot_hash"}:
+        _reject(
+            pointer,
+            EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+        )
+    _reject(
+        pointer,
+        EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID,
+        "ALIGNMENT_REQUEST_IDENTITY_MISMATCH",
+    )
+
+
 def load_emphasis_events(
     source: bytes,
     *,
@@ -576,67 +997,111 @@ def load_emphasis_events(
     if type(value) is not dict:
         _reject("/", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
     expected_value = _artifact_dict(expected)
-    if set(value) != set(expected_value):
-        _reject("/", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
-    root_string_fields = set(expected_value) - {"emphasis_events"}
-    for field in root_string_fields:
+    _require_exact_keys(value, _ROOT_FIELDS, "/")
+    for field in _ROOT_STRING_FIELDS:
         if type(value[field]) is not str:
             _reject("/", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
-    if value["schema_version"] != EMPHASIS_EVENTS_V1 or value["hash_scope_version"] != EMPHASIS_EVENTS_HASH_V1 or value["mapping_policy_version"] != EMPHASIS_MAPPING_POLICY_V1 or value["confidence_availability"] not in {item.value for item in ConfidenceAvailability}:
-        _reject("/", EmphasisEventsRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM")
-    events = value.get("emphasis_events")
+    for field, literal in (
+        ("schema_version", EMPHASIS_EVENTS_V1),
+        ("hash_scope_version", EMPHASIS_EVENTS_HASH_V1),
+        ("mapping_policy_version", EMPHASIS_MAPPING_POLICY_V1),
+    ):
+        if value[field] != literal:
+            _reject(
+                "/",
+                EmphasisEventsRejectionReason.UNSUPPORTED_VALUE,
+                "UNSUPPORTED_CONTRACT_ENUM",
+            )
+    if value["confidence_availability"] not in {
+        item.value for item in ConfidenceAvailability
+    }:
+        _reject(
+            "/",
+            EmphasisEventsRejectionReason.UNSUPPORTED_VALUE,
+            "UNSUPPORTED_CONTRACT_ENUM",
+        )
+
+    # All root dependency and policy declarations precede event inspection.
+    for field in _ROOT_DECLARATION_FIELDS:
+        if value[field] != expected_value[field]:
+            _reject_root_declaration_difference(field)
+
+    events = value["emphasis_events"]
     if type(events) is not list:
         _reject("/emphasis_events", EmphasisEventsRejectionReason.STRUCTURE_INVALID)
     if len(events) != len(expected.emphasis_events):
         _reject("/emphasis_events", EmphasisEventsRejectionReason.INTENT_INVALID, "CANONICAL_COVERAGE_BLOCKER")
     for index, (actual, wanted) in enumerate(zip(events, expected_value["emphasis_events"])):
         pointer = f"/emphasis_events/{index}"
-        if type(actual) is not dict or set(actual) != set(wanted):
+        if type(actual) is not dict:
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
-        string_fields = set(wanted) - {
-            "ordinal", "start_word_ordinal", "end_exclusive_word_ordinal",
-            "word_ids", "emphasis_type_ref", "start_ms", "end_ms",
-            "confidence_millionths",
-        }
-        if any(type(actual[field]) is not str for field in string_fields):
+        _require_exact_keys(actual, _EVENT_FIELDS, pointer)
+        if any(
+            type(actual[field]) is not str
+            for field in _EVENT_NON_CONTAINER_FIELDS
+        ):
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
-        if any(type(actual[field]) is not int for field in ("ordinal", "start_word_ordinal", "end_exclusive_word_ordinal", "start_ms", "end_ms")):
+        if any(
+            type(actual[field]) is not int for field in _EVENT_INTEGER_FIELDS
+        ):
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
         if actual["confidence_millionths"] is not None and type(actual["confidence_millionths"]) is not int:
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
         if type(actual["word_ids"]) is not list or not all(type(item) is str for item in actual["word_ids"]):
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
         type_value = actual["emphasis_type_ref"]
-        if type(type_value) is not dict or set(type_value) != {"domain_id", "name", "version"} or not all(type(item) is str for item in type_value.values()):
+        if type(type_value) is not dict:
             _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
-        if actual["schema_version"] != EMPHASIS_EVENT_V1 or actual["hash_scope_version"] != EMPHASIS_EVENT_HASH_V1 or actual["mapping_policy_version"] != EMPHASIS_MAPPING_POLICY_V1 or actual["intensity"] not in {item.value for item in EmphasisIntensity}:
-            _reject(pointer, EmphasisEventsRejectionReason.UNSUPPORTED_VALUE, "UNSUPPORTED_CONTRACT_ENUM")
-        for field in wanted:
-            if actual[field] == wanted[field]:
-                continue
-            if field in {"emphasis_event_hash", "emphasis_event_id"}:
-                _reject(pointer, EmphasisEventsRejectionReason.IDENTITY_MISMATCH)
-            if field in {"start_ms", "end_ms"}:
-                _reject(pointer, EmphasisEventsRejectionReason.TIMING_INVALID, "TIMESTAMP_NON_MONOTONIC")
-            if field == "confidence_millionths":
-                code = "CONFIDENCE_REQUIRED_UNAVAILABLE" if actual[field] is None else "ADAPTER_PRECISION_OVERSTATED"
-                _reject(pointer, EmphasisEventsRejectionReason.CONFIDENCE_INVALID, code)
-            if field in {"caption_group_id", "word_ids", "start_word_id", "end_word_id"}:
-                _reject(pointer, EmphasisEventsRejectionReason.CAPTION_GROUP_BINDING_INVALID, "CANONICAL_COVERAGE_BLOCKER")
-            if field in {"ordinal"}:
-                _reject(pointer, EmphasisEventsRejectionReason.ORDERING_INVALID, "CANONICAL_WORD_ORDER_INVALID")
-            if field in {"start_word_ordinal", "end_exclusive_word_ordinal", "emphasis_type_ref", "intensity"}:
-                _reject(pointer, EmphasisEventsRejectionReason.INTENT_INVALID)
-            _reject(pointer, EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID, "ALIGNMENT_REQUEST_IDENTITY_MISMATCH")
-    for field in expected_value:
-        if field == "emphasis_events" or value[field] == expected_value[field]:
-            continue
-        if field in {"emphasis_events_hash", "emphasis_events_id"}:
-            _reject("/", EmphasisEventsRejectionReason.IDENTITY_MISMATCH)
-        if field == "confidence_availability":
-            _reject("/", EmphasisEventsRejectionReason.CONFIDENCE_INVALID, "ADAPTER_PRECISION_OVERSTATED")
-        _reject("/", EmphasisEventsRejectionReason.DEPENDENCY_BINDING_INVALID, "ALIGNMENT_REQUEST_IDENTITY_MISMATCH")
-    canonical = encode_canonical_json_bytes(value)
+        _require_exact_keys(type_value, _TYPE_REF_FIELDS, pointer)
+        if any(type(type_value[field]) is not str for field in _TYPE_REF_FIELDS):
+            _reject(pointer, EmphasisEventsRejectionReason.STRUCTURE_INVALID)
+        for field, literal in (
+            ("schema_version", EMPHASIS_EVENT_V1),
+            ("hash_scope_version", EMPHASIS_EVENT_HASH_V1),
+            ("mapping_policy_version", EMPHASIS_MAPPING_POLICY_V1),
+        ):
+            if actual[field] != literal:
+                _reject(
+                    pointer,
+                    EmphasisEventsRejectionReason.UNSUPPORTED_VALUE,
+                    "UNSUPPORTED_CONTRACT_ENUM",
+                )
+        if actual["intensity"] not in {item.value for item in EmphasisIntensity}:
+            _reject(
+                pointer,
+                EmphasisEventsRejectionReason.UNSUPPORTED_VALUE,
+                "UNSUPPORTED_CONTRACT_ENUM",
+            )
+
+        # Event semantics are authoritative before either identity field.
+        for field in _EVENT_SEMANTIC_FIELDS:
+            if actual[field] != wanted[field]:
+                _reject_event_semantic_difference(field, actual[field], pointer)
+        event_projection = {
+            field: actual[field]
+            for field in _EVENT_FIELDS
+            if field not in {"emphasis_event_id", "emphasis_event_hash"}
+        }
+        event_hash = _digest(encode_canonical_json_bytes(event_projection))
+        if actual["emphasis_event_hash"] != event_hash:
+            _reject(pointer, EmphasisEventsRejectionReason.IDENTITY_MISMATCH)
+        if actual["emphasis_event_id"] != "emph_" + event_hash[:32]:
+            _reject(pointer, EmphasisEventsRejectionReason.IDENTITY_MISMATCH)
+
+    root_projection = {
+        field: value[field]
+        for field in _ROOT_FIELDS
+        if field not in {"emphasis_events_id", "emphasis_events_hash"}
+    }
+    root_hash = _digest(encode_canonical_json_bytes(root_projection))
+    if value["emphasis_events_hash"] != root_hash:
+        _reject("/", EmphasisEventsRejectionReason.IDENTITY_MISMATCH)
+    if value["emphasis_events_id"] != "emps_" + root_hash[:32]:
+        _reject("/", EmphasisEventsRejectionReason.IDENTITY_MISMATCH)
+    try:
+        canonical = encode_canonical_json_bytes(value)
+    except Exception:
+        _reject("/", EmphasisEventsRejectionReason.NON_CANONICAL_SERIALIZATION)
     if canonical != source:
         _reject("/", EmphasisEventsRejectionReason.NON_CANONICAL_SERIALIZATION)
     envelope = encode_canonical_json_bytes(expected_value)

@@ -31,6 +31,8 @@ from .narration import (
     NarrationSentence,
     TokenKind,
     _document_to_dict,
+    _has_materialized_narration_document_identity,
+    _has_materialized_narration_revision_identity,
     _is_materialized_narration_document,
     _is_materialized_narration_revision,
 )
@@ -218,13 +220,25 @@ def _preflight(
     narration_revision: NarrationRevision,
     alignment_result: AlignmentResult,
 ) -> _Preflight:
-    checks = (
-        (narration_document, CanonicalNarrationDocument, _is_materialized_narration_document, "narration_document"),
-        (narration_revision, NarrationRevision, _is_materialized_narration_revision, "narration_revision"),
+    identity_checks = (
+        (
+            narration_document,
+            CanonicalNarrationDocument,
+            _has_materialized_narration_document_identity,
+            "narration_document",
+        ),
+        (
+            narration_revision,
+            NarrationRevision,
+            _has_materialized_narration_revision_identity,
+            "narration_revision",
+        ),
     )
-    for value, exact_type, genuine, name in checks:
-        if type(value) is not exact_type or not genuine(value):
+    for value, exact_type, has_identity, name in identity_checks:
+        if type(value) is not exact_type or not has_identity(value):
             raise TypeError(f"{name} must be a genuine exact dependency")
+    document_current = _is_materialized_narration_document(narration_document)
+    revision_current = _is_materialized_narration_revision(narration_revision)
     if type(alignment_result) is not AlignmentResult:
         raise TypeError("alignment_result must be a genuine exact dependency")
 
@@ -242,6 +256,18 @@ def _preflight(
         if document_value["title"] is not None:
             _safe_text(document_value["title"])
         encode_canonical_json_bytes(document_value)
+        document_binding = (
+            narration_document.project_id,
+            narration_document.document_id,
+            narration_document.current_revision_id,
+        )
+        revision_binding = (
+            narration_revision.project_id,
+            narration_revision.document_id,
+            narration_revision.revision_id,
+        )
+        if not document_current and document_binding == revision_binding:
+            raise ValueError
     except Exception:
         _dependency_drift("/narration_document", "ALIGNMENT_REQUEST_IDENTITY_MISMATCH")
     try:
@@ -250,6 +276,7 @@ def _preflight(
         if (
             narration_revision.revision_hash != revision_hash
             or narration_revision.revision_id != "narrev_" + revision_hash[7:27]
+            or not revision_current
         ):
             raise ValueError
     except CaptionGroupsContractError:
