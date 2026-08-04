@@ -407,8 +407,11 @@ decision assigns no Slice number and grants no implementation authorization.
 The candidate is drafted and remote closed at
 `d4c978eb0df8d11ab033edbd50dc2eca17eab74a`, SHA-256
 `5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7`,
-UTF-8 byte length `45380`. Manual structural and exact golden checks passed;
-independent audit and acceptance remain open.
+UTF-8 byte length `45380`. Manual structural and exact golden checks passed.
+The independent read-only adversarial audit returned `PASS` with zero findings
+and confirmed golden, Domain Pack, closed-error-oracle, no-string-search/
+no-manual-time, feasibility, and repository-parity gates. The exact immutable
+candidate is externally accepted. Implementation authorization remains open.
 
 ```text
 POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
@@ -423,10 +426,12 @@ SPECIFICATION_STATUS=CANDIDATE_REMOTE_CLOSED
 SPECIFICATION_COMMIT=d4c978eb0df8d11ab033edbd50dc2eca17eab74a
 SPECIFICATION_SHA256=5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7
 SPECIFICATION_UTF8_BYTES=45380
-SPECIFICATION_ACCEPTED=NO
+SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
+SPECIFICATION_ACCEPTED=YES
+INDEPENDENT_SPECIFICATION_AUDIT=PASS
 IMPLEMENTATION_AUTHORIZED=NO
-INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
-NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
+IMPLEMENTATION_AUTHORIZATION_DECISION=PENDING
+NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

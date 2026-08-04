@@ -430,10 +430,15 @@ and UTF-8 byte length is `45380`. Manual section and four-block golden
 serialization/hash/ID verification passed. This is not independent audit or
 acceptance evidence.
 
-The specification remains `Candidate`, `Accepted: No`, and
-`Implementation authorized: No`. The next move is an independent read-only
-adversarial audit of the exact remote-closed bytes. Phase 2 remains
-IN_PROGRESS / NOT CLOSED.
+The independent read-only adversarial audit returned `PASS` with findings
+BLOCKER/MAJOR/MINOR/INFO `0/0/0/0`. Golden, Domain Pack boundary, closed error
+oracle, no-string-search/no-manual-time, feasibility, and pre/post parity gates
+all passed. The exact candidate is accepted externally without modifying its
+audited bytes.
+
+Implementation remains unauthorized. The next move is a separate bounded
+read-only implementation-authorization decision. Phase 2 remains IN_PROGRESS /
+NOT CLOSED.
 
 ```text
 POST_CAPTION_GROUPS_SCOPE_RECONCILIATION_STATUS=PASS
@@ -446,10 +451,12 @@ SPECIFICATION_STATUS=CANDIDATE_REMOTE_CLOSED
 SPECIFICATION_COMMIT=d4c978eb0df8d11ab033edbd50dc2eca17eab74a
 SPECIFICATION_SHA256=5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7
 SPECIFICATION_UTF8_BYTES=45380
-SPECIFICATION_ACCEPTED=NO
+SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
+SPECIFICATION_ACCEPTED=YES
+INDEPENDENT_SPECIFICATION_AUDIT=PASS
 IMPLEMENTATION_AUTHORIZED=NO
-INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
-NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
+IMPLEMENTATION_AUTHORIZATION_DECISION=PENDING
+NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN

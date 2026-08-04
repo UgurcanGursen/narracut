@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-04 - Phase 2 Emphasis Events specification acceptance
+
+- Independent read-only adversarial audit verified the exact remote-closed
+  candidate and returned `PASS`, findings `0/0/0/0`.
+- Golden, Domain Pack boundary, closed error oracle, no-string-search/
+  no-manual-time, implementation-feasibility, and pre/post parity gates passed.
+- The exact specification commit/SHA/byte identity is externally accepted
+  without changing the audited candidate bytes.
+- Acceptance does not authorize implementation; the next bounded task is a
+  separate read-only implementation-authorization decision.
+- Phase 2 remains open.
+
 ## 2026-08-04 - Phase 2 Canonical Emphasis Events candidate draft
 
 - Drafted the bounded candidate at

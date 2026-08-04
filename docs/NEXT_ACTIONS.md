@@ -6,8 +6,8 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 IN_PROGRESS.
 
 This is the single authoritative next task.
 
-Perform only an independent, read-only adversarial audit of the exact
-remote-closed **Canonical Emphasis Events Contract** candidate:
+Perform only a bounded, read-only implementation-authorization decision for
+the accepted **Canonical Emphasis Events Contract**:
 
 ```text
 docs/specifications/phase2_canonical_emphasis_events_contract.md
@@ -16,19 +16,17 @@ SHA256=5806aa26f798489e475d03b68e451cdbf2c2efd39f450ea7335cb96fc442f3b7
 UTF8_BYTES=45380
 ```
 
-The candidate is drafted and remote closed. Manual section, canonical JSON,
-golden length/hash/ID, and remote-parity checks passed. These checks are not an
-independent audit and do not accept the specification.
+The independent specification audit returned `PASS` with findings
+BLOCKER/MAJOR/MINOR/INFO `0/0/0/0`. The exact candidate is accepted by
+`baseline/phase2_canonical_emphasis_events_specification_acceptance_decision_report.md`.
 
-Audit all normative sections, especially exact dependency/provenance checks,
-Domain Pack registry/snapshot/type resolution, intent ordering/overlap,
-word-ID and caption-group binding, derived timing/confidence, canonical
-identity/serialization, closed rejection-oracle completeness and precedence,
-mutation/registry/no-leak behavior, performance bounds, and implementation
-feasibility. Report findings by BLOCKER/MAJOR/MINOR/INFO and decide only
-`PASS` or `FIX_REQUIRED` for later acceptance consideration.
+Inspect the accepted exact specification and current repository. Decide only
+`AUTHORIZE` or `DO_NOT_AUTHORIZE`, define the minimum exact production/test
+file boundary, exact public export delta, required focused/upstream/broad test
+gates, no-I/O/provider rules, Domain Pack fixture strategy, and rollback scope.
+Do not expand into implementation.
 
-Do not edit any file, repair or accept the specification, authorize or start
+Do not edit production code/tests/specification/Domain Packs, start
 implementation, execute providers, assign a Slice number, state a total Slice
 count or completion percentage, or close Phase 2.
 
@@ -38,10 +36,11 @@ PHASE2_SCOPE_DECISION=MORE_BOUNDED_PHASE2_WORK_REQUIRED
 NEXT_BOUNDED_CANDIDATE_TITLE=Canonical Emphasis Events Contract
 SPECIFICATION_PATH_DECISION=CLOSED
 SPECIFICATION_DRAFTED=YES
-SPECIFICATION_ACCEPTED=NO
+SPECIFICATION_ACCEPTANCE_DECISION=ACCEPT
+SPECIFICATION_ACCEPTED=YES
 IMPLEMENTATION_AUTHORIZED=NO
-INDEPENDENT_SPECIFICATION_AUDIT_REQUIRED=YES
-NEXT_ACTION=INDEPENDENT_READ_ONLY_SPECIFICATION_AUDIT
+IMPLEMENTATION_AUTHORIZATION_DECISION=PENDING
+NEXT_ACTION=IMPLEMENTATION_AUTHORIZATION_DECISION
 NEXT_IMPLEMENTATION_ALLOWED=NO
 PHASE2_CLOSED=NO
 TOTAL_PHASE2_SLICE_COUNT=UNKNOWN
