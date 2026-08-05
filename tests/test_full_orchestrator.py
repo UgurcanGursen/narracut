@@ -8,8 +8,10 @@ from pathlib import Path
 
 import pytest
 
-from engine.rendering import OutputTargetHead, provision_output_target
-from engine.rendering.full_orchestrator import run_full_render
+from engine.rendering import FullRenderError, OutputTargetHead, provision_output_target
+from engine.rendering.full_orchestrator import (
+    RemotionFullRuntime, make_remotion_full_producer, run_full_render,
+)
 from engine.rendering.bridge import build_render_props, renderer_version
 from engine.rendering.fixture_assets import FixtureAssetResolver
 from tests.test_audio_render_plan import _inputs
@@ -52,13 +54,13 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
     for entry in report["entries"]:
         entry["materialized_pcm_content_sha256"], entry["byte_length"] = _sha(pcm), pcm.stat().st_size
 
-    def render_video(props_path: Path, video_path: Path, _attempt: Path) -> None:
-        assert props_path.is_file()
-        video_path.parent.mkdir(parents=True, exist_ok=True)
-        result = subprocess.run([str(ffmpeg), "-y", "-f", "lavfi", "-i", "color=c=black:s=64x64:r=30",
-            "-t", "1", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(video_path)],
-            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-        assert result.returncode == 0
+    node = Path(shutil.which("node") or "")
+    if not node.is_file():
+        pytest.skip("paired Node/Remotion fixture runtime unavailable")
+    render_video = make_remotion_full_producer(
+        runtime=RemotionFullRuntime(node_executable=node, renderer_root=ROOT / "renderer-remotion"),
+        fixture_assets=FixtureAssetResolver.load(FIXTURE_ROOT), fixture_root=FIXTURE_ROOT,
+    )
 
     outcome = run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
         pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources=sources,
@@ -68,6 +70,15 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
     assert outcome.status == "SUCCEEDED" and outcome.output_path is not None
     assert outcome.output_path.is_file() and outcome.receipt is not None
     assert outcome.receipt["status"] == "SUCCEEDED"
+    from engine.rendering.lifecycle_registry import resolve_target_head
+    head = resolve_target_head(project_root=tmp_path, output_target_id="outt_" + "9" * 32)
+    assert outcome.receipt["committed_output_target_record_id"] == head["output_target_record_id"]
+    assert outcome.receipt["committed_output_target_record_hash"] == head["output_target_record_hash"]
+    assert outcome.receipt["committed_output_target_revision"] == head["revision"]
+    registry = (tmp_path / "artifacts" / "registry.jsonl").read_text(encoding="utf-8")
+    assert outcome.receipt["pre_cleanup_manifest_id"] in registry
+    assert outcome.receipt["post_cleanup_manifest_id"] in registry
+    assert head["current_output_artifact_id"] in registry
     assert not list((tmp_path / "renders" / "attempts" / "attempt_replay_1").rglob("*"))
 
 
@@ -84,3 +95,45 @@ def test_pre_admission_cancel_creates_no_attempt_or_receipt(tmp_path: Path) -> N
         ffmpeg=Path("ffmpeg"), ffprobe=Path("ffprobe"), cancel_before_admission=True)
     assert not outcome.admitted and outcome.status == "CANCELLED_BEFORE_ADMISSION"
     assert outcome.receipt is None and not (tmp_path / "renders" / "attempts").exists()
+
+
+@pytest.mark.parametrize(
+    ("cancel", "producer_code", "expected_status"),
+    ((True, None, "CANCELLED"), (False, "REMOTION_FULL_RENDER_FAILED", "FAILED")),
+)
+def test_admitted_terminal_failure_and_cancellation_persist_cleanup_receipts(
+    tmp_path: Path, cancel: bool, producer_code: str | None, expected_status: str,
+) -> None:
+    """Admitted non-success paths never publish a target revision, but do journal cleanup."""
+    props = _props()
+    target_id = "outt_" + ("6" if cancel else "7") * 32
+    provision_output_target(project_root=tmp_path, head=OutputTargetHead(
+        target_id, props.project_id, props.sequence_id, "renders/final/terminal.mp4"))
+    audio, manifest, report = _inputs()
+
+    def producer(*_args: Path) -> None:
+        assert producer_code is not None
+        raise FullRenderError(producer_code)
+
+    outcome = run_full_render(
+        project_root=tmp_path, props=props, audio_edl=audio,
+        pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources={},
+        output_target_id=target_id, profile_id="replay-profile",
+        profile_hash="sha256:" + "2" * 64, cancellation_ingress_id="cancel_terminal",
+        attempt_id="attempt_terminal_" + ("cancel" if cancel else "failure"),
+        video_producer=producer, ffmpeg=Path("ffmpeg"), ffprobe=Path("ffprobe"),
+        cancel_after_admission=cancel,
+    )
+    assert outcome.admitted and outcome.status == expected_status and outcome.output_path is None
+    assert outcome.receipt is not None and outcome.receipt["status"] == expected_status
+    assert outcome.receipt["committed_output_target_record_id"] is None
+    assert outcome.receipt["committed_output_target_record_hash"] is None
+    assert outcome.receipt["committed_output_target_revision"] is None
+    assert outcome.receipt["pre_cleanup_manifest_id"]
+    assert outcome.receipt["post_cleanup_manifest_id"]
+    from engine.rendering.lifecycle_registry import resolve_target_head
+    assert resolve_target_head(project_root=tmp_path, output_target_id=target_id)["revision"] == 1
+    registry = (tmp_path / "artifacts" / "registry.jsonl").read_text(encoding="utf-8")
+    assert outcome.receipt["receipt_id"] in registry
+    assert outcome.receipt["pre_cleanup_manifest_id"] in registry
+    assert outcome.receipt["post_cleanup_manifest_id"] in registry

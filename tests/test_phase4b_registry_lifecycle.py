@@ -22,9 +22,13 @@ def test_append_only_target_revision_and_terminal_journal(tmp_path: Path) -> Non
     pre = snapshot_attempt(attempt_root=attempt, attempt_id="attempt_1", cleanup_state="PRE_CLEANUP")
     post = cleanup_attempt(attempt_root=attempt, pre_cleanup=pre)
     revision = next_target_revision(base=base, output_artifact_id="art_final_1", output_content_sha256="sha256:" + "b" * 64, replacement_policy=None)
-    receipt = commit_transaction(project_root=tmp_path, transaction_id="txn_1", base_target=base, target_revision=revision, artifact_rows=(), terminal_status="SUCCEEDED", receipt_payload={"request_id": "frq_1"}, pre_cleanup=pre, post_cleanup=post)
+    receipt = commit_transaction(project_root=tmp_path, transaction_id="txn_1", base_target=base, target_revision=revision, artifact_rows=({"artifact_id": "art_final_1", "content_sha256": "sha256:" + "b" * 64, "kind": "final_output"},), terminal_status="SUCCEEDED", receipt_payload={"request_id": "frq_1"}, pre_cleanup=pre, post_cleanup=post)
     assert receipt["status"] == "SUCCEEDED"
-    assert resolve_target_head(project_root=tmp_path, output_target_id=_head().output_target_id)["revision"] == initial["revision"] + 1
+    head = resolve_target_head(project_root=tmp_path, output_target_id=_head().output_target_id)
+    assert head["revision"] == initial["revision"] + 1
+    assert receipt["committed_output_target_record_id"] == head["output_target_record_id"]
+    assert receipt["committed_output_target_record_hash"] == head["output_target_record_hash"]
+    assert receipt["committed_output_target_revision"] == head["revision"]
     assert not list(attempt.rglob("*"))
 
 

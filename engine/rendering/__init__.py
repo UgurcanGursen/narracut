@@ -14,7 +14,10 @@ from .full_render import (
     atomic_publish, build_full_render_request, normalize_mux_probe,
     provision_output_target, resolve_output_target,
 )
-from .full_orchestrator import FullRenderOutcome, run_full_render
+from .full_orchestrator import (
+    FullRenderOutcome, RemotionFullRuntime, make_remotion_full_producer,
+    run_full_render,
+)
 
 __all__ = [
     "BRIDGE_SEMVER", "RENDER_PROPS_HASH_V1", "RENDER_PROPS_V1",
@@ -27,5 +30,5 @@ __all__ = [
     "FULL_REQUEST_V1", "TARGET_RECORD_V1", "FullRenderError", "OutputTargetHead",
     "atomic_publish", "build_full_render_request", "normalize_mux_probe",
     "provision_output_target", "resolve_output_target",
-    "FullRenderOutcome", "run_full_render",
+    "FullRenderOutcome", "RemotionFullRuntime", "make_remotion_full_producer", "run_full_render",
 ]

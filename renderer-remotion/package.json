@@ -7,7 +7,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "node --test scripts/*.test.mjs",
-    "render:fixture": "node scripts/render-fixture.mjs"
+    "render:fixture": "node scripts/render-fixture.mjs",
+    "render:full": "node scripts/render-full.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.506",

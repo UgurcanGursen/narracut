@@ -363,7 +363,36 @@ def commit_transaction(*, project_root: Path, transaction_id: str, base_target: 
         _validate_target(target_revision)
         if target_revision["previous_output_target_record_id"] != base_target["output_target_record_id"]:
             raise FullRenderError("ARTIFACT_PERSIST_FAILED")
-    receipt = {"schema_version": TERMINAL_RECEIPT_V1, "transaction_id": transaction_id, "status": terminal_status, "pre_cleanup_manifest_id": pre_cleanup.manifest_id, "pre_cleanup_manifest_hash": pre_cleanup.manifest_hash, "post_cleanup_manifest_id": post_cleanup.manifest_id, "post_cleanup_manifest_hash": post_cleanup.manifest_hash, "payload": receipt_payload, "receipt_id": "", "receipt_hash": ""}
+        # The target may become visible only with the final-output artifact in
+        # this exact transaction.  A revision that points at an unrecorded
+        # artifact would otherwise make the receipt's success claim ambiguous.
+        matches = [
+            row for row in artifact_rows
+            if row.get("artifact_id") == target_revision["current_output_artifact_id"]
+            and row.get("content_sha256") == target_revision["current_output_content_sha256"]
+            and row.get("kind") == "final_output"
+        ]
+        if len(matches) != 1:
+            raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    if terminal_status != "SUCCEEDED" and any(
+        row.get("kind") == "final_output" for row in artifact_rows
+    ):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    target_visibility = {
+        "base_output_target_record_id": base_target["output_target_record_id"],
+        "base_output_target_record_hash": base_target["output_target_record_hash"],
+        "base_output_target_revision": base_target["revision"],
+        "committed_output_target_record_id": (
+            target_revision["output_target_record_id"] if target_revision is not None else None
+        ),
+        "committed_output_target_record_hash": (
+            target_revision["output_target_record_hash"] if target_revision is not None else None
+        ),
+        "committed_output_target_revision": (
+            target_revision["revision"] if target_revision is not None else None
+        ),
+    }
+    receipt = {"schema_version": TERMINAL_RECEIPT_V1, "transaction_id": transaction_id, "status": terminal_status, "pre_cleanup_manifest_id": pre_cleanup.manifest_id, "pre_cleanup_manifest_hash": pre_cleanup.manifest_hash, "post_cleanup_manifest_id": post_cleanup.manifest_id, "post_cleanup_manifest_hash": post_cleanup.manifest_hash, **target_visibility, "payload": receipt_payload, "receipt_id": "", "receipt_hash": ""}
     receipt_id, receipt_hash = _identity("frrc_", receipt, "receipt_id", "receipt_hash")
     receipt |= {"receipt_id": receipt_id, "receipt_hash": receipt_hash}
     prepared = {"schema_version": TRANSACTION_V1, "transaction_id": transaction_id, "base_target_record_id": base_target["output_target_record_id"], "base_target_record_hash": base_target["output_target_record_hash"], "target_revision": target_revision, "artifact_rows": list(artifact_rows), "pre_cleanup": pre_cleanup.row(), "post_cleanup": post_cleanup.row(), "receipt": receipt}

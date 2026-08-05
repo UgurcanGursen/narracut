@@ -49,3 +49,17 @@ test('trusted fixture pixels, accepted V3 crop, and V4 reveal drive composition 
   assert.match(runner, /SOURCE_ZOOM_HIGHLIGHT/);
   assert.match(runner, /event\.start_frame, event\.end_exclusive_frame - 1/);
 });
+
+test('full video producer is a closed visual-only handoff', () => {
+  const fullRunner = readFileSync(resolve('scripts', 'render-full.mjs'), 'utf8');
+  assert.match(fullRunner, /parseRenderProps/);
+  assert.match(fullRunner, /--public-dir <attempt-local-public-dir>/);
+  assert.match(fullRunner, /phase4a-assets/);
+  assert.match(fullRunner, /sha\(readFileSync\(asset\)\) !== binding\.content_sha256/);
+  assert.match(fullRunner, /'render', 'src\/index\.tsx', props\.composition_id, outputFile/);
+  assert.match(fullRunner, /'--codec', 'h264', '--pixel-format', 'yuv420p'/);
+  assert.match(fullRunner, /REMOTION-FULL-VIDEO-V1/);
+  assert.match(fullRunner, /REMOTION_FULL_RENDER_FAILED/);
+  assert.doesNotMatch(fullRunner, /ffmpeg/i);
+  assert.doesNotMatch(fullRunner, /--audio-codec/);
+});

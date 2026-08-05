@@ -9,7 +9,10 @@ attempt before FFmpeg sees them.
 from __future__ import annotations
 
 import hashlib
+import json
+import os
 import shutil
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Mapping, Any
@@ -18,7 +21,8 @@ from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.contracts.audio_edl import AudioEdlArtifact
 
 from .audio_plan import compile_audio_render_plan
-from .bridge import RenderProps, serialize_render_props
+from .bridge import RenderProps, load_render_props, serialize_render_props
+from .fixture_assets import FixtureAssetResolver, FixtureAssetResolverError
 from .full_render import (FullRenderError, atomic_publish, build_full_render_request,
                           normalize_mux_probe, resolve_output_target)
 from .lifecycle_registry import (cleanup_attempt, commit_transaction,
@@ -26,6 +30,102 @@ from .lifecycle_registry import (cleanup_attempt, commit_transaction,
 
 
 VideoProducer = Callable[[Path, Path, Path], None]
+
+
+@dataclass(frozen=True)
+class RemotionFullRuntime:
+    """Explicit paired runtime seam; no PATH/package-manager discovery occurs."""
+
+    node_executable: Path
+    renderer_root: Path
+    timeout_seconds: int = 300
+
+
+_MAX_REMOTION_OUTPUT = 1_048_576
+
+
+def _child_environment() -> dict[str, str]:
+    result = {"PATH": os.environ.get("PATH", ""), "TZ": "UTC", "LANG": "C", "NODE_ENV": "production"}
+    if os.name == "nt":
+        result["SystemRoot"] = os.environ.get("SystemRoot", "")
+        result["COMSPEC"] = os.environ.get("COMSPEC", "")
+    return result
+
+
+def _copy_remotion_assets(*, props: RenderProps, resolver: FixtureAssetResolver,
+                          fixture_root: Path, public_root: Path) -> None:
+    """Materialize only already authenticated props bindings under this attempt."""
+    root = fixture_root.resolve(strict=True)
+    asset_dir = public_root / "phase4a-assets"
+    asset_dir.mkdir(parents=True, exist_ok=False)
+    for binding in props.asset_bindings:
+        try:
+            asset = resolver.resolve_source_ref(binding["edl_source_ref"])
+        except (KeyError, FixtureAssetResolverError) as exc:
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED") from exc
+        if asset.content_sha256 != binding["content_sha256"] or asset.media_type != "image/svg+xml":
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED")
+        source = (root.joinpath(*asset.relative_posix_path.split("/"))).resolve(strict=True)
+        try:
+            source.relative_to(root)
+        except ValueError as exc:
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED") from exc
+        target = asset_dir / (asset.content_sha256[7:] + ".svg")
+        shutil.copyfile(source, target)
+        if _sha(target.read_bytes()) != asset.content_sha256:
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED")
+
+
+def make_remotion_full_producer(*, runtime: RemotionFullRuntime,
+                                fixture_assets: FixtureAssetResolver,
+                                fixture_root: Path) -> VideoProducer:
+    """Return the only supported real REPLAY visual producer for Phase 4B.
+
+    ``runtime`` is supplied by the composition root, rather than discovered
+    from PATH. The child gets canonical props and attempt-local asset copies.
+    """
+    node, renderer_root = runtime.node_executable.resolve(), runtime.renderer_root.resolve()
+    runner = renderer_root / "scripts" / "render-full.mjs"
+    if (not node.is_file() or not runner.is_file() or type(runtime.timeout_seconds) is not int
+            or not 1 <= runtime.timeout_seconds <= 600):
+        raise FullRenderError("REMOTION_FULL_RENDER_FAILED")
+
+    def produce(props_path: Path, video_path: Path, attempt_root: Path) -> None:
+        try:
+            props = load_render_props(props_path.read_bytes())
+            public_root = attempt_root / "remotion" / "public"
+            _copy_remotion_assets(props=props, resolver=fixture_assets,
+                                  fixture_root=fixture_root, public_root=public_root)
+            completed = subprocess.run(
+                [str(node), str(runner), "--props", str(props_path), "--output", str(video_path),
+                 "--public-dir", str(public_root)], cwd=renderer_root, env=_child_environment(),
+                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                timeout=runtime.timeout_seconds, check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired, ValueError) as exc:
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED") from exc
+        if (len(completed.stdout) > _MAX_REMOTION_OUTPUT or len(completed.stderr) > _MAX_REMOTION_OUTPUT
+                or completed.returncode != 0):
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED")
+        try:
+            handoff = json.loads(completed.stdout.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED") from exc
+        expected = {"schema_version", "render_request_id", "render_props_hash", "composition_id", "width", "height", "fps_numerator", "fps_denominator", "duration_frames", "video_relative_path", "video_sha256", "video_byte_length"}
+        if (type(handoff) is not dict or set(handoff) != expected
+                or handoff.get("schema_version") != "REMOTION-FULL-VIDEO-V1"
+                or handoff.get("render_request_id") != props.render_request_id
+                or handoff.get("render_props_hash") != props.render_props_hash
+                or handoff.get("composition_id") != props.composition_id
+                or handoff.get("width") != props.width or handoff.get("height") != props.height
+                or handoff.get("fps_numerator") != props.fps_numerator
+                or handoff.get("fps_denominator") != props.fps_denominator
+                or handoff.get("duration_frames") != props.duration_frames
+                or handoff.get("video_relative_path") != "video.mp4"
+                or handoff.get("video_sha256") != _sha(video_path.read_bytes())
+                or handoff.get("video_byte_length") != video_path.stat().st_size):
+            raise FullRenderError("REMOTION_FULL_RENDER_FAILED")
+    return produce
 
 
 @dataclass(frozen=True)
@@ -161,7 +261,11 @@ def run_full_render(*, project_root: Path, props: RenderProps,
             receipt_payload={"full_render_request_id": request["full_render_request_id"],
                              "audio_render_plan_id": plan["audio_render_plan_id"],
                              "audio_filter_script_id": script_artifact["audio_filter_script_id"],
-                             "output_sha256": probe["output_sha256"]},
+                             "output_sha256": probe["output_sha256"],
+                             # The durable target relation itself is recorded
+                             # by the registry receipt; this payload carries
+                             # only the output-byte lineage.
+                             },
             pre_cleanup=pre, post_cleanup=post)
         return FullRenderOutcome(True, "SUCCEEDED", request, receipt, output)
     except FullRenderError as failure:
