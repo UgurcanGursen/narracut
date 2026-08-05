@@ -10,7 +10,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import shutil
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -92,6 +91,28 @@ def _validate_target(row: dict[str, Any]) -> None:
     }
     if set(row) != required or row.get("schema_version") != TARGET_RECORD_V1:
         raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    if (
+        not isinstance(row["revision"], int)
+        or row["revision"] < 1
+        or not isinstance(row["locked"], bool)
+        or not isinstance(row["approved"], bool)
+    ):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    current_id = row["current_output_artifact_id"]
+    current_hash = row["current_output_content_sha256"]
+    if (current_id is None) != (current_hash is None):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    if current_id is None:
+        if row["replacement_policy"] is not None:
+            raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    elif row["replacement_policy"] not in {None, "REPLACE_UNAPPROVED_V1"}:
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    if row["revision"] == 1 and (
+        row["previous_output_target_record_id"] is not None
+        or row["previous_output_target_record_hash"] is not None
+        or current_id is not None
+    ):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
     expected_id, expected_hash = _identity(
         "outr_", row, "output_target_record_id", "output_target_record_hash"
     )
@@ -119,6 +140,20 @@ def resolve_target_head(*, project_root: Path, output_target_id: str) -> dict[st
             previous["output_target_record_id"], previous["output_target_record_hash"], previous["locked"], previous["approved"]
         ):
             raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+        elif (
+            (row["current_output_artifact_id"] is None and row["replacement_policy"] is not None)
+            or (
+                row["current_output_artifact_id"] is not None
+                and previous["current_output_artifact_id"] is None
+                and row["replacement_policy"] is not None
+            )
+            or (
+                row["current_output_artifact_id"] is not None
+                and previous["current_output_artifact_id"] is not None
+                and row["replacement_policy"] != "REPLACE_UNAPPROVED_V1"
+            )
+        ):
+            raise FullRenderError("ARTIFACT_PERSIST_FAILED")
         previous = row
     assert previous is not None
     return previous
@@ -129,9 +164,15 @@ def next_target_revision(*, base: dict[str, Any], output_artifact_id: str | None
                          replacement_policy: str | None) -> dict[str, Any]:
     """Create (but never append) the sole valid next target revision."""
     _validate_target(base)
+    if base["locked"]:
+        raise FullRenderError("OUTPUT_LOCKED")
+    if base["approved"]:
+        raise FullRenderError("OUTPUT_APPROVED")
     if (output_artifact_id is None) != (output_content_sha256 is None):
         raise FullRenderError("OVERWRITE_POLICY_INVALID")
-    if output_artifact_id is not None and replacement_policy not in {None, "REPLACE_UNAPPROVED_V1"}:
+    if output_artifact_id is None:
+        raise FullRenderError("OVERWRITE_POLICY_INVALID")
+    if base["current_output_artifact_id"] is None and replacement_policy is not None:
         raise FullRenderError("OVERWRITE_POLICY_INVALID")
     if base["current_output_artifact_id"] is not None and replacement_policy != "REPLACE_UNAPPROVED_V1":
         raise FullRenderError("OVERWRITE_POLICY_INVALID")
@@ -148,6 +189,113 @@ def next_target_revision(*, base: dict[str, Any], output_artifact_id: str | None
     }
     identity, digest = _identity("outr_", row, "output_target_record_id", "output_target_record_hash")
     return row | {"output_target_record_id": identity, "output_target_record_hash": digest}
+
+
+def build_compensation_revision(*, base_target: dict[str, Any], provisional_target: dict[str, Any]) -> dict[str, Any]:
+    """Build the only append-only revision that restores a failed publish.
+
+    ``base_target`` is the durable logical head before publication and
+    ``provisional_target`` is the immediately appended, not-yet-successful
+    head. This intentionally produces a new record; it never rewrites either
+    prior row.
+    """
+    _validate_target(base_target)
+    _validate_target(provisional_target)
+    if (
+        provisional_target["revision"] != base_target["revision"] + 1
+        or provisional_target["previous_output_target_record_id"] != base_target["output_target_record_id"]
+        or provisional_target["previous_output_target_record_hash"] != base_target["output_target_record_hash"]
+        or any(provisional_target[key] != base_target[key] for key in (
+            "output_target_id", "project_id", "sequence_id", "trusted_publish_relative_path", "locked", "approved"
+        ))
+    ):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    restored_id = base_target["current_output_artifact_id"]
+    row = {
+        **{key: base_target[key] for key in ("output_target_id", "project_id", "sequence_id", "trusted_publish_relative_path", "locked", "approved")},
+        "schema_version": TARGET_RECORD_V1,
+        "current_output_artifact_id": restored_id,
+        "current_output_content_sha256": base_target["current_output_content_sha256"],
+        "replacement_policy": base_target["replacement_policy"] if restored_id is not None else None,
+        "revision": provisional_target["revision"] + 1,
+        "previous_output_target_record_id": provisional_target["output_target_record_id"],
+        "previous_output_target_record_hash": provisional_target["output_target_record_hash"],
+        "output_target_record_id": "", "output_target_record_hash": "",
+    }
+    identity, digest = _identity("outr_", row, "output_target_record_id", "output_target_record_hash")
+    return row | {"output_target_record_id": identity, "output_target_record_hash": digest}
+
+
+def append_recovery_compensation(*, project_root: Path, transaction_id: str,
+                                 base_target: dict[str, Any], provisional_target: dict[str, Any]) -> dict[str, Any]:
+    """Durably append a recovery compensation only for the exact current head.
+
+    Filesystem restoration and terminal receipt construction belong to the
+    orchestrator. This registry seam supplies the constrained journal mutation
+    after that restoration has been proven.
+    """
+    if not transaction_id:
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    compensation = build_compensation_revision(
+        base_target=base_target, provisional_target=provisional_target
+    )
+    journal_path = project_root / "artifacts" / "transactions" / f"{transaction_id}.json"
+    try:
+        journal = json.loads(journal_path.read_bytes())
+    except Exception as exc:
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED") from exc
+    if (
+        journal.get("schema_version") != TRANSACTION_V1
+        or journal.get("transaction_id") != transaction_id
+        or journal.get("base_target_record_id") != base_target["output_target_record_id"]
+        or journal.get("base_target_record_hash") != base_target["output_target_record_hash"]
+        or journal.get("target_revision") != provisional_target
+    ):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    with _RegistryLock(project_root):
+        current = resolve_target_head(
+            project_root=project_root, output_target_id=base_target["output_target_id"]
+        )
+        if (
+            current["output_target_record_id"], current["output_target_record_hash"]
+        ) != (
+            provisional_target["output_target_record_id"], provisional_target["output_target_record_hash"]
+        ):
+            raise FullRenderError("OUTPUT_TARGET_CONFLICT")
+        _append(project_root / "artifacts" / "output-targets.jsonl", compensation)
+        _append(project_root / "artifacts" / "registry.jsonl", {
+            "schema_version": REGISTRY_ROW_V1,
+            "transaction_id": transaction_id,
+            "marker": "RECOVERY_COMPENSATION_RECORDED",
+            "compensation_target_record_id": compensation["output_target_record_id"],
+            "compensation_target_record_hash": compensation["output_target_record_hash"],
+        })
+    return compensation
+
+
+def _validate_manifest(manifest: AttemptManifest, expected_state: str) -> None:
+    row = manifest.row()
+    if manifest.cleanup_state != expected_state or set(row) != {
+        "schema_version", "attempt_id", "cleanup_state", "files", "manifest_id", "manifest_hash"
+    } or row["schema_version"] != ATTEMPT_MANIFEST_V1:
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    identity, digest = _identity("atman_", row, "manifest_id", "manifest_hash")
+    if (manifest.manifest_id, manifest.manifest_hash) != (identity, digest):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+
+
+def _validate_cleanup_transition(pre_cleanup: AttemptManifest, post_cleanup: AttemptManifest) -> None:
+    _validate_manifest(pre_cleanup, "PRE_CLEANUP")
+    _validate_manifest(post_cleanup, "POST_CLEANUP")
+    if pre_cleanup.attempt_id != post_cleanup.attempt_id:
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+    retained = {
+        row["relative_path"]: row
+        for row in pre_cleanup.files if row.get("retention_class") != "ephemeral"
+    }
+    observed = {row.get("relative_path"): row for row in post_cleanup.files}
+    if set(observed) != set(retained) or any(observed[path] != row for path, row in retained.items()):
+        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
 
 
 @dataclass(frozen=True)
@@ -185,7 +333,9 @@ def cleanup_attempt(*, attempt_root: Path, pre_cleanup: AttemptManifest) -> Atte
     """Delete only inventory-listed ephemeral files and prove the remaining set."""
     if pre_cleanup.cleanup_state != "PRE_CLEANUP":
         raise FullRenderError("ARTIFACT_PERSIST_FAILED")
-    observed = snapshot_attempt(attempt_root=attempt_root, attempt_id=pre_cleanup.attempt_id, cleanup_state="PRE_CLEANUP")
+    retention = {item["relative_path"]: item["retention_class"] for item in pre_cleanup.files}
+    observed = snapshot_attempt(attempt_root=attempt_root, attempt_id=pre_cleanup.attempt_id,
+                               cleanup_state="PRE_CLEANUP", retention_by_relative_path=retention)
     if observed.files != pre_cleanup.files:
         raise FullRenderError("ARTIFACT_PERSIST_FAILED")
     for item in pre_cleanup.files:
@@ -194,7 +344,8 @@ def cleanup_attempt(*, attempt_root: Path, pre_cleanup: AttemptManifest) -> Atte
     for directory in sorted((item for item in attempt_root.rglob("*") if item.is_dir()), reverse=True):
         try: directory.rmdir()
         except OSError: pass
-    return snapshot_attempt(attempt_root=attempt_root, attempt_id=pre_cleanup.attempt_id, cleanup_state="POST_CLEANUP")
+    return snapshot_attempt(attempt_root=attempt_root, attempt_id=pre_cleanup.attempt_id,
+                            cleanup_state="POST_CLEANUP", retention_by_relative_path=retention)
 
 
 def commit_transaction(*, project_root: Path, transaction_id: str, base_target: dict[str, Any],
@@ -205,6 +356,7 @@ def commit_transaction(*, project_root: Path, transaction_id: str, base_target: 
     if terminal_status not in {"SUCCEEDED", "FAILED", "CANCELLED"}:
         raise FullRenderError("ARTIFACT_PERSIST_FAILED")
     _validate_target(base_target)
+    _validate_cleanup_transition(pre_cleanup, post_cleanup)
     if terminal_status != "SUCCEEDED" and target_revision is not None:
         raise FullRenderError("ARTIFACT_PERSIST_FAILED")
     if target_revision is not None:
