@@ -15,7 +15,7 @@ from .full_render import (
     provision_output_target, resolve_output_target,
 )
 from .full_orchestrator import (
-    FullRenderOutcome, RemotionFullRuntime, make_remotion_full_producer,
+    FullRenderOutcome, ToolchainRuntimeBindingV1, make_remotion_full_producer,
     preflight_full_render_toolchain, run_full_render,
 )
 
@@ -30,6 +30,6 @@ __all__ = [
     "FULL_REQUEST_V1", "TARGET_RECORD_V1", "FullRenderError", "OutputTargetHead",
     "atomic_publish", "build_full_render_request", "normalize_mux_probe",
     "provision_output_target", "resolve_output_target",
-    "FullRenderOutcome", "RemotionFullRuntime", "make_remotion_full_producer",
+    "FullRenderOutcome", "ToolchainRuntimeBindingV1", "make_remotion_full_producer",
     "preflight_full_render_toolchain", "run_full_render",
 ]

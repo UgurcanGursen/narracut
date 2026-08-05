@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import shutil
 import subprocess
 from pathlib import Path
@@ -10,8 +11,10 @@ import pytest
 
 from engine.rendering import FullRenderError, OutputTargetHead, provision_output_target
 from engine.rendering.full_orchestrator import (
-    RemotionFullRuntime, make_remotion_full_producer, run_full_render,
+    ToolchainRuntimeBindingV1, make_remotion_full_producer,
+    preflight_full_render_toolchain, run_full_render,
 )
+from engine.rendering.full_profile import load_full_render_profile
 from engine.rendering.bridge import build_render_props, renderer_version
 from engine.rendering.fixture_assets import FixtureAssetResolver
 from tests.test_audio_render_plan import _inputs
@@ -39,11 +42,19 @@ def _tools() -> tuple[Path, Path]:
     return ffmpeg, ffprobe
 
 
-def _runtime() -> RemotionFullRuntime:
+def _runtime() -> ToolchainRuntimeBindingV1:
     node = Path(shutil.which("node") or "")
-    if not node.is_file():
+    ffmpeg, ffprobe = _tools()
+    remotion_root = ROOT / "renderer-remotion" / "node_modules" / "@remotion" / "cli"
+    if not node.is_file() or not remotion_root.is_dir():
         pytest.skip("paired Node/Remotion fixture runtime unavailable")
-    return RemotionFullRuntime(node_executable=node, renderer_root=ROOT / "renderer-remotion")
+    provenance = json.loads((ROOT / "tests" / "fixtures" / "phase4b" / "full-render-toolchain-provenance-v1.json").read_bytes())
+    return ToolchainRuntimeBindingV1(
+        provenance_fixture_id=provenance["provenance_fixture_id"],
+        provenance_fixture_hash=provenance["provenance_fixture_hash"],
+        platform=provenance["supported_platform"], node_root=node.parent,
+        remotion_root=remotion_root, ffmpeg_root=ffmpeg.parent, ffprobe_root=ffprobe.parent,
+    )
 
 
 def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) -> None:
@@ -92,7 +103,7 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
                  "pcm_materialization_report", "renderer_video", "audio_render_plan",
                  "audio_filter_script", "normalized_audio", "final_output", "full_render_toolchain_preflight"):
         assert f'"kind":"{kind}"' in registry
-    assert outcome.receipt["payload"]["toolchain_preflight_id"] in registry
+    assert outcome.receipt["payload"]["toolchain_preflight"]["toolchain_preflight_id"] in registry
     assert not list((tmp_path / "renders" / "attempts" / "attempt_replay_1").rglob("*"))
 
 
@@ -162,12 +173,50 @@ def test_toolchain_preflight_rejects_untrusted_runtime_before_attempt(tmp_path: 
     provision_output_target(project_root=tmp_path, head=OutputTargetHead(
         target_id, props.project_id, props.sequence_id, "renders/final/preflight.mp4"))
     audio, manifest, report = _inputs()
-    with pytest.raises(FullRenderError, match="FULL_RENDER_TOOLCHAIN_PREFLIGHT_FAILED"):
+    runtime = _runtime()
+    with pytest.raises(FullRenderError, match="REMOTION_TOOLCHAIN_UNAVAILABLE"):
         run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
             pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources={},
             output_target_id=target_id, profile_id=PROFILE_ID, profile_hash=PROFILE_HASH,
             cancellation_ingress_id="cancel_preflight", attempt_id="attempt_preflight_1",
             video_producer=lambda *_: None, ffmpeg=ffmpeg, ffprobe=ffprobe,
-            remotion_runtime=RemotionFullRuntime(node_executable=tmp_path / "untrusted-node.exe",
-                                                 renderer_root=ROOT / "renderer-remotion"))
+            remotion_runtime=ToolchainRuntimeBindingV1(
+                provenance_fixture_id=runtime.provenance_fixture_id,
+                provenance_fixture_hash=runtime.provenance_fixture_hash,
+                platform=runtime.platform, node_root=tmp_path / "untrusted-node-root",
+                remotion_root=runtime.remotion_root, ffmpeg_root=runtime.ffmpeg_root,
+                ffprobe_root=runtime.ffprobe_root,
+            ))
     assert not (tmp_path / "renders" / "attempts").exists()
+
+
+def test_preflight_has_closed_observed_digests_and_separates_remotion_from_ffmpeg() -> None:
+    """No root is persisted, and each tool family preserves its typed oracle."""
+    props = _props()
+    request = __import__("engine.rendering.full_render", fromlist=["build_full_render_request"]).build_full_render_request(
+        props=props, profile_id=PROFILE_ID, profile_hash=PROFILE_HASH,
+        output_target_id="outt_" + "4" * 32,
+        pcm_manifest={"schema_version": "FULL-RENDER-PCM-MANIFEST-V1", "entries": []},
+        cancellation_ingress_id="cancel_preflight_rows",
+    )
+    profile = load_full_render_profile(profile_id=PROFILE_ID, profile_hash=PROFILE_HASH)
+    runtime = _runtime()
+    projection = preflight_full_render_toolchain(profile=profile, request=request, runtime=runtime)
+    assert set(projection) == {
+        "schema_version", "toolchain_preflight_id", "toolchain_preflight_hash",
+        "full_render_request_id", "full_render_request_hash", "full_render_profile_id",
+        "full_render_profile_hash", "provenance_fixture_id", "provenance_fixture_hash",
+        "profile_catalog_sha256", "package_lock_sha256", "runtime_rows",
+    }
+    assert [row["kind"] for row in projection["runtime_rows"]] == ["node", "remotion", "ffmpeg", "ffprobe"]
+    assert all("root" not in key and "path" not in key for row in projection["runtime_rows"] for key in row)
+    with pytest.raises(FullRenderError, match="REMOTION_TOOLCHAIN_UNAVAILABLE"):
+        preflight_full_render_toolchain(profile=profile, request=request,
+            runtime=ToolchainRuntimeBindingV1(runtime.provenance_fixture_id, runtime.provenance_fixture_hash,
+                runtime.platform, Path("C:/missing-node-root"), runtime.remotion_root,
+                runtime.ffmpeg_root, runtime.ffprobe_root))
+    with pytest.raises(FullRenderError, match="FFMPEG_UNAVAILABLE"):
+        preflight_full_render_toolchain(profile=profile, request=request,
+            runtime=ToolchainRuntimeBindingV1(runtime.provenance_fixture_id, runtime.provenance_fixture_hash,
+                runtime.platform, runtime.node_root, runtime.remotion_root,
+                Path("C:/missing-ffmpeg-root"), runtime.ffprobe_root))
