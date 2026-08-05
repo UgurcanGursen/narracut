@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 NEXT.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 NEXT.
 
 ## AI execution policy
 
@@ -11,13 +11,13 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Plan and independently audit the bounded Phase 9 Manual LLM Gateway, Research
-Engine and Persistent Claim Store contract before implementation. Phase 8 is
+Plan and independently audit the bounded Phase 10 Hierarchical Story,
+Narrative and Editorial Planner contract before implementation. Phase 9 is
 closed; do not reopen it except for a demonstrated regression.
 
 Do not implement provider API execution, browser-driven LLM automation, paid
-LLM calls, Phase 10 planning, queue/retry infrastructure, or UI expansion in
-the Phase 9 planning task. Development remains REPLAY/MANUAL_UI-first.
+LLM calls, queue/retry infrastructure, or UI expansion in the Phase 10
+planning task. Development remains REPLAY/MANUAL_UI-first.
 
 The Phase 4B instruction and evidence block below are historical and
 superseded by the completed Phase 4 closure and the current Phase 8 planning

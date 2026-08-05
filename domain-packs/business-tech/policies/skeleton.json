@@ -14,6 +14,42 @@
       "mandatory_primary_source_types": [
         "regulator_filing"
       ]
+    },
+    "claim_research_policy": {
+      "policy_version": "CLAIM-RESEARCH-POLICY-V1",
+      "allowed_claim_types": [
+        "company_statement",
+        "reported_metric",
+        "market_reaction"
+      ],
+      "allowed_claim_statuses": [
+        "reported",
+        "attributed",
+        "contested"
+      ],
+      "allowed_authority_tokens": [
+        "primary",
+        "official",
+        "reported"
+      ],
+      "allowed_contradiction_kinds": [
+        "value_conflict",
+        "status_conflict"
+      ],
+      "allowed_date_precisions": [
+        "day",
+        "month",
+        "year"
+      ],
+      "allowed_safe_wording_tokens": [
+        "reported",
+        "attributed",
+        "according_to_source"
+      ],
+      "allowed_visible_contradiction_wording_tokens": [
+        "sources",
+        "differ"
+      ]
     }
   },
   "visual": {

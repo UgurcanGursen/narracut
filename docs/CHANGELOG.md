@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-05 - Phase 9 Manual LLM Gateway and Research closure
+
+- Added a Domain-Pack-bound, REPLAY/MANUAL_UI-first task gateway and exact
+  manual task packages; provider and browser automation interfaces remain
+  explicitly unavailable.
+- Added canonical response import, scoped repair packages, Phase 6 capture
+  binding, immutable SQLite research records and deterministic JSONL export.
+- Added fail-closed task/response revisions and cross-project/policy lineage
+  checks for sources, facts, claims, edges, contradictions and chronology.
+- Final independent targeted audit: PASS; final regression gate:
+  `102 passed, 1 skipped`.
+
 ## 2026-08-05 - Phase 8 Asset Ingestion, Catalog and Semantic Index closure
 
 - Added a local REPLAY-only semantic asset catalog with exact-byte provenance,

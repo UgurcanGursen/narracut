@@ -11,7 +11,7 @@
     "domain_id": "business-tech",
     "domain_pack_version": "0.1.0",
     "profile_id": "dpf_business_default",
-    "policy_snapshot_id": "dps_f9f4c3d275acdae43371",
+    "policy_snapshot_id": "dps_0e068025821bf5a9cd96",
     "policy_snapshot_ref": "domain/policy_snapshot.json",
     "profile": {
       "schema_version": "3.0.0",
@@ -28,7 +28,7 @@
       "domain_id": "business-tech",
       "domain_pack_version": "0.1.0",
       "profile_id": "dpf_business_default",
-      "manifest_hash": "sha256:8710c97231c59357726be559554f03f226e0c840ebca12a6ba93e5692bc8510b",
+      "manifest_hash": "sha256:4f5a291f1d992d5227410081b7a8b70f6f921d90ae17363372e1fce6140b618e",
       "resolved_policy": {
         "policy_bundles": [
           {
@@ -49,6 +49,16 @@
                   "mandatory_primary_source_types": [
                     "regulator_filing"
                   ]
+                },
+                "claim_research_policy": {
+                  "policy_version": "CLAIM-RESEARCH-POLICY-V1",
+                  "allowed_claim_types": ["company_statement", "reported_metric", "market_reaction"],
+                  "allowed_claim_statuses": ["reported", "attributed", "contested"],
+                  "allowed_authority_tokens": ["primary", "official", "reported"],
+                  "allowed_contradiction_kinds": ["value_conflict", "status_conflict"],
+                  "allowed_date_precisions": ["day", "month", "year"],
+                  "allowed_safe_wording_tokens": ["reported", "attributed", "according_to_source"],
+                  "allowed_visible_contradiction_wording_tokens": ["sources", "differ"]
                 }
               },
               "visual": {
@@ -166,8 +176,8 @@
       "immutable": true,
       "created_at": "2026-07-25T00:00:00Z",
       "version": 1,
-      "snapshot_id": "dps_f9f4c3d275acdae43371",
-      "canonical_hash": "sha256:f9f4c3d275acdae4337169d8d6390deb4afe1865fc5db3a2aa25115c7f5ddf36"
+      "snapshot_id": "dps_0e068025821bf5a9cd96",
+      "canonical_hash": "sha256:0e068025821bf5a9cd966bc14f5af3a90f5546dc0cdea2e6820978a157bd5242"
     }
   },
   "documents": [],
@@ -187,7 +197,7 @@
     "updated_at": "2026-07-25T00:00:00Z",
     "domain_id": "business-tech",
     "domain_pack_version": "0.1.0",
-    "policy_snapshot_id": "dps_f9f4c3d275acdae43371",
+    "policy_snapshot_id": "dps_0e068025821bf5a9cd96",
     "status": "ready",
     "version": 1
   },

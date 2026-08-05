@@ -2,6 +2,15 @@
 
 Son guncelleme: 5 Agustos 2026
 
+## Faz 9 status note
+
+- Phase 9 is CLOSED as a local REPLAY/MANUAL_UI research boundary. It does not
+  call commercial LLM APIs, automate a web UI, crawl live URLs, or provide the
+  Studio UI; `LOCAL_MODEL` and `API` remain typed unavailable interfaces.
+- SQLite/JSONL proves immutable local research lineage, not a multi-user
+  PostgreSQL service, distributed queue/retry system, or production network
+  transport. Those remain later operational work.
+
 ## Faz 7 status note
 
 - Phase 7 is CLOSED. It proves exact, evidence-bound declarative visualization

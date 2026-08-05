@@ -1,5 +1,17 @@
 # Phase Acceptance
 
+## Phase 9 final acceptance â€” 2026-08-05
+
+| Gate | Result |
+|---|---|
+| Manual LLM Gateway and local task package | ACCEPT / CLOSED |
+| Domain-Pack-bound prompt/policy and no-browser boundary | PASS |
+| Source/fact/claim/edge/contradiction/chronology lineage | PASS |
+| Immutable task/response lifecycle and scoped repair | PASS |
+| Final targeted independent re-audit | PASS (no remaining BLOCKER) |
+| Source + V3 + Phase 9 regression gate | `102 passed, 1 skipped` |
+| Phase 9 overall | CLOSED |
+
 ## Phase 6 final acceptance — 2026-08-05
 
 | Gate | Result |

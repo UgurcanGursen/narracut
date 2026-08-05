@@ -8,7 +8,9 @@
   "policy_bundle_refs": [
     "policies/skeleton.json"
   ],
-  "prompt_bundle_refs": [],
+  "prompt_bundle_refs": [
+    "prompts/research_discovery.md"
+  ],
   "extensions": {
     "editorial_roles": [
       {

@@ -1,11 +1,24 @@
 # Current State
 
 Son guncelleme: 5 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 NEXT**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 NEXT**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 8 closed; Phase 9 next
+## Latest authoritative state - Phase 9 closed; Phase 10 next
+
+- Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
+  accepted and closed. Canonical contract:
+  `docs/specifications/phase9_manual_llm_research_claim_store_contract.md`.
+- The bounded implementation is REPLAY/MANUAL_UI-first: it creates
+  Domain-Pack-bound task packages, accepts only canonical task-bound results,
+  and persists source/fact/claim/edge/contradiction/chronology lineage in
+  SQLite with deterministic JSONL export. No provider API or browser bot was
+  introduced.
+- Final independent targeted re-audit: PASS (no remaining BLOCKER). Final
+  source/V3/Phase-9 gate: `102 passed, 1 skipped`.
+- Next task: Phase 10 planning/contract audit. Do not reopen Phase 9 except
+  for a demonstrated regression.
 
 - Phase 8 Asset Ingestion, Catalog and Semantic Index is accepted and closed.
   Canonical contract: `docs/specifications/phase8_asset_catalog_semantic_index_contract.md`.
