@@ -12,6 +12,7 @@ import hashlib
 
 from .contracts import PlannerContractError, PlannerSnapshotV1
 from .policy import PlannerPolicyV1
+from .store import PlannerStore
 
 
 class PlannerSnapshotService:
@@ -61,8 +62,9 @@ class PlannerSnapshotService:
         return PlannerSnapshotV1("template_capability", project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data()
 
     def continuity(self, *, project_id: str, policy: PlannerPolicyV1,
-                   accepted_state_records: Iterable[Mapping[str, object]]) -> dict[str, object]:
-        pairs = self._records(kind="continuity",project_id=project_id,policy=policy,records=accepted_state_records,id_key="continuity_state_id",hash_key="continuity_state_hash")
+                   store: PlannerStore) -> dict[str, object]:
+        if type(store) is not PlannerStore: raise PlannerContractError("PLANNER_CONTINUITY_SNAPSHOT_INVALID")
+        pairs = store.continuity_pairs(project_id=project_id)
         if len(pairs) > 2:
             raise PlannerContractError("PLANNER_CONTINUITY_SNAPSHOT_INVALID")
         return PlannerSnapshotV1("continuity", project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data()

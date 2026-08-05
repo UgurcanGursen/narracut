@@ -22,6 +22,7 @@ class PlannerStore:
         self.connection.execute("PRAGMA foreign_keys = ON")
         self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_records(kind TEXT NOT NULL, record_id TEXT NOT NULL, record_hash TEXT NOT NULL, project_id TEXT NOT NULL, payload BLOB NOT NULL, PRIMARY KEY(kind,record_id), UNIQUE(kind,record_hash))")
         self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_snapshots(kind TEXT NOT NULL, snapshot_id TEXT NOT NULL, snapshot_hash TEXT NOT NULL, project_id TEXT NOT NULL, payload BLOB NOT NULL, PRIMARY KEY(kind,snapshot_id), UNIQUE(kind,snapshot_hash))")
+        self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_continuity(state_id TEXT PRIMARY KEY, state_hash TEXT NOT NULL UNIQUE, project_id TEXT NOT NULL, policy_snapshot_id TEXT NOT NULL, policy_snapshot_hash TEXT NOT NULL, payload BLOB NOT NULL)")
 
     def close(self) -> None:
         self.connection.close()
@@ -102,6 +103,19 @@ class PlannerStore:
         raw=json.loads(row[2].decode("utf-8"))
         if encode_canonical_json_bytes(raw)!=row[2]: raise PlannerContractError("PLANNER_SNAPSHOT_CANONICAL_INVALID")
         validate_snapshot_record(kind,raw); return raw
+
+    def put_continuity(self, *, state_id: str, state_hash: str, project_id: str, payload: Mapping[str, object]) -> None:
+        if self.policy is None or not state_id.startswith("cont_") or not state_hash.startswith("sha256:") or payload.get("project_id") != project_id or payload.get("policy_snapshot_id") != self.policy.policy_snapshot_id or payload.get("policy_snapshot_hash") != self.policy.policy_snapshot_hash or payload.get("status") != "accepted" or encode_canonical_json_bytes(payload) != encode_canonical_json_bytes(dict(payload)):
+            raise PlannerContractError("PLANNER_CONTINUITY_INVALID")
+        raw=encode_canonical_json_bytes(dict(payload)); old=self.connection.execute("SELECT payload,state_hash FROM phase10_continuity WHERE state_id=?",(state_id,)).fetchone()
+        if old is not None:
+            if old != (raw,state_hash): raise PlannerContractError("PLANNER_CONTINUITY_IMMUTABILITY")
+            return
+        self.connection.execute("INSERT INTO phase10_continuity(state_id,state_hash,project_id,policy_snapshot_id,policy_snapshot_hash,payload) VALUES(?,?,?,?,?,?)",(state_id,state_hash,project_id,self.policy.policy_snapshot_id,self.policy.policy_snapshot_hash,raw)); self.connection.commit()
+
+    def continuity_pairs(self, *, project_id: str) -> tuple[tuple[str,str], ...]:
+        rows=self.connection.execute("SELECT state_id,state_hash FROM phase10_continuity WHERE project_id=? ORDER BY state_id DESC LIMIT 2",(project_id,)).fetchall()
+        return tuple(rows)
 
     def accepted(self, *, kind: str, project_id: str) -> tuple[dict[str, object], ...]:
         rows = self.connection.execute("SELECT record_id,record_hash FROM phase10_records WHERE kind=? AND project_id=? ORDER BY record_id", (kind, project_id)).fetchall()
