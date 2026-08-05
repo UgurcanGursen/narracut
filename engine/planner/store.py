@@ -9,7 +9,7 @@ from typing import Mapping
 
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
-from .contracts import PlannerContractError, validate_record, validate_snapshot_record
+from .contracts import ChapterBriefV1, GlobalOutlineV1, NarrativeBeatV1, PlannerAssetBriefV1, PlannerContractError, SequencePlanV1, validate_record, validate_snapshot_record
 from .policy import PlannerPolicyV1
 
 
@@ -69,6 +69,18 @@ class PlannerStore:
             raise PlannerContractError("PLANNER_STORE_POLICY_INVALID")
         if kind == "sequence_plan" and (type(value["duration_ms"]) is not int or not policy.min_sequence_duration_ms <= value["duration_ms"] <= policy.max_sequence_duration_ms or not value["claim_id_hash_pairs"] or len(value["claim_id_hash_pairs"]) > policy.max_claims_per_sequence or len(value["planner_asset_brief_id_hash_pairs"]) > policy.max_asset_briefs_per_sequence or not policy.min_edit_events_per_sequence <= len(value["edit_event_intents"]) <= policy.max_edit_events_per_sequence):
             raise PlannerContractError("PLANNER_STORE_POLICY_INVALID")
+        self._semantic_record(kind, value)
+
+    def _semantic_record(self, kind: str, value: Mapping[str, object]) -> None:
+        p=self.policy; common=(value["status"],value["version"],value["created_at"],value["supersedes_id"],value["supersedes_hash"])
+        try:
+            if kind=="outline": rebuilt=GlobalOutlineV1(value["project_id"],value["policy_snapshot_id"],value["policy_snapshot_hash"],value["central_question"],value["hook"],tuple(value["chapter_order"]),tuple(value["major_reveals"]),tuple(value["counterarguments"]),value["payoff"],value["final_question"],*common).data()
+            elif kind=="chapter_brief": rebuilt=ChapterBriefV1(value["project_id"],p,value["outline_id"],value["outline_hash"],value["order"],value["goal"],value["entry_state"],value["exit_state"],tuple(map(tuple,value["claim_id_hash_pairs"])),tuple(map(tuple,value["required_evidence_id_hash_pairs"])),value["main_reveal"],value["counterpoint"],tuple(value["visual_opportunity_tokens"]),value["continuity_handoff"],value["estimated_duration_ms"],*common).data()
+            elif kind=="narrative_beat": rebuilt=NarrativeBeatV1(value["project_id"],p,value["chapter_brief_id"],value["chapter_brief_hash"],value["order"],value["core_kind"],value["domain_subtype"],value["editorial_role"],tuple(map(tuple,value["claim_id_hash_pairs"])),value["narration_intent"],tuple(value["safe_wording_tokens"]),value["estimated_duration_ms"],*common).data()
+            elif kind=="planner_asset_brief": rebuilt=PlannerAssetBriefV1(value["project_id"],p,value["narrative_beat_id"],value["narrative_beat_hash"],value["order"],value["visual_role"],tuple(map(tuple,value["evidence_id_hash_pairs"])),value["purpose"],tuple(value["preferred_type_tokens"]),tuple(map(tuple,value["avoid_family_id_hash_pairs"])),value["fallback_mode"],*common).data()
+            else: rebuilt=SequencePlanV1(value["project_id"],p,value["narrative_beat_id"],value["narrative_beat_hash"],value["order"],value["narration_intent"],value["duration_ms"],tuple(map(tuple,value["claim_id_hash_pairs"])),tuple(map(tuple,value["evidence_id_hash_pairs"])),tuple(map(tuple,value["template_capability_id_hash_pairs"])),tuple(map(tuple,value["planner_asset_brief_id_hash_pairs"])),tuple(value["edit_event_intents"]),tuple(value["text_emphasis_intents"]),tuple(value["audio_direction_tokens"]),None if value["incoming_continuity_state_id_hash"] is None else tuple(value["incoming_continuity_state_id_hash"]),None if value["outgoing_continuity_state_id_hash"] is None else tuple(value["outgoing_continuity_state_id_hash"]),*common).data()
+        except (KeyError,TypeError,ValueError): raise PlannerContractError("PLANNER_STORE_SEMANTIC_INVALID")
+        if rebuilt != value: raise PlannerContractError("PLANNER_STORE_SEMANTIC_INVALID")
 
     def get(self, *, kind: str, record_id: str, expected_hash: str, project_id: str) -> dict[str, object]:
         row = self.connection.execute("SELECT record_hash,project_id,payload FROM phase10_records WHERE kind=? AND record_id=?", (kind,record_id)).fetchone()
@@ -81,6 +93,7 @@ class PlannerStore:
         if encode_canonical_json_bytes(raw) != row[2]:
             raise PlannerContractError("PLANNER_STORE_CANONICAL_INVALID")
         _, calculated_hash, value = validate_record(kind, raw)
+        self._validate_policy(kind,value)
         if calculated_hash != row[0]:
             raise PlannerContractError("PLANNER_STORE_CANONICAL_INVALID")
         return value
