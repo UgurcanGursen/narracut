@@ -11,15 +11,16 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Plan and independently audit the bounded Phase 10 Hierarchical Story,
-Narrative and Editorial Planner contract before implementation. Phase 9 is
-closed; do not reopen it except for a demonstrated regression.
+Implement the bounded Phase 10 Hierarchical Story, Narrative and Editorial
+Planner in the frozen order. Phase 9 is closed; do not reopen it except for a
+demonstrated regression.
 
-Canonical candidate contract:
+Canonical accepted contract:
 `docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
-The audit must decide whether the separate planner artifacts, the additive
-gateway adapter, the typed Domain Pack policy, and the deferred V3/EDL bridge
-are safe. It must not implement Phase 10.
+Independent contract audit: PASS (no remaining BLOCKER). Start only with the
+typed planner policy, contract-only dummy fixture and snapshot regeneration;
+then add planner artifact models/store. The deferred V3/EDL bridge remains
+outside the first implementation slice.
 
 Do not implement provider API execution, browser-driven LLM automation, paid
 LLM calls, queue/retry infrastructure, or UI expansion in the Phase 10

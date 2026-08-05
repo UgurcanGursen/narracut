@@ -19,9 +19,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   source/V3/Phase-9 gate: `102 passed, 1 skipped`.
 - Phase 10 candidate contract is frozen at
   `docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
-  Its next required gate is a read-only independent contract audit; no Phase
-  10 implementation is authorized before that gate. Do not reopen Phase 9
-  except for a demonstrated regression.
+  Its independent contract audit passed with no remaining BLOCKER. Bounded
+  Phase 10 implementation is authorized in the frozen order; do not reopen
+  Phase 9 except for a demonstrated regression.
 
 - Phase 8 Asset Ingestion, Catalog and Semantic Index is accepted and closed.
   Canonical contract: `docs/specifications/phase8_asset_catalog_semantic_index_contract.md`.

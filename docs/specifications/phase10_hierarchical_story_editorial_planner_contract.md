@@ -44,8 +44,8 @@ allowed_domain_beat_subtypes
 allowed_editorial_roles
 allowed_visual_role_tokens
 allowed_safe_wording_tokens
-min_sequence_duration_seconds
-max_sequence_duration_seconds
+min_sequence_duration_ms
+max_sequence_duration_ms
 max_claims_per_sequence
 max_asset_briefs_per_sequence
 min_edit_events_per_sequence
@@ -65,43 +65,65 @@ policy.  There is no `if domain == ...` branch and no silent core default.
 
 ## Immutable artifacts
 
-Every record has `schema_version`, stable ID, canonical content hash,
-`project_id`, `policy_snapshot_id`, `policy_snapshot_hash`, parent IDs and a
-status.  IDs/hashes are assigned by deterministic services, never by an LLM.
+Every record has an exact canonical UTF-8 JSON serializer/loader and these
+common fields: `schema_version`, its stable `*_id`, `*_hash`, `project_id`,
+`policy_snapshot_id`, `policy_snapshot_hash`, `status`, `version`,
+`created_at`, `parent_id` and `parent_hash` (null only for the outline).
+Children bind their parent by the exact ID/hash pair. IDs/hashes are assigned
+by deterministic services, never by an LLM. Stores are append-only: a changed
+artifact creates a successor with `supersedes_id/supersedes_hash`, and never
+mutates accepted bytes.
 
 ```text
 GlobalOutlineV1
-  outline_id, central_question, hook, chapter_order, major_reveals,
-  counterarguments, payoff, final_question
+  outline_id, outline_hash, project_id, policy_snapshot_id,
+  policy_snapshot_hash, central_question, hook, chapter_order,
+  major_reveals, counterarguments, payoff, final_question, status, version
 
 ChapterBriefV1
-  chapter_id, outline_id, order, goal, entry_state, exit_state, claim_ids,
-  required_evidence_ids, main_reveal, counterpoint, visual_opportunity_tokens,
-  continuity_handoff, estimated_duration_seconds
+  chapter_brief_id, chapter_brief_hash, outline_id, outline_hash, order, goal,
+  entry_state, exit_state, claim_id_hash_pairs, required_evidence_id_hash_pairs,
+  main_reveal, counterpoint, visual_opportunity_tokens, continuity_handoff,
+  estimated_duration_ms, status, version
 
 NarrativeBeatV1
-  beat_id, chapter_id, order, core_kind, domain_subtype, editorial_role,
-  claim_ids, narration_intent, safe_wording_tokens, estimated_duration_seconds
+  narrative_beat_id, narrative_beat_hash, chapter_brief_id, chapter_brief_hash,
+  order, core_kind, domain_subtype, editorial_role, claim_id_hash_pairs,
+  narration_intent, safe_wording_tokens, estimated_duration_ms, status, version
 
 SequencePlanV1
-  plan_id, chapter_id, beat_id, order, narration_intent, claim_ids,
-  evidence_ids, preferred_template_capability_ids, asset_briefs,
-  edit_event_intents, text_emphasis_intents, audio_direction_tokens,
-  incoming_continuity_state, outgoing_continuity_state
+  sequence_plan_id, sequence_plan_hash, narrative_beat_id, narrative_beat_hash,
+  order, narration_intent, duration_ms, claim_id_hash_pairs,
+  evidence_id_hash_pairs, template_capability_id_hash_pairs,
+  planner_asset_brief_id_hash_pairs, edit_event_intents, text_emphasis_intents,
+  audio_direction_tokens, incoming_continuity_state_id_hash,
+  outgoing_continuity_state_id_hash, status, version
 
-AssetBriefV1
-  brief_id, visual_role, evidence_ids, purpose, preferred_type_tokens,
-  avoid_family_ids, fallback_mode
+PlannerAssetBriefV1
+  planner_asset_brief_id, planner_asset_brief_hash, narrative_beat_id,
+  narrative_beat_hash, order, visual_role, evidence_id_hash_pairs, purpose,
+  preferred_type_tokens, avoid_family_id_hash_pairs, fallback_mode
 
 PlannerAssemblyRequestV1
-  request_id, ordered_sequence_plan_ids, continuity_manifest_hash,
-  source_claim_store_hash, asset_catalog_hash, template_capability_hash
+  request_id, request_hash, project_id, policy_snapshot_id,
+  policy_snapshot_hash, ordered_sequence_plan_id_hash_pairs,
+  claim_evidence_snapshot_id_hash, asset_catalog_snapshot_id_hash,
+  template_capability_snapshot_id_hash, continuity_snapshot_id_hash
 ```
 
-`AssetBriefV1` uses only Phase 8 policy-approved role/type tokens and an
-explicit fallback mode.  `fallback_mode` is `fail_closed` or
+`PlannerAssetBriefV1` is deliberately not Phase 8 `AssetBriefV1`; it is a
+planner-only request shape.  Its conversion to Phase 8's closed asset brief is
+a separate audited, fail-closed adapter and is out of this phase. It uses only
+Phase 8 policy-approved role/type tokens and an explicit fallback mode.
+`fallback_mode` is `fail_closed` or
 `require_review`; generic stock is never implicit.  An evidence-bearing brief
 must reference existing source/claim evidence.
+
+The planner persists briefs before the sequence that references them. Briefs
+bind only their already-stable `NarrativeBeatV1` parent; a `SequencePlanV1`
+contains their exact ID/hash pairs. This is a deliberately one-way dependency:
+no brief carries a sequence-plan ID or hash, so canonical identity generation
+cannot form a hash cycle.
 
 ## Gateway and task packages
 
@@ -132,6 +154,20 @@ unsupported beat/template/visual tokens; duration outside policy bounds;
 missing evidence for an evidence role; generic-stock fallback; duplicate or
 non-contiguous order; insufficient/excess edit-event intents; and broken
 continuity handoff.
+
+`duration_ms` and every estimated duration are positive integers on a
+millisecond grid—floats are forbidden. A sequence requires
+`min_sequence_duration_ms <= duration_ms <= max_sequence_duration_ms`; beat
+and chapter estimates must exactly equal their child sums.
+
+Before task-package creation, read-only snapshot adapters produce canonical,
+immutable views: `ClaimEvidenceSnapshotV1` (accepted ClaimStore
+claim/source/evidence ID-hash closure), `AssetCatalogSnapshotV1` (eligible
+Phase 8 family ID-hash view), `TemplateCapabilitySnapshotV1` (ordered Phase 5
+definition/capability ID-hash view) and `ContinuitySnapshotV1` (the two prior
+accepted continuity-state ID-hash pairs). Their producer service, canonical
+projection and hash are the only legal sources for the corresponding planner
+context fields. The assembly request binds these exact snapshot ID/hash pairs.
 
 The assembler sorts accepted `SequencePlanV1` records by the explicit outline,
 chapter, beat and sequence order; checks immutable dependency hashes and emits

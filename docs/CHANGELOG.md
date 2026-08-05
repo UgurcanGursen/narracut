@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-05 - Phase 10 planner contract freeze
+
+- Added and independently audited the bounded hierarchical planner contract.
+- Kept Phase 8 asset briefs, Phase 9 research tasks and Phase 3 V3/EDL
+  artifacts isolated through new planner-only intermediate contracts.
+- Contract audit PASS after explicit hash lineage, duration and snapshot
+  provenance rules; bounded implementation is authorized.
+
 ## 2026-08-05 - Phase 9 Manual LLM Gateway and Research closure
 
 - Added a Domain-Pack-bound, REPLAY/MANUAL_UI-first task gateway and exact
