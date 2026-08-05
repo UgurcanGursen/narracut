@@ -13,10 +13,7 @@ import hashlib
 from .contracts import PlannerContractError, PlannerSnapshotV1
 from .policy import PlannerPolicyV1
 from .store import PlannerStore
-from .snapshot_types import ProducedPlannerSnapshot
-
-
-_PRODUCER_CAPABILITY = object()
+from .snapshot_types import ProducedPlannerSnapshot, _PRODUCER_CAPABILITY
 
 
 class PlannerSnapshotService:
