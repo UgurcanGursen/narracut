@@ -34,6 +34,14 @@ def _fail(code: str) -> None:
     raise ResearchError(code)
 
 
+def _snapshot_refs(value: tuple[str, ...]) -> tuple[str, ...]:
+    allowed={"claim_evidence", "asset_catalog", "template_capability", "continuity"}
+    if type(value) is not tuple: _fail("PLANNER_CONTEXT_INVALID")
+    result=tuple(value)
+    if any(type(item) is not str or len(item.split("|")) != 3 or item.split("|")[0] not in allowed or not item.split("|")[1].startswith("psnap_") or not item.split("|")[2].startswith("sha256:") for item in result) or len({item.split("|")[0] for item in result}) != len(result): _fail("PLANNER_CONTEXT_INVALID")
+    return result
+
+
 @dataclass(frozen=True)
 class PlannerTaskV1:
     task_id: str; task_hash: str; logical_task_id: str; supersedes_task_id: str | None; task_type: str; project_id: str; policy_snapshot_id: str; policy_snapshot_hash: str; prompt_template_ref: str; prompt_hash: str; backend_mode: BackendMode; parent_id: str | None; parent_hash: str | None; context_snapshot_hashes: tuple[str,...]; expected_result_fields: tuple[str,...]; status: str; attempt: int; created_at: str; completed_at: str | None
@@ -46,6 +54,7 @@ class PlannerTaskV1:
 
 class PlannerTaskService:
     def create(self, *, task_type: str, project_id: str, policy: PlannerPolicyV1, backend_mode: BackendMode, prompt_template_ref: str, domain_pack_root: Path, parent_id: str | None, parent_hash: str | None, context_snapshot_hashes: tuple[str,...], expected_result_fields: tuple[str,...], logical_task_id: str | None = None, supersedes_task_id: str | None = None, status: str = "created", attempt: int = 0, created_at: str = "2026-08-05T00:00:00Z", completed_at: str | None = None) -> PlannerTaskV1:
+        context_snapshot_hashes=_snapshot_refs(context_snapshot_hashes)
         if task_type not in TASK_TYPES or not project_id.startswith("prj_") or backend_mode not in {BackendMode.REPLAY,BackendMode.MANUAL_UI} or (parent_id is None) != (parent_hash is None) or not expected_result_fields or status not in STATUSES or type(attempt) is not int or attempt < 0:
             _fail("PLANNER_TASK_CREATE_INVALID")
         try:

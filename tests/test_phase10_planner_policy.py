@@ -70,7 +70,7 @@ def test_assembly_is_deterministic_and_not_an_edl(tmp_path: Path) -> None:
 def test_task_package_and_response_binding_are_domain_pack_bound(tmp_path: Path) -> None:
     policy = planner_policy_from_snapshot(_snapshot())
     root = ROOT / "domain-packs" / "business-tech"
-    task = PlannerTaskService().create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
+    task = PlannerTaskService().create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=(), expected_result_fields=("outline",))
     package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, domain_pack_root=root, context={"snapshot_hashes": list(task.context_snapshot_hashes), "artifacts": {}})
     outline = GlobalOutlineV1("prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, "Why?", "Hook.", ("chapter_01",), ("Reveal",), (), "Payoff.", "Question?", "accepted", 1, STAMP).data()
     payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":outline}})
@@ -97,7 +97,7 @@ def test_dummy_and_business_packs_produce_the_same_task_package_structure(tmp_pa
     inputs = ((business_policy, ROOT / "domain-packs" / "business-tech"), (dummy_policy, ROOT / "tests" / "fixtures" / "domain-packs" / "dummy"))
     layouts = []
     for index, (policy, root) in enumerate(inputs):
-        task = PlannerTaskService().create(task_type="outline", project_id=f"prj_phase10_{index}", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
+        task = PlannerTaskService().create(task_type="outline", project_id=f"prj_phase10_{index}", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=(), expected_result_fields=("outline",))
         package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path / str(index), domain_pack_root=root, context={"snapshot_hashes": list(task.context_snapshot_hashes), "artifacts": {}})
         layouts.append(sorted(item.name for item in package.iterdir()))
     assert layouts[0] == layouts[1] == ["README.md", "expected_output.schema.json", "input_manifest.json", "planner_context.json", "prompt.md", "response"]
@@ -105,7 +105,7 @@ def test_dummy_and_business_packs_produce_the_same_task_package_structure(tmp_pa
 
 def test_rejected_task_repair_is_persistable(tmp_path: Path) -> None:
     policy = planner_policy_from_snapshot(_snapshot()); root = ROOT / "domain-packs" / "business-tech"; service = PlannerTaskService()
-    initial = service.create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
+    initial = service.create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=(), expected_result_fields=("outline",))
     tasks=PlannerTaskStore(tmp_path / "tasks.sqlite"); tasks.put(initial)
     ready=service.revise(previous=initial,policy=policy,domain_pack_root=root,status="package_ready",created_at=STAMP); tasks.put(ready)
     submitted=service.revise(previous=ready,policy=policy,domain_pack_root=root,status="response_submitted",created_at=STAMP); tasks.put(submitted)
