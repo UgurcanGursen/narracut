@@ -85,6 +85,10 @@ def test_produced_snapshot_cannot_be_mutated_after_source_projection(tmp_path: P
     payload_copy["snapshot_kind"] = "claim_evidence"
     with pytest.raises(AttributeError, match="PLANNER_SNAPSHOT_IMMUTABLE"):
         snapshot.kind = "claim_evidence"
+    with pytest.raises(AttributeError, match="PLANNER_SNAPSHOT_IMMUTABLE"):
+        snapshot._payload_bytes = b"{}"
+    with pytest.raises(AttributeError):
+        snapshot._payload.clear()
     assert snapshot.kind == "continuity"
     assert snapshot.payload["snapshot_kind"] == "continuity"
     PlannerSnapshotService().persist(store=store, snapshot=snapshot)
