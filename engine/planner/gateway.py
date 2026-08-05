@@ -12,7 +12,7 @@ import json
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
+from typing import Callable, Mapping
 
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.research.gateway import BackendMode, DomainPromptResolver, ResearchError, _bytes_hash
@@ -103,12 +103,14 @@ class PlannerTaskStore:
 
     def submit_response(self, *, task: PlannerTaskV1, payload: bytes, accepted: bool,
                         service: PlannerTaskService, policy: PlannerPolicyV1,
-                        domain_pack_root: Path, created_at: str) -> PlannerTaskV1:
+                        domain_pack_root: Path, created_at: str,
+                        importer: Callable[[PlannerTaskV1, bytes], None] | None = None) -> PlannerTaskV1:
         stored = self.get(task.task_id)
         if stored != task or task.status != "response_submitted":
             _fail("PLANNER_RESPONSE_STATE_INVALID")
         if accepted:
-            validate_response(task=task, payload=payload)
+            if importer is None: _fail("PLANNER_RESPONSE_IMPORTER_REQUIRED")
+            importer(task, payload)
         response_hash = _bytes_hash(payload)
         prior = self.connection.execute("SELECT response_hash FROM phase10_task_responses WHERE task_id=? AND accepted=1", (task.task_id,)).fetchone()
         if accepted and prior is not None and prior[0] != response_hash:
@@ -130,6 +132,27 @@ class PlannerTaskPackageBuilder:
         files={"README.md":f"# {task.task_type}\n\nBackend: {task.backend_mode.value}\n".encode(),"prompt.md":prompt.encode(),"input_manifest.json":encode_canonical_json_bytes(task_data),"planner_context.json":encode_canonical_json_bytes(dict(context)),"expected_output.schema.json":encode_canonical_json_bytes({"schema_version":PLANNER_RESPONSE_V1,"task_type":task.task_type,"result_fields":list(task.expected_result_fields)})}
         for name,value in files.items(): (target/name).write_bytes(value)
         return target
+
+
+class PlannerResultImporter:
+    """Accept a response only after its proposed planner record enters the store."""
+
+    _kinds = {"outline": ("outline", "outline"), "chapter_brief": ("chapter_brief", "chapter_brief"), "narrative_beats": ("narrative_beats", "narrative_beat"), "sequence_plan": ("sequence_plan", "sequence_plan")}
+
+    def __init__(self, store: object) -> None:
+        self.store = store
+
+    def __call__(self, task: PlannerTaskV1, payload: bytes) -> None:
+        raw = validate_response(task=task, payload=payload)
+        if task.task_type not in self._kinds: _fail("PLANNER_RESPONSE_IMPORT_INVALID")
+        result_key, kind = self._kinds[task.task_type]
+        value = raw["result"][result_key]
+        values = value if task.task_type == "narrative_beats" else [value]
+        if type(values) is not list or not values: _fail("PLANNER_RESPONSE_IMPORT_INVALID")
+        for record in values:
+            if type(record) is not dict or record.get("project_id") != task.project_id or record.get("policy_snapshot_id") != task.policy_snapshot_id or record.get("policy_snapshot_hash") != task.policy_snapshot_hash:
+                _fail("PLANNER_RESPONSE_IMPORT_INVALID")
+            self.store.put(kind=kind, record=record)
 
 
 class PlannerRepairBuilder:

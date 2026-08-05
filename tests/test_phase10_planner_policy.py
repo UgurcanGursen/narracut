@@ -10,7 +10,7 @@ from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.planner import (ChapterBriefV1, GlobalOutlineV1, NarrativeBeatV1,
                             PlannerAssembler, PlannerAssetBriefV1,
                             PlannerContractError, PlannerSnapshotV1,
-                            PlannerStore, PlannerTaskPackageBuilder, PlannerTaskStore,
+                            PlannerResultImporter, PlannerStore, PlannerTaskPackageBuilder, PlannerTaskStore,
                             PlannerTaskService, SequencePlanV1,
                             planner_policy_from_snapshot, validate_response)
 from engine.research import BackendMode
@@ -71,15 +71,18 @@ def test_task_package_and_response_binding_are_domain_pack_bound(tmp_path: Path)
     root = ROOT / "domain-packs" / "business-tech"
     task = PlannerTaskService().create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
     package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, domain_pack_root=root, context={"claims": []})
-    payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":{}}})
-    assert (package / "response").is_dir() and validate_response(task=task, payload=payload)["result"] == {"outline": {}}
+    outline = GlobalOutlineV1("prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, "Why?", "Hook.", ("chapter_01",), ("Reveal",), (), "Payoff.", "Question?", "accepted", 1, STAMP).data()
+    payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":outline}})
+    assert (package / "response").is_dir() and validate_response(task=task, payload=payload)["result"] == {"outline": outline}
     tasks = PlannerTaskStore(tmp_path / "tasks.sqlite"); tasks.put(task)
     service = PlannerTaskService()
     revision = service.revise(previous=task, policy=policy, domain_pack_root=root, status="package_ready", created_at=STAMP); tasks.put(revision)
     submitted = service.revise(previous=revision, policy=policy, domain_pack_root=root, status="response_submitted", created_at=STAMP); tasks.put(submitted)
-    submitted_payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":submitted.task_id,"task_hash":submitted.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":{}}})
-    accepted = tasks.submit_response(task=submitted, payload=submitted_payload, accepted=True, service=service, policy=policy, domain_pack_root=root, created_at=STAMP)
+    submitted_payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":submitted.task_id,"task_hash":submitted.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":outline}})
+    records = PlannerStore(tmp_path / "response.sqlite", policy=policy)
+    accepted = tasks.submit_response(task=submitted, payload=submitted_payload, accepted=True, service=service, policy=policy, domain_pack_root=root, created_at=STAMP, importer=PlannerResultImporter(records))
     assert accepted.status == "accepted" and tasks.get(accepted.task_id) == accepted
+    records.close()
     tasks.close()
 
 
