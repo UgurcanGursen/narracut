@@ -20,7 +20,7 @@ class PlannerSnapshotService:
     """The only producer of task/assembly context snapshot projections."""
 
     def claim_evidence(self, *, store: ClaimStore, project_id: str,
-                       policy: PlannerPolicyV1, claim_ids: Iterable[str]) -> dict[str, object]:
+                       policy: PlannerPolicyV1, claim_ids: Iterable[str]) -> ProducedPlannerSnapshot:
         pairs: list[tuple[str, str]] = []
         for claim_id in claim_ids:
             claim = store.claim(claim_id, project_id=project_id)
@@ -50,7 +50,7 @@ class PlannerSnapshotService:
         return tuple(sorted(pairs))
 
     def catalog(self, *, project_id: str, policy: PlannerPolicyV1,
-                catalog: AssetCatalogV1) -> dict[str, object]:
+                catalog: AssetCatalogV1) -> ProducedPlannerSnapshot:
         if type(catalog) is not AssetCatalogV1 or (catalog.project_id,catalog.policy_snapshot_id,catalog.policy_snapshot_hash) != (project_id,policy.policy_snapshot_id,policy.policy_snapshot_hash):
             raise PlannerContractError("PLANNER_CATALOG_SNAPSHOT_INVALID")
         families=sorted({record.visual_family_id for record in catalog.records})
@@ -60,14 +60,14 @@ class PlannerSnapshotService:
         return ProducedPlannerSnapshot("asset_catalog", payload, _PRODUCER_CAPABILITY)
 
     def capabilities(self, *, project_id: str, policy: PlannerPolicyV1,
-                     registry: TemplateRegistry) -> dict[str, object]:
+                     registry: TemplateRegistry) -> ProducedPlannerSnapshot:
         if type(registry) is not TemplateRegistry: raise PlannerContractError("PLANNER_CAPABILITY_SNAPSHOT_INVALID")
         pairs=tuple(("cap_" + hashlib.sha256(encode_canonical_json_bytes(definition.__dict__)).hexdigest()[:20], "sha256:" + hashlib.sha256(encode_canonical_json_bytes(definition.__dict__)).hexdigest()) for definition in registry.definitions())
         payload = PlannerSnapshotV1("template_capability", project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data()
         return ProducedPlannerSnapshot("template_capability", payload, _PRODUCER_CAPABILITY)
 
     def continuity(self, *, project_id: str, policy: PlannerPolicyV1,
-                   store: PlannerStore) -> dict[str, object]:
+                   store: PlannerStore) -> ProducedPlannerSnapshot:
         if type(store) is not PlannerStore: raise PlannerContractError("PLANNER_CONTINUITY_SNAPSHOT_INVALID")
         pairs = store.continuity_pairs(project_id=project_id)
         if len(pairs) > 2:

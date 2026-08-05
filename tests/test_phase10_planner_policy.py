@@ -10,7 +10,7 @@ from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.planner import (ChapterBriefV1, GlobalOutlineV1, NarrativeBeatV1,
                             PlannerAssembler, PlannerAssetBriefV1,
                             PlannerContractError, PlannerSnapshotV1,
-                            PlannerResultImporter, PlannerStore, PlannerTaskPackageBuilder, PlannerTaskStore,
+                            PlannerResultImporter, PlannerSnapshotService, PlannerStore, PlannerTaskPackageBuilder, PlannerTaskStore,
                             PlannerTaskService, SequencePlanV1,
                             planner_policy_from_snapshot, validate_response)
 from engine.research import BackendMode
@@ -71,6 +71,23 @@ def test_replay_assembly_is_deterministic_and_never_an_edl(tmp_path: Path) -> No
     first = PlannerAssembler().assemble(store=store, project_id="prj_phase10", policy_snapshot_id=policy.policy_snapshot_id, policy_snapshot_hash=policy.policy_snapshot_hash, snapshots=refs).data()
     second = PlannerAssembler().assemble(store=store, project_id="prj_phase10", policy_snapshot_id=policy.policy_snapshot_id, policy_snapshot_hash=policy.policy_snapshot_hash, snapshots=refs).data()
     assert first == second and first["request_id"].startswith("pareq_") and "edl" not in first and "renderer" not in first
+    store.close()
+
+
+def test_produced_snapshot_cannot_be_mutated_after_source_projection(tmp_path: Path) -> None:
+    """A source-produced snapshot cannot be retargeted before store ingress."""
+    policy = planner_policy_from_snapshot(_snapshot())
+    store = PlannerStore(tmp_path / "planner.sqlite", policy=policy)
+    snapshot = PlannerSnapshotService().continuity(
+        project_id="prj_phase10", policy=policy, store=store,
+    )
+    payload_copy = snapshot.payload
+    payload_copy["snapshot_kind"] = "claim_evidence"
+    with pytest.raises(AttributeError, match="PLANNER_SNAPSHOT_IMMUTABLE"):
+        snapshot.kind = "claim_evidence"
+    assert snapshot.kind == "continuity"
+    assert snapshot.payload["snapshot_kind"] == "continuity"
+    PlannerSnapshotService().persist(store=store, snapshot=snapshot)
     store.close()
 
 
