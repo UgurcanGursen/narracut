@@ -1,5 +1,20 @@
 # Phase Acceptance
 
+## Phase 6 final acceptance — 2026-08-05
+
+| Gate | Result |
+|---|---|
+| Source Acquisition and Evidence Treatment Engine | ACCEPT / CLOSED |
+| Challenge/paywall safe fallback and preview exclusion | PASS |
+| Exact target-text / region-manifest treatment | PASS |
+| Three-focus, feed-without-browser and manual snapshot treatment | PASS |
+| Policy-bound ranking and primary-source planner gate | PASS |
+| Final independent re-audit | PASS (`0/0/0`) |
+| Final source + V3 + motion cross-contract gate | `102 passed, 1 skipped` |
+| Phase 6 overall | CLOSED |
+
+Evidence: `baseline/phase6_final_acceptance_report.md`.
+
 ## Phase 5 final acceptance — 2026-08-05
 
 | Gate | Result |

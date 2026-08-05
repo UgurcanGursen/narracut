@@ -2,6 +2,19 @@
 
 Son guncelleme: 5 Agustos 2026
 
+## Faz 6 status note
+
+- Phase 6 is CLOSED. Its `REPLAY` acquisition adapters and evidence treatment
+  prove deterministic, content-addressed capture handling; they do not open
+  live URLs or establish a production web transport.
+- Production network safety (SSRF/private-address and redirect controls, MIME
+  and byte limits, timeouts, TLS), provider rate limits, persistent jobs and
+  retry/queue behavior remain explicitly out of scope for a later operational
+  phase.
+- Manual capture is a content-addressed local package, not a browser extension
+  or Review UI implementation. Phase 6 does not create a semantic asset
+  catalog, data visualization, or final video renderer integration.
+
 ## Faz 5 status note
 
 - Phase 5 is CLOSED. Its template library proves local REPLAY rendering and

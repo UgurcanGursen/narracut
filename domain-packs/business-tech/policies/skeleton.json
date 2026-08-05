@@ -1,11 +1,20 @@
 {
   "policy_version": "0.1.0",
   "research": {
-    "source_priority": [
-      "primary_document",
-      "company_filing",
-      "reputable_reporting"
-    ]
+    "source_priority_policy": {
+      "policy_version": "SOURCE-PRIORITY-POLICY-V1",
+      "ranked_source_types": [
+        "regulator_filing",
+        "company_filing",
+        "official_report",
+        "official_press_release",
+        "trusted_reporting",
+        "feed"
+      ],
+      "mandatory_primary_source_types": [
+        "regulator_filing"
+      ]
+    }
   },
   "visual": {
     "generic_stock_role": "transition_support",

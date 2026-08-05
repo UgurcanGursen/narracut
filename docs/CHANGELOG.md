@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-08-05 — Phase 6 closed
+
+- Closed the REPLAY-first Source Acquisition and Evidence Treatment Engine.
+- Added deterministic official-PDF, accessible-HTML, feed/API and manual
+  capture adapter boundaries; challenge/paywall fallback handling; exact
+  source-package lineage hashes; verified focus-region treatment and preview
+  binding.
+- Added policy-snapshot-backed source ranking and mandatory primary-source
+  planner gating without domain-specific adapter forks.
+- Updated business-tech policy snapshots and sample workspace identities after
+  the new source-priority policy became part of their resolved snapshots.
+- Final cross-contract gate: `102 passed, 1 skipped`; independent final
+  re-audit: PASS (`0/0/0`).
+
 ## 2026-08-05 — Phase 5 closed
 
 - Closed the core-neutral 15-capability Motion Template Library.

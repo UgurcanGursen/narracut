@@ -1,6 +1,6 @@
 {
   "schema_version": "3.0.0",
-  "snapshot_id": "dps_d18e9981c3f4bcca8e3f",
+  "snapshot_id": "dps_643097e95f225a4a2bd0",
   "domain_id": "business-tech",
   "domain_pack_version": "0.1.0",
   "profile_id": "dpf_business_default",
@@ -12,11 +12,20 @@
         "policy": {
           "policy_version": "0.1.0",
           "research": {
-            "source_priority": [
-              "primary_document",
-              "company_filing",
-              "reputable_reporting"
-            ]
+            "source_priority_policy": {
+              "policy_version": "SOURCE-PRIORITY-POLICY-V1",
+              "ranked_source_types": [
+                "regulator_filing",
+                "company_filing",
+                "official_report",
+                "official_press_release",
+                "trusted_reporting",
+                "feed"
+              ],
+              "mandatory_primary_source_types": [
+                "regulator_filing"
+              ]
+            }
           },
           "visual": {
             "generic_stock_role": "transition_support",
@@ -89,7 +98,7 @@
     "enabled_extensions": [],
     "overrides": {}
   },
-  "canonical_hash": "sha256:d18e9981c3f4bcca8e3f5a8f62c838d0e0ecbd14e6cd229e2702c08e2a3f3f2c",
+  "canonical_hash": "sha256:643097e95f225a4a2bd0baff53c81555eb23ee416effee978c5650615e632e9d",
   "immutable": true,
   "created_at": "2026-07-25T00:00:00Z",
   "version": 1

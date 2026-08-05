@@ -1,20 +1,29 @@
 # Current State
 
 Son guncelleme: 5 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 NOT_STARTED**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 NOT_STARTED**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 5 closed; Phase 6 not started
+## Latest authoritative state - Phase 6 closed; Phase 7 not started
+
+- Phase 6 Source Acquisition and Evidence Treatment Engine is accepted and
+  closed. Canonical evidence: `baseline/phase6_final_acceptance_report.md`.
+- REPLAY-first adapters cover official PDF, accessible HTML, feed/API and
+  manual capture packages without opening a live URL or bypassing an access
+  control. Capture lineage hashes document text and verified regions.
+- Challenge/paywall/cookie/auth states select a deterministic fallback, cannot
+  become previews, and cannot satisfy a mandatory primary-source gate.
+- Final cross-contract gate: `102 passed, 1 skipped`; independent final
+  re-audit: PASS (`0 BLOCKER / 0 MAJOR / 0 MINOR`).
+- Next task is Phase 7 Data Visualization and Metric Engine contract/acceptance
+  design. No Phase 7 implementation is authorized by this closure.
 
 - Phase 5 Core Motion Template Library is accepted and closed. Canonical
   evidence: `baseline/phase5_final_acceptance_report.md` and
   `baseline/phase5_contact_sheet.png`.
 - Closure gates: focused `5 passed` (including actual two-variant Remotion
   renders), V3 `85 passed, 1 skipped`, Remotion typecheck PASS and Node `5/5`.
-- Next task is planning/acceptance design for Phase 6 Source Acquisition and
-  Evidence Treatment Engine; no Phase 6 implementation is authorized here.
-
 - Phase 4 is accepted, closed and remote closed. Canonical final evidence:
   `baseline/phase4_final_acceptance_report.md`.
 - Phase 4B full-render closure implementation: `8bac18b386b38c03f5dc0f3f84dd10a5732ce891`.

@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 NOT_STARTED.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 NOT_STARTED.
 
 ## AI execution policy
 
@@ -11,12 +11,13 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Plan and independently audit the bounded Phase 6 Source Acquisition and
-Evidence Treatment Engine contract before any Phase 6 implementation. Phase 5
-is closed; do not reopen it except for a demonstrated regression.
+Plan and independently audit the bounded Phase 7 Data Visualization and Metric
+Engine contract before any Phase 7 implementation. Phase 6 is closed; do not
+reopen it except for a demonstrated regression.
 
-Do not implement provider acquisition, browser challenge bypass, queue/retry,
-UI expansion or any Phase 7+ capability in the planning task.
+Do not implement Phase 7 chart/metric production behavior, provider
+acquisition, browser challenge bypass, queue/retry, UI expansion or any Phase
+8+ capability in the planning task.
 
 The Phase 4B instruction and evidence block below are historical and
 superseded by the completed Phase 4 closure and this Phase 6 planning task.
