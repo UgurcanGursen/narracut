@@ -125,7 +125,7 @@ class PlannerTaskPackageBuilder:
     def build(self, *, task: PlannerTaskV1, workspace_root: Path, domain_pack_root: Path, context: Mapping[str, object]) -> Path:
         task_data=task.data()
         prompt=DomainPromptResolver().resolve(pack_root=domain_pack_root, prompt_template_ref=task.prompt_template_ref)
-        if _bytes_hash(prompt.encode("utf-8")) != task.prompt_hash or type(context) is not dict: _fail("PLANNER_PACKAGE_INVALID")
+        if _bytes_hash(prompt.encode("utf-8")) != task.prompt_hash or type(context) is not dict or set(context) != {"snapshot_hashes", "artifacts"} or type(context["snapshot_hashes"]) is not list or tuple(context["snapshot_hashes"]) != task.context_snapshot_hashes or type(context["artifacts"]) is not dict: _fail("PLANNER_PACKAGE_INVALID")
         root=workspace_root.resolve(); target=(root/"llm_tasks"/task.task_id).resolve()
         if not target.is_relative_to(root): _fail("PLANNER_PACKAGE_PATH_INVALID")
         target.mkdir(parents=True,exist_ok=False); (target/"response").mkdir()

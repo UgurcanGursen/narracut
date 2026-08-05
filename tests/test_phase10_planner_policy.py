@@ -70,7 +70,7 @@ def test_task_package_and_response_binding_are_domain_pack_bound(tmp_path: Path)
     policy = planner_policy_from_snapshot(_snapshot())
     root = ROOT / "domain-packs" / "business-tech"
     task = PlannerTaskService().create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
-    package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, domain_pack_root=root, context={"claims": []})
+    package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, domain_pack_root=root, context={"snapshot_hashes": list(task.context_snapshot_hashes), "artifacts": {}})
     outline = GlobalOutlineV1("prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, "Why?", "Hook.", ("chapter_01",), ("Reveal",), (), "Payoff.", "Question?", "accepted", 1, STAMP).data()
     payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":outline}})
     assert (package / "response").is_dir() and validate_response(task=task, payload=payload)["result"] == {"outline": outline}
@@ -97,6 +97,6 @@ def test_dummy_and_business_packs_produce_the_same_task_package_structure(tmp_pa
     layouts = []
     for index, (policy, root) in enumerate(inputs):
         task = PlannerTaskService().create(task_type="outline", project_id=f"prj_phase10_{index}", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
-        package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path / str(index), domain_pack_root=root, context={"claim_evidence": []})
+        package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path / str(index), domain_pack_root=root, context={"snapshot_hashes": list(task.context_snapshot_hashes), "artifacts": {}})
         layouts.append(sorted(item.name for item in package.iterdir()))
     assert layouts[0] == layouts[1] == ["README.md", "expected_output.schema.json", "input_manifest.json", "planner_context.json", "prompt.md", "response"]
