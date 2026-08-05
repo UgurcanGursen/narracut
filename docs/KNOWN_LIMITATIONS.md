@@ -1,6 +1,17 @@
 # Known Limitations
 
-Son guncelleme: 5 Agustos 2026
+Son guncelleme: 6 Agustos 2026
+
+## Faz 10 status note
+
+- Phase 10 is CLOSED as a local REPLAY/MANUAL_UI-first planning boundary. It
+  emits immutable planner artifacts and a deterministic assembly request; it
+  does not produce an EDL, renderer input, concrete asset selection, frame
+  assignment or final Workspace.
+- Provider API execution, browser automation, paid LLM calls, durable queues,
+  retries, multi-user planner persistence and Studio UI remain explicitly out
+  of scope. A V3/EDL translation requires a separately audited compatibility
+  contract.
 
 ## Faz 9 status note
 

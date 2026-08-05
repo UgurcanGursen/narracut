@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 NEXT.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 NEXT.
 
 ## AI execution policy
 
@@ -11,20 +11,19 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the bounded Phase 10 Hierarchical Story, Narrative and Editorial
-Planner in the frozen order. Phase 9 is closed; do not reopen it except for a
-demonstrated regression.
+Perform a read-only Phase 11 Audio Director and Source Audio Eligibility
+scope/contract reconciliation. Confirm the bounded contract against the
+accepted Phase 3 audio boundary, Phase 8 asset metadata and the closed Phase
+10 planner output; identify only the minimum authorized first implementation
+slice. Do not implement Phase 11 in this task.
 
-Canonical accepted contract:
+Phase 10 is accepted and closed. Its accepted contract is
 `docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
-Independent contract audit: PASS (no remaining BLOCKER). Start only with the
-typed planner policy, contract-only dummy fixture and snapshot regeneration;
-then add planner artifact models/store. The deferred V3/EDL bridge remains
-outside the first implementation slice.
+Do not reopen it except for a demonstrated regression.
 
-Do not implement provider API execution, browser-driven LLM automation, paid
-LLM calls, queue/retry infrastructure, or UI expansion in the Phase 10
-planning task. Development remains REPLAY/MANUAL_UI-first.
+Do not introduce provider API execution, browser-driven LLM automation, paid
+LLM calls, queue/retry infrastructure, UI expansion or a V3/EDL bridge during
+the Phase 11 reconciliation.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

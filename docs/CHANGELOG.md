@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-06 - Phase 10 Hierarchical Planner closure
+
+- Closed the Domain-Pack-bound hierarchical planner with immutable canonical
+  outline, chapter, beat, asset-brief and sequence-plan records; exact
+  REPLAY/MANUAL_UI task/response/repair handling; and deterministic assembly
+  request generation.
+- Sealed planner context ingress so source-produced snapshots retain immutable
+  canonical payload bytes before store persistence; the final targeted
+  independent re-audit passed.
+- Confirmed the Phase 10 boundary produces neither an EDL nor renderer input;
+  provider APIs, browser automation, queues/retries and UI remain deferred.
+
 ## 2026-08-05 - Phase 10 planner contract freeze
 
 - Added and independently audited the bounded hierarchical planner contract.

@@ -1,5 +1,22 @@
 # Phase Acceptance
 
+## Phase 10 final acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Hierarchical outline/chapter/beat/asset-brief/sequence contracts | ACCEPT / CLOSED |
+| Domain-Pack-bound policy and contract-only dummy-pack parity | PASS |
+| Immutable canonical planner artifacts and source-produced snapshots | PASS |
+| REPLAY/MANUAL_UI task packages, import validation and scoped repair | PASS |
+| Deterministic assembly request without EDL or renderer input | PASS |
+| Final targeted independent ingress re-audit | PASS (no BLOCKER / MAJOR) |
+| Source + V3 + Phase 9 + Phase 10 regression gate | `98 passed, 1 skipped` |
+| Phase 10 overall | CLOSED |
+
+The accepted boundary is REPLAY/MANUAL_UI-first. Provider APIs, browser
+automation, queues/retries, UI expansion and V3/EDL translation are not
+accepted Phase 10 capabilities.
+
 ## Phase 9 final acceptance â€” 2026-08-05
 
 | Gate | Result |

@@ -1,11 +1,27 @@
 # Current State
 
-Son guncelleme: 5 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 NEXT**
+Son guncelleme: 6 Agustos 2026
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 NEXT**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 9 closed; Phase 10 next
+## Latest authoritative state - Phase 10 closed; Phase 11 next
+
+- Phase 10 Hierarchical Story, Narrative and Editorial Planner is accepted and
+  closed. It provides Domain-Pack-bound, immutable outline, chapter, beat,
+  asset-brief and sequence-plan contracts; REPLAY/MANUAL_UI planner packages;
+  scoped repair; source-produced, canonical planner context snapshots; and a
+  deterministic assembly request only.
+- The planner is deliberately not an EDL, renderer input, provider API,
+  browser automation, queue/retry service or Studio UI. Phase 3 remains the
+  owner of EDL compilation; a V3/EDL bridge requires a separately audited
+  contract.
+- The final snapshot-ingress re-audit passed with no BLOCKER or MAJOR after
+  sealing source-produced payloads as canonical immutable bytes. Final related
+  gate: `98 passed, 1 skipped`; focused planner gate: `8 passed`.
+- The sole next task is a read-only Phase 11 Audio Director and Source Audio
+  Eligibility scope/contract reconciliation. Do not implement Phase 11 until
+  that bounded authorization work is complete.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:
@@ -17,11 +33,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   introduced.
 - Final independent targeted re-audit: PASS (no remaining BLOCKER). Final
   source/V3/Phase-9 gate: `102 passed, 1 skipped`.
-- Phase 10 candidate contract is frozen at
+- The Phase 10 accepted contract remains at
   `docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
-  Its independent contract audit passed with no remaining BLOCKER. Bounded
-  Phase 10 implementation is authorized in the frozen order; do not reopen
-  Phase 9 except for a demonstrated regression.
+  Reopen Phase 10 only for a demonstrated regression.
 
 - Phase 8 Asset Ingestion, Catalog and Semantic Index is accepted and closed.
   Canonical contract: `docs/specifications/phase8_asset_catalog_semantic_index_contract.md`.
