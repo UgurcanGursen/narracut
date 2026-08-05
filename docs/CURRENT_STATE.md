@@ -17,8 +17,11 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   introduced.
 - Final independent targeted re-audit: PASS (no remaining BLOCKER). Final
   source/V3/Phase-9 gate: `102 passed, 1 skipped`.
-- Next task: Phase 10 planning/contract audit. Do not reopen Phase 9 except
-  for a demonstrated regression.
+- Phase 10 candidate contract is frozen at
+  `docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
+  Its next required gate is a read-only independent contract audit; no Phase
+  10 implementation is authorized before that gate. Do not reopen Phase 9
+  except for a demonstrated regression.
 
 - Phase 8 Asset Ingestion, Catalog and Semantic Index is accepted and closed.
   Canonical contract: `docs/specifications/phase8_asset_catalog_semantic_index_contract.md`.
@@ -29,8 +32,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Final independent audit: PASS (`0 BLOCKER / 0 MAJOR / 0 MINOR`). Focused
   gate: `20 passed`; related broad non-FastAPI gate: `134 passed, 1 skipped`.
 - Provider acquisition, browser automation, production queues/retries, EDL
-  selection, UI, and paid APIs remain out of scope. The next task is Phase 9
-  planning; Phase 8 is reopened only for a demonstrated regression.
+  selection, UI, and paid APIs remain out of scope. This is historical Phase
+  8 context; Phase 8 is reopened only for a demonstrated regression.
 
 ## Historical Phase 7 state
 

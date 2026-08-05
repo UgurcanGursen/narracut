@@ -15,13 +15,18 @@ Plan and independently audit the bounded Phase 10 Hierarchical Story,
 Narrative and Editorial Planner contract before implementation. Phase 9 is
 closed; do not reopen it except for a demonstrated regression.
 
+Canonical candidate contract:
+`docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
+The audit must decide whether the separate planner artifacts, the additive
+gateway adapter, the typed Domain Pack policy, and the deferred V3/EDL bridge
+are safe. It must not implement Phase 10.
+
 Do not implement provider API execution, browser-driven LLM automation, paid
 LLM calls, queue/retry infrastructure, or UI expansion in the Phase 10
 planning task. Development remains REPLAY/MANUAL_UI-first.
 
-The Phase 4B instruction and evidence block below are historical and
-superseded by the completed Phase 4 closure and the current Phase 8 planning
-task.
+All instructions below this section are historical evidence only and are not
+active work authorization.
 
 Independently audit the historical candidate **Phase 4B - Render Terminality, Full Render
 and Artifact Lifecycle Completion** contract.
