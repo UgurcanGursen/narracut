@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from engine.contracts import DomainPackRegistry, DomainPolicyResolver, SchemaCatalog
-from engine.planner import GlobalOutlineV1, NarrativeBeatV1, PlannerAssemblyRequestV1, PlannerContractError, PlannerStore, PlannerTaskPackageBuilder, PlannerTaskService, SequencePlanV1, planner_policy_from_snapshot, validate_response
+from engine.planner import GlobalOutlineV1, NarrativeBeatV1, PlannerAssemblyRequestV1, PlannerContractError, PlannerRepairBuilder, PlannerStore, PlannerTaskPackageBuilder, PlannerTaskService, SequencePlanV1, planner_policy_from_snapshot, validate_response
 from engine.research import BackendMode
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
@@ -58,3 +58,10 @@ def test_manual_planner_package_and_response_binding(tmp_path: Path) -> None:
 def test_assembly_request_is_not_an_edl() -> None:
     request = PlannerAssemblyRequestV1("prj_phase10", "dps_policy", "sha256:" + "a" * 64, (("splan_01", "sha256:" + "b" * 64),), "sha256:" + "c" * 64, "sha256:" + "d" * 64, "sha256:" + "e" * 64, "sha256:" + "f" * 64).data()
     assert request["request_id"].startswith("pareq_") and "edl" not in request
+
+
+def test_repair_package_is_scoped(tmp_path: Path) -> None:
+    policy = planner_policy_from_snapshot(_snapshot()); service = PlannerTaskService()
+    failed = service.create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
+    repair, path = PlannerRepairBuilder().build(failed_task=failed, policy=policy, service=service, workspace_root=tmp_path, prompt_text="Repair only invalid fields.", context={"outline": {}}, original_response=b"{}", validation_errors=("outline_invalid",))
+    assert repair.parent_id == failed.task_id and (path / "response" / "validation_errors.json").is_file()

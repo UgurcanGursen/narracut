@@ -52,6 +52,19 @@ class PlannerTaskPackageBuilder:
         return target
 
 
+class PlannerRepairBuilder:
+    def build(self, *, failed_task: PlannerTaskV1, policy: PlannerPolicyV1,
+              service: PlannerTaskService, workspace_root: Path,
+              prompt_text: str, context: Mapping[str, object],
+              original_response: bytes, validation_errors: tuple[str, ...]) -> tuple[PlannerTaskV1, Path]:
+        if not validation_errors or any(type(item) is not str or not item for item in validation_errors): _fail("PLANNER_REPAIR_INVALID")
+        task = service.create(task_type="repair", project_id=failed_task.project_id, policy=policy, backend_mode=BackendMode.MANUAL_UI, parent_id=failed_task.task_id, parent_hash=failed_task.task_hash, context_snapshot_hashes=failed_task.context_snapshot_hashes, expected_result_fields=("original_task_id","errors"))
+        path = PlannerTaskPackageBuilder().build(task=task, workspace_root=workspace_root, prompt_text=prompt_text, context=context)
+        (path/"response"/"original_response.json").write_bytes(original_response)
+        (path/"response"/"validation_errors.json").write_bytes(encode_canonical_json_bytes({"errors":list(validation_errors)}))
+        return task,path
+
+
 def validate_response(*, task: PlannerTaskV1, payload: bytes) -> dict[str, object]:
     try: raw=json.loads(payload.decode("utf-8"))
     except (UnicodeDecodeError,json.JSONDecodeError): _fail("PLANNER_RESPONSE_INVALID")
