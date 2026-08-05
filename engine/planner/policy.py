@@ -39,6 +39,7 @@ def _tokens(value: object, *, allow_empty: bool = False) -> tuple[str, ...]:
 
 @dataclass(frozen=True)
 class PlannerPolicyV1:
+    manifest_hash: str
     policy_snapshot_id: str
     policy_snapshot_hash: str
     allowed_core_beat_kinds: tuple[str, ...]
@@ -77,4 +78,4 @@ def planner_policy_from_snapshot(snapshot: DomainPolicySnapshot) -> PlannerPolic
     ints = {name: raw[name] for name in required if name.endswith("_ms") or name.startswith(("max_", "min_"))}
     if any(type(value) is not int or value <= 0 for value in ints.values()) or raw["min_sequence_duration_ms"] > raw["max_sequence_duration_ms"] or raw["min_edit_events_per_sequence"] > raw["max_edit_events_per_sequence"]:
         _fail("PLANNER_POLICY_RANGE_INVALID")
-    return PlannerPolicyV1(snapshot.snapshot_id, snapshot.canonical_hash, **values, **ints)
+    return PlannerPolicyV1(snapshot.manifest_hash, snapshot.snapshot_id, snapshot.canonical_hash, **values, **ints)
