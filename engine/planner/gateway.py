@@ -55,6 +55,9 @@ class PlannerTaskV1:
 class PlannerTaskService:
     def create(self, *, task_type: str, project_id: str, policy: PlannerPolicyV1, backend_mode: BackendMode, prompt_template_ref: str, domain_pack_root: Path, parent_id: str | None, parent_hash: str | None, context_snapshot_hashes: tuple[str,...], expected_result_fields: tuple[str,...], logical_task_id: str | None = None, supersedes_task_id: str | None = None, status: str = "created", attempt: int = 0, created_at: str = "2026-08-05T00:00:00Z", completed_at: str | None = None) -> PlannerTaskV1:
         context_snapshot_hashes=_snapshot_refs(context_snapshot_hashes)
+        context_kinds={item.split("|")[0] for item in context_snapshot_hashes}
+        required_context={"outline": set(), "chapter_brief": {"claim_evidence"}, "narrative_beats": {"claim_evidence"}, "sequence_plan": {"claim_evidence", "asset_catalog", "template_capability", "continuity"}, "repair": context_kinds}
+        if context_kinds != required_context.get(task_type, set()): _fail("PLANNER_TASK_CONTEXT_SCOPE_INVALID")
         if task_type not in TASK_TYPES or not project_id.startswith("prj_") or backend_mode not in {BackendMode.REPLAY,BackendMode.MANUAL_UI} or (parent_id is None) != (parent_hash is None) or not expected_result_fields or status not in STATUSES or type(attempt) is not int or attempt < 0:
             _fail("PLANNER_TASK_CREATE_INVALID")
         try:
