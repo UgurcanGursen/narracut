@@ -5,9 +5,11 @@ import hashlib
 import json
 import shutil
 import subprocess
+import copy
 from pathlib import Path
 
 import pytest
+import engine.rendering.full_orchestrator as full_orchestrator_module
 
 from engine.rendering import FullRenderError, OutputTargetHead, provision_output_target
 from engine.rendering.full_orchestrator import (
@@ -105,6 +107,117 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
         assert f'"kind":"{kind}"' in registry
     assert outcome.receipt["payload"]["toolchain_preflight"]["toolchain_preflight_id"] in registry
     assert not list((tmp_path / "renders" / "attempts" / "attempt_replay_1").rglob("*"))
+
+
+def test_replay_orchestrator_replaces_unapproved_target_with_lineage(tmp_path: Path) -> None:
+    """The closed replacement policy is exercised by the real render path."""
+    ffmpeg, ffprobe = _tools()
+    props = _props()
+    target_id = "outt_" + "a" * 32
+    provision_output_target(project_root=tmp_path, head=OutputTargetHead(
+        target_id, props.project_id, props.sequence_id, "renders/final/replaced.mp4"))
+    audio, manifest, report = _inputs()
+    source = tmp_path / "replacement-source.wav"
+    made = subprocess.run([str(ffmpeg), "-y", "-f", "lavfi", "-i", "sine=frequency=440:sample_rate=48000",
+        "-t", "1", "-c:a", "pcm_f32le", str(source)], stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    assert made.returncode == 0
+    source_hash = _sha(source)
+    sources: dict[str, Path] = {}
+    for entry in manifest["entries"]:
+        entry["pcm_content_sha256"], entry["byte_length"] = source_hash, source.stat().st_size
+        sources[entry["pcm_artifact_id"]] = source
+    for entry in report["entries"]:
+        entry["materialized_pcm_content_sha256"], entry["byte_length"] = source_hash, source.stat().st_size
+    runtime = _runtime()
+    producer = make_remotion_full_producer(runtime=runtime,
+        fixture_assets=FixtureAssetResolver.load(FIXTURE_ROOT), fixture_root=FIXTURE_ROOT)
+    first = run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
+        pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources=sources,
+        output_target_id=target_id, profile_id=PROFILE_ID, profile_hash=PROFILE_HASH,
+        cancellation_ingress_id="cancel_replace_1", attempt_id="attempt_replace_1",
+        video_producer=producer, ffmpeg=ffmpeg, ffprobe=ffprobe, remotion_runtime=runtime)
+    assert first.status == "SUCCEEDED" and first.output_path is not None
+    old_bytes = first.output_path.read_bytes()
+    second = run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
+        pcm_manifest=copy.deepcopy(manifest), pcm_materialization_report=copy.deepcopy(report),
+        pcm_sources=sources, output_target_id=target_id, profile_id=PROFILE_ID,
+        profile_hash=PROFILE_HASH, cancellation_ingress_id="cancel_replace_2",
+        attempt_id="attempt_replace_2", video_producer=producer, ffmpeg=ffmpeg,
+        ffprobe=ffprobe, remotion_runtime=runtime)
+    assert second.status == "SUCCEEDED" and second.output_path is not None
+    from engine.rendering.lifecycle_registry import resolve_target_head
+    head = resolve_target_head(project_root=tmp_path, output_target_id=target_id)
+    assert head["revision"] == 3 and head["replacement_policy"] == "REPLACE_UNAPPROVED_V1"
+    replacement = second.receipt["payload"]["replacement"]
+    assert replacement == {
+        "policy": "REPLACE_UNAPPROVED_V1",
+        "previous_output_artifact_id": first.receipt["payload"]["replacement"]["new_output_artifact_id"],
+        "previous_output_content_sha256": first.receipt["payload"]["replacement"]["new_output_content_sha256"],
+        "new_output_artifact_id": head["current_output_artifact_id"],
+        "new_output_content_sha256": head["current_output_content_sha256"],
+    }
+    assert second.output_path.read_bytes() == old_bytes
+    assert not list((tmp_path / "renders" / "replacement-backups").glob("*"))
+
+
+def test_replacement_journal_failure_restores_file_and_appends_compensation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A post-publish journal fault cannot leave replacement bytes visible."""
+    ffmpeg, ffprobe = _tools()
+    props = _props()
+    target_id = "outt_" + "b" * 32
+    provision_output_target(project_root=tmp_path, head=OutputTargetHead(
+        target_id, props.project_id, props.sequence_id, "renders/final/compensated.mp4"))
+    audio, manifest, report = _inputs()
+    source = tmp_path / "compensation-source.wav"
+    assert subprocess.run([str(ffmpeg), "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+        "-t", "1", "-c:a", "pcm_f32le", str(source)], stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False).returncode == 0
+    source_hash = _sha(source)
+    sources = {entry["pcm_artifact_id"]: source for entry in manifest["entries"]}
+    for entry in manifest["entries"]:
+        entry["pcm_content_sha256"], entry["byte_length"] = source_hash, source.stat().st_size
+    for entry in report["entries"]:
+        entry["materialized_pcm_content_sha256"], entry["byte_length"] = source_hash, source.stat().st_size
+    runtime = _runtime()
+    producer = make_remotion_full_producer(runtime=runtime,
+        fixture_assets=FixtureAssetResolver.load(FIXTURE_ROOT), fixture_root=FIXTURE_ROOT)
+    first = run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
+        pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources=sources,
+        output_target_id=target_id, profile_id=PROFILE_ID, profile_hash=PROFILE_HASH,
+        cancellation_ingress_id="cancel_compensate_1", attempt_id="attempt_compensate_1",
+        video_producer=producer, ffmpeg=ffmpeg, ffprobe=ffprobe, remotion_runtime=runtime)
+    assert first.status == "SUCCEEDED" and first.output_path is not None
+    old_bytes = first.output_path.read_bytes()
+    original_commit = full_orchestrator_module.commit_transaction
+    calls = 0
+
+    def fail_once_after_commit(**kwargs):
+        nonlocal calls
+        calls += 1
+        receipt = original_commit(**kwargs)
+        if calls == 1:
+            raise FullRenderError("ARTIFACT_PERSIST_FAILED")
+        return receipt
+
+    monkeypatch.setattr(full_orchestrator_module, "commit_transaction", fail_once_after_commit)
+    failed = run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
+        pcm_manifest=copy.deepcopy(manifest), pcm_materialization_report=copy.deepcopy(report),
+        pcm_sources=sources, output_target_id=target_id, profile_id=PROFILE_ID,
+        profile_hash=PROFILE_HASH, cancellation_ingress_id="cancel_compensate_2",
+        attempt_id="attempt_compensate_2", video_producer=producer, ffmpeg=ffmpeg,
+        ffprobe=ffprobe, remotion_runtime=runtime)
+    assert failed.status == "FAILED" and failed.output_path is None
+    assert first.output_path.read_bytes() == old_bytes
+    from engine.rendering.lifecycle_registry import resolve_target_head
+    head = resolve_target_head(project_root=tmp_path, output_target_id=target_id)
+    assert head["revision"] == 4
+    assert head["current_output_artifact_id"] == first.receipt["payload"]["replacement"]["new_output_artifact_id"]
+    assert failed.receipt["payload"]["replacement_compensation"]["restored_output_content_sha256"] == head["current_output_content_sha256"]
+    registry = (tmp_path / "artifacts" / "registry.jsonl").read_text(encoding="utf-8")
+    assert '"marker":"RECOVERY_COMPENSATION_RECORDED"' in registry
 
 
 def test_pre_admission_cancel_creates_no_attempt_or_receipt(tmp_path: Path) -> None:

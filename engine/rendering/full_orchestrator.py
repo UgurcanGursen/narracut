@@ -24,10 +24,12 @@ from .audio_plan import compile_audio_render_plan
 from .bridge import RenderProps, load_render_props, serialize_render_props
 from .fixture_assets import FixtureAssetResolver, FixtureAssetResolverError
 from .full_render import (FullRenderError, atomic_publish, build_full_render_request,
-                          run_profile_media_pipeline, resolve_output_target)
+                          restore_replacement_publish, run_profile_media_pipeline,
+                          resolve_output_target)
 from .full_profile import default_profile_paths, load_full_render_profile
-from .lifecycle_registry import (cleanup_attempt, commit_transaction,
-                                 next_target_revision, snapshot_attempt)
+from .lifecycle_registry import (append_recovery_compensation, cleanup_attempt,
+                                 commit_transaction, next_target_revision,
+                                 resolve_target_head, snapshot_attempt)
 
 
 VideoProducer = Callable[[Path, Path, Path], None]
@@ -387,6 +389,10 @@ def run_full_render(*, project_root: Path, props: RenderProps,
         raise FullRenderError("ARTIFACT_PERSIST_FAILED") from exc
     base_target = target
     output: Path | None = None
+    replacement_backup: Path | None = None
+    provisional_target: dict[str, Any] | None = None
+    transaction_id = "txn_" + hashlib.sha256(
+        (request["full_render_request_id"] + attempt_id).encode("ascii")).hexdigest()[:32]
     artifact_rows: list[dict[str, Any]] = []
     try:
         request_path = attempt_root / "request" / "full-render-request.json"
@@ -448,17 +454,27 @@ def run_full_render(*, project_root: Path, props: RenderProps,
                                            staged_output=staged, ffmpeg=verified_ffmpeg, ffprobe=verified_ffprobe)
         artifact_rows.append(_artifact_row(artifact_id="art_normalized_audio_" + _sha(normalized_audio.read_bytes())[7:39],
                                            path=normalized_audio, kind="normalized_audio", props=props))
-        output = atomic_publish(staged_output=staged, project_root=project_root, target=target)
+        replacement_policy = (
+            "REPLACE_UNAPPROVED_V1"
+            if base_target["current_output_artifact_id"] is not None else None
+        )
+        if base_target["current_output_artifact_id"] is not None:
+            replacement_backup = (
+                project_root / "renders" / "replacement-backups" / f"{attempt_id}.mp4"
+            )
+        output = atomic_publish(staged_output=staged, project_root=project_root, target=target,
+                                replacement_backup=replacement_backup,
+                                replacement_policy=replacement_policy)
         pre = snapshot_attempt(attempt_root=attempt_root, attempt_id=attempt_id,
                                cleanup_state="PRE_CLEANUP")
         post = cleanup_attempt(attempt_root=attempt_root, pre_cleanup=pre)
         final_id = "art_final_" + probe["output_sha256"][7:39]
         revision = next_target_revision(base=base_target, output_artifact_id=final_id,
                                         output_content_sha256=probe["output_sha256"],
-                                        replacement_policy=None)
+                                        replacement_policy=replacement_policy)
+        provisional_target = revision
         receipt = commit_transaction(
-            project_root=project_root, transaction_id="txn_" + hashlib.sha256(
-                (request["full_render_request_id"] + attempt_id).encode("ascii")).hexdigest()[:32],
+            project_root=project_root, transaction_id=transaction_id,
             base_target=base_target, target_revision=revision,
             artifact_rows=tuple([*artifact_rows, _artifact_row(artifact_id=final_id, path=output,
                                          kind="final_output", props=props)]),
@@ -472,24 +488,59 @@ def run_full_render(*, project_root: Path, props: RenderProps,
                              # render.
                              "toolchain_preflight": preflight,
                              "output_sha256": probe["output_sha256"],
+                             "replacement": {
+                                 "policy": replacement_policy,
+                                 "previous_output_artifact_id": base_target["current_output_artifact_id"],
+                                 "previous_output_content_sha256": base_target["current_output_content_sha256"],
+                                 "new_output_artifact_id": final_id,
+                                 "new_output_content_sha256": probe["output_sha256"],
+                             },
                              # The durable target relation itself is recorded
                              # by the registry receipt; this payload carries
                              # only the output-byte lineage.
                              },
             pre_cleanup=pre, post_cleanup=post)
+        if replacement_backup is not None:
+            replacement_backup.unlink()
+            try:
+                replacement_backup.parent.rmdir()
+            except OSError:
+                pass
         return FullRenderOutcome(True, "SUCCEEDED", request, receipt, output)
     except FullRenderError as failure:
+        compensation: dict[str, Any] | None = None
+        if replacement_backup is not None and replacement_backup.is_file() and output is not None:
+            restore_replacement_publish(project_root=project_root, target=base_target,
+                                        replacement_backup=replacement_backup)
+            if provisional_target is not None:
+                current = resolve_target_head(project_root=project_root,
+                                              output_target_id=base_target["output_target_id"])
+                if (current["output_target_record_id"], current["output_target_record_hash"]) == (
+                    provisional_target["output_target_record_id"], provisional_target["output_target_record_hash"]
+                ):
+                    compensation = append_recovery_compensation(
+                        project_root=project_root, transaction_id=transaction_id,
+                        base_target=base_target, provisional_target=provisional_target,
+                    )
         # An admitted failure still produces the same exact cleanup proof and
         # a terminal journal, but never a target revision.
         pre = snapshot_attempt(attempt_root=attempt_root, attempt_id=attempt_id,
                                cleanup_state="PRE_CLEANUP")
         post = cleanup_attempt(attempt_root=attempt_root, pre_cleanup=pre)
         status = "CANCELLED" if failure.code == "CANCELLED_BY_PARENT" else "FAILED"
+        failure_base = (resolve_target_head(project_root=project_root,
+                                            output_target_id=base_target["output_target_id"])
+                        if compensation is not None else base_target)
         receipt = commit_transaction(
-            project_root=project_root, transaction_id="txn_" + hashlib.sha256(
-                (request["full_render_request_id"] + attempt_id).encode("ascii")).hexdigest()[:32],
-            base_target=base_target, target_revision=None, artifact_rows=tuple(artifact_rows), terminal_status=status,
+            project_root=project_root, transaction_id=transaction_id + "_terminal",
+            base_target=failure_base, target_revision=None, artifact_rows=tuple(artifact_rows), terminal_status=status,
             receipt_payload={"full_render_request_id": request["full_render_request_id"],
                              "toolchain_preflight": preflight,
-                             "failure_code": failure.code}, pre_cleanup=pre, post_cleanup=post)
+                             "failure_code": failure.code,
+                             "replacement_compensation": (
+                                 {"restored_output_artifact_id": base_target["current_output_artifact_id"],
+                                  "restored_output_content_sha256": base_target["current_output_content_sha256"],
+                                  "compensation_target_record_id": compensation["output_target_record_id"],
+                                  "compensation_target_record_hash": compensation["output_target_record_hash"]}
+                                 if compensation is not None else None)}, pre_cleanup=pre, post_cleanup=post)
         return FullRenderOutcome(True, status, request, receipt, None)

@@ -97,20 +97,15 @@ def provision_output_target(*, project_root: Path, head: OutputTargetHead) -> di
 
 
 def resolve_output_target(*, project_root: Path, output_target_id: str, props: RenderProps) -> dict[str, Any]:
-    registry = project_root / "artifacts" / "output-targets.jsonl"
-    if not registry.is_file():
-        raise FullRenderError("OUTPUT_TARGET_CONFLICT")
+    # The lifecycle resolver validates the complete append-only chain; this
+    # admission wrapper adds only the immutable render-props binding.
     try:
-        rows = [json.loads(line) for line in registry.read_bytes().splitlines() if line]
-        rows = [row for row in rows if row["output_target_id"] == output_target_id]
+        from .lifecycle_registry import resolve_target_head
+        row = resolve_target_head(project_root=project_root, output_target_id=output_target_id)
+    except FullRenderError:
+        raise
     except Exception as exc:
         raise FullRenderError("ARTIFACT_PERSIST_FAILED") from exc
-    if len(rows) != 1:
-        raise FullRenderError("OUTPUT_TARGET_CONFLICT" if not rows else "ARTIFACT_PERSIST_FAILED")
-    row = rows[0]
-    expected = dict(row); record_id, record_hash = _identity("outr_", expected, "output_target_record_id", "output_target_record_hash")
-    if row.get("schema_version") != TARGET_RECORD_V1 or (row.get("output_target_record_id"), row.get("output_target_record_hash")) != (record_id, record_hash):
-        raise FullRenderError("ARTIFACT_PERSIST_FAILED")
     if (row.get("project_id"), row.get("sequence_id")) != (props.project_id, props.sequence_id):
         raise FullRenderError("OUTPUT_TARGET_CONFLICT")
     if row["locked"]: raise FullRenderError("OUTPUT_LOCKED")
@@ -251,12 +246,68 @@ def run_profile_media_pipeline(*, profile: dict[str, Any], video_path: Path,
             "streams": len(streams), "probe_report": result}
 
 
-def atomic_publish(*, staged_output: Path, project_root: Path, target: dict[str, Any]) -> Path:
-    """Publish to the provisioned target without permitting caller paths."""
+def atomic_publish(*, staged_output: Path, project_root: Path, target: dict[str, Any],
+                   replacement_backup: Path | None = None,
+                   replacement_policy: str | None = None) -> Path:
+    """Publish to the provisioned target without permitting caller paths.
+
+    A populated, unapproved target may be replaced only through the closed
+    ``REPLACE_UNAPPROVED_V1`` policy.  Its previous bytes are moved first to
+    an attempt-owned backup so a later journal failure can restore them.
+    """
     destination = (project_root / target["trusted_publish_relative_path"]).resolve()
-    if project_root.resolve() not in destination.parents or destination.exists():
+    if project_root.resolve() not in destination.parents or not staged_output.is_file():
+        raise FullRenderError("ATOMIC_PUBLISH_FAILED")
+    replacing = target.get("current_output_artifact_id") is not None
+    if replacing:
+        if (replacement_policy != "REPLACE_UNAPPROVED_V1"
+                or replacement_backup is None or not destination.is_file()
+                or _sha(destination.read_bytes()) != target.get("current_output_content_sha256")):
+            raise FullRenderError("ATOMIC_PUBLISH_FAILED")
+        backup = replacement_backup.resolve()
+        if project_root.resolve() not in backup.parents or backup.exists():
+            raise FullRenderError("ATOMIC_PUBLISH_FAILED")
+    elif destination.exists() or replacement_backup is not None or replacement_policy is not None:
         raise FullRenderError("ATOMIC_PUBLISH_FAILED")
     destination.parent.mkdir(parents=True, exist_ok=True)
-    try: os.replace(staged_output, destination)
-    except OSError as exc: raise FullRenderError("ATOMIC_PUBLISH_FAILED") from exc
+    try:
+        if replacing:
+            backup.parent.mkdir(parents=True, exist_ok=True)
+            os.replace(destination, backup)
+        os.replace(staged_output, destination)
+    except OSError as exc:
+        if replacing and backup.is_file() and not destination.exists():
+            try:
+                os.replace(backup, destination)
+            except OSError:
+                pass
+        raise FullRenderError("ATOMIC_PUBLISH_FAILED") from exc
     return destination
+
+
+def restore_replacement_publish(*, project_root: Path, target: dict[str, Any],
+                                replacement_backup: Path) -> None:
+    """Restore a replaced target after a terminal journal failure.
+
+    The backup lives outside the ephemeral attempt tree.  This helper accepts
+    no caller destination and proves the restored bytes match the old target
+    lineage before removing the displaced new output.
+    """
+    destination = (project_root / target["trusted_publish_relative_path"]).resolve()
+    backup = replacement_backup.resolve()
+    if (project_root.resolve() not in destination.parents
+            or project_root.resolve() not in backup.parents
+            or not backup.is_file() or not destination.is_file()
+            or _sha(backup.read_bytes()) != target.get("current_output_content_sha256")):
+        raise FullRenderError("ATOMIC_PUBLISH_FAILED")
+    displaced = backup.with_name(backup.name + ".displaced")
+    if displaced.exists():
+        raise FullRenderError("ATOMIC_PUBLISH_FAILED")
+    try:
+        os.replace(destination, displaced)
+        os.replace(backup, destination)
+        displaced.unlink()
+    except OSError as exc:
+        # A failed second swap must never silently claim recovery.  Preserve
+        # whichever bytes remain for manual recovery rather than deleting it.
+        raise FullRenderError("ATOMIC_PUBLISH_FAILED") from exc

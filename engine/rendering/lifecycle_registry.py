@@ -216,7 +216,10 @@ def build_compensation_revision(*, base_target: dict[str, Any], provisional_targ
         "schema_version": TARGET_RECORD_V1,
         "current_output_artifact_id": restored_id,
         "current_output_content_sha256": base_target["current_output_content_sha256"],
-        "replacement_policy": base_target["replacement_policy"] if restored_id is not None else None,
+        # This is a replacement of the provisional head with the durable old
+        # lineage.  The policy records that closed recovery transition even
+        # when the original first-publish row had no replacement marker.
+        "replacement_policy": "REPLACE_UNAPPROVED_V1" if restored_id is not None else None,
         "revision": provisional_target["revision"] + 1,
         "previous_output_target_record_id": provisional_target["output_target_record_id"],
         "previous_output_target_record_hash": provisional_target["output_target_record_hash"],
