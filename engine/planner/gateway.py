@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
@@ -61,6 +62,43 @@ class PlannerTaskService:
         previous.data()
         if status not in {"package_ready", "response_submitted", "accepted", "rejected", "superseded"}: _fail("PLANNER_TASK_TRANSITION_INVALID")
         return self.create(task_type=previous.task_type, project_id=previous.project_id, policy=policy, backend_mode=previous.backend_mode, prompt_template_ref=previous.prompt_template_ref, domain_pack_root=domain_pack_root, parent_id=previous.parent_id, parent_hash=previous.parent_hash, context_snapshot_hashes=previous.context_snapshot_hashes, expected_result_fields=previous.expected_result_fields, logical_task_id=previous.logical_task_id, supersedes_task_id=previous.task_id, status=status, attempt=previous.attempt, created_at=created_at, completed_at=completed_at)
+
+
+class PlannerTaskStore:
+    """Phase 10's namespaced append-only task lifecycle, mirroring Phase 9."""
+
+    def __init__(self, path: Path) -> None:
+        self.connection = sqlite3.connect(path)
+        self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_tasks(task_id TEXT PRIMARY KEY, task_hash TEXT NOT NULL UNIQUE, project_id TEXT NOT NULL, payload BLOB NOT NULL)")
+
+    def close(self) -> None:
+        self.connection.close()
+
+    def put(self, task: PlannerTaskV1) -> None:
+        raw = task.data(); payload = encode_canonical_json_bytes(raw)
+        if task.supersedes_task_id is None:
+            if task.status != "created" or task.attempt != 0: _fail("PLANNER_TASK_INITIAL_INVALID")
+        else:
+            prior = self.get(task.supersedes_task_id)
+            allowed = {"created": {"package_ready", "superseded"}, "package_ready": {"response_submitted", "superseded"}, "response_submitted": {"accepted", "rejected", "superseded"}, "rejected": {"package_ready", "superseded"}}
+            if task.status not in allowed.get(prior.status, set()) or task.logical_task_id != prior.logical_task_id or task.project_id != prior.project_id or task.task_type != prior.task_type or task.policy_snapshot_hash != prior.policy_snapshot_hash:
+                _fail("PLANNER_TASK_TRANSITION_INVALID")
+        existing = self.connection.execute("SELECT payload FROM phase10_tasks WHERE task_id=?", (task.task_id,)).fetchone()
+        if existing is not None:
+            if existing[0] != payload: _fail("PLANNER_TASK_IMMUTABILITY")
+            return
+        self.connection.execute("INSERT INTO phase10_tasks(task_id,task_hash,project_id,payload) VALUES(?,?,?,?)", (task.task_id,task.task_hash,task.project_id,payload)); self.connection.commit()
+
+    def get(self, task_id: str) -> PlannerTaskV1:
+        row = self.connection.execute("SELECT payload FROM phase10_tasks WHERE task_id=?", (task_id,)).fetchone()
+        if row is None: _fail("PLANNER_TASK_UNKNOWN")
+        try:
+            raw=json.loads(row[0].decode("utf-8"))
+            if encode_canonical_json_bytes(raw) != row[0]: _fail("PLANNER_TASK_RECORD_INVALID")
+            values={key: value for key, value in raw.items() if key != "schema_version"}
+            task=PlannerTaskV1(**{**values,"backend_mode":BackendMode(values["backend_mode"]),"context_snapshot_hashes":tuple(values["context_snapshot_hashes"]),"expected_result_fields":tuple(values["expected_result_fields"])})
+        except (UnicodeDecodeError,json.JSONDecodeError,KeyError,TypeError,ValueError): _fail("PLANNER_TASK_RECORD_INVALID")
+        task.data(); return task
 
 
 class PlannerTaskPackageBuilder:

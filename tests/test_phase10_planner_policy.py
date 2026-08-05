@@ -10,7 +10,7 @@ from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.planner import (ChapterBriefV1, GlobalOutlineV1, NarrativeBeatV1,
                             PlannerAssembler, PlannerAssetBriefV1,
                             PlannerContractError, PlannerSnapshotV1,
-                            PlannerStore, PlannerTaskPackageBuilder,
+                            PlannerStore, PlannerTaskPackageBuilder, PlannerTaskStore,
                             PlannerTaskService, SequencePlanV1,
                             planner_policy_from_snapshot, validate_response)
 from engine.research import BackendMode
@@ -72,6 +72,11 @@ def test_task_package_and_response_binding_are_domain_pack_bound(tmp_path: Path)
     package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, domain_pack_root=root, context={"claims": []})
     payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":{}}})
     assert (package / "response").is_dir() and validate_response(task=task, payload=payload)["result"] == {"outline": {}}
+    tasks = PlannerTaskStore(tmp_path / "tasks.sqlite"); tasks.put(task)
+    revision = PlannerTaskService().revise(previous=task, policy=policy, domain_pack_root=root, status="package_ready", created_at=STAMP)
+    tasks.put(revision)
+    assert tasks.get(revision.task_id) == revision
+    tasks.close()
 
 
 def test_dummy_pack_resolves_without_core_domain_branch() -> None:
