@@ -716,3 +716,23 @@ TEMPORAL_COMPILATION_ALIGNMENT_REPORT_IMPLEMENTATION_ACCEPTANCE=ACCEPT
 NEXT_MACRO_PACKAGE=Caption Preview + V5/V6 Collision Validation
 PHASE2_CLOSED=NO
 ```
+## Phase 7 final acceptance â€” 2026-08-05
+
+| Acceptance item | Status | Evidence |
+|---|---|---|
+| Declarative chart, metric and topology forms | ACCEPT | `engine/visualization/contracts.py`; roadmap forms covered by focused tests |
+| Exact value/source caption/policy validation | ACCEPT | capture-bound exact decimal and resolved Domain Pack policy tests |
+| Word-frame/V4/RenderProps lineage | ACCEPT | materialized upstream binding and mutation gates |
+| Additive Remotion REPLAY output | ACCEPT | isolated `visualization-replay-v1` selected-frame PNG and receipt hash |
+| Final independent audit | PASS | BLOCKER/MAJOR/MINOR `0/0/0` |
+| Focused/V3 gate | PASS | `102 passed, 1 skipped` |
+| Renderer gate | PASS | typecheck PASS; Node `7/7 PASS` |
+
+Canonical acceptance report: `baseline/phase7_final_acceptance_report.md`.
+
+```text
+PHASE7_FINAL_ACCEPTANCE=ACCEPT
+PHASE7_CLOSED=YES
+PHASE7_FINAL_AUDIT=PASS
+NEXT_ACTION=PLAN_PHASE8
+```

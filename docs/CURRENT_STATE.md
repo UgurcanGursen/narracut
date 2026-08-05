@@ -1,11 +1,24 @@
 # Current State
 
 Son guncelleme: 5 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 NOT_STARTED**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 NEXT**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 6 closed; Phase 7 not started
+## Latest authoritative state - Phase 7 closed; Phase 8 next
+
+- Phase 7 Data Visualization and Metric Engine is accepted and closed.
+  Canonical evidence: `baseline/phase7_final_acceptance_report.md`.
+- Declarative chart, metric, topology and source-caption artifacts use exact
+  decimal/evidence semantics and policy resolution from the selected Domain Pack.
+- The REPLAY receipt binds an actual isolated `visualization-replay-v1`
+  selected-frame PNG hash, while preserving Phase 4 composition/RenderProps.
+- Final gates: focused/V3 `102 passed, 1 skipped`; renderer typecheck PASS;
+  Node `7/7 PASS`; independent final audit PASS (`0/0/0`).
+- Next task is Phase 8 semantic asset acquisition planning; do not reopen the
+  Phase 7 contracts except for a demonstrated regression.
+
+## Historical Phase 6 state
 
 - Phase 6 Source Acquisition and Evidence Treatment Engine is accepted and
   closed. Canonical evidence: `baseline/phase6_final_acceptance_report.md`.

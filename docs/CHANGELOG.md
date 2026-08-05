@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-05 â€” Phase 7 closed
+
+- Closed the Data Visualization and Metric Engine with exact decimal,
+  evidence/caption, policy and lineage validation.
+- Added additive `visualization-replay-v1` REPLAY rendering, selected-frame PNG
+  receipt hashing and deterministic data-dependent chart/topology geometry.
+- Final gates: focused/V3 `102 passed, 1 skipped`; renderer typecheck PASS;
+  Node `7/7 PASS`; final independent audit PASS (`0/0/0`).
+
 ## 2026-08-05 — Phase 6 closed
 
 - Closed the REPLAY-first Source Acquisition and Evidence Treatment Engine.

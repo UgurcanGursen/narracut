@@ -11,7 +11,7 @@
     "domain_id": "business-tech",
     "domain_pack_version": "0.1.0",
     "profile_id": "dpf_business_default",
-    "policy_snapshot_id": "dps_643097e95f225a4a2bd0",
+    "policy_snapshot_id": "dps_3c19004df6f0696e241c",
     "policy_snapshot_ref": "domain/policy_snapshot.json",
     "profile": {
       "schema_version": "3.0.0",
@@ -54,6 +54,18 @@
               "visual": {
                 "generic_stock_role": "transition_support",
                 "source_first": true,
+                "visualization_policy": {
+                  "policy_version": "VISUALIZATION-POLICY-V1",
+                  "allowed_kinds": ["chart", "metric", "timeline", "relationship_graph", "evidence_chain", "map"],
+                  "allowed_chart_kinds": ["line", "bar", "area", "stacked", "comparison", "waterfall", "timeline"],
+                  "banned_chart_kinds": [],
+                  "preferred_chart_kinds": ["line", "bar", "comparison"],
+                  "required_evidence_binding_kinds": ["source_capture_region"],
+                  "count_unit_labels": ["units"],
+                  "custom_unit_labels": ["index"],
+                  "allowed_relationship_edge_kinds": ["depends_on", "compares_with"],
+                  "theme_id": "business-tech-editorial-v1"
+                },
                 "template_policy": {
                   "preferred_template_ids": [
                     "article_focus_scan",
@@ -142,8 +154,8 @@
       "immutable": true,
       "created_at": "2026-07-25T00:00:00Z",
       "version": 1,
-      "snapshot_id": "dps_643097e95f225a4a2bd0",
-      "canonical_hash": "sha256:643097e95f225a4a2bd0baff53c81555eb23ee416effee978c5650615e632e9d"
+      "snapshot_id": "dps_3c19004df6f0696e241c",
+      "canonical_hash": "sha256:3c19004df6f0696e241cd09c37664d49ba5e9df8140be3b332fd615777faf7e5"
     }
   },
   "documents": [],
@@ -163,7 +175,7 @@
     "updated_at": "2026-07-25T00:00:00Z",
     "domain_id": "business-tech",
     "domain_pack_version": "0.1.0",
-    "policy_snapshot_id": "dps_643097e95f225a4a2bd0",
+    "policy_snapshot_id": "dps_3c19004df6f0696e241c",
     "status": "ready",
     "version": 1
   },

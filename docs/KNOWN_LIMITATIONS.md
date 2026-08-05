@@ -2,6 +2,15 @@
 
 Son guncelleme: 5 Agustos 2026
 
+## Faz 7 status note
+
+- Phase 7 is CLOSED. It proves exact, evidence-bound declarative visualization
+  REPLAY rendering and an isolated Remotion selected-frame receipt; it does not
+  introduce live data ingest, financial conversions, geocoding, asset catalog,
+  UI review, job queues or automatic injection into Phase 4 preview.
+- The active environment lacks optional `fastapi`; all-Python collection cannot
+  collect its API suites. The Phase 7 focused/V3 and Node renderer gates pass.
+
 ## Faz 6 status note
 
 - Phase 6 is CLOSED. Its `REPLAY` acquisition adapters and evidence treatment

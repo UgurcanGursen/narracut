@@ -19,6 +19,46 @@
   "visual": {
     "generic_stock_role": "transition_support",
     "source_first": true,
+    "visualization_policy": {
+      "policy_version": "VISUALIZATION-POLICY-V1",
+      "allowed_kinds": [
+        "chart",
+        "metric",
+        "timeline",
+        "relationship_graph",
+        "evidence_chain",
+        "map"
+      ],
+      "allowed_chart_kinds": [
+        "line",
+        "bar",
+        "area",
+        "stacked",
+        "comparison",
+        "waterfall",
+        "timeline"
+      ],
+      "banned_chart_kinds": [],
+      "preferred_chart_kinds": [
+        "line",
+        "bar",
+        "comparison"
+      ],
+      "required_evidence_binding_kinds": [
+        "source_capture_region"
+      ],
+      "count_unit_labels": [
+        "units"
+      ],
+      "custom_unit_labels": [
+        "index"
+      ],
+      "allowed_relationship_edge_kinds": [
+        "depends_on",
+        "compares_with"
+      ],
+      "theme_id": "business-tech-editorial-v1"
+    },
     "template_policy": {
       "preferred_template_ids": [
         "article_focus_scan",
