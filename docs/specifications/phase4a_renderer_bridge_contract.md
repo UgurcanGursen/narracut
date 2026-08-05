@@ -38,11 +38,11 @@ Bu spesifikasyon kabul edilirse izinli üretim yüzeyi en fazla şudur:
 engine/rendering/__init__.py
 engine/rendering/bridge.py
 engine/rendering/fixture_assets.py
+engine/rendering/visual_directives.py
 engine/rendering/receipt.py
 engine/rendering/artifact_hook.py
-tests/test_renderer_bridge.py
-tests/test_renderer_fixture_assets.py
-tests/test_renderer_receipt.py
+engine/rendering/preview_runner.py
+tests/test_render_bridge.py
 tests/fixtures/phase4a/...
 renderer-remotion/package.json
 renderer-remotion/package-lock.json
@@ -147,7 +147,7 @@ word_to_frame_id, word_to_frame_hash, fps_numerator, fps_denominator,
 duration_frames, duration_samples, width, height, pixel_format,
 composition_id, design_system_version, fixture_manifest_id,
 fixture_manifest_hash, video_tracks, audio_tracks, audio_boundary_decisions,
-asset_bindings
+asset_bindings, visual_directives
 ```
 
 `mode` bu Faz 4A contract’ında kapalı `PREVIEW` literalidir; `FULL` inputu
@@ -195,32 +195,156 @@ yorumlamaz veya değiştirmez.
 `asset_bindings` sadece fixture manifestinin allowlist’iyle çözülmüş satırlardır:
 
 ```text
-event_id, fixture_asset_id, content_sha256, media_type, width, height
+event_id, edl_source_ref, fixture_asset_id, content_sha256, media_type, width, height
 ```
 
-Her `CALLER_SOURCE` video event’i, `payload.source_artifact_id` ile
-`fixture_asset_id` exact eşleşen tam bir satıra bağlanır ve
-`payload.source_artifact_hash == content_sha256` olmalıdır. `source_ref`,
-yalnız manifestteki aynı `fixture_asset_id`nin opaque referansıdır; path veya
-provider mappingi değildir. `KINETIC_EMPHASIS` ve `CAPTION` event’leri dış asset
-bağlamaz. Unknown/missing binding, content hash
-uyuşmazlığı, duplicate event binding veya path traversal fail-closed’dur. Props
-JSON’da mutlak path, kullanıcı home path’i, URL, provider adı veya credential
-bulunmaz; Node process dosya konumunu yalnız trusted launch configuration’daki
-fixture root’tan alır.
+Her `CALLER_SOURCE` video event’i yalnız non-null `payload.source` içindeki
+exact `SourceDescriptor.source_ref` üzerinden bağlanır. Bridge, fixture
+manifestinde `edl_source_ref == payload.source.source_ref` olan tam bir asset
+satırını bulur; `asset_bindings.edl_source_ref` bu source ref’i byte-for-byte
+taşır ve `fixture_asset_id`, `content_sha256`, media type ve dimensions aynı
+manifest satırından lossless gelir. `edl_source_ref`, Phase 3’teki nonempty
+ASCII stable-identifier kurallarına uyar ve manifestte tekrarsızdır; dolayısıyla
+bir caller event’in source ref’i tam olarak bir fixture asset’e deterministik
+olarak eşlenir. `payload.source_artifact_id` ve
+`payload.source_artifact_hash`, accepted Phase 3 `CALLER_SOURCE` null matrix’ine
+göre **JSON `null` kalmalıdır**; bridge bunları fixture asset ID/hash’iyle
+dolduramaz, non-null kabul edemez veya mapping için kullanamaz. `source_ref`
+path, URL veya provider mappingi değildir; sadece manifestteki
+`edl_source_ref` ile eşleşen opaque EDL referansıdır. `KINETIC_EMPHASIS` ve
+`CAPTION` event’leri dış asset bağlamaz. Unknown/missing/duplicate
+`edl_source_ref`, source-ref uyuşmazlığı, manifest-to-file content hash
+uyuşmazlığı, duplicate event binding veya path traversal fail-closed’dur. Props JSON’da mutlak path,
+kullanıcı home path’i, URL, provider adı veya credential bulunmaz; Node process
+dosya konumunu yalnız trusted launch configuration’daki fixture root’tan alır.
 
 Her `asset_bindings` elemanı tam olarak
-`{"event_id": string, "fixture_asset_id": string, "content_sha256":
-"sha256:<64-lower-hex>", "media_type": string, "width": uint32,
-"height": uint32}`dir; event ID ascending canonical orderdadır. Fixture manifest
-root object’i tam olarak `schema_version,fixture_manifest_id,fixture_manifest_hash,
-assets` alanlarını taşır. `assets` içindeki her object
-`fixture_asset_id,relative_posix_path,content_sha256,media_type,width,height`dir
-ve `fixture_manifest_hash/id`, kendi iki identity alanı hariç manifest projection
-üzerinden hesaplanır. Resolver yalnız bu exact manifest satırından trusted-root
-relative path’i alabilir; props’taki binding hiçbir zaman bir dosya konumu değildir.
+`{"event_id": string, "edl_source_ref": string, "fixture_asset_id": string,
+"content_sha256": "sha256:<64-lower-hex>", "media_type": string, "width":
+uint32, "height": uint32}`dir; event ID ascending canonical orderdadır. Fixture
+manifest root object’i tam olarak
+`schema_version,fixture_manifest_id,fixture_manifest_hash,assets,visual_directives` alanlarını
+taşır. `assets` içindeki her object tam olarak
+`fixture_asset_id,edl_source_ref,relative_posix_path,content_sha256,media_type,width,height`
+alanlarını taşır; `fixture_asset_id` ve `edl_source_ref` kendi kolonlarında
+tekrarsızdır. `fixture_manifest_hash/id`, kendi iki identity alanı hariç manifest
+projection üzerinden hesaplanır. Resolver yalnız bu exact manifest satırından
+trusted-root relative path’i alabilir; props’taki binding hiçbir zaman bir dosya
+konumu değildir.
 
-### 4.1 Normatif renderer-version temsili
+### 4.1 Fixture visual-directive projection (normatif)
+
+Accepted Phase 3 EDL V3 `SourceDescriptor` fields cannot gain zoom or
+highlight: that would rewrite or reschedule the accepted EDL.  Phase 4A does,
+however, need one REPLAY-only V3 zoom/highlight proof.  It is carried only by
+the immutable `visual_directives` allowlist in the fixture manifest.  A caller,
+Python bridge, or Node runtime may not invent a directive, default one, or move
+one to another event.
+
+`visual_directives` is an array in ascending `directive_id` order. It is a
+closed discriminated union. `V3/SOURCE_ZOOM_HIGHLIGHT` rows have exactly the
+following fields, in this order:
+
+```text
+schema_version, directive_id, directive_hash, event_id, event_hash, track,
+kind, zoom_start_millionths, zoom_end_millionths, highlight_left_millionths,
+highlight_top_millionths, highlight_right_millionths, highlight_bottom_millionths
+```
+
+`schema_version` is the closed literal `FIXTURE-VISUAL-DIRECTIVE-V1`; `track`
+is `V3`; and `kind` is `SOURCE_ZOOM_HIGHLIGHT`.  `directive_hash` is the
+`sha256:<64-lower-hex>` digest of canonical JSON after removing only
+`directive_id` and `directive_hash`; `directive_id` is `vdir_` plus the first
+32 hex characters.  In contrast, `event_hash` is the exact accepted Phase 3
+`EdlVideoEvent.event_hash`: a **bare** `[0-9a-f]{64}` lowercase hexadecimal
+digest, without a `sha256:` prefix.  A prefixed digest, a differently-cased
+value, or a digest recomputed by the bridge is invalid.  Zoom values are
+non-boolean uint32 millionths satisfying
+`1_000_000 <= zoom_start_millionths <= zoom_end_millionths <= 2_000_000`.
+Highlight values are non-boolean uint32 millionths satisfying `left < right <=
+1_000_000` and `top < bottom <= 1_000_000`.  Floats, extra fields, duplicate
+directive/event IDs, non-NFC strings, or another track/kind fail closed.
+
+Each directive must match a V3 `CALLER_SOURCE` VideoEventProjection by exact
+`event_id` and `event_hash`, with a non-null `payload.source`.  It deliberately
+has no timing, cue, source-ref, crop, or priority fields: its life interval is
+the matched event's existing `[start_frame,end_exclusive_frame)` interval and
+its source/crop remain the lossless EDL payload.  Consequently it cannot
+calculate or override timing, cue, boundary, priority, or source mapping.  At
+most one directive may bind each V3 event; the rich REPLAY fixture contains
+exactly one.
+
+`V4/CHART_REVEAL` rows have exactly the following fields, in this order:
+
+```text
+schema_version, directive_id, directive_hash, event_id, event_hash, track,
+kind, reveal_start_millionths, reveal_end_millionths
+```
+
+For this arm, `schema_version` remains `FIXTURE-VISUAL-DIRECTIVE-V1`, `track`
+is exactly `V4`, and `kind` is exactly `CHART_REVEAL`. `directive_hash` and
+`directive_id` use the V3 identity rule over the complete row after only those
+two identity fields are removed. `event_hash` remains the exact bare Phase 3
+64-lower-hex event digest. `reveal_start_millionths` and
+`reveal_end_millionths` are non-boolean uint32 values satisfying
+`0 <= reveal_start_millionths < reveal_end_millionths <= 1_000_000`. No other
+directive arm is accepted.
+
+Each `V4/CHART_REVEAL` directive matches exactly one V4 `CALLER_SOURCE`
+VideoEventProjection by its existing `event_id` plus bare `event_hash`; that
+event has a non-null `payload.source` and the usual source-ref binding resolves
+to the checked-in chart asset. It has no timing, cue, source-ref, crop,
+priority, chart-data or value field. On a frame `f` inside the matched existing
+`[start_frame,end_exclusive_frame)` interval, Node computes only this
+deterministic clip/reveal fraction:
+
+```text
+span = end_exclusive_frame - start_frame
+if span == 1:
+  reveal_millionths = reveal_end_millionths
+else:
+  offset = clamp(f - start_frame, 0, span - 1)
+  ratio_millionths = floor(offset * 1_000_000 / (span - 1))
+  reveal_millionths = reveal_start_millionths
+    + floor((reveal_end_millionths - reveal_start_millionths)
+            * ratio_millionths / 1_000_000)
+```
+
+The renderer uses this value only to clip/reveal the already-bound chart asset
+and renders no directive outside that event interval. The first and last
+drawable event frames map to the declared endpoints; a one-frame span maps to
+the declared reveal end. Float and clock conversion are forbidden. The EDL event's existing word
+IDs/frame bounds remain the sole cue binding. At most one directive may bind a
+V4 event; the rich REPLAY fixture contains exactly one.
+
+`RenderProps.visual_directives` is the exact/lossless projection of these rows,
+in `directive_id` order and retaining the exact closed field order of its union
+arm. It participates in the RenderProps identity projection. Because fixture
+manifest identity covers `visual_directives`, every directive is bound by both
+`fixture_manifest_hash` and props hash/request ID. Python dataclasses and
+TypeScript runtime validation implement the same closed union; Node compares
+the props projection with the trusted-root manifest allowlist before using it.
+
+For the fixed compact REPLAY fixture, `edl_source_ref` remains the opaque exact
+mapping `asset_fixture_0` through `asset_fixture_4` to accepted compact Phase 3
+`SourceDescriptor.source_ref` values.  A visual directive cannot alter that
+mapping, add a provider/path/URL, or populate the Phase 3
+`source_artifact_id/hash` null matrix.
+
+The five mappings are fixed by track: V1 → `asset_fixture_0`, V2 →
+`asset_fixture_1`, V3 → `asset_fixture_2`, V4 → `asset_fixture_3`, and V7 →
+`asset_fixture_4`.  The Phase 4A directive E2E proof must materialize its EDL
+and Audio EDL through the exact Phase-4-owned rich REPLAY materializer
+`tests.test_render_bridge.build_phase4a_rich_replay_inputs()`.  Its V3 event
+retains `SourceDescriptor.source_ref == "asset_fixture_2"`, but has the rich
+fixture's accepted FIT playback and crop; therefore its `event_id`/bare
+`event_hash` are exactly the values in the directive allowlist.  An E2E test
+must not pair that allowlist with the compact Phase 3 materializer: matching
+only the compact source-ref is insufficient evidence because its V3 event
+identity is different.  The compact materializer remains valid only for its
+separate source-ref mapping checks.
+
+### 4.2 Normatif renderer-version temsili
 
 `renderer_version` serbest bir display string değildir. Tam biçimi
 `"RRV1|bridge=<BRIDGE_SEMVER>|package_lock_sha256=<64-lower-hex>"` olur.
@@ -260,8 +384,9 @@ veya domain-specific visual grammar eklenmez.
 
 `FixtureAssetResolver` yalnız checked-in `tests/fixtures/phase4a/` manifestini
 ve onun altındaki küçük, lisans/ağ dışı REPLAY assets’lerini okuyabilir. Manifest
-canonical JSON olup `fixture_manifest_id`, hash, asset ID, relative POSIX path,
-media type, dimensions, byte SHA-256 içerir. Resolver:
+canonical JSON olup `fixture_manifest_id`, hash, fixture asset ID,
+`edl_source_ref`, relative POSIX path, media type, dimensions, byte SHA-256 ve
+section 4.1'deki visual-directive allowlist'ini içerir. Resolver:
 
 - `resolve(event_id)` ile bir binding döndürür; filesystem scan/glob yapmaz;
 - `..`, absolute/drive/UNC path, symlink escape, duplicate ID/hash ve unknown
@@ -416,6 +541,7 @@ ve output hedefi mevcut dosyaysa `OUTPUT_TARGET_EXISTS` ile fail-closed olur.
 En az aşağıdaki kodlar test edilir: `UPSTREAM_NOT_MATERIALIZED`,
 `DEPENDENCY_BINDING_INVALID`, `NON_CANONICAL_PROPS`, `UNSUPPORTED_COMPOSITION`,
 `ASSET_RESOLUTION_FAILED`, `ASSET_HASH_MISMATCH`, `MODE_NOT_AUTHORIZED`,
+`VISUAL_DIRECTIVE_INVALID`,
 `REMOTION_UNAVAILABLE`, `RENDER_TIMEOUT`, `RENDER_EXIT_NONZERO`,
 `RECEIPT_INVALID`, `PREVIEW_MANIFEST_INVALID`, `PREVIEW_FRAME_HASH_MISMATCH`,
 `ARTIFACT_REGISTRATION_FAILED`, `OUTPUT_TARGET_EXISTS`.
@@ -429,15 +555,24 @@ boş asset, mute audio veya nominal success receipt üretmez.
 REPLAY-only test paketi aşağıdakileri kanıtlar:
 
 1. Faz 3 canonical video/audio bytes bağlanır; tamper veya lineage mismatch
-   props üretmeden reddedilir.
+   props üretmeden reddedilir. `CALLER_SOURCE` fixture bindingi, Phase 3 null
+   matrix’ini koruyarak yalnız `payload.source.source_ref → manifest.edl_source_ref`
+   exact mappingiyle kanıtlanır; non-null caller `source_artifact_id/hash` ve
+   missing/duplicate source-ref fail-closed’dur.
 2. Props loader/serializer byte-identical round trip, hash/ID tamper reddi ve
-   stable public surface sağlar.
+   stable public surface sağlar; directive hash/ID, manifest binding, exact V3
+   event ID/hash binding ve Python/TypeScript closed-shape parity test edilir.
 3. Registry V1–V7/A1–A5’yi sabit sırayla taşır; renderer event schedule veya
    audio boundary değiştiremez.
 4. Fixture resolver traversal/missing/hash mismatch için fail-closed olur.
 5. Headless fixture preview, canonical Remotion PNG-frame/manifest planıyla 5+
-   gerçek video layer, aynı timeline’da crop+zoom+highlight ve V5/V6 word-cued
-   text/chart motion üretir; MP4/FFmpeg kabul kanıtı değildir.
+   gerçek video layer, aynı timeline’da accepted V3 crop ile hash-bound
+   preview-only V3 zoom+highlight ve V5/V6 word-cued text/chart motion üretir;
+   V3 ve V4 directive EDL schedule/bytes'ini değiştirmediği test edilir.
+   V4 E2E, exact event ID/hash/cue intervalinden türetilen iki farklı drawable
+   frame için integer `CHART_REVEAL` sonucunun ve chart pixel outputunun farklı
+   olduğunu; directive yoksa/uyuşmazsa `VISUAL_DIRECTIVE_INVALID` ile reddi
+   kanıtlar. MP4/FFmpeg kabul kanıtı değildir.
 6. İki ayrı deterministic run selected-frame hashleri ve receipt input identity
    bakımından aynıdır; no-network gate doğrulanır.
 7. Success/failure/cancelled receipt shape ayrıdır ve props/receipt/preview
@@ -458,7 +593,43 @@ Bu nedenle Faz 4 roadmap’inin headless preview **ve full render** maddesi yaln
 Faz 4A ile kabul edilmiş sayılamaz. Faz 4A acceptance sonrası tek sonraki
 authoritative task, Phase 4B Render Terminality, Full Render and Artifact
 Lifecycle Completion için ayrı spec ve authorization kararıdır.
-# Normatif repair addendum — receipt status/DAG
+# Normatif repair addendum — chart cue and receipt status/DAG
+
+For avoidance of doubt, the earlier general phrase that Phase 4A uses a
+"V4 structured payload" for chart motion is superseded by section 4.1. Phase
+3's V4 `CALLER_SOURCE` payload remains lossless and unchanged. The only Phase
+4A chart-motion data is an allowlisted, identity-bound V4 `CHART_REVEAL`
+directive with the event-relative integer reveal function defined there.
+Implementations and E2E evidence must reject an attempted V4 chart motion that
+does not have that exact directive, its exact event ID/hash, source binding and
+cue interval; a static V4 asset is not evidence of chart motion.
+
+`RenderFailureCode V1` is the following closed set of exact ASCII literals:
+
+```text
+UPSTREAM_NOT_MATERIALIZED
+DEPENDENCY_BINDING_INVALID
+NON_CANONICAL_PROPS
+UNSUPPORTED_COMPOSITION
+ASSET_RESOLUTION_FAILED
+ASSET_HASH_MISMATCH
+MODE_NOT_AUTHORIZED
+VISUAL_DIRECTIVE_INVALID
+REMOTION_UNAVAILABLE
+RENDER_TIMEOUT
+RENDER_EXIT_NONZERO
+RECEIPT_INVALID
+PREVIEW_MANIFEST_INVALID
+PREVIEW_FRAME_HASH_MISMATCH
+ARTIFACT_REGISTRATION_FAILED
+OUTPUT_TARGET_EXISTS
+CANCELLED_BY_PARENT
+```
+
+`SUCCEEDED` has JSON `null` `failure_code`; `FAILED` has exactly one non-empty
+member of this set other than `CANCELLED_BY_PARENT`; and `CANCELLED` has exactly
+`CANCELLED_BY_PARENT`. Any other type, spelling or status/code pairing is
+`RECEIPT_INVALID` before a receipt identity is computed.
 
 Bu addendum, receipt alanları veya status-DAG konusunda belgedeki daha genel
 ifadelerin önüne geçer. `preview_manifest_hash`, `output_sha256`, `stdout_sha256`

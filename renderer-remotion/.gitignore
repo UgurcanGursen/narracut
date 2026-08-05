@@ -1,0 +1,4 @@
+node_modules/
+preview/
+public/phase4a-assets/
+*.tsbuildinfo
