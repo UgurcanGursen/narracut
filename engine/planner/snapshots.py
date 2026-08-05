@@ -15,10 +15,14 @@ from .policy import PlannerPolicyV1
 from .store import PlannerStore
 
 
+_PRODUCER_CAPABILITY = object()
+
+
 class ProducedPlannerSnapshot:
     """Opaque result of a source-specific snapshot projection."""
     __slots__ = ("kind", "payload")
-    def __init__(self, kind: str, payload: dict[str, object]) -> None:
+    def __init__(self, kind: str, payload: dict[str, object], capability: object) -> None:
+        if capability is not _PRODUCER_CAPABILITY: raise PlannerContractError("PLANNER_SNAPSHOT_CAPABILITY_INVALID")
         self.kind, self.payload = kind, payload
 
 
@@ -81,4 +85,4 @@ class PlannerSnapshotService:
             raise PlannerContractError("PLANNER_SNAPSHOT_PERSIST_INVALID")
         return store._put_produced_snapshot(kind=snapshot.kind, snapshot=snapshot.payload)
     def _produce(self, kind: str, value: dict[str, object]) -> ProducedPlannerSnapshot:
-        return ProducedPlannerSnapshot(kind, value)
+        return ProducedPlannerSnapshot(kind, value, _PRODUCER_CAPABILITY)

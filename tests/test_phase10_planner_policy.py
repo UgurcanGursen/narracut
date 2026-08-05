@@ -60,9 +60,8 @@ def test_assembly_is_deterministic_and_not_an_edl(tmp_path: Path) -> None:
     policy = planner_policy_from_snapshot(_snapshot()); records = _chain(policy); store = PlannerStore(tmp_path / "planner.sqlite", policy=policy)
     for kind, record in zip(("outline", "chapter_brief", "narrative_beat", "planner_asset_brief", "sequence_plan"), records): store.put(kind=kind, record=record)
     snapshots = {"claim_evidence": PlannerSnapshotV1("claim_evidence", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("clm_01", "sha256:" + "b" * 64), ("fact_01", "sha256:" + "c" * 64))).data(), "asset_catalog": PlannerSnapshotV1("asset_catalog", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("fam_01", "sha256:" + "c" * 64),)).data(), "template_capability": PlannerSnapshotV1("template_capability", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("cap_01", "sha256:" + "d" * 64),)).data(), "continuity": PlannerSnapshotV1("continuity", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, ()).data()}
-    from engine.planner.snapshots import ProducedPlannerSnapshot
     producer = __import__("engine.planner", fromlist=["PlannerSnapshotService"]).PlannerSnapshotService()
-    pairs = {kind: producer.persist(store=store, snapshot=ProducedPlannerSnapshot(kind, value)) for kind, value in snapshots.items()}
+    pairs = {kind: producer.persist(store=store, snapshot=producer._produce(kind, value)) for kind, value in snapshots.items()}
     request = PlannerAssembler().assemble(store=store, project_id="prj_phase10", policy_snapshot_id=policy.policy_snapshot_id, policy_snapshot_hash=policy.policy_snapshot_hash, snapshots=pairs).data()
     assert request["request_id"].startswith("pareq_") and "edl" not in request
     store.close()
