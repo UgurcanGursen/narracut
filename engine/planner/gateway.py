@@ -81,8 +81,8 @@ class PlannerTaskStore:
             if task.status != "created" or task.attempt != 0: _fail("PLANNER_TASK_INITIAL_INVALID")
         else:
             prior = self.get(task.supersedes_task_id)
-            allowed = {"created": {"package_ready", "superseded"}, "package_ready": {"response_submitted", "superseded"}, "response_submitted": {"accepted", "rejected", "superseded"}, "rejected": {"package_ready", "superseded"}}
-            if task.status not in allowed.get(prior.status, set()) or task.logical_task_id != prior.logical_task_id or task.project_id != prior.project_id or task.task_type != prior.task_type or task.policy_snapshot_hash != prior.policy_snapshot_hash:
+            allowed = {"created": {"package_ready", "superseded"}, "package_ready": {"response_submitted", "superseded"}, "response_submitted": {"accepted", "rejected", "superseded"}, "rejected": {"created", "package_ready", "superseded"}}
+            if task.status not in allowed.get(prior.status, set()) or task.logical_task_id != prior.logical_task_id or task.project_id != prior.project_id or (task.task_type != prior.task_type and not (prior.status == "rejected" and task.task_type == "repair" and task.attempt == prior.attempt + 1)) or task.policy_snapshot_hash != prior.policy_snapshot_hash:
                 _fail("PLANNER_TASK_TRANSITION_INVALID")
         existing = self.connection.execute("SELECT payload FROM phase10_tasks WHERE task_id=?", (task.task_id,)).fetchone()
         if existing is not None:

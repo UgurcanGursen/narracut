@@ -100,3 +100,15 @@ def test_dummy_and_business_packs_produce_the_same_task_package_structure(tmp_pa
         package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path / str(index), domain_pack_root=root, context={"snapshot_hashes": list(task.context_snapshot_hashes), "artifacts": {}})
         layouts.append(sorted(item.name for item in package.iterdir()))
     assert layouts[0] == layouts[1] == ["README.md", "expected_output.schema.json", "input_manifest.json", "planner_context.json", "prompt.md", "response"]
+
+
+def test_rejected_task_repair_is_persistable(tmp_path: Path) -> None:
+    policy = planner_policy_from_snapshot(_snapshot()); root = ROOT / "domain-packs" / "business-tech"; service = PlannerTaskService()
+    initial = service.create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
+    tasks=PlannerTaskStore(tmp_path / "tasks.sqlite"); tasks.put(initial)
+    ready=service.revise(previous=initial,policy=policy,domain_pack_root=root,status="package_ready",created_at=STAMP); tasks.put(ready)
+    submitted=service.revise(previous=ready,policy=policy,domain_pack_root=root,status="response_submitted",created_at=STAMP); tasks.put(submitted)
+    rejected=tasks.submit_response(task=submitted,payload=b"{}",accepted=False,service=service,policy=policy,domain_pack_root=root,created_at=STAMP)
+    from engine.planner import PlannerRepairBuilder
+    repair,_=PlannerRepairBuilder().build(failed_task=rejected,policy=policy,service=service,workspace_root=tmp_path,domain_pack_root=root,context={"snapshot_hashes": list(rejected.context_snapshot_hashes), "artifacts": {}},original_response=b"{}",validation_errors=("outline_invalid",))
+    tasks.put(repair); assert tasks.get(repair.task_id) == repair
