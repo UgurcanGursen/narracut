@@ -1,5 +1,25 @@
 # Current State
 
+Son guncelleme: 5 Agustos 2026
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 IN_PROGRESS (4A AUTHORIZED)**
+Aktif branch: `main`
+Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
+
+## Latest authoritative state - Phase 3 closed; Phase 4A authorized
+
+- Phase 3 is accepted, closed and remote closed. Video EDL/timeline debug:
+  `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f`; deterministic audio
+  EDL/boundary compiler: `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9`.
+- Final independent audits: `PASS`, `0 BLOCKER / 0 MAJOR / 0 MINOR`.
+  Final gates: `115 passed` cross-contract and `64 passed` clean-clone exact.
+- Canonical evidence: `baseline/phase3_final_acceptance_report.md`.
+- Only Phase 4A is authorized: EDL-consuming typed renderer bridge,
+  deterministic fixture preview, and bounded render-artifact registration
+  hooks. Phase 4B and all later phases remain open.
+
+The historical Phase 3A state block below is superseded and retained only as
+its bounded acceptance evidence.
+
 Son guncelleme: 4 Agustos 2026
 Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 IN_PROGRESS (3A ACCEPTED)**
 Aktif branch: `main`

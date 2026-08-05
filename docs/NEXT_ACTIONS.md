@@ -1,8 +1,40 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 IN_PROGRESS.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 IN_PROGRESS.
 
 ## NEXT AUTHORITATIVE TASK
+
+Implement **Phase 4A - Motion Renderer Foundation**.
+
+Consume accepted Phase 3 video/audio EDL artifacts without re-scheduling them.
+Deliver a bounded Python-to-Remotion typed props bridge, composition registry
+foundation, deterministic headless fixture preview, and render-artifact
+registration hooks. Keep the existing V2 path intact.
+
+Do not implement Phase 5 templates, provider acquisition, queue/retry, UI
+expansion, production asset-catalog behavior, full lifecycle/GC, or Phase 4B
+terminal-job cleanup/overwrite completion in this task.
+
+## Current evidence boundary
+
+- Phase 3 is ACCEPTED / CLOSED / REMOTE CLOSED. See
+  `baseline/phase3_final_acceptance_report.md`.
+- Accepted commits: video `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f` and
+  audio `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9`.
+- Final gates: `115 passed` cross-contract; `64 passed` clean-clone exact.
+
+```text
+PHASE3_FINAL_ACCEPTANCE=ACCEPT
+PHASE3_CLOSED=YES
+NEXT_ACTION=PHASE4A_MOTION_RENDERER_FOUNDATION
+```
+
+The historical Phase 3B instruction below is superseded and retained only for
+the accepted Phase 3A-to-3B audit trail.
+
+## Historical Phase 3A-to-3B instruction (superseded)
+
+Historical active state: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 IN_PROGRESS.
 
 Implement **Phase 3B — Audio Sample Grid and Boundary Contract**.
 
@@ -35,6 +67,6 @@ in this task.
 ```text
 PHASE3A_VIDEO_EDL_IMPLEMENTATION_ACCEPTED=YES
 PHASE3A_VIDEO_EDL_IMPLEMENTATION_REMOTE_CLOSED=YES
-PHASE3_CLOSED=NO
-NEXT_ACTION=PHASE3B_AUDIO_SAMPLE_GRID_AND_BOUNDARY_CONTRACT
+HISTORICAL_PHASE3_CLOSED_AT_3A=NO
+HISTORICAL_NEXT_ACTION_AT_3A=PHASE3B_AUDIO_SAMPLE_GRID_AND_BOUNDARY_CONTRACT
 ```

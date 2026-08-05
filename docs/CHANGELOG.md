@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-05 - Phase 3 final acceptance and closure
+
+- Closed and remote closed Phase 3 multi-track EDL and Timeline Compiler.
+- Accepted video EDL/timeline-debug `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f`
+  and deterministic audio EDL/boundary compiler
+  `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9`.
+- Final independent audits: `0 BLOCKER / 0 MAJOR / 0 MINOR`; final gates:
+  `115 passed` cross-contract and `64 passed` clean-clone exact.
+- The next and only authorized task is Phase 4A Motion Renderer Foundation.
+
 ## 2026-08-04 - Phase 3A Video EDL acceptance
 
 - Accepted and remote closed the deterministic video-frame-grid EDL and

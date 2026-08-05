@@ -1,5 +1,32 @@
 # Phase Acceptance
 
+## Faz 3 - Final acceptance
+
+Degerlendirme tarihi: 5 Agustos 2026
+Genel durum: **ACCEPTED / CLOSED / REMOTE CLOSED**
+
+| Kriter | Durum | Kanit |
+|---|---|---|
+| Deterministic V1-V7 video EDL ve timeline debug | SATISFIED | 3A `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f` |
+| Fixed V1-V7 ve A1-A5 vocabulary, deterministic collision | SATISFIED | 3A/3B cross-contract gate |
+| Word timing / motion ortak frame grid ve A/V sync | SATISFIED | Phase 2 WordToFrame + Phase 3 reconciliation |
+| 48 kHz A1-A5 sample-grid ve policy metadata | SATISFIED | 3B `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9` |
+| PCM click/pop, planned silence ve TTS-boundary korumasi | SATISFIED | checked-in PCM REPLAY fixture ve 3B gate |
+| Final independent auditler | PASS | `0 BLOCKER / 0 MAJOR / 0 MINOR` |
+| Cross-contract / clean-clone exact gates | PASS | `115 passed` / `64 passed` |
+
+Acceptance report: `baseline/phase3_final_acceptance_report.md`.
+
+```text
+PHASE3_FINAL_ACCEPTANCE=ACCEPT
+PHASE3_CLOSED=YES
+PHASE3_REMOTE_CLOSED=YES
+NEXT_ACTION=PHASE4A_MOTION_RENDERER_FOUNDATION
+```
+
+The historical Phase 3A-only section below is superseded by this final
+acceptance record and is retained as bounded 3A evidence.
+
 ## Faz 3A — Video EDL and Timeline Debug acceptance
 
 Degerlendirme tarihi: 4 Agustos 2026
@@ -21,8 +48,8 @@ Acceptance report: `baseline/phase3a_video_edl_implementation_acceptance_report.
 ```text
 PHASE3A_VIDEO_EDL_IMPLEMENTATION_ACCEPTANCE=ACCEPT
 PHASE3A_VIDEO_EDL_IMPLEMENTATION_REMOTE_CLOSED=YES
-PHASE3_CLOSED=NO
-NEXT_ACTION=PHASE3B_AUDIO_SAMPLE_GRID_AND_BOUNDARY_CONTRACT
+HISTORICAL_PHASE3_CLOSED_AT_3A=NO
+HISTORICAL_NEXT_ACTION_AT_3A=PHASE3B_AUDIO_SAMPLE_GRID_AND_BOUNDARY_CONTRACT
 ```
 
 ## Faz 0 - Technical closure status
