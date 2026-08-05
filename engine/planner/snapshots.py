@@ -90,4 +90,4 @@ class PlannerSnapshotService:
         """Persist only a projection returned by this typed producer boundary."""
         if type(store) is not PlannerStore or type(snapshot) is not ProducedPlannerSnapshot:
             raise PlannerContractError("PLANNER_SNAPSHOT_PERSIST_INVALID")
-        return store._put_produced_snapshot(kind=snapshot.kind, snapshot=snapshot.payload)
+        return store._put_produced_snapshot(snapshot=snapshot)

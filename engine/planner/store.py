@@ -98,7 +98,10 @@ class PlannerStore:
             raise PlannerContractError("PLANNER_STORE_CANONICAL_INVALID")
         return value
 
-    def _put_produced_snapshot(self, *, kind: str, snapshot: Mapping[str, object]) -> tuple[str, str]:
+    def _put_produced_snapshot(self, *, snapshot: object) -> tuple[str, str]:
+        if type(snapshot).__module__ != "engine.planner.snapshots" or type(snapshot).__name__ != "ProducedPlannerSnapshot":
+            raise PlannerContractError("PLANNER_SNAPSHOT_PRODUCER_REQUIRED")
+        kind, snapshot = snapshot.kind, snapshot.payload
         snapshot_id, snapshot_hash, _ = validate_snapshot_record(kind, snapshot)
         if self.policy is None or snapshot["policy_snapshot_id"] != self.policy.policy_snapshot_id or snapshot["policy_snapshot_hash"] != self.policy.policy_snapshot_hash:
             raise PlannerContractError("PLANNER_SNAPSHOT_POLICY_INVALID")
