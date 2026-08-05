@@ -5,6 +5,6 @@ from .contracts import ChapterBriefV1, GlobalOutlineV1, NarrativeBeatV1, Planner
 from .store import PlannerStore
 from .gateway import PlannerRepairBuilder, PlannerResultImporter, PlannerTaskPackageBuilder, PlannerTaskService, PlannerTaskStore, PlannerTaskV1, validate_response
 from .assembly import PlannerAssembler, PlannerAssemblyRequestV1
-from .snapshots import PlannerSnapshotService
+from .snapshots import PlannerSnapshotService, ReplayPlannerContextFixtureV1
 
-__all__ = ["PlannerPolicyError", "PlannerPolicyV1", "planner_policy_from_snapshot", "GlobalOutlineV1", "ChapterBriefV1", "NarrativeBeatV1", "PlannerAssetBriefV1", "PlannerSnapshotV1", "PlannerSnapshotService", "PlannerContractError", "SequencePlanV1", "PlannerStore", "PlannerRepairBuilder", "PlannerResultImporter", "PlannerTaskPackageBuilder", "PlannerTaskService", "PlannerTaskStore", "PlannerTaskV1", "validate_response", "PlannerAssemblyRequestV1", "PlannerAssembler"]
+__all__ = ["PlannerPolicyError", "PlannerPolicyV1", "planner_policy_from_snapshot", "GlobalOutlineV1", "ChapterBriefV1", "NarrativeBeatV1", "PlannerAssetBriefV1", "PlannerSnapshotV1", "PlannerSnapshotService", "ReplayPlannerContextFixtureV1", "PlannerContractError", "SequencePlanV1", "PlannerStore", "PlannerRepairBuilder", "PlannerResultImporter", "PlannerTaskPackageBuilder", "PlannerTaskService", "PlannerTaskStore", "PlannerTaskV1", "validate_response", "PlannerAssemblyRequestV1", "PlannerAssembler"]
