@@ -28,4 +28,7 @@ venv.bak/
 *.mp4
 *.mp3
 *.wav
+# Phase 3B contract evidence: the sole checked-in WAV fixture is deliberately
+# tiny and content-addressed by its REPLAY test.
+!tests/fixtures/phase3/audio_edl_pcm/synthetic_pcm_f32le_stereo.wav
 *.json.bak

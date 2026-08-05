@@ -355,6 +355,18 @@ TIMELINE_DEBUG_PUBLIC_EXPORTS = frozenset({
     "TimelineDebugArtifact", "TimelineDebugRejectionReason", "TimelineDebugContractError",
     "compile_timeline_debug", "load_timeline_debug", "serialize_timeline_debug",
 })
+AUDIO_EDL_PUBLIC_EXPORTS = frozenset({
+    "AUDIO_EDL_V1", "AUDIO_EDL_HASH_V1", "AUDIO_SAMPLE_CLOCK_V1",
+    "INTERNAL_AUDIO_SAMPLE_RATE_HZ", "INTERNAL_AUDIO_CHANNEL_COUNT",
+    "InternalPcmFormat", "AudioTrackRole", "AudioEventKind",
+    "AudioBoundaryPolicy", "AudioTransitionKind", "AudioBoundaryPosition",
+    "AudioCueWordRange", "AudioCueSampleRange", "ReplayPcmSource",
+    "ReplayPcmEvidence", "AudioPlacementIntent", "AudioBoundaryIntent",
+    "AudioPlannedSilence", "AudioBoundaryDecision", "EdlAudioEvent",
+    "AudioEdlTrack", "AudioEdlArtifact", "AudioEdlRejectionReason",
+    "AudioEdlContractError", "compile_audio_edl", "plan_audio_boundaries",
+    "load_audio_edl", "serialize_audio_edl",
+})
 PRE_SLICE4_STABLE_ISSUE_CODES = frozenset(
     {
         "ADAPTER_FAILURE",
@@ -1079,7 +1091,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | WORD_TO_FRAME_PUBLIC_EXPORTS | ALIGNMENT_REPORT_PUBLIC_EXPORTS
         | CAPTION_PREVIEW_PUBLIC_EXPORTS | V5_V6_COLLISION_PUBLIC_EXPORTS
         | TIMING_PUBLICATION_PUBLIC_EXPORTS
-        | EDL_PUBLIC_EXPORTS | TIMELINE_DEBUG_PUBLIC_EXPORTS
+        | EDL_PUBLIC_EXPORTS | TIMELINE_DEBUG_PUBLIC_EXPORTS | AUDIO_EDL_PUBLIC_EXPORTS
     )
     assert current_exports - (
         PRE_SLICE4_PUBLIC_EXPORTS | SLICE4_PUBLIC_EXPORTS
@@ -1093,7 +1105,7 @@ def test_alignment_request_public_exports_are_exact() -> None:
         | CAPTION_PREVIEW_PUBLIC_EXPORTS
         | V5_V6_COLLISION_PUBLIC_EXPORTS
         | TIMING_PUBLICATION_PUBLIC_EXPORTS
-        | EDL_PUBLIC_EXPORTS | TIMELINE_DEBUG_PUBLIC_EXPORTS
+        | EDL_PUBLIC_EXPORTS | TIMELINE_DEBUG_PUBLIC_EXPORTS | AUDIO_EDL_PUBLIC_EXPORTS
     )
     assert PRE_SLICE4_PUBLIC_EXPORTS - current_exports == set()
     assert not hasattr(contracts, "_MATERIALIZED_ALIGNMENT_REQUESTS")

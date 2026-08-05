@@ -1,0 +1,68 @@
+{
+  "schema_version": "PHASE3-AUDIO-EDL-REPLAY-V1",
+  "fixture_id": "FX-PHASE3-AUDIO-EDL-REPLAY-V1",
+  "source_mode": "REPLAY",
+  "video_edl_fixture": "edl_replay_v1.json",
+  "internal_audio": {
+    "sample_rate_hz": 48000,
+    "channel_count": 2,
+    "pcm_format": "PCM_F32LE"
+  },
+  "video_clock_cases": [
+    {"fps_numerator": 30, "fps_denominator": 1},
+    {"fps_numerator": 30000, "fps_denominator": 1001}
+  ],
+  "sources": [
+    {"source_id": "src_narration", "has_encoder_compensation": true},
+    {"source_id": "src_bgm", "has_encoder_compensation": false},
+    {"source_id": "src_sfx", "has_encoder_compensation": false},
+    {"source_id": "src_speech", "has_encoder_compensation": false},
+    {"source_id": "src_ambience", "has_encoder_compensation": false}
+  ],
+  "fixture_pcm_bindings": [
+    {
+      "source_id": "src_fixture_pcm",
+      "relative_wav_path": "audio_edl_pcm/synthetic_pcm_f32le_stereo.wav",
+      "wav_file_byte_hash": "sha256:800ffc638f13e0f7b6a789e9ec6b330de914d2a58418b3bc9eaceaa6f7bc0909",
+      "source_media_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "normalized_pcm_evidence_hash": "sha256:b90c9e6f75e3ae9f2e415836a91fdd1e346709cce69560769df73025de4a3c6b",
+      "pcm_format": "PCM_F32LE",
+      "sample_rate_hz": 48000,
+      "channel_count": 2,
+      "sample_frames": 4
+    },
+    {
+      "source_id": "src_fixture_pcm_delay_padding",
+      "relative_wav_path": "audio_edl_pcm/synthetic_pcm_f32le_stereo.wav",
+      "wav_file_byte_hash": "sha256:800ffc638f13e0f7b6a789e9ec6b330de914d2a58418b3bc9eaceaa6f7bc0909",
+      "source_media_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "normalized_pcm_evidence_hash": "sha256:b90c9e6f75e3ae9f2e415836a91fdd1e346709cce69560769df73025de4a3c6b",
+      "pcm_format": "PCM_F32LE",
+      "sample_rate_hz": 48000,
+      "channel_count": 2,
+      "sample_frames": 4,
+      "encoder_delay_samples": 1,
+      "encoder_padding_samples": 1
+    }
+  ],
+  "required_track_kinds": {
+    "A1": "NARRATION",
+    "A2": "BGM",
+    "A3": "SFX",
+    "A4": "SOURCE_SPEECH",
+    "A5": "AMBIENCE"
+  },
+  "required_boundary_examples": {
+    "A1": "PRESERVE_SILENCE",
+    "A2": "OVERLAP_CROSSFADE",
+    "A3": "HARD_CUT_ZERO_CROSSING",
+    "A4": "SPEECH_COLLISION_REJECTION",
+    "A5": "ZERO_CROSSING_MICROFADE"
+  },
+  "expected": {
+    "audio_track_count": 5,
+    "all_tracks_nonempty": true,
+    "requires_leading_between_trailing_boundaries": true,
+    "requires_checked_in_synthetic_pcm_evidence": true
+  }
+}
