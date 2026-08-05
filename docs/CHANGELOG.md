@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-05 - Phase 8 Asset Ingestion, Catalog and Semantic Index closure
+
+- Added a local REPLAY-only semantic asset catalog with exact-byte provenance,
+  trusted media evidence, semantic families, duplicate/range blocking, reuse
+  analysis, generic-stock ratio, and receipt lineage.
+- Added canonical package/catalog/mutation/receipt replay verification with
+  pinned-manifest provenance checks and fail-closed integrity rules.
+- Added business-tech asset policy data and focused image/video/document/audio
+  regression coverage.
+- Final independent audit: PASS (`0 BLOCKER / 0 MAJOR / 0 MINOR`). Focused
+  gate: `20 passed`; related broad gate: `134 passed, 1 skipped`.
+
 ## 2026-08-05 â€” Phase 7 closed
 
 - Closed the Data Visualization and Metric Engine with exact decimal,

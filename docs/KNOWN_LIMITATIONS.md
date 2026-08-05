@@ -357,6 +357,17 @@ PHASE2_CLOSED=NO
   syntax/indentation debug debt'idir; MoviePy SyntaxWarning'leri applicable
   ortamlarda gorulebilir.
 
+## Phase 8 limitations (accepted boundary)
+
+- Phase 8 accepts only pinned local REPLAY evidence; it does not acquire from
+  providers, open URLs, decode arbitrary production media, or automate a
+  browser.
+- Asset catalog replay is intentionally fail-closed: unknown media bytes or
+  evidence not present in the checked-in manifest are rejected.
+- Asset reuse analysis validates supplied context only; it does not select an
+  EDL asset or create a replacement. Provider queues, retries, UI, durable
+  persistence, and production operations are later-phase work.
+
 ## Operations and repository safety
 
 - Provider credential revoke/rotation NOT CONFIRMED olarak kalir.

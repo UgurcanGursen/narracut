@@ -1,6 +1,6 @@
 {
   "schema_version": "3.0.0",
-  "snapshot_id": "dps_3c19004df6f0696e241c",
+  "snapshot_id": "dps_f9f4c3d275acdae43371",
   "domain_id": "business-tech",
   "domain_pack_version": "0.1.0",
   "profile_id": "dpf_business_default",
@@ -30,6 +30,18 @@
           "visual": {
             "generic_stock_role": "transition_support",
             "source_first": true,
+            "asset_catalog_policy": {
+              "policy_version": "ASSET-CATALOG-POLICY-V1",
+              "allowed_asset_brief_roles": ["show_operational_consequence", "show_mechanism", "show_evidence"],
+              "allowed_preferred_type_tokens": ["screen_recording", "real_broll", "official_visual", "document"],
+              "allowed_avoid_context_tokens": ["generic_server_room", "abstract_binary", "typing_without_visible_code"],
+              "allowed_domain_role_tokens": ["company", "product", "market_actor"],
+              "allowed_domain_sensitivity_tokens": ["attribution_required", "financial_context"],
+              "source_audio_reason_tokens": ["rights_confirmed", "rights_unknown", "no_source_audio"],
+              "generic_stock_provider_tokens": ["pexels", "pixabay"],
+              "reuse_cooldown_frames": 90,
+              "chapter_family_budget": 2
+            },
             "visualization_policy": {
               "policy_version": "VISUALIZATION-POLICY-V1",
               "allowed_kinds": ["chart", "metric", "timeline", "relationship_graph", "evidence_chain", "map"],
@@ -110,7 +122,7 @@
     "enabled_extensions": [],
     "overrides": {}
   },
-  "canonical_hash": "sha256:3c19004df6f0696e241cd09c37664d49ba5e9df8140be3b332fd615777faf7e5",
+  "canonical_hash": "sha256:f9f4c3d275acdae4337169d8d6390deb4afe1865fc5db3a2aa25115c7f5ddf36",
   "immutable": true,
   "created_at": "2026-07-25T00:00:00Z",
   "version": 1

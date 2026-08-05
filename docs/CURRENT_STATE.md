@@ -1,11 +1,25 @@
 # Current State
 
 Son guncelleme: 5 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 NEXT**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 NEXT**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 7 closed; Phase 8 next
+## Latest authoritative state - Phase 8 closed; Phase 9 next
+
+- Phase 8 Asset Ingestion, Catalog and Semantic Index is accepted and closed.
+  Canonical contract: `docs/specifications/phase8_asset_catalog_semantic_index_contract.md`.
+- The local REPLAY-only implementation establishes exact-byte package ingress,
+  trusted image/video/document/audio evidence, semantic records, duplicate and
+  selected-range blocking, reuse analysis, generic-stock ratio, and canonical
+  replay verification for packages, catalogs, mutations, and receipts.
+- Final independent audit: PASS (`0 BLOCKER / 0 MAJOR / 0 MINOR`). Focused
+  gate: `20 passed`; related broad non-FastAPI gate: `134 passed, 1 skipped`.
+- Provider acquisition, browser automation, production queues/retries, EDL
+  selection, UI, and paid APIs remain out of scope. The next task is Phase 9
+  planning; Phase 8 is reopened only for a demonstrated regression.
+
+## Historical Phase 7 state
 
 - Phase 7 Data Visualization and Metric Engine is accepted and closed.
   Canonical evidence: `baseline/phase7_final_acceptance_report.md`.

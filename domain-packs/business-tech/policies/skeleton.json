@@ -19,6 +19,45 @@
   "visual": {
     "generic_stock_role": "transition_support",
     "source_first": true,
+    "asset_catalog_policy": {
+      "policy_version": "ASSET-CATALOG-POLICY-V1",
+      "allowed_asset_brief_roles": [
+        "show_operational_consequence",
+        "show_mechanism",
+        "show_evidence"
+      ],
+      "allowed_preferred_type_tokens": [
+        "screen_recording",
+        "real_broll",
+        "official_visual",
+        "document"
+      ],
+      "allowed_avoid_context_tokens": [
+        "generic_server_room",
+        "abstract_binary",
+        "typing_without_visible_code"
+      ],
+      "allowed_domain_role_tokens": [
+        "company",
+        "product",
+        "market_actor"
+      ],
+      "allowed_domain_sensitivity_tokens": [
+        "attribution_required",
+        "financial_context"
+      ],
+      "source_audio_reason_tokens": [
+        "rights_confirmed",
+        "rights_unknown",
+        "no_source_audio"
+      ],
+      "generic_stock_provider_tokens": [
+        "pexels",
+        "pixabay"
+      ],
+      "reuse_cooldown_frames": 90,
+      "chapter_family_budget": 2
+    },
     "visualization_policy": {
       "policy_version": "VISUALIZATION-POLICY-V1",
       "allowed_kinds": [

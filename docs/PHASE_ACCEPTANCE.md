@@ -736,3 +736,25 @@ PHASE7_CLOSED=YES
 PHASE7_FINAL_AUDIT=PASS
 NEXT_ACTION=PLAN_PHASE8
 ```
+
+## Phase 8 final acceptance — 2026-08-05
+
+| Acceptance item | Status | Evidence |
+|---|---|---|
+| Exact-byte local REPLAY asset ingress and trusted media evidence | ACCEPT | `engine/acquisition/asset_catalog.py`; pinned image/video/document/audio manifest |
+| Semantic catalog, duplicate/range blocking, family and reuse policy | ACCEPT | focused REPLAY coverage in `tests/test_asset_catalog.py` |
+| Package/catalog/mutation/receipt canonical replay integrity | ACCEPT | canonical serializers/loaders plus trusted provenance revalidation |
+| Final independent audit | PASS | BLOCKER/MAJOR/MINOR `0/0/0` |
+| Focused gate | PASS | `20 passed` |
+| Related broad non-FastAPI regression | PASS | `134 passed, 1 skipped` |
+
+Phase 8 establishes a local, fail-closed REPLAY catalog boundary only. It does
+not accept provider acquisition, queues/retries, browser automation, EDL
+selection, UI, or production operations.
+
+```text
+PHASE8_FINAL_ACCEPTANCE=ACCEPT
+PHASE8_CLOSED=YES
+PHASE8_FINAL_AUDIT=PASS
+NEXT_ACTION=PLAN_PHASE9
+```
