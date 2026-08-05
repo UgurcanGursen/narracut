@@ -16,6 +16,7 @@ from engine.rendering import (
 from engine.rendering.bridge import build_render_props, renderer_version
 from engine.rendering.fixture_assets import FixtureAssetResolver
 from engine.rendering.full_profile import load_full_render_profile
+from engine.rendering.full_render import run_profile_media_pipeline
 from tests.test_render_bridge import FIXTURE_ROOT, ROOT, build_phase4a_rich_replay_inputs
 
 PROFILE_ID = "frp_phase4b_replay_win32_x64"
@@ -123,3 +124,16 @@ def test_replay_ffmpeg_mux_and_ffprobe_produce_a_staged_av_output(tmp_path: Path
     assert pcm_generated.returncode == 0 and pcm.is_file()
     result = normalize_mux_probe(video_path=video, pcm_paths=[pcm], staged_output=tmp_path / "staged.mp4", ffmpeg=ffmpeg, ffprobe=ffprobe)
     assert result["output_size_bytes"] > 0 and result["streams"] >= 2
+
+
+def test_normalize_stage_has_its_own_closed_failure_code(tmp_path: Path) -> None:
+    """A normalize failure must never be misreported as mux/encode failure."""
+    profile = load_full_render_profile(profile_id=PROFILE_ID, profile_hash=PROFILE_HASH)
+    video, pcm, script = tmp_path / "video.mp4", tmp_path / "pcm.wav", tmp_path / "plan.ffscript"
+    video.write_bytes(b"v"); pcm.write_bytes(b"p"); script.write_bytes(b"[1:a]anull[aout]\n")
+    with pytest.raises(FullRenderError) as rejected:
+        run_profile_media_pipeline(profile=profile, video_path=video, pcm_paths=[pcm],
+            filter_script=script, normalized_audio=tmp_path / "normalized.wav",
+            staged_output=tmp_path / "staged.mp4", ffmpeg=tmp_path / "missing-ffmpeg.exe",
+            ffprobe=tmp_path / "missing-ffprobe.exe")
+    assert rejected.value.code == "FFMPEG_NORMALIZE_FAILED"

@@ -220,9 +220,9 @@ def run_profile_media_pipeline(*, profile: dict[str, Any], video_path: Path,
         if result.returncode:
             raise FullRenderError(code)
     normalized_audio.parent.mkdir(parents=True, exist_ok=True)
-    execute(expand(profile["ffmpeg_normalize_argv"], values), "FFMPEG_MUX_FAILED", "ffmpeg_normalize", normalize=True)
+    execute(expand(profile["ffmpeg_normalize_argv"], values), "FFMPEG_NORMALIZE_FAILED", "ffmpeg_normalize", normalize=True)
     if not normalized_audio.is_file() or not normalized_audio.stat().st_size:
-        raise FullRenderError("FFMPEG_MUX_FAILED")
+        raise FullRenderError("FFMPEG_NORMALIZE_FAILED")
     staged_output.parent.mkdir(parents=True, exist_ok=True)
     execute(expand(profile["ffmpeg_mux_encode_argv"], values), "FFMPEG_MUX_FAILED", "ffmpeg_mux_encode")
     if not staged_output.is_file() or not staged_output.stat().st_size:

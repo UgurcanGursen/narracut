@@ -39,6 +39,13 @@ def _tools() -> tuple[Path, Path]:
     return ffmpeg, ffprobe
 
 
+def _runtime() -> RemotionFullRuntime:
+    node = Path(shutil.which("node") or "")
+    if not node.is_file():
+        pytest.skip("paired Node/Remotion fixture runtime unavailable")
+    return RemotionFullRuntime(node_executable=node, renderer_root=ROOT / "renderer-remotion")
+
+
 def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) -> None:
     ffmpeg, ffprobe = _tools()
     props = _props()
@@ -57,11 +64,9 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
     for entry in report["entries"]:
         entry["materialized_pcm_content_sha256"], entry["byte_length"] = _sha(pcm), pcm.stat().st_size
 
-    node = Path(shutil.which("node") or "")
-    if not node.is_file():
-        pytest.skip("paired Node/Remotion fixture runtime unavailable")
+    runtime = _runtime()
     render_video = make_remotion_full_producer(
-        runtime=RemotionFullRuntime(node_executable=node, renderer_root=ROOT / "renderer-remotion"),
+        runtime=runtime,
         fixture_assets=FixtureAssetResolver.load(FIXTURE_ROOT), fixture_root=FIXTURE_ROOT,
     )
 
@@ -69,7 +74,8 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
         pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources=sources,
         output_target_id="outt_" + "9" * 32, profile_id=PROFILE_ID,
         profile_hash=PROFILE_HASH, cancellation_ingress_id="cancel_1",
-        attempt_id="attempt_replay_1", video_producer=render_video, ffmpeg=ffmpeg, ffprobe=ffprobe)
+        attempt_id="attempt_replay_1", video_producer=render_video, ffmpeg=ffmpeg, ffprobe=ffprobe,
+        remotion_runtime=runtime)
     assert outcome.status == "SUCCEEDED" and outcome.output_path is not None
     assert outcome.output_path.is_file() and outcome.receipt is not None
     assert outcome.receipt["status"] == "SUCCEEDED"
@@ -84,8 +90,9 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
     assert head["current_output_artifact_id"] in registry
     for kind in ("full_render_request", "render_props", "pcm_input_manifest",
                  "pcm_materialization_report", "renderer_video", "audio_render_plan",
-                 "audio_filter_script", "normalized_audio", "final_output"):
+                 "audio_filter_script", "normalized_audio", "final_output", "full_render_toolchain_preflight"):
         assert f'"kind":"{kind}"' in registry
+    assert outcome.receipt["payload"]["toolchain_preflight_id"] in registry
     assert not list((tmp_path / "renders" / "attempts" / "attempt_replay_1").rglob("*"))
 
 
@@ -113,6 +120,8 @@ def test_admitted_terminal_failure_and_cancellation_persist_cleanup_receipts(
 ) -> None:
     """Admitted non-success paths never publish a target revision, but do journal cleanup."""
     props = _props()
+    ffmpeg, ffprobe = _tools()
+    runtime = _runtime()
     target_id = "outt_" + ("6" if cancel else "7") * 32
     provision_output_target(project_root=tmp_path, head=OutputTargetHead(
         target_id, props.project_id, props.sequence_id, "renders/final/terminal.mp4"))
@@ -128,7 +137,7 @@ def test_admitted_terminal_failure_and_cancellation_persist_cleanup_receipts(
         output_target_id=target_id, profile_id=PROFILE_ID,
         profile_hash=PROFILE_HASH, cancellation_ingress_id="cancel_terminal",
         attempt_id="attempt_terminal_" + ("cancel" if cancel else "failure"),
-        video_producer=producer, ffmpeg=Path("ffmpeg"), ffprobe=Path("ffprobe"),
+        video_producer=producer, ffmpeg=ffmpeg, ffprobe=ffprobe, remotion_runtime=runtime,
         cancel_after_admission=cancel,
     )
     assert outcome.admitted and outcome.status == expected_status and outcome.output_path is None
@@ -144,3 +153,21 @@ def test_admitted_terminal_failure_and_cancellation_persist_cleanup_receipts(
     assert outcome.receipt["receipt_id"] in registry
     assert outcome.receipt["pre_cleanup_manifest_id"] in registry
     assert outcome.receipt["post_cleanup_manifest_id"] in registry
+
+
+def test_toolchain_preflight_rejects_untrusted_runtime_before_attempt(tmp_path: Path) -> None:
+    ffmpeg, ffprobe = _tools()
+    props = _props()
+    target_id = "outt_" + "5" * 32
+    provision_output_target(project_root=tmp_path, head=OutputTargetHead(
+        target_id, props.project_id, props.sequence_id, "renders/final/preflight.mp4"))
+    audio, manifest, report = _inputs()
+    with pytest.raises(FullRenderError, match="FULL_RENDER_TOOLCHAIN_PREFLIGHT_FAILED"):
+        run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
+            pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources={},
+            output_target_id=target_id, profile_id=PROFILE_ID, profile_hash=PROFILE_HASH,
+            cancellation_ingress_id="cancel_preflight", attempt_id="attempt_preflight_1",
+            video_producer=lambda *_: None, ffmpeg=ffmpeg, ffprobe=ffprobe,
+            remotion_runtime=RemotionFullRuntime(node_executable=tmp_path / "untrusted-node.exe",
+                                                 renderer_root=ROOT / "renderer-remotion"))
+    assert not (tmp_path / "renders" / "attempts").exists()

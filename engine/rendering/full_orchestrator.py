@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import platform
 import shutil
 import subprocess
 from dataclasses import dataclass
@@ -25,7 +26,7 @@ from .bridge import RenderProps, load_render_props, serialize_render_props
 from .fixture_assets import FixtureAssetResolver, FixtureAssetResolverError
 from .full_render import (FullRenderError, atomic_publish, build_full_render_request,
                           run_profile_media_pipeline, resolve_output_target)
-from .full_profile import load_full_render_profile
+from .full_profile import default_profile_paths, load_full_render_profile
 from .lifecycle_registry import (cleanup_attempt, commit_transaction,
                                  next_target_revision, snapshot_attempt)
 
@@ -43,6 +44,84 @@ class RemotionFullRuntime:
 
 
 _MAX_REMOTION_OUTPUT = 1_048_576
+_PREFLIGHT_V1 = "FULL-RENDER-TOOLCHAIN-PREFLIGHT-V1"
+
+
+def _toolchain_failure() -> FullRenderError:
+    return FullRenderError("FULL_RENDER_TOOLCHAIN_PREFLIGHT_FAILED")
+
+
+def _checked_file_hash(path: Path, expected: str) -> None:
+    try:
+        if not path.is_file() or _sha(path.read_bytes()) != expected:
+            raise _toolchain_failure()
+    except OSError as exc:
+        raise _toolchain_failure() from exc
+
+
+def _version_line(*, command: list[str], timeout_seconds: int) -> str:
+    try:
+        completed = subprocess.run(command, stdin=subprocess.DEVNULL,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                   timeout=timeout_seconds, check=False)
+        raw = completed.stdout or completed.stderr
+        line = raw.decode("utf-8", "strict").splitlines()[0]
+    except (OSError, subprocess.TimeoutExpired, UnicodeDecodeError, IndexError) as exc:
+        raise _toolchain_failure() from exc
+    if completed.returncode != 0 or not line:
+        raise _toolchain_failure()
+    return line
+
+
+def preflight_full_render_toolchain(*, profile: dict[str, Any], request: dict[str, Any],
+                                    runtime: RemotionFullRuntime, ffmpeg: Path,
+                                    ffprobe: Path) -> dict[str, Any]:
+    """Authenticate paired runtime bytes/versions before attempt admission."""
+    if not isinstance(runtime, RemotionFullRuntime):
+        raise _toolchain_failure()
+    node, root = runtime.node_executable.resolve(), runtime.renderer_root.resolve()
+    ffmpeg, ffprobe = ffmpeg.resolve(), ffprobe.resolve()
+    if (type(runtime.timeout_seconds) is not int or not 1 <= runtime.timeout_seconds <= 600
+            or platform.system().lower() != "windows" or platform.machine().lower() not in {"amd64", "x86_64"}):
+        raise _toolchain_failure()
+    cli = root / "node_modules" / "@remotion" / "cli" / "remotion-cli.js"
+    identities = (("node", profile["node_identity"], node, [str(node), "--version"]),
+                  ("ffmpeg", profile["ffmpeg_identity"], ffmpeg, [str(ffmpeg), "-version"]),
+                  ("ffprobe", profile["ffprobe_identity"], ffprobe, [str(ffprobe), "-version"]))
+    rows: list[dict[str, str]] = []
+    for kind, identity, executable, command in identities:
+        _checked_file_hash(executable, identity["executable_sha256"])
+        line = _version_line(command=command, timeout_seconds=profile["stage_timeout_seconds"]["toolchain_preflight"])
+        if line != identity["normalized_first_version_line"] or _sha(line.encode("utf-8")) != identity["version_output_sha256"]:
+            raise _toolchain_failure()
+        rows.append({"kind": kind, "executable_sha256": _sha(executable.read_bytes()), "normalized_version_line": line})
+    identity = profile["remotion_identity"]
+    _checked_file_hash(cli, identity["cli_entry_sha256"])
+    try:
+        package = json.loads((root / "node_modules" / "@remotion" / "cli" / "package.json").read_bytes())
+        remotion_line = "@remotion/cli " + package["version"]
+        lock_hash = _sha((root / "package-lock.json").read_bytes())
+        _, provenance_path = default_profile_paths()
+        trusted_lock_hash = json.loads(provenance_path.read_bytes())["package_lock_sha256"]
+    except (OSError, TypeError, KeyError, json.JSONDecodeError) as exc:
+        raise _toolchain_failure() from exc
+    if (lock_hash != trusted_lock_hash
+            or remotion_line != identity["normalized_version_line"]
+            or _sha(remotion_line.encode("utf-8")) != identity["version_output_sha256"]):
+        raise _toolchain_failure()
+    rows.insert(1, {"kind": "remotion", "cli_entry_sha256": _sha(cli.read_bytes()), "normalized_version_line": remotion_line})
+    base: dict[str, Any] = {
+        "schema_version": _PREFLIGHT_V1, "toolchain_preflight_id": "", "toolchain_preflight_hash": "",
+        "full_render_request_id": request["full_render_request_id"],
+        "full_render_request_hash": request["full_render_request_hash"],
+        "full_render_profile_id": request["full_render_profile_id"],
+        "full_render_profile_hash": request["full_render_profile_hash"], "runtime_rows": rows,
+    }
+    digest = _sha(encode_canonical_json_bytes({
+        key: value for key, value in base.items()
+        if key not in {"toolchain_preflight_id", "toolchain_preflight_hash"}
+    }))
+    return base | {"toolchain_preflight_id": "tpf_" + digest[7:39], "toolchain_preflight_hash": digest}
 
 
 def _child_environment() -> dict[str, str]:
@@ -190,7 +269,8 @@ def run_full_render(*, project_root: Path, props: RenderProps,
                     pcm_materialization_report: dict[str, Any], pcm_sources: Mapping[str, Path],
                     output_target_id: str, profile_id: str, profile_hash: str,
                     cancellation_ingress_id: str, attempt_id: str, video_producer: VideoProducer,
-                    ffmpeg: Path, ffprobe: Path, cancel_before_admission: bool = False,
+                    ffmpeg: Path, ffprobe: Path, remotion_runtime: RemotionFullRuntime | None = None,
+                    cancel_before_admission: bool = False,
                     cancel_after_admission: bool = False) -> FullRenderOutcome:
     """Run one isolated render attempt and append exactly one terminal journal.
 
@@ -210,6 +290,11 @@ def run_full_render(*, project_root: Path, props: RenderProps,
                                    output_target_id=output_target_id, props=props)
     if cancel_before_admission:
         return FullRenderOutcome(False, "CANCELLED_BEFORE_ADMISSION", request, None, None)
+    if remotion_runtime is None:
+        raise _toolchain_failure()
+    preflight = preflight_full_render_toolchain(profile=profile, request=request,
+                                                runtime=remotion_runtime,
+                                                ffmpeg=ffmpeg, ffprobe=ffprobe)
     attempt_root = project_root / "renders" / "attempts" / attempt_id
     try:
         attempt_root.mkdir(parents=True, exist_ok=False)
@@ -224,6 +309,12 @@ def run_full_render(*, project_root: Path, props: RenderProps,
         request_path.write_bytes(encode_canonical_json_bytes(request))
         artifact_rows.append(_artifact_row(artifact_id="art_request_" + request["full_render_request_hash"][7:39],
                                            path=request_path, kind="full_render_request", props=props))
+        preflight_path = attempt_root / "toolchain" / "full-render-toolchain-preflight.json"
+        preflight_path.parent.mkdir(parents=True)
+        preflight_path.write_bytes(encode_canonical_json_bytes(preflight))
+        artifact_rows.append(_artifact_row(
+            artifact_id="art_toolchain_preflight_" + preflight["toolchain_preflight_hash"][7:39],
+            path=preflight_path, kind="full_render_toolchain_preflight", props=props))
         props_path = attempt_root / "remotion" / "render-props.json"
         props_path.parent.mkdir(parents=True)
         props_path.write_bytes(serialize_render_props(props))
@@ -290,6 +381,8 @@ def run_full_render(*, project_root: Path, props: RenderProps,
             receipt_payload={"full_render_request_id": request["full_render_request_id"],
                              "audio_render_plan_id": plan["audio_render_plan_id"],
                              "audio_filter_script_id": script_artifact["audio_filter_script_id"],
+                             "toolchain_preflight_id": preflight["toolchain_preflight_id"],
+                             "toolchain_preflight_hash": preflight["toolchain_preflight_hash"],
                              "output_sha256": probe["output_sha256"],
                              # The durable target relation itself is recorded
                              # by the registry receipt; this payload carries
@@ -309,5 +402,7 @@ def run_full_render(*, project_root: Path, props: RenderProps,
                 (request["full_render_request_id"] + attempt_id).encode("ascii")).hexdigest()[:32],
             base_target=base_target, target_revision=None, artifact_rows=tuple(artifact_rows), terminal_status=status,
             receipt_payload={"full_render_request_id": request["full_render_request_id"],
+                             "toolchain_preflight_id": preflight["toolchain_preflight_id"],
+                             "toolchain_preflight_hash": preflight["toolchain_preflight_hash"],
                              "failure_code": failure.code}, pre_cleanup=pre, post_cleanup=post)
         return FullRenderOutcome(True, status, request, receipt, None)
