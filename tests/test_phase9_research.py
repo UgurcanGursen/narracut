@@ -30,7 +30,7 @@ def _snapshot() -> DomainPolicySnapshot:
         "claim_research_policy": {"policy_version": "CLAIM-RESEARCH-POLICY-V1", "allowed_claim_types": ["company_statement", "reported_metric", "market_reaction"], "allowed_claim_statuses": ["reported", "attributed", "contested"], "allowed_authority_tokens": ["primary", "official", "reported"], "allowed_contradiction_kinds": ["value_conflict", "status_conflict"], "allowed_date_precisions": ["day", "month", "year"], "allowed_safe_wording_tokens": ["reported", "attributed", "according_to_source"], "allowed_visible_contradiction_wording_tokens": ["sources", "differ"]},
     }
     resolved = {"policy_bundles": [{"ref": "policy.json", "policy": {"research": research}}], "extensions": {}, "enabled_extensions": [], "overrides": {}}
-    data = {"schema_version": "3.0.0", "domain_id": "business-tech", "domain_pack_version": "0.1.0", "profile_id": "dpf_business", "manifest_hash": "sha256:4f5a291f1d992d5227410081b7a8b70f6f921d90ae17363372e1fce6140b618e", "resolved_policy": resolved, "immutable": True, "created_at": "2026-08-05T00:00:00Z", "version": 1}
+    data = {"schema_version": "3.0.0", "domain_id": "business-tech", "domain_pack_version": "0.1.0", "profile_id": "dpf_business", "manifest_hash": "sha256:2e2278373e45a2843a5deb9bcd2ee3c2d01e65814a06890d18614b3273c96c08", "resolved_policy": resolved, "immutable": True, "created_at": "2026-08-05T00:00:00Z", "version": 1}
     digest = policy_snapshot_hash(data)
     return DomainPolicySnapshot(**(data | {"snapshot_id": "dps_" + digest[7:27], "canonical_hash": digest}))
 
