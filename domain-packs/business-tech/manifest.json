@@ -9,7 +9,8 @@
     "policies/skeleton.json"
   ],
   "prompt_bundle_refs": [
-    "prompts/research_discovery.md"
+    "prompts/research_discovery.md",
+    "prompts/planner_outline.md"
   ],
   "extensions": {
     "editorial_roles": [

@@ -3,7 +3,7 @@
   "domain_id": "business-tech",
   "domain_pack_version": "0.1.0",
   "profile_id": "dpf_split_business",
-  "manifest_hash": "sha256:4f5a291f1d992d5227410081b7a8b70f6f921d90ae17363372e1fce6140b618e",
+  "manifest_hash": "sha256:2e2278373e45a2843a5deb9bcd2ee3c2d01e65814a06890d18614b3273c96c08",
   "resolved_policy": {
     "policy_bundles": [
       {
@@ -36,6 +36,7 @@
               "allowed_visible_contradiction_wording_tokens": ["sources", "differ"]
             }
           },
+          "planner": {"planner_policy":{"policy_version":"PLANNER-POLICY-V1","allowed_core_beat_kinds":["hook","context","promise","rise","reveal","contradiction","mechanism","example","consequence","counterargument","payoff","chapter_reset","final_question","reconstruct_timeline","compare_accounts","introduce_entity"],"allowed_domain_beat_subtypes":["earnings_reaction","operating_mechanism"],"allowed_editorial_roles":["mechanism","transition_support"],"allowed_visual_role_tokens":["show_evidence","show_mechanism","show_operational_consequence"],"allowed_safe_wording_tokens":["reported","attributed","according_to_source"],"min_sequence_duration_ms":30000,"max_sequence_duration_ms":90000,"max_claims_per_sequence":8,"max_asset_briefs_per_sequence":15,"min_edit_events_per_sequence":10,"max_edit_events_per_sequence":30}},
           "visual": {
             "generic_stock_role": "transition_support",
             "source_first": true,
@@ -151,6 +152,6 @@
   "immutable": true,
   "created_at": "2026-07-25T00:00:00Z",
   "version": 1,
-  "snapshot_id": "dps_aa54984607588b54d584",
-  "canonical_hash": "sha256:aa54984607588b54d58498ec2037b8a967ecc2fddf01aaee3e6288a3a8e8a309"
+  "snapshot_id": "dps_8319267b0680a3e8d61e",
+  "canonical_hash": "sha256:8319267b0680a3e8d61e0273103a84e0046c59ee1b646587a99c0f89a9468511"
 }

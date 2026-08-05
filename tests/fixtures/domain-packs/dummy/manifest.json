@@ -8,7 +8,9 @@
   "policy_bundle_refs": [
     "policy.json"
   ],
-  "prompt_bundle_refs": [],
+  "prompt_bundle_refs": [
+    "prompts/planner_outline.md"
+  ],
   "extensions": {
     "editorial_roles": [
       {

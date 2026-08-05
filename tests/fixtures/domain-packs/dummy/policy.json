@@ -1,4 +1,20 @@
 {
   "fixture": true,
-  "value": "dummy"
+  "value": "dummy",
+  "planner": {
+    "planner_policy": {
+      "policy_version": "PLANNER-POLICY-V1",
+      "allowed_core_beat_kinds": ["hook", "context", "reveal"],
+      "allowed_domain_beat_subtypes": [],
+      "allowed_editorial_roles": ["dummy_role"],
+      "allowed_visual_role_tokens": ["show_evidence"],
+      "allowed_safe_wording_tokens": ["reported"],
+      "min_sequence_duration_ms": 30000,
+      "max_sequence_duration_ms": 90000,
+      "max_claims_per_sequence": 8,
+      "max_asset_briefs_per_sequence": 15,
+      "min_edit_events_per_sequence": 10,
+      "max_edit_events_per_sequence": 30
+    }
+  }
 }

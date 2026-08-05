@@ -52,6 +52,22 @@
       ]
     }
   },
+  "planner": {
+    "planner_policy": {
+      "policy_version": "PLANNER-POLICY-V1",
+      "allowed_core_beat_kinds": ["hook", "context", "promise", "rise", "reveal", "contradiction", "mechanism", "example", "consequence", "counterargument", "payoff", "chapter_reset", "final_question", "reconstruct_timeline", "compare_accounts", "introduce_entity"],
+      "allowed_domain_beat_subtypes": ["earnings_reaction", "operating_mechanism"],
+      "allowed_editorial_roles": ["mechanism", "transition_support"],
+      "allowed_visual_role_tokens": ["show_evidence", "show_mechanism", "show_operational_consequence"],
+      "allowed_safe_wording_tokens": ["reported", "attributed", "according_to_source"],
+      "min_sequence_duration_ms": 30000,
+      "max_sequence_duration_ms": 90000,
+      "max_claims_per_sequence": 8,
+      "max_asset_briefs_per_sequence": 15,
+      "min_edit_events_per_sequence": 10,
+      "max_edit_events_per_sequence": 30
+    }
+  },
   "visual": {
     "generic_stock_role": "transition_support",
     "source_first": true,
