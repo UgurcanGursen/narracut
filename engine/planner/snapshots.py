@@ -5,6 +5,10 @@ from __future__ import annotations
 from typing import Iterable, Mapping
 
 from engine.research.store import ClaimStore
+from engine.acquisition.asset_catalog import AssetCatalogV1, canonical_asset_catalog_json
+from engine.rendering.template_registry import TemplateRegistry
+from engine.contracts._canonical_json import encode_canonical_json_bytes
+import hashlib
 
 from .contracts import PlannerContractError, PlannerSnapshotV1
 from .policy import PlannerPolicyV1
@@ -42,13 +46,18 @@ class PlannerSnapshotService:
         return tuple(sorted(pairs))
 
     def catalog(self, *, project_id: str, policy: PlannerPolicyV1,
-                eligible_family_records: Iterable[Mapping[str, object]]) -> dict[str, object]:
-        pairs=self._records(kind="catalog",project_id=project_id,policy=policy,records=eligible_family_records,id_key="family_id",hash_key="family_hash")
+                catalog: AssetCatalogV1) -> dict[str, object]:
+        if type(catalog) is not AssetCatalogV1 or (catalog.project_id,catalog.policy_snapshot_id,catalog.policy_snapshot_hash) != (project_id,policy.policy_snapshot_id,policy.policy_snapshot_hash):
+            raise PlannerContractError("PLANNER_CATALOG_SNAPSHOT_INVALID")
+        families=sorted({record.visual_family_id for record in catalog.records})
+        pairs=tuple(("fam_" + hashlib.sha256(encode_canonical_json_bytes({"visual_family_id": family, "catalog_hash": catalog.catalog_hash})).hexdigest()[:20], "sha256:" + hashlib.sha256(encode_canonical_json_bytes({"visual_family_id": family, "catalog_hash": catalog.catalog_hash})).hexdigest()) for family in families)
+        if not pairs: raise PlannerContractError("PLANNER_CATALOG_SNAPSHOT_INVALID")
         return PlannerSnapshotV1("asset_catalog", project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data()
 
     def capabilities(self, *, project_id: str, policy: PlannerPolicyV1,
-                     capability_records: Iterable[Mapping[str, object]]) -> dict[str, object]:
-        pairs=self._records(kind="capability",project_id=project_id,policy=policy,records=capability_records,id_key="capability_id",hash_key="capability_hash")
+                     registry: TemplateRegistry) -> dict[str, object]:
+        if type(registry) is not TemplateRegistry: raise PlannerContractError("PLANNER_CAPABILITY_SNAPSHOT_INVALID")
+        pairs=tuple(("cap_" + hashlib.sha256(encode_canonical_json_bytes(definition.__dict__)).hexdigest()[:20], "sha256:" + hashlib.sha256(encode_canonical_json_bytes(definition.__dict__)).hexdigest()) for definition in registry.definitions())
         return PlannerSnapshotV1("template_capability", project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data()
 
     def continuity(self, *, project_id: str, policy: PlannerPolicyV1,
