@@ -131,10 +131,14 @@ class PlannerTaskStore:
 
 
 class PlannerTaskPackageBuilder:
-    def build(self, *, task: PlannerTaskV1, workspace_root: Path, domain_pack_root: Path, context: Mapping[str, object]) -> Path:
+    def build(self, *, task: PlannerTaskV1, workspace_root: Path, domain_pack_root: Path, store: object) -> Path:
         task_data=task.data()
         prompt=DomainPromptResolver().resolve(pack_root=domain_pack_root, prompt_template_ref=task.prompt_template_ref)
-        if _bytes_hash(prompt.encode("utf-8")) != task.prompt_hash or type(context) is not dict or set(context) != {"snapshot_hashes", "artifacts"} or type(context["snapshot_hashes"]) is not list or tuple(context["snapshot_hashes"]) != task.context_snapshot_hashes or type(context["artifacts"]) is not dict: _fail("PLANNER_PACKAGE_INVALID")
+        if _bytes_hash(prompt.encode("utf-8")) != task.prompt_hash or not hasattr(store,"snapshot"): _fail("PLANNER_PACKAGE_INVALID")
+        context={}
+        for ref in task.context_snapshot_hashes:
+            kind,snapshot_id,snapshot_hash=ref.split("|")
+            context[kind]=store.snapshot(kind=kind,snapshot_id=snapshot_id,expected_hash=snapshot_hash,project_id=task.project_id)
         root=workspace_root.resolve(); target=(root/"llm_tasks"/task.task_id).resolve()
         if not target.is_relative_to(root): _fail("PLANNER_PACKAGE_PATH_INVALID")
         target.mkdir(parents=True,exist_ok=False); (target/"response").mkdir()
@@ -175,10 +179,10 @@ class PlannerResultImporter:
 
 
 class PlannerRepairBuilder:
-    def build(self, *, failed_task: PlannerTaskV1, policy: PlannerPolicyV1, service: PlannerTaskService, workspace_root: Path, domain_pack_root: Path, context: Mapping[str, object], original_response: bytes, validation_errors: tuple[str,...], created_at: str = "2026-08-05T00:00:00Z") -> tuple[PlannerTaskV1, Path]:
+    def build(self, *, failed_task: PlannerTaskV1, policy: PlannerPolicyV1, service: PlannerTaskService, workspace_root: Path, domain_pack_root: Path, store: object, original_response: bytes, validation_errors: tuple[str,...], created_at: str = "2026-08-05T00:00:00Z") -> tuple[PlannerTaskV1, Path]:
         if not validation_errors or failed_task.status != "rejected": _fail("PLANNER_REPAIR_INVALID")
         task=service.create(task_type="repair",project_id=failed_task.project_id,policy=policy,backend_mode=BackendMode.MANUAL_UI,prompt_template_ref=failed_task.prompt_template_ref,domain_pack_root=domain_pack_root,parent_id=failed_task.task_id,parent_hash=failed_task.task_hash,context_snapshot_hashes=failed_task.context_snapshot_hashes,expected_result_fields=("original_task_id","errors"),logical_task_id=failed_task.logical_task_id,supersedes_task_id=failed_task.task_id,attempt=failed_task.attempt+1,created_at=created_at)
-        path=PlannerTaskPackageBuilder().build(task=task,workspace_root=workspace_root,domain_pack_root=domain_pack_root,context=context)
+        path=PlannerTaskPackageBuilder().build(task=task,workspace_root=workspace_root,domain_pack_root=domain_pack_root,store=store)
         (path/"response"/"original_response.json").write_bytes(original_response); (path/"response"/"validation_errors.json").write_bytes(encode_canonical_json_bytes({"errors":list(validation_errors)}))
         return task,path
 

@@ -71,7 +71,8 @@ def test_task_package_and_response_binding_are_domain_pack_bound(tmp_path: Path)
     policy = planner_policy_from_snapshot(_snapshot())
     root = ROOT / "domain-packs" / "business-tech"
     task = PlannerTaskService().create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=(), expected_result_fields=("outline",))
-    package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, domain_pack_root=root, context={"snapshot_hashes": list(task.context_snapshot_hashes), "artifacts": {}})
+    package_store = PlannerStore(tmp_path / "package.sqlite", policy=policy)
+    package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, domain_pack_root=root, store=package_store)
     outline = GlobalOutlineV1("prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, "Why?", "Hook.", ("chapter_01",), ("Reveal",), (), "Payoff.", "Question?", "accepted", 1, STAMP).data()
     payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":outline}})
     assert (package / "response").is_dir() and validate_response(task=task, payload=payload)["result"] == {"outline": outline}
@@ -98,7 +99,7 @@ def test_dummy_and_business_packs_produce_the_same_task_package_structure(tmp_pa
     layouts = []
     for index, (policy, root) in enumerate(inputs):
         task = PlannerTaskService().create(task_type="outline", project_id=f"prj_phase10_{index}", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=(), expected_result_fields=("outline",))
-        package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path / str(index), domain_pack_root=root, context={"snapshot_hashes": list(task.context_snapshot_hashes), "artifacts": {}})
+        package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path / str(index), domain_pack_root=root, store=PlannerStore(tmp_path / f"{index}.sqlite", policy=policy))
         layouts.append(sorted(item.name for item in package.iterdir()))
     assert layouts[0] == layouts[1] == ["README.md", "expected_output.schema.json", "input_manifest.json", "planner_context.json", "prompt.md", "response"]
 
@@ -111,5 +112,5 @@ def test_rejected_task_repair_is_persistable(tmp_path: Path) -> None:
     submitted=service.revise(previous=ready,policy=policy,domain_pack_root=root,status="response_submitted",created_at=STAMP); tasks.put(submitted)
     rejected=tasks.submit_response(task=submitted,payload=b"{}",accepted=False,service=service,policy=policy,domain_pack_root=root,created_at=STAMP)
     from engine.planner import PlannerRepairBuilder
-    repair,_=PlannerRepairBuilder().build(failed_task=rejected,policy=policy,service=service,workspace_root=tmp_path,domain_pack_root=root,context={"snapshot_hashes": list(rejected.context_snapshot_hashes), "artifacts": {}},original_response=b"{}",validation_errors=("outline_invalid",))
+    repair,_=PlannerRepairBuilder().build(failed_task=rejected,policy=policy,service=service,workspace_root=tmp_path,domain_pack_root=root,store=PlannerStore(tmp_path / "planner.sqlite", policy=policy),original_response=b"{}",validation_errors=("outline_invalid",))
     tasks.put(repair); assert tasks.get(repair.task_id) == repair
