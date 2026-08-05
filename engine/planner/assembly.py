@@ -8,7 +8,7 @@ from typing import Mapping
 
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
-from .contracts import PlannerContractError
+from .contracts import PlannerContractError, validate_snapshot_record
 from .store import PlannerStore
 
 
@@ -35,10 +35,20 @@ class PlannerAssembler:
     """Reads accepted records, validates lineage, and emits only an assembly request."""
 
     def assemble(self, *, store: PlannerStore, project_id: str, policy_snapshot_id: str,
-                 policy_snapshot_hash: str, snapshots: Mapping[str, tuple[str, str]]) -> PlannerAssemblyRequestV1:
+                 policy_snapshot_hash: str, snapshots: Mapping[str, Mapping[str, object]]) -> PlannerAssemblyRequestV1:
         required = {"claim_evidence", "asset_catalog", "template_capability", "continuity"}
         if set(snapshots) != required:
             raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
+        loaded = {kind: validate_snapshot_record(kind, value) for kind, value in snapshots.items()}
+        if any(value["project_id"] != project_id or value["policy_snapshot_id"] != policy_snapshot_id or value["policy_snapshot_hash"] != policy_snapshot_hash for value in snapshots.values()):
+            raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
+        if any(value[0] is None or value[1] is None or value is None for value in loaded.values()):
+            raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
+        for snapshot_id, snapshot_hash, _ in loaded.values():
+            # Every context snapshot is immutable and bound to the request
+            # policy through its canonical loader (not caller-supplied pairs).
+            if not snapshot_id.startswith("psnap_") or not snapshot_hash.startswith("sha256:"):
+                raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
         outlines = store.accepted(kind="outline", project_id=project_id)
         if len(outlines) != 1 or outlines[0]["policy_snapshot_id"] != policy_snapshot_id or outlines[0]["policy_snapshot_hash"] != policy_snapshot_hash:
             raise PlannerContractError("PLANNER_ASSEMBLY_OUTLINE_INVALID")
@@ -58,5 +68,16 @@ class PlannerAssembler:
                 plans = sorted((item for item in store.accepted(kind="sequence_plan", project_id=project_id) if item["narrative_beat_id"] == beat["narrative_beat_id"] and item["narrative_beat_hash"] == beat["narrative_beat_hash"]), key=lambda item: item["order"])
                 if [item["order"] for item in plans] != list(range(len(plans))) or beat["estimated_duration_ms"] != sum(item["duration_ms"] for item in plans):
                     raise PlannerContractError("PLANNER_ASSEMBLY_SEQUENCE_INVALID")
+                claim_closure = set(loaded["claim_evidence"][2]); capability_closure = set(loaded["template_capability"][2]); continuity_closure = set(loaded["continuity"][2])
+                for plan in plans:
+                    if not set(map(tuple, plan["claim_id_hash_pairs"])) <= claim_closure or not set(map(tuple, plan["evidence_id_hash_pairs"])) <= claim_closure or not set(map(tuple, plan["template_capability_id_hash_pairs"])) <= capability_closure:
+                        raise PlannerContractError("PLANNER_ASSEMBLY_CLOSURE_INVALID")
+                    for key in ("incoming_continuity_state_id_hash", "outgoing_continuity_state_id_hash"):
+                        if plan[key] is not None and tuple(plan[key]) not in continuity_closure:
+                            raise PlannerContractError("PLANNER_ASSEMBLY_CLOSURE_INVALID")
+                    for brief_id, brief_hash in plan["planner_asset_brief_id_hash_pairs"]:
+                        brief = store.get(kind="planner_asset_brief", record_id=brief_id, expected_hash=brief_hash, project_id=project_id)
+                        if brief["narrative_beat_id"] != beat["narrative_beat_id"] or brief["narrative_beat_hash"] != beat["narrative_beat_hash"] or not set(map(tuple, brief["evidence_id_hash_pairs"])) <= claim_closure:
+                            raise PlannerContractError("PLANNER_ASSEMBLY_CLOSURE_INVALID")
                 ordered.extend((item["sequence_plan_id"], item["sequence_plan_hash"]) for item in plans)
-        return PlannerAssemblyRequestV1(project_id, policy_snapshot_id, policy_snapshot_hash, tuple(ordered), snapshots["claim_evidence"], snapshots["asset_catalog"], snapshots["template_capability"], snapshots["continuity"])
+        return PlannerAssemblyRequestV1(project_id, policy_snapshot_id, policy_snapshot_hash, tuple(ordered), (loaded["claim_evidence"][0], loaded["claim_evidence"][1]), (loaded["asset_catalog"][0], loaded["asset_catalog"][1]), (loaded["template_capability"][0], loaded["template_capability"][1]), (loaded["continuity"][0], loaded["continuity"][1]))

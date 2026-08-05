@@ -70,6 +70,7 @@ class PlannerTaskStore:
     def __init__(self, path: Path) -> None:
         self.connection = sqlite3.connect(path)
         self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_tasks(task_id TEXT PRIMARY KEY, task_hash TEXT NOT NULL UNIQUE, project_id TEXT NOT NULL, payload BLOB NOT NULL)")
+        self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_task_responses(task_id TEXT NOT NULL, response_hash TEXT NOT NULL, payload BLOB NOT NULL, accepted INTEGER NOT NULL, PRIMARY KEY(task_id,response_hash))")
 
     def close(self) -> None:
         self.connection.close()
@@ -99,6 +100,23 @@ class PlannerTaskStore:
             task=PlannerTaskV1(**{**values,"backend_mode":BackendMode(values["backend_mode"]),"context_snapshot_hashes":tuple(values["context_snapshot_hashes"]),"expected_result_fields":tuple(values["expected_result_fields"])})
         except (UnicodeDecodeError,json.JSONDecodeError,KeyError,TypeError,ValueError): _fail("PLANNER_TASK_RECORD_INVALID")
         task.data(); return task
+
+    def submit_response(self, *, task: PlannerTaskV1, payload: bytes, accepted: bool,
+                        service: PlannerTaskService, policy: PlannerPolicyV1,
+                        domain_pack_root: Path, created_at: str) -> PlannerTaskV1:
+        stored = self.get(task.task_id)
+        if stored != task or task.status != "response_submitted":
+            _fail("PLANNER_RESPONSE_STATE_INVALID")
+        if accepted:
+            validate_response(task=task, payload=payload)
+        response_hash = _bytes_hash(payload)
+        prior = self.connection.execute("SELECT response_hash FROM phase10_task_responses WHERE task_id=? AND accepted=1", (task.task_id,)).fetchone()
+        if accepted and prior is not None and prior[0] != response_hash:
+            _fail("PLANNER_RESPONSE_ALREADY_ACCEPTED")
+        self.connection.execute("INSERT OR IGNORE INTO phase10_task_responses(task_id,response_hash,payload,accepted) VALUES(?,?,?,?)", (task.task_id,response_hash,payload,int(accepted))); self.connection.commit()
+        terminal = service.revise(previous=task, policy=policy, domain_pack_root=domain_pack_root, status="accepted" if accepted else "rejected", created_at=created_at, completed_at=created_at)
+        self.put(terminal)
+        return terminal
 
 
 class PlannerTaskPackageBuilder:

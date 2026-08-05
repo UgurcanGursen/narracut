@@ -133,7 +133,7 @@ class PlannerAssetBriefV1:
     project_id: str; policy: PlannerPolicyV1; narrative_beat_id: str; narrative_beat_hash: str; order: int; visual_role: str; evidence_pairs: tuple[tuple[str, str], ...]; purpose: str; preferred_type_tokens: tuple[str, ...]; avoid_family_pairs: tuple[tuple[str, str], ...]; fallback_mode: str; status: str; version: int; created_at: str; supersedes_id: str | None = None; supersedes_hash: str | None = None
     def data(self) -> dict[str, object]:
         evidence, avoid = _pairs(self.evidence_pairs, "fact_"), _pairs(self.avoid_family_pairs, "fam_")
-        if not _id(self.narrative_beat_id, "beat_") or not _hash_ok(self.narrative_beat_hash) or type(self.order) is not int or self.order < 0 or _token(self.visual_role) not in self.policy.allowed_visual_role_tokens or any(item not in self.policy.allowed_visual_role_tokens for item in _tokens(self.preferred_type_tokens)) or _token(self.fallback_mode) not in {"fail_closed", "require_review"}:
+        if not _id(self.narrative_beat_id, "beat_") or not _hash_ok(self.narrative_beat_hash) or type(self.order) is not int or self.order < 0 or _token(self.visual_role) not in self.policy.allowed_visual_role_tokens or (self.visual_role == "show_evidence" and not evidence) or any(item not in self.policy.allowed_visual_role_tokens for item in _tokens(self.preferred_type_tokens)) or _token(self.fallback_mode) not in {"fail_closed", "require_review"}:
             _fail("PLANNER_ASSET_BRIEF_INVALID")
         body = _common(project_id=self.project_id, policy_snapshot_id=self.policy.policy_snapshot_id, policy_snapshot_hash=self.policy.policy_snapshot_hash, status=self.status, version=self.version, created_at=self.created_at, parent_id=self.narrative_beat_id, parent_hash=self.narrative_beat_hash, supersedes_id=self.supersedes_id, supersedes_hash=self.supersedes_hash)
         body.update({"narrative_beat_id": self.narrative_beat_id, "narrative_beat_hash": self.narrative_beat_hash, "order": self.order, "visual_role": self.visual_role, "evidence_id_hash_pairs": [list(item) for item in evidence], "purpose": _text(self.purpose), "preferred_type_tokens": list(_tokens(self.preferred_type_tokens)), "avoid_family_id_hash_pairs": [list(item) for item in avoid], "fallback_mode": self.fallback_mode})
@@ -171,12 +171,36 @@ class PlannerSnapshotV1:
 def validate_record(kind: str, record: object) -> tuple[str, str, dict[str, object]]:
     """Fail closed on noncanonical bytes or a forged ID/hash pair."""
     names = {"outline": ("outline_id", "outline_hash"), "chapter_brief": ("chapter_brief_id", "chapter_brief_hash"), "narrative_beat": ("narrative_beat_id", "narrative_beat_hash"), "planner_asset_brief": ("planner_asset_brief_id", "planner_asset_brief_hash"), "sequence_plan": ("sequence_plan_id", "sequence_plan_hash")}
+    fields = {
+        "outline": {"central_question", "hook", "chapter_order", "major_reveals", "counterarguments", "payoff", "final_question"},
+        "chapter_brief": {"outline_id", "outline_hash", "order", "goal", "entry_state", "exit_state", "claim_id_hash_pairs", "required_evidence_id_hash_pairs", "main_reveal", "counterpoint", "visual_opportunity_tokens", "continuity_handoff", "estimated_duration_ms"},
+        "narrative_beat": {"chapter_brief_id", "chapter_brief_hash", "order", "core_kind", "domain_subtype", "editorial_role", "claim_id_hash_pairs", "narration_intent", "safe_wording_tokens", "estimated_duration_ms"},
+        "planner_asset_brief": {"narrative_beat_id", "narrative_beat_hash", "order", "visual_role", "evidence_id_hash_pairs", "purpose", "preferred_type_tokens", "avoid_family_id_hash_pairs", "fallback_mode"},
+        "sequence_plan": {"narrative_beat_id", "narrative_beat_hash", "order", "narration_intent", "duration_ms", "claim_id_hash_pairs", "evidence_id_hash_pairs", "template_capability_id_hash_pairs", "planner_asset_brief_id_hash_pairs", "edit_event_intents", "text_emphasis_intents", "audio_direction_tokens", "incoming_continuity_state_id_hash", "outgoing_continuity_state_id_hash"},
+    }
+    common = {"schema_version", "project_id", "policy_snapshot_id", "policy_snapshot_hash", "status", "version", "created_at", "parent_id", "parent_hash", "supersedes_id", "supersedes_hash"}
     if kind not in names or type(record) is not dict:
         _fail("PLANNER_STORE_INVALID")
     id_key, hash_key = names[kind]
-    if id_key not in record or hash_key not in record or not _id(record[id_key], {"outline":"out_", "chapter_brief":"chap_", "narrative_beat":"beat_", "planner_asset_brief":"pbrief_", "sequence_plan":"splan_"}[kind]) or not _hash_ok(record[hash_key]): _fail("PLANNER_STORE_INVALID")
+    if set(record) != common | fields[kind] | {id_key, hash_key} or not _id(record[id_key], {"outline":"out_", "chapter_brief":"chap_", "narrative_beat":"beat_", "planner_asset_brief":"pbrief_", "sequence_plan":"splan_"}[kind]) or not _hash_ok(record[hash_key]): _fail("PLANNER_STORE_INVALID")
     body = {key: value for key, value in record.items() if key not in {id_key, hash_key}}
     digest = _hash(body)
-    if record[hash_key] != digest or record[id_key] != {"outline":"out_", "chapter_brief":"chap_", "narrative_beat":"beat_", "planner_asset_brief":"pbrief_", "sequence_plan":"splan_"}[kind] + digest[7:27] or body.get("schema_version") != PLANNER_ARTIFACT_V1 or not _id(body.get("project_id"), "prj_"):
+    if record[hash_key] != digest or record[id_key] != {"outline":"out_", "chapter_brief":"chap_", "narrative_beat":"beat_", "planner_asset_brief":"pbrief_", "sequence_plan":"splan_"}[kind] + digest[7:27] or body.get("schema_version") != PLANNER_ARTIFACT_V1 or not _id(body.get("project_id"), "prj_") or ((kind == "outline") != (body["parent_id"] is None)) or ((body["parent_id"] is None) != (body["parent_hash"] is None)):
         _fail("PLANNER_STORE_INVALID")
     return record[id_key], record[hash_key], dict(record)
+
+
+def validate_snapshot_record(kind: str, record: object) -> tuple[str, str, tuple[tuple[str, str], ...]]:
+    """Load a snapshot from exact canonical bytes without trusting its caller."""
+    names = {"claim_evidence": "claims_evidence_snapshot", "asset_catalog": "asset_catalog_snapshot", "template_capability": "template_capability_snapshot", "continuity": "continuity_snapshot"}
+    if kind not in names or type(record) is not dict:
+        _fail("PLANNER_SNAPSHOT_INVALID")
+    id_key, hash_key = names[kind] + "_id", names[kind] + "_hash"
+    required = {id_key, hash_key, "schema_version", "snapshot_kind", "project_id", "policy_snapshot_id", "policy_snapshot_hash", "id_hash_pairs"}
+    if set(record) != required or record["snapshot_kind"] != kind:
+        _fail("PLANNER_SNAPSHOT_INVALID")
+    pairs = tuple(tuple(item) for item in record["id_hash_pairs"]) if type(record["id_hash_pairs"]) is list else ()
+    rebuilt = PlannerSnapshotV1(kind, record["project_id"], record["policy_snapshot_id"], record["policy_snapshot_hash"], pairs).data()
+    if rebuilt != record:
+        _fail("PLANNER_SNAPSHOT_INVALID")
+    return record[id_key], record[hash_key], pairs

@@ -48,7 +48,7 @@ def test_business_planner_policy_is_snapshot_bound() -> None:
 
 def test_full_hierarchy_is_immutable_and_duration_bound(tmp_path: Path) -> None:
     policy = planner_policy_from_snapshot(_snapshot()); records = _chain(policy)
-    store = PlannerStore(tmp_path / "planner.sqlite")
+    store = PlannerStore(tmp_path / "planner.sqlite", policy=policy)
     for kind, record in zip(("outline", "chapter_brief", "narrative_beat", "planner_asset_brief", "sequence_plan"), records): store.put(kind=kind, record=record)
     assert store.get(kind="outline", record_id=records[0]["outline_id"], expected_hash=records[0]["outline_hash"], project_id="prj_phase10") == records[0]
     with pytest.raises(PlannerContractError, match="SEQUENCE_PLAN_INVALID"):
@@ -57,9 +57,9 @@ def test_full_hierarchy_is_immutable_and_duration_bound(tmp_path: Path) -> None:
 
 
 def test_assembly_is_deterministic_and_not_an_edl(tmp_path: Path) -> None:
-    policy = planner_policy_from_snapshot(_snapshot()); records = _chain(policy); store = PlannerStore(tmp_path / "planner.sqlite")
+    policy = planner_policy_from_snapshot(_snapshot()); records = _chain(policy); store = PlannerStore(tmp_path / "planner.sqlite", policy=policy)
     for kind, record in zip(("outline", "chapter_brief", "narrative_beat", "planner_asset_brief", "sequence_plan"), records): store.put(kind=kind, record=record)
-    snapshots = {key: (data[next(name for name in data if name.endswith("_id"))], data[next(name for name in data if name.endswith("_hash"))]) for key, data in {"claim_evidence": PlannerSnapshotV1("claim_evidence", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("clm_01", "sha256:" + "b" * 64),)).data(), "asset_catalog": PlannerSnapshotV1("asset_catalog", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("fam_01", "sha256:" + "c" * 64),)).data(), "template_capability": PlannerSnapshotV1("template_capability", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("cap_01", "sha256:" + "d" * 64),)).data(), "continuity": PlannerSnapshotV1("continuity", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("cont_01", "sha256:" + "e" * 64),)).data()}.items()}
+    snapshots = {"claim_evidence": PlannerSnapshotV1("claim_evidence", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("clm_01", "sha256:" + "b" * 64), ("fact_01", "sha256:" + "c" * 64))).data(), "asset_catalog": PlannerSnapshotV1("asset_catalog", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("fam_01", "sha256:" + "c" * 64),)).data(), "template_capability": PlannerSnapshotV1("template_capability", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, (("cap_01", "sha256:" + "d" * 64),)).data(), "continuity": PlannerSnapshotV1("continuity", "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, ()).data()}
     request = PlannerAssembler().assemble(store=store, project_id="prj_phase10", policy_snapshot_id=policy.policy_snapshot_id, policy_snapshot_hash=policy.policy_snapshot_hash, snapshots=snapshots).data()
     assert request["request_id"].startswith("pareq_") and "edl" not in request
     store.close()
@@ -73,12 +73,26 @@ def test_task_package_and_response_binding_are_domain_pack_bound(tmp_path: Path)
     payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":{}}})
     assert (package / "response").is_dir() and validate_response(task=task, payload=payload)["result"] == {"outline": {}}
     tasks = PlannerTaskStore(tmp_path / "tasks.sqlite"); tasks.put(task)
-    revision = PlannerTaskService().revise(previous=task, policy=policy, domain_pack_root=root, status="package_ready", created_at=STAMP)
-    tasks.put(revision)
-    assert tasks.get(revision.task_id) == revision
+    service = PlannerTaskService()
+    revision = service.revise(previous=task, policy=policy, domain_pack_root=root, status="package_ready", created_at=STAMP); tasks.put(revision)
+    submitted = service.revise(previous=revision, policy=policy, domain_pack_root=root, status="response_submitted", created_at=STAMP); tasks.put(submitted)
+    submitted_payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":submitted.task_id,"task_hash":submitted.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":{}}})
+    accepted = tasks.submit_response(task=submitted, payload=submitted_payload, accepted=True, service=service, policy=policy, domain_pack_root=root, created_at=STAMP)
+    assert accepted.status == "accepted" and tasks.get(accepted.task_id) == accepted
     tasks.close()
 
 
 def test_dummy_pack_resolves_without_core_domain_branch() -> None:
     policy = planner_policy_from_snapshot(_snapshot("dummy"))
     assert policy.allowed_editorial_roles == ("dummy_role",)
+
+
+def test_dummy_and_business_packs_produce_the_same_task_package_structure(tmp_path: Path) -> None:
+    business_policy, dummy_policy = planner_policy_from_snapshot(_snapshot()), planner_policy_from_snapshot(_snapshot("dummy"))
+    inputs = ((business_policy, ROOT / "domain-packs" / "business-tech"), (dummy_policy, ROOT / "tests" / "fixtures" / "domain-packs" / "dummy"))
+    layouts = []
+    for index, (policy, root) in enumerate(inputs):
+        task = PlannerTaskService().create(task_type="outline", project_id=f"prj_phase10_{index}", policy=policy, backend_mode=BackendMode.MANUAL_UI, prompt_template_ref="prompts/planner_outline.md", domain_pack_root=root, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
+        package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path / str(index), domain_pack_root=root, context={"claim_evidence": []})
+        layouts.append(sorted(item.name for item in package.iterdir()))
+    assert layouts[0] == layouts[1] == ["README.md", "expected_output.schema.json", "input_manifest.json", "planner_context.json", "prompt.md", "response"]
