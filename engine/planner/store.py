@@ -11,6 +11,7 @@ from engine.contracts._canonical_json import encode_canonical_json_bytes
 
 from .contracts import ChapterBriefV1, GlobalOutlineV1, NarrativeBeatV1, PlannerAssetBriefV1, PlannerContractError, SequencePlanV1, validate_record, validate_snapshot_record
 from .policy import PlannerPolicyV1
+from .snapshot_types import ProducedPlannerSnapshot
 
 
 class PlannerStore:
@@ -99,7 +100,7 @@ class PlannerStore:
         return value
 
     def _put_produced_snapshot(self, *, snapshot: object) -> tuple[str, str]:
-        if type(snapshot).__module__ != "engine.planner.snapshots" or type(snapshot).__name__ != "ProducedPlannerSnapshot":
+        if type(snapshot) is not ProducedPlannerSnapshot:
             raise PlannerContractError("PLANNER_SNAPSHOT_PRODUCER_REQUIRED")
         kind, snapshot = snapshot.kind, snapshot.payload
         snapshot_id, snapshot_hash, _ = validate_snapshot_record(kind, snapshot)
