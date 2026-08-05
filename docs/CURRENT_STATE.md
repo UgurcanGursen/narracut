@@ -1,17 +1,26 @@
 # Current State
 
 Son guncelleme: 5 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 IN_PROGRESS**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 NOT_STARTED**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 4 closed; Phase 5 active
+## Latest authoritative state - Phase 5 closed; Phase 6 not started
+
+- Phase 5 Core Motion Template Library is accepted and closed. Canonical
+  evidence: `baseline/phase5_final_acceptance_report.md` and
+  `baseline/phase5_contact_sheet.png`.
+- Closure gates: focused `5 passed` (including actual two-variant Remotion
+  renders), V3 `85 passed, 1 skipped`, Remotion typecheck PASS and Node `5/5`.
+- Next task is planning/acceptance design for Phase 6 Source Acquisition and
+  Evidence Treatment Engine; no Phase 6 implementation is authorized here.
 
 - Phase 4 is accepted, closed and remote closed. Canonical final evidence:
   `baseline/phase4_final_acceptance_report.md`.
 - Phase 4B full-render closure implementation: `8bac18b386b38c03f5dc0f3f84dd10a5732ce891`.
 - Final frozen-scope independent closure audit: PASS, `0/0/0`.
-- Next active phase: Phase 5 Core Motion Template Library.
+- The former Phase 5 next-step statement is superseded by the Phase 5 closure
+  record above.
 
 - Phase 3 is accepted, closed and remote closed. Video EDL/timeline debug:
   `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f`; deterministic audio

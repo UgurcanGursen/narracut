@@ -2,6 +2,16 @@
 
 Son guncelleme: 5 Agustos 2026
 
+## Faz 5 status note
+
+- Phase 5 is CLOSED. Its template library proves local REPLAY rendering and
+  reusable visual capabilities, not source acquisition, provider media
+  retries/rate limits, semantic asset selection, chart-data animation or
+  long-form template-distribution optimization.
+- The pinned Noto Sans font is an intentionally bounded renderer asset. It
+  prevents host-font drift but does not establish a general typography or
+  localization system.
+
 ## Faz 4 status note
 
 - Phase 4 is CLOSED. Its REPLAY-only full-render proof does not establish

@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 IN_PROGRESS.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 NOT_STARTED.
 
 ## AI execution policy
 
@@ -11,11 +11,17 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement Phase 5 Core Motion Template Library as a single frozen, bounded
-package under the credit-budgeted execution policy. Phase 4 is closed; do not
-reopen it except for a demonstrated regression.
+Plan and independently audit the bounded Phase 6 Source Acquisition and
+Evidence Treatment Engine contract before any Phase 6 implementation. Phase 5
+is closed; do not reopen it except for a demonstrated regression.
 
-Independently audit the candidate **Phase 4B - Render Terminality, Full Render
+Do not implement provider acquisition, browser challenge bypass, queue/retry,
+UI expansion or any Phase 7+ capability in the planning task.
+
+The Phase 4B instruction and evidence block below are historical and
+superseded by the completed Phase 4 closure and this Phase 6 planning task.
+
+Independently audit the historical candidate **Phase 4B - Render Terminality, Full Render
 and Artifact Lifecycle Completion** contract.
 
 Phase 4A is ACCEPTED / CLOSED / REMOTE CLOSED at
@@ -27,7 +33,7 @@ Do not implement Phase 4B, Phase 5 templates, provider acquisition,
 queue/retry, UI expansion, production asset-catalog behavior, cache/GC or any
 later phase in this task.
 
-## Current evidence boundary
+## Historical Phase 4 evidence boundary (superseded)
 
 - Phase 4A is ACCEPTED / CLOSED / REMOTE CLOSED. See
   `baseline/phase4a_motion_renderer_foundation_acceptance_report.md`.

@@ -9,7 +9,24 @@
   },
   "visual": {
     "generic_stock_role": "transition_support",
-    "source_first": true
+    "source_first": true,
+    "template_policy": {
+      "preferred_template_ids": [
+        "article_focus_scan",
+        "metric_reveal",
+        "process_diagram",
+        "kinetic_keyword"
+      ],
+      "banned_template_ids": [],
+      "required_template_ids": [],
+      "style_preset": {
+        "preset_id": "business-tech-editorial-v1",
+        "color_theme_id": "business-tech-slate-v1",
+        "typography_id": "phase5-noto-sans-v1",
+        "font_asset_hash": "sha256:bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+        "tone_id": "business-tech-analytical-v1"
+      }
+    }
   },
   "safety": {
     "require_attribution": true

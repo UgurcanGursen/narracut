@@ -1,5 +1,23 @@
 # Phase Acceptance
 
+## Phase 5 final acceptance — 2026-08-05
+
+| Gate | Result |
+|---|---|
+| Core Motion Template Library | ACCEPT / CLOSED |
+| Closed core template inventory | 15/15 PASS |
+| Independent primary visual goldens | PASS |
+| Two legal variants per template, actual REPLAY render | PASS |
+| Pinned local readable typography | PASS |
+| Targeted independent re-audit | PASS |
+| Python focused gate | `5 passed` |
+| V3 regression | `85 passed, 1 skipped` |
+| Remotion typecheck / Node gate | PASS / `5 passed` |
+| Phase 5 overall | CLOSED |
+
+Evidence: `baseline/phase5_final_acceptance_report.md` and
+`baseline/phase5_contact_sheet.png`.
+
 ## Phase 4 final acceptance — 2026-08-05
 
 | Gate | Result |

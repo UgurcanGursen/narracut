@@ -1,0 +1,1 @@
+{"fixture_id":"business_tech_policy","schema_version":"PHASE5-REPLAY-FIXTURE-V1","selection_cases":[{"editorial_role":"prove_claim","candidate_ids":["headline_to_paragraph_zoom","article_focus_scan"],"expected_template_id":"article_focus_scan"},{"editorial_role":"quantify","candidate_ids":["metric_comparison","metric_reveal"],"expected_template_id":"metric_reveal"}]}

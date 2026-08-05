@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-05 — Phase 5 closed
+
+- Closed the core-neutral 15-capability Motion Template Library.
+- Added deterministic template envelopes, policy-bound style presets, exact
+  WordToFrame kinetic bindings, safe-area enforcement and an additive Remotion
+  composition without changing Phase 4 lifecycle behavior.
+- Pinned a checked-in OFL Noto Sans asset and its hash to prevent host-font
+  drift; added independent visual golden and contact-sheet evidence.
+- Final gates: focused `5 passed`, V3 `85 passed, 1 skipped`, typecheck PASS,
+  Node `5/5 PASS`; targeted independent re-audit ACCEPT.
+
 ## 2026-08-05 — Phase 4 closed
 
 - Closed deterministic Remotion/FFmpeg FULL render, artifact lifecycle,
