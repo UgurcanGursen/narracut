@@ -4,6 +4,10 @@ Son guncelleme: 5 Agustos 2026
 
 ## Faz 4 status note
 
+- Phase 4 is CLOSED. Its REPLAY-only full-render proof does not establish
+  provider media ingestion, distributed queue/retry, cache/GC or production
+  multi-user operation; those remain later-phase work.
+
 - Phase 3 is closed at video `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f` and
   audio `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9`. Its proof is deterministic
   REPLAY compilation; it does not establish arbitrary provider media's

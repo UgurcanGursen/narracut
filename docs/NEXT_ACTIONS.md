@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 IN_PROGRESS.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 IN_PROGRESS.
 
 ## AI execution policy
 
@@ -10,6 +10,10 @@ independent audit; repeated micro-audit loops and repeated full render gates
 are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
+
+Implement Phase 5 Core Motion Template Library as a single frozen, bounded
+package under the credit-budgeted execution policy. Phase 4 is closed; do not
+reopen it except for a demonstrated regression.
 
 Independently audit the candidate **Phase 4B - Render Terminality, Full Render
 and Artifact Lifecycle Completion** contract.

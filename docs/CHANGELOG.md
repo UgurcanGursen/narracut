@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-05 — Phase 4 closed
+
+- Closed deterministic Remotion/FFmpeg FULL render, artifact lifecycle,
+  terminal receipts, cleanup and atomic replacement acceptance.
+- Recorded final Phase 4 acceptance evidence and moved the active phase to
+  Phase 5.
+
 ## 2026-08-05 - Phase 4A Motion Renderer Foundation acceptance
 
 - Accepted, closed and remote closed the bounded Phase 4A implementation at
