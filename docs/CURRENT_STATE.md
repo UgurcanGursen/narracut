@@ -1,11 +1,11 @@
 # Current State
 
 Son guncelleme: 5 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 IN_PROGRESS (4A AUTHORIZED)**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 IN_PROGRESS (4A CLOSED; 4B SPECIFICATION REQUIRED)**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 3 closed; Phase 4A authorized
+## Latest authoritative state - Phase 4A closed; Phase 4B not authorized
 
 - Phase 3 is accepted, closed and remote closed. Video EDL/timeline debug:
   `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f`; deterministic audio
@@ -13,9 +13,16 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Final independent audits: `PASS`, `0 BLOCKER / 0 MAJOR / 0 MINOR`.
   Final gates: `115 passed` cross-contract and `64 passed` clean-clone exact.
 - Canonical evidence: `baseline/phase3_final_acceptance_report.md`.
-- Only Phase 4A is authorized: EDL-consuming typed renderer bridge,
-  deterministic fixture preview, and bounded render-artifact registration
-  hooks. Phase 4B and all later phases remain open.
+- Phase 4A Motion Renderer Foundation is accepted, closed and remote closed at
+  `d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`. It provides the bounded
+  EDL-consuming typed bridge, deterministic REPLAY preview, Remotion registry
+  foundation, receipt shapes and in-memory artifact-registration graph.
+- Final targeted independent re-audit: `PASS`, with `0 BLOCKER / 0 MAJOR / 0
+  MINOR`. Evidence gates: `tests/test_render_bridge.py` `16 passed`,
+  `renderer-remotion` typecheck `PASS`, and Node canonical tests `3/3 PASS`.
+- Canonical evidence: `baseline/phase4a_motion_renderer_foundation_acceptance_report.md`.
+- Phase 4 remains open. Phase 4B has no implementation authorization: its
+  separate candidate contract must first be independently audited and accepted.
 
 The historical Phase 3A state block below is superseded and retained only as
 its bounded acceptance evidence.

@@ -1,5 +1,34 @@
 # Phase Acceptance
 
+## Faz 4A - Motion Renderer Foundation acceptance
+
+Degerlendirme tarihi: 5 Agustos 2026
+Genel durum: **ACCEPTED / CLOSED / REMOTE CLOSED**
+
+| Kriter | Durum | Kanit |
+|---|---|---|
+| Faz 3 EDL'lerini yeniden schedule etmeden typed props bridge | SATISFIED | `d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`; bridge gate |
+| Headless deterministic sequence-local REPLAY preview | SATISFIED | Iki-run preview ve selected-frame RGBA kaniti |
+| 5+ katman, V3 crop/zoom/highlight, V4 chart reveal, V5/V6 cue | SATISFIED | `tests/test_render_bridge.py` rich fixture kanitlari |
+| Preview receipt ve in-memory ArtifactRecord DAG | SATISFIED | success/failed/cancelled receipt ve graph tests |
+| Fail-closed asset/output/cancellation davranisi | SATISFIED | hata-oracle ve `OUTPUT_TARGET_EXISTS` testleri |
+| Final targeted independent audit | PASS | `0 BLOCKER / 0 MAJOR / 0 MINOR` |
+| Focused bridge / Node gates | PASS | `16 passed`; typecheck `PASS`; canonical Node tests `3/3 PASS` |
+
+Acceptance report: `baseline/phase4a_motion_renderer_foundation_acceptance_report.md`.
+
+Faz 4 genel olarak kapali degildir: real `FULL` render, FFmpeg mux/encode,
+persistent terminal cleanup ve overwrite enforcement Faz 4B kapsamindadir.
+
+```text
+PHASE4A_ACCEPTANCE=ACCEPT
+PHASE4A_CLOSED=YES
+PHASE4A_REMOTE_CLOSED=YES
+PHASE4_CLOSED=NO
+PHASE4B_IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=PHASE4B_SPECIFICATION_INDEPENDENT_AUDIT
+```
+
 ## Faz 3 - Final acceptance
 
 Degerlendirme tarihi: 5 Agustos 2026

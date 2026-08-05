@@ -2,19 +2,21 @@
 
 Son guncelleme: 5 Agustos 2026
 
-## Faz 3 / Faz 4 status note
+## Faz 4 status note
 
 - Phase 3 is closed at video `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f` and
   audio `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9`. Its proof is deterministic
   REPLAY compilation; it does not establish arbitrary provider media's
   perceptual join quality.
-- Phase 3 does not render assets or media. Remotion composition execution,
-  FFmpeg final mux/encode, independent preview/full render behavior, render
-  artifact registration, terminal-job temp cleanup and overwrite protection
-  remain Phase 4 work.
+- Phase 4A is accepted at `d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`, but it
+  is deliberately preview-only. It does not establish a real `FULL` render,
+  FFmpeg normalize/mux/final encode, persistent artifact lifecycle, terminal
+  cleanup or durable overwrite enforcement.
+- Phase 4B candidate contract is drafted only. It has not yet been independently
+  audited, accepted, authorized, implemented or remote closed.
 - Queue/retry, rate-limit handling, provider/source acquisition, UI expansion,
   production asset catalog and Phase 11 audio-direction policy remain outside
-  Phase 3 and Phase 4A.
+  Phase 4A and Phase 4B.
 
 The historical Phase 3A limitation section below is superseded and retained as
 the pre-audio acceptance record.

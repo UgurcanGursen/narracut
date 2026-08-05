@@ -4,29 +4,32 @@ Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 IN_PROG
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement **Phase 4A - Motion Renderer Foundation**.
+Independently audit the candidate **Phase 4B - Render Terminality, Full Render
+and Artifact Lifecycle Completion** contract.
 
-Consume accepted Phase 3 video/audio EDL artifacts without re-scheduling them.
-Deliver a bounded Python-to-Remotion typed props bridge, composition registry
-foundation, deterministic headless fixture preview, and render-artifact
-registration hooks. Keep the existing V2 path intact.
+Phase 4A is ACCEPTED / CLOSED / REMOTE CLOSED at
+`d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`. The next task is read-only and
+must assess `docs/specifications/phase4b_render_terminality_full_render_artifact_lifecycle_contract.md`.
+It must not authorize or implement Phase 4B.
 
-Do not implement Phase 5 templates, provider acquisition, queue/retry, UI
-expansion, production asset-catalog behavior, full lifecycle/GC, or Phase 4B
-terminal-job cleanup/overwrite completion in this task.
+Do not implement Phase 4B, Phase 5 templates, provider acquisition,
+queue/retry, UI expansion, production asset-catalog behavior, cache/GC or any
+later phase in this task.
 
 ## Current evidence boundary
 
-- Phase 3 is ACCEPTED / CLOSED / REMOTE CLOSED. See
-  `baseline/phase3_final_acceptance_report.md`.
-- Accepted commits: video `fbee3b7ae1f1d6b607fa913f4cb4ff8ba3bbfc9f` and
-  audio `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9`.
-- Final gates: `115 passed` cross-contract; `64 passed` clean-clone exact.
+- Phase 4A is ACCEPTED / CLOSED / REMOTE CLOSED. See
+  `baseline/phase4a_motion_renderer_foundation_acceptance_report.md`.
+- Accepted implementation: `d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`.
+- Final gates: bridge `16 passed`; Remotion typecheck `PASS`; Node canonical
+  tests `3/3 PASS`; final targeted audit `PASS` (`0/0/0`).
 
 ```text
-PHASE3_FINAL_ACCEPTANCE=ACCEPT
-PHASE3_CLOSED=YES
-NEXT_ACTION=PHASE4A_MOTION_RENDERER_FOUNDATION
+PHASE4A_ACCEPTANCE=ACCEPT
+PHASE4A_CLOSED=YES
+PHASE4A_REMOTE_CLOSED=YES
+PHASE4B_IMPLEMENTATION_AUTHORIZED=NO
+NEXT_ACTION=PHASE4B_SPECIFICATION_INDEPENDENT_AUDIT
 ```
 
 The historical Phase 3B instruction below is superseded and retained only for

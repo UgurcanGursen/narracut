@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-08-05 - Phase 4A Motion Renderer Foundation acceptance
+
+- Accepted, closed and remote closed the bounded Phase 4A implementation at
+  `d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`.
+- The implementation provides a typed Phase 3 EDL-to-Remotion bridge,
+  deterministic REPLAY preview, closed visual-directive handling, receipt
+  shapes and an in-memory artifact-registration DAG; it preserves the V2 path.
+- Final targeted independent re-audit: `PASS`, findings `0 BLOCKER / 0 MAJOR /
+  0 MINOR`. Gates: bridge `16 passed`, Remotion typecheck `PASS`, canonical
+  Node tests `3/3 PASS`.
+- Phase 4 is still open. The sole next task is independent audit of the Phase
+  4B candidate contract; this record grants no Phase 4B implementation authority.
+
 ## 2026-08-05 - Phase 3 final acceptance and closure
 
 - Closed and remote closed Phase 3 multi-track EDL and Timeline Compiler.
