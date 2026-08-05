@@ -35,15 +35,13 @@ class PlannerAssembler:
     """Reads accepted records, validates lineage, and emits only an assembly request."""
 
     def assemble(self, *, store: PlannerStore, project_id: str, policy_snapshot_id: str,
-                 policy_snapshot_hash: str, snapshots: Mapping[str, Mapping[str, object]]) -> PlannerAssemblyRequestV1:
+                 policy_snapshot_hash: str, snapshots: Mapping[str, tuple[str, str]]) -> PlannerAssemblyRequestV1:
         required = {"claim_evidence", "asset_catalog", "template_capability", "continuity"}
         if set(snapshots) != required:
             raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
-        loaded = {kind: validate_snapshot_record(kind, value) for kind, value in snapshots.items()}
-        if any(value["project_id"] != project_id or value["policy_snapshot_id"] != policy_snapshot_id or value["policy_snapshot_hash"] != policy_snapshot_hash for value in snapshots.values()):
-            raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
-        if any(value[0] is None or value[1] is None or value is None for value in loaded.values()):
-            raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
+        records = {kind: store.snapshot(kind=kind, snapshot_id=pair[0], expected_hash=pair[1], project_id=project_id) for kind,pair in snapshots.items() if type(pair) is tuple and len(pair)==2}
+        if set(records) != required or any(value["policy_snapshot_id"] != policy_snapshot_id or value["policy_snapshot_hash"] != policy_snapshot_hash for value in records.values()): raise PlannerContractError("PLANNER_ASSEMBLY_SNAPSHOT_INVALID")
+        loaded = {kind: validate_snapshot_record(kind, value) for kind,value in records.items()}
         for snapshot_id, snapshot_hash, _ in loaded.values():
             # Every context snapshot is immutable and bound to the request
             # policy through its canonical loader (not caller-supplied pairs).

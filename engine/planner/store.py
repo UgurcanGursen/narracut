@@ -9,7 +9,7 @@ from typing import Mapping
 
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
-from .contracts import PlannerContractError, validate_record
+from .contracts import PlannerContractError, validate_record, validate_snapshot_record
 from .policy import PlannerPolicyV1
 
 
@@ -21,6 +21,7 @@ class PlannerStore:
         self.policy = policy
         self.connection.execute("PRAGMA foreign_keys = ON")
         self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_records(kind TEXT NOT NULL, record_id TEXT NOT NULL, record_hash TEXT NOT NULL, project_id TEXT NOT NULL, payload BLOB NOT NULL, PRIMARY KEY(kind,record_id), UNIQUE(kind,record_hash))")
+        self.connection.execute("CREATE TABLE IF NOT EXISTS phase10_snapshots(kind TEXT NOT NULL, snapshot_id TEXT NOT NULL, snapshot_hash TEXT NOT NULL, project_id TEXT NOT NULL, payload BLOB NOT NULL, PRIMARY KEY(kind,snapshot_id), UNIQUE(kind,snapshot_hash))")
 
     def close(self) -> None:
         self.connection.close()
@@ -55,8 +56,7 @@ class PlannerStore:
         self.connection.commit()
 
     def _validate_policy(self, kind: str, value: Mapping[str, object]) -> None:
-        if self.policy is None:
-            return
+        if self.policy is None: raise PlannerContractError("PLANNER_STORE_POLICY_REQUIRED")
         policy = self.policy
         if value["policy_snapshot_id"] != policy.policy_snapshot_id or value["policy_snapshot_hash"] != policy.policy_snapshot_hash:
             raise PlannerContractError("PLANNER_STORE_POLICY_INVALID")
@@ -83,6 +83,25 @@ class PlannerStore:
         if calculated_hash != row[0]:
             raise PlannerContractError("PLANNER_STORE_CANONICAL_INVALID")
         return value
+
+    def put_snapshot(self, *, kind: str, snapshot: Mapping[str, object]) -> tuple[str, str]:
+        snapshot_id, snapshot_hash, _ = validate_snapshot_record(kind, snapshot)
+        if self.policy is None or snapshot["policy_snapshot_id"] != self.policy.policy_snapshot_id or snapshot["policy_snapshot_hash"] != self.policy.policy_snapshot_hash:
+            raise PlannerContractError("PLANNER_SNAPSHOT_POLICY_INVALID")
+        payload = encode_canonical_json_bytes(snapshot)
+        old = self.connection.execute("SELECT payload,snapshot_hash FROM phase10_snapshots WHERE kind=? AND snapshot_id=?", (kind,snapshot_id)).fetchone()
+        if old is not None:
+            if old != (payload,snapshot_hash): raise PlannerContractError("PLANNER_SNAPSHOT_IMMUTABILITY")
+            return snapshot_id,snapshot_hash
+        self.connection.execute("INSERT INTO phase10_snapshots(kind,snapshot_id,snapshot_hash,project_id,payload) VALUES(?,?,?,?,?)", (kind,snapshot_id,snapshot_hash,snapshot["project_id"],payload)); self.connection.commit()
+        return snapshot_id,snapshot_hash
+
+    def snapshot(self, *, kind: str, snapshot_id: str, expected_hash: str, project_id: str) -> dict[str, object]:
+        row=self.connection.execute("SELECT snapshot_hash,project_id,payload FROM phase10_snapshots WHERE kind=? AND snapshot_id=?",(kind,snapshot_id)).fetchone()
+        if row is None or row[0] != expected_hash or row[1] != project_id: raise PlannerContractError("PLANNER_SNAPSHOT_REFERENCE_INVALID")
+        raw=json.loads(row[2].decode("utf-8"))
+        if encode_canonical_json_bytes(raw)!=row[2]: raise PlannerContractError("PLANNER_SNAPSHOT_CANONICAL_INVALID")
+        validate_snapshot_record(kind,raw); return raw
 
     def accepted(self, *, kind: str, project_id: str) -> tuple[dict[str, object], ...]:
         rows = self.connection.execute("SELECT record_id,record_hash FROM phase10_records WHERE kind=? AND project_id=? ORDER BY record_id", (kind, project_id)).fetchall()
