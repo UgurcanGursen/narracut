@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import hashlib
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -9,6 +11,7 @@ import pytest
 from engine.rendering import (
     FullRenderError, OutputTargetHead, atomic_publish, build_full_render_request,
     provision_output_target, resolve_output_target,
+    normalize_mux_probe,
 )
 from engine.rendering.bridge import build_render_props, renderer_version
 from engine.rendering.fixture_assets import FixtureAssetResolver
@@ -82,3 +85,27 @@ def test_atomic_publish_does_not_overwrite_existing_target(tmp_path: Path) -> No
     with pytest.raises(FullRenderError) as rejected:
         atomic_publish(staged_output=staged, project_root=tmp_path, target=target)
     assert rejected.value.code == "ATOMIC_PUBLISH_FAILED"
+
+
+def test_replay_ffmpeg_mux_and_ffprobe_produce_a_staged_av_output(tmp_path: Path) -> None:
+    """The bounded adapter executes real local tools; no media fallback exists."""
+    ffmpeg = Path(shutil.which("ffmpeg") or "")
+    ffprobe = Path(shutil.which("ffprobe") or "")
+    if not ffmpeg.is_file() or not ffprobe.is_file():
+        pytest.skip("paired FFmpeg fixture runtime unavailable")
+    video = tmp_path / "renderer-video.mp4"
+    generated = subprocess.run(
+        [str(ffmpeg), "-y", "-f", "lavfi", "-i", "color=c=black:s=64x64:r=30",
+         "-t", "0.02", "-an", "-c:v", "libx264", "-pix_fmt", "yuv420p", str(video)],
+        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+    )
+    assert generated.returncode == 0 and video.is_file()
+    pcm = tmp_path / "trusted-pcm.wav"
+    pcm_generated = subprocess.run(
+        [str(ffmpeg), "-y", "-f", "lavfi", "-i", "anullsrc=r=48000:cl=stereo",
+         "-t", "0.2", "-c:a", "pcm_f32le", str(pcm)],
+        stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+    )
+    assert pcm_generated.returncode == 0 and pcm.is_file()
+    result = normalize_mux_probe(video_path=video, pcm_paths=[pcm], staged_output=tmp_path / "staged.mp4", ffmpeg=ffmpeg, ffprobe=ffprobe)
+    assert result["output_size_bytes"] > 0 and result["streams"] >= 2
