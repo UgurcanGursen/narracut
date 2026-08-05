@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from typing import Iterable, Mapping
-from dataclasses import dataclass
 
 from engine.research.store import ClaimStore
 from engine.acquisition.asset_catalog import AssetCatalogV1, canonical_asset_catalog_json
@@ -27,13 +26,6 @@ class ProducedPlannerSnapshot:
         self.kind, self.payload = kind, payload
 
 
-@dataclass(frozen=True)
-class ReplayPlannerContextFixtureV1:
-    """Typed test-only REPLAY source; never a live catalog/provider ingress."""
-    claim_evidence_pairs: tuple[tuple[str, str], ...]
-    asset_catalog_pairs: tuple[tuple[str, str], ...]
-    template_capability_pairs: tuple[tuple[str, str], ...]
-    continuity_pairs: tuple[tuple[str, str], ...]
 
 
 class PlannerSnapshotService:
@@ -58,12 +50,6 @@ class PlannerSnapshotService:
         payload = PlannerSnapshotV1("claim_evidence", project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, tuple(sorted(set(pairs)))).data()
         return ProducedPlannerSnapshot("claim_evidence", payload, _PRODUCER_CAPABILITY)
 
-    def replay_fixture(self, *, project_id: str, policy: PlannerPolicyV1,
-                       fixture: ReplayPlannerContextFixtureV1) -> dict[str, ProducedPlannerSnapshot]:
-        if type(fixture) is not ReplayPlannerContextFixtureV1:
-            raise PlannerContractError("PLANNER_REPLAY_FIXTURE_INVALID")
-        values={"claim_evidence": fixture.claim_evidence_pairs, "asset_catalog": fixture.asset_catalog_pairs, "template_capability": fixture.template_capability_pairs, "continuity": fixture.continuity_pairs}
-        return {kind: ProducedPlannerSnapshot(kind, PlannerSnapshotV1(kind, project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data(), _PRODUCER_CAPABILITY) for kind,pairs in values.items()}
 
     def _records(self, *, kind: str, project_id: str, policy: PlannerPolicyV1,
                  records: Iterable[Mapping[str, object]], id_key: str, hash_key: str) -> tuple[tuple[str, str], ...]:

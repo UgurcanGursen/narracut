@@ -13,7 +13,6 @@ from engine.planner import (ChapterBriefV1, GlobalOutlineV1, NarrativeBeatV1,
                             PlannerResultImporter, PlannerStore, PlannerTaskPackageBuilder, PlannerTaskStore,
                             PlannerTaskService, SequencePlanV1,
                             planner_policy_from_snapshot, validate_response)
-from engine.planner import PlannerSnapshotService, ReplayPlannerContextFixtureV1
 from engine.research import BackendMode
 
 
@@ -61,9 +60,8 @@ def test_replay_assembly_is_deterministic_and_never_an_edl(tmp_path: Path) -> No
     policy = planner_policy_from_snapshot(_snapshot()); records = _chain(policy)
     store = PlannerStore(tmp_path / "planner.sqlite", policy=policy)
     for kind, record in zip(("outline", "chapter_brief", "narrative_beat", "planner_asset_brief", "sequence_plan"), records): store.put(kind=kind, record=record)
-    fixture = ReplayPlannerContextFixtureV1((("clm_01", "sha256:" + "b" * 64), ("fact_01", "sha256:" + "c" * 64)), (("fam_01", "sha256:" + "e" * 64),), (("cap_01", "sha256:" + "d" * 64),), ())
-    products = PlannerSnapshotService().replay_fixture(project_id="prj_phase10", policy=policy, fixture=fixture)
-    refs = {kind: PlannerSnapshotService().persist(store=store, snapshot=value) for kind, value in products.items()}
+    seeded = {"claim_evidence": (("clm_01", "sha256:" + "b" * 64), ("fact_01", "sha256:" + "c" * 64)), "asset_catalog": (("fam_01", "sha256:" + "e" * 64),), "template_capability": (("cap_01", "sha256:" + "d" * 64),), "continuity": ()}
+    refs = {kind: store._put_produced_snapshot(kind=kind, snapshot=PlannerSnapshotV1(kind, "prj_phase10", policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data()) for kind, pairs in seeded.items()}
     first = PlannerAssembler().assemble(store=store, project_id="prj_phase10", policy_snapshot_id=policy.policy_snapshot_id, policy_snapshot_hash=policy.policy_snapshot_hash, snapshots=refs).data()
     second = PlannerAssembler().assemble(store=store, project_id="prj_phase10", policy_snapshot_id=policy.policy_snapshot_id, policy_snapshot_hash=policy.policy_snapshot_hash, snapshots=refs).data()
     assert first == second and first["request_id"].startswith("pareq_") and "edl" not in first and "renderer" not in first
