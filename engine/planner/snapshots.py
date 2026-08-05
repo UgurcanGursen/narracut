@@ -68,3 +68,8 @@ class PlannerSnapshotService:
         if len(pairs) > 2:
             raise PlannerContractError("PLANNER_CONTINUITY_SNAPSHOT_INVALID")
         return PlannerSnapshotV1("continuity", project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash, pairs).data()
+    def persist(self, *, store: PlannerStore, kind: str, snapshot: Mapping[str, object]) -> tuple[str, str]:
+        """Persist only a projection returned by this typed producer boundary."""
+        if type(store) is not PlannerStore or kind not in {"claim_evidence", "asset_catalog", "template_capability", "continuity"}:
+            raise PlannerContractError("PLANNER_SNAPSHOT_PERSIST_INVALID")
+        return store._put_produced_snapshot(kind=kind, snapshot=snapshot)
