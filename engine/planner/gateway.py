@@ -152,12 +152,15 @@ class PlannerResultImporter:
 
     _kinds = {"outline": ("outline", "outline"), "chapter_brief": ("chapter_brief", "chapter_brief"), "narrative_beats": ("narrative_beats", "narrative_beat"), "sequence_plan": ("sequence_plan", "sequence_plan")}
 
-    def __init__(self, store: object, *, claim_evidence_pairs: tuple[tuple[str, str], ...] = (), capability_pairs: tuple[tuple[str, str], ...] = (), continuity_pairs: tuple[tuple[str, str], ...] = ()) -> None:
+    def __init__(self, store: object) -> None:
         self.store = store
-        self.claim_evidence_pairs, self.capability_pairs, self.continuity_pairs = set(claim_evidence_pairs), set(capability_pairs), set(continuity_pairs)
 
     def __call__(self, task: PlannerTaskV1, payload: bytes) -> None:
         raw = validate_response(task=task, payload=payload)
+        closures={}
+        for ref in task.context_snapshot_hashes:
+            kind,snapshot_id,snapshot_hash=ref.split("|")
+            closures[kind]=set(map(tuple,self.store.snapshot(kind=kind,snapshot_id=snapshot_id,expected_hash=snapshot_hash,project_id=task.project_id)["id_hash_pairs"]))
         if task.task_type not in self._kinds: _fail("PLANNER_RESPONSE_IMPORT_INVALID")
         result_key, kind = self._kinds[task.task_type]
         value = raw["result"][result_key]
@@ -171,10 +174,10 @@ class PlannerResultImporter:
             elif record.get("parent_id") != task.parent_id or record.get("parent_hash") != task.parent_hash:
                 _fail("PLANNER_RESPONSE_PARENT_INVALID")
             for key in ("claim_id_hash_pairs", "required_evidence_id_hash_pairs", "evidence_id_hash_pairs"):
-                if key in record and not set(map(tuple, record[key])) <= self.claim_evidence_pairs: _fail("PLANNER_RESPONSE_CLOSURE_INVALID")
-            if "template_capability_id_hash_pairs" in record and not set(map(tuple, record["template_capability_id_hash_pairs"])) <= self.capability_pairs: _fail("PLANNER_RESPONSE_CLOSURE_INVALID")
+                if key in record and not set(map(tuple, record[key])) <= closures.get("claim_evidence",set()): _fail("PLANNER_RESPONSE_CLOSURE_INVALID")
+            if "template_capability_id_hash_pairs" in record and not set(map(tuple, record["template_capability_id_hash_pairs"])) <= closures.get("template_capability",set()): _fail("PLANNER_RESPONSE_CLOSURE_INVALID")
             for key in ("incoming_continuity_state_id_hash", "outgoing_continuity_state_id_hash"):
-                if key in record and record[key] is not None and tuple(record[key]) not in self.continuity_pairs: _fail("PLANNER_RESPONSE_CLOSURE_INVALID")
+                if key in record and record[key] is not None and tuple(record[key]) not in closures.get("continuity",set()): _fail("PLANNER_RESPONSE_CLOSURE_INVALID")
             self.store.put(kind=kind, record=record)
 
 
