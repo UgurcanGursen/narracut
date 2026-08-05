@@ -3,5 +3,7 @@
 from .policy import PlannerPolicyError, PlannerPolicyV1, planner_policy_from_snapshot
 from .contracts import GlobalOutlineV1, NarrativeBeatV1, PlannerContractError, SequencePlanV1
 from .store import PlannerStore
+from .gateway import PlannerTaskPackageBuilder, PlannerTaskService, PlannerTaskV1, validate_response
+from .assembly import PlannerAssemblyRequestV1
 
-__all__ = ["PlannerPolicyError", "PlannerPolicyV1", "planner_policy_from_snapshot", "GlobalOutlineV1", "NarrativeBeatV1", "PlannerContractError", "SequencePlanV1", "PlannerStore"]
+__all__ = ["PlannerPolicyError", "PlannerPolicyV1", "planner_policy_from_snapshot", "GlobalOutlineV1", "NarrativeBeatV1", "PlannerContractError", "SequencePlanV1", "PlannerStore", "PlannerTaskPackageBuilder", "PlannerTaskService", "PlannerTaskV1", "validate_response", "PlannerAssemblyRequestV1"]

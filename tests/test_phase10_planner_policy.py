@@ -6,7 +6,9 @@ from pathlib import Path
 import pytest
 
 from engine.contracts import DomainPackRegistry, DomainPolicyResolver, SchemaCatalog
-from engine.planner import GlobalOutlineV1, NarrativeBeatV1, PlannerContractError, PlannerStore, SequencePlanV1, planner_policy_from_snapshot
+from engine.planner import GlobalOutlineV1, NarrativeBeatV1, PlannerAssemblyRequestV1, PlannerContractError, PlannerStore, PlannerTaskPackageBuilder, PlannerTaskService, SequencePlanV1, planner_policy_from_snapshot, validate_response
+from engine.research import BackendMode
+from engine.contracts._canonical_json import encode_canonical_json_bytes
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,3 +44,17 @@ def test_store_preserves_exact_outline_bytes(tmp_path: Path) -> None:
     assert store.get(kind="outline", record_id=outline["outline_id"], expected_hash=outline["outline_hash"], project_id="prj_phase10") == outline
     assert store.export_jsonl(tmp_path / "planner.jsonl").read_bytes()
     store.close()
+
+
+def test_manual_planner_package_and_response_binding(tmp_path: Path) -> None:
+    policy = planner_policy_from_snapshot(_snapshot())
+    task = PlannerTaskService().create(task_type="outline", project_id="prj_phase10", policy=policy, backend_mode=BackendMode.MANUAL_UI, parent_id=None, parent_hash=None, context_snapshot_hashes=("sha256:" + "a" * 64,), expected_result_fields=("outline",))
+    package = PlannerTaskPackageBuilder().build(task=task, workspace_root=tmp_path, prompt_text="Return JSON.", context={"claims": []})
+    assert (package / "response").is_dir()
+    payload = encode_canonical_json_bytes({"schema_version":"PHASE10-PLANNER-RESPONSE-V1","task_id":task.task_id,"task_hash":task.task_hash,"task_type":"outline","policy_snapshot_id":policy.policy_snapshot_id,"policy_snapshot_hash":policy.policy_snapshot_hash,"result":{"outline":{}}})
+    assert validate_response(task=task, payload=payload)["result"] == {"outline": {}}
+
+
+def test_assembly_request_is_not_an_edl() -> None:
+    request = PlannerAssemblyRequestV1("prj_phase10", "dps_policy", "sha256:" + "a" * 64, (("splan_01", "sha256:" + "b" * 64),), "sha256:" + "c" * 64, "sha256:" + "d" * 64, "sha256:" + "e" * 64, "sha256:" + "f" * 64).data()
+    assert request["request_id"].startswith("pareq_") and "edl" not in request
