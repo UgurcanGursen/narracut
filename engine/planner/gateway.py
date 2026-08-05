@@ -152,6 +152,10 @@ class PlannerResultImporter:
         for record in values:
             if type(record) is not dict or record.get("project_id") != task.project_id or record.get("policy_snapshot_id") != task.policy_snapshot_id or record.get("policy_snapshot_hash") != task.policy_snapshot_hash:
                 _fail("PLANNER_RESPONSE_IMPORT_INVALID")
+            if task.task_type == "outline":
+                if record.get("parent_id") is not None or record.get("parent_hash") is not None: _fail("PLANNER_RESPONSE_PARENT_INVALID")
+            elif record.get("parent_id") != task.parent_id or record.get("parent_hash") != task.parent_hash:
+                _fail("PLANNER_RESPONSE_PARENT_INVALID")
             self.store.put(kind=kind, record=record)
 
 
