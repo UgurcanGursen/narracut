@@ -2,6 +2,13 @@
 
 Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 IN_PROGRESS.
 
+## AI execution policy
+
+All remaining work follows `docs/AI_DEVELOPMENT_EXECUTION_POLICY.md`.
+The active package uses one grouped implementation repair and one final
+independent audit; repeated micro-audit loops and repeated full render gates
+are not the default workflow.
+
 ## NEXT AUTHORITATIVE TASK
 
 Independently audit the candidate **Phase 4B - Render Terminality, Full Render
