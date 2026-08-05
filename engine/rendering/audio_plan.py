@@ -159,7 +159,10 @@ def compile_audio_render_plan(*, audio_edl: AudioEdlArtifact, pcm_manifest: dict
         right = _fade_expression(clip=clip, decision=outgoing.get(clip["event_id"]), side="out")
         lines += [f"[p{slot}_pre]{left}[p{slot}_left]", f"[p{slot}_left]{right}[p{slot}_right]", f"[p{slot}_right]anull[p{slot}_post]", f"[p{slot}_post]anull[p{slot}_mix]"]
     lines += ["".join(f"[p{clip['pcm_input_slot']}_mix]" for clip in clips) + f"amix=inputs={len(clips)}:duration=longest:dropout_transition=0[mixed]", f"[mixed]aformat=sample_rates=48000:channel_layouts=stereo,atrim=end_sample={audio_edl.duration_samples}[aout]"]
-    script = ("\n".join(lines) + "\n").encode("utf-8")
+    # FFmpeg filter-complex scripts separate graph chains with semicolons;
+    # newline alone is only whitespace and would concatenate two labelled
+    # chains into invalid trailing text at real execution time.
+    script = (";\n".join(lines) + "\n").encode("utf-8")
     if b"\x00" in script: _reject()
     mix = {"duration_samples": audio_edl.duration_samples, "sample_rate_hz": 48000, "channel_layout": "stereo", "track_order": ["A1", "A2", "A3", "A4", "A5"], "clip_event_ids": [clip["event_id"] for clip in clips]}
     for clip in clips:

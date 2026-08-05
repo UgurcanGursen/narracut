@@ -15,7 +15,11 @@ from engine.rendering import (
 )
 from engine.rendering.bridge import build_render_props, renderer_version
 from engine.rendering.fixture_assets import FixtureAssetResolver
+from engine.rendering.full_profile import load_full_render_profile
 from tests.test_render_bridge import FIXTURE_ROOT, ROOT, build_phase4a_rich_replay_inputs
+
+PROFILE_ID = "frp_phase4b_replay_win32_x64"
+PROFILE_HASH = "sha256:d0934f098430334ec1f15be78083635bebb7402ac08fa2ed5fda8fec810461b2"
 
 
 def _props():
@@ -52,7 +56,7 @@ def test_full_request_is_separate_hash_bound_envelope_and_4a_props_stay_preview(
     props = _props()
     manifest = {"schema_version": "FULL-RENDER-PCM-MANIFEST-V1", "entries": []}
     request = build_full_render_request(
-        props=props, profile_id="profile_replay", profile_hash="sha256:" + "2" * 64,
+        props=props, profile_id=PROFILE_ID, profile_hash=PROFILE_HASH,
         output_target_id="outt_" + "1" * 32, pcm_manifest=manifest,
         cancellation_ingress_id="cancel_fixture_1",
     )
@@ -61,9 +65,19 @@ def test_full_request_is_separate_hash_bound_envelope_and_4a_props_stay_preview(
     assert request["render_props_canonical_sha256"] == "sha256:" + hashlib.sha256(
         __import__("engine.rendering.bridge", fromlist=["serialize_render_props"]).serialize_render_props(props)
     ).hexdigest()
+    assert set(("remotion_identity_hash", "node_identity_hash", "ffmpeg_identity_hash", "ffprobe_identity_hash")) <= set(request)
     with pytest.raises(FullRenderError) as rejected:
         build_full_render_request(props=props, profile_id="", profile_hash="sha256:" + "2" * 64, output_target_id="outt_" + "1" * 32, pcm_manifest=manifest, cancellation_ingress_id="x")
     assert rejected.value.code == "FULL_REQUEST_INVALID"
+
+
+def test_unknown_or_hash_drift_profile_is_pre_admission_fail_closed() -> None:
+    with pytest.raises(FullRenderError) as unknown:
+        load_full_render_profile(profile_id="frp_missing", profile_hash=PROFILE_HASH)
+    assert unknown.value.code == "FULL_RENDER_PROFILE_INVALID"
+    with pytest.raises(FullRenderError) as drift:
+        load_full_render_profile(profile_id=PROFILE_ID, profile_hash="sha256:" + "0" * 64)
+    assert drift.value.code == "FULL_RENDER_PROFILE_INVALID"
 
 
 def test_locked_and_approved_targets_fail_before_publish(tmp_path: Path) -> None:

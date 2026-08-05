@@ -24,7 +24,8 @@ from .audio_plan import compile_audio_render_plan
 from .bridge import RenderProps, load_render_props, serialize_render_props
 from .fixture_assets import FixtureAssetResolver, FixtureAssetResolverError
 from .full_render import (FullRenderError, atomic_publish, build_full_render_request,
-                          normalize_mux_probe, resolve_output_target)
+                          run_profile_media_pipeline, resolve_output_target)
+from .full_profile import load_full_render_profile
 from .lifecycle_registry import (cleanup_attempt, commit_transaction,
                                  next_target_revision, snapshot_attempt)
 
@@ -203,6 +204,7 @@ def run_full_render(*, project_root: Path, props: RenderProps,
         output_target_id=output_target_id, pcm_manifest=pcm_manifest,
         cancellation_ingress_id=cancellation_ingress_id,
     )
+    profile = load_full_render_profile(profile_id=profile_id, profile_hash=profile_hash)
     # Admission checks must precede attempt-directory/process creation.
     target = resolve_output_target(project_root=project_root,
                                    output_target_id=output_target_id, props=props)
@@ -215,10 +217,27 @@ def run_full_render(*, project_root: Path, props: RenderProps,
         raise FullRenderError("ARTIFACT_PERSIST_FAILED") from exc
     base_target = target
     output: Path | None = None
+    artifact_rows: list[dict[str, Any]] = []
     try:
+        request_path = attempt_root / "request" / "full-render-request.json"
+        request_path.parent.mkdir(parents=True)
+        request_path.write_bytes(encode_canonical_json_bytes(request))
+        artifact_rows.append(_artifact_row(artifact_id="art_request_" + request["full_render_request_hash"][7:39],
+                                           path=request_path, kind="full_render_request", props=props))
         props_path = attempt_root / "remotion" / "render-props.json"
         props_path.parent.mkdir(parents=True)
         props_path.write_bytes(serialize_render_props(props))
+        artifact_rows.append(_artifact_row(artifact_id="art_props_" + props.render_props_hash[7:39],
+                                           path=props_path, kind="render_props", props=props))
+        pcm_manifest_path = attempt_root / "audio" / "pcm-input-manifest.json"
+        pcm_report_path = attempt_root / "audio" / "pcm-materialization-report.json"
+        pcm_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+        pcm_manifest_path.write_bytes(encode_canonical_json_bytes(pcm_manifest))
+        pcm_report_path.write_bytes(encode_canonical_json_bytes(pcm_materialization_report))
+        artifact_rows.extend((_artifact_row(artifact_id="art_pcm_manifest_" + _sha(pcm_manifest_path.read_bytes())[7:39],
+                                            path=pcm_manifest_path, kind="pcm_input_manifest", props=props),
+                              _artifact_row(artifact_id="art_pcm_report_" + _sha(pcm_report_path.read_bytes())[7:39],
+                                            path=pcm_report_path, kind="pcm_materialization_report", props=props)))
         video = attempt_root / "remotion" / "video.mp4"
         if cancel_after_admission:
             raise FullRenderError("CANCELLED_BY_PARENT")
@@ -230,6 +249,8 @@ def run_full_render(*, project_root: Path, props: RenderProps,
             raise FullRenderError("REMOTION_FULL_RENDER_FAILED") from exc
         if not video.is_file() or not video.stat().st_size:
             raise FullRenderError("REMOTION_FULL_RENDER_FAILED")
+        artifact_rows.append(_artifact_row(artifact_id="art_renderer_video_" + _sha(video.read_bytes())[7:39],
+                                           path=video, kind="renderer_video", props=props))
         pcm_paths = _materialize_pcm(attempt_root=attempt_root, pcm_manifest=pcm_manifest,
                                      pcm_report=pcm_materialization_report, sources=pcm_sources)
         plan, script_artifact, script = compile_audio_render_plan(
@@ -240,9 +261,17 @@ def run_full_render(*, project_root: Path, props: RenderProps,
         plan_path.parent.mkdir(parents=True, exist_ok=True)
         plan_path.write_bytes(encode_canonical_json_bytes(plan))
         script_path.write_bytes(script)
+        artifact_rows.extend((_artifact_row(artifact_id="art_audio_plan_" + plan["audio_render_plan_hash"][7:39],
+                                            path=plan_path, kind="audio_render_plan", props=props),
+                              _artifact_row(artifact_id="art_filter_script_" + script_artifact["audio_filter_script_hash"][7:39],
+                                            path=script_path, kind="audio_filter_script", props=props)))
         staged = attempt_root / "staged" / "output.mp4"
-        probe = normalize_mux_probe(video_path=video, pcm_paths=pcm_paths,
-                                   staged_output=staged, ffmpeg=ffmpeg, ffprobe=ffprobe)
+        normalized_audio = attempt_root / "audio" / "normalized.wav"
+        probe = run_profile_media_pipeline(profile=profile, video_path=video, pcm_paths=pcm_paths,
+                                           filter_script=script_path, normalized_audio=normalized_audio,
+                                           staged_output=staged, ffmpeg=ffmpeg, ffprobe=ffprobe)
+        artifact_rows.append(_artifact_row(artifact_id="art_normalized_audio_" + _sha(normalized_audio.read_bytes())[7:39],
+                                           path=normalized_audio, kind="normalized_audio", props=props))
         output = atomic_publish(staged_output=staged, project_root=project_root, target=target)
         pre = snapshot_attempt(attempt_root=attempt_root, attempt_id=attempt_id,
                                cleanup_state="PRE_CLEANUP")
@@ -255,8 +284,8 @@ def run_full_render(*, project_root: Path, props: RenderProps,
             project_root=project_root, transaction_id="txn_" + hashlib.sha256(
                 (request["full_render_request_id"] + attempt_id).encode("ascii")).hexdigest()[:32],
             base_target=base_target, target_revision=revision,
-            artifact_rows=(_artifact_row(artifact_id=final_id, path=output,
-                                         kind="final_output", props=props),),
+            artifact_rows=tuple([*artifact_rows, _artifact_row(artifact_id=final_id, path=output,
+                                         kind="final_output", props=props)]),
             terminal_status="SUCCEEDED",
             receipt_payload={"full_render_request_id": request["full_render_request_id"],
                              "audio_render_plan_id": plan["audio_render_plan_id"],
@@ -278,7 +307,7 @@ def run_full_render(*, project_root: Path, props: RenderProps,
         receipt = commit_transaction(
             project_root=project_root, transaction_id="txn_" + hashlib.sha256(
                 (request["full_render_request_id"] + attempt_id).encode("ascii")).hexdigest()[:32],
-            base_target=base_target, target_revision=None, artifact_rows=(), terminal_status=status,
+            base_target=base_target, target_revision=None, artifact_rows=tuple(artifact_rows), terminal_status=status,
             receipt_payload={"full_render_request_id": request["full_render_request_id"],
                              "failure_code": failure.code}, pre_cleanup=pre, post_cleanup=post)
         return FullRenderOutcome(True, status, request, receipt, None)

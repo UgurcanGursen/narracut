@@ -17,6 +17,9 @@ from engine.rendering.fixture_assets import FixtureAssetResolver
 from tests.test_audio_render_plan import _inputs
 from tests.test_render_bridge import FIXTURE_ROOT, ROOT, build_phase4a_rich_replay_inputs
 
+PROFILE_ID = "frp_phase4b_replay_win32_x64"
+PROFILE_HASH = "sha256:d0934f098430334ec1f15be78083635bebb7402ac08fa2ed5fda8fec810461b2"
+
 
 def _sha(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
@@ -64,8 +67,8 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
 
     outcome = run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
         pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources=sources,
-        output_target_id="outt_" + "9" * 32, profile_id="replay-profile",
-        profile_hash="sha256:" + "2" * 64, cancellation_ingress_id="cancel_1",
+        output_target_id="outt_" + "9" * 32, profile_id=PROFILE_ID,
+        profile_hash=PROFILE_HASH, cancellation_ingress_id="cancel_1",
         attempt_id="attempt_replay_1", video_producer=render_video, ffmpeg=ffmpeg, ffprobe=ffprobe)
     assert outcome.status == "SUCCEEDED" and outcome.output_path is not None
     assert outcome.output_path.is_file() and outcome.receipt is not None
@@ -79,6 +82,10 @@ def test_replay_orchestrator_mixes_and_publishes_one_sequence(tmp_path: Path) ->
     assert outcome.receipt["pre_cleanup_manifest_id"] in registry
     assert outcome.receipt["post_cleanup_manifest_id"] in registry
     assert head["current_output_artifact_id"] in registry
+    for kind in ("full_render_request", "render_props", "pcm_input_manifest",
+                 "pcm_materialization_report", "renderer_video", "audio_render_plan",
+                 "audio_filter_script", "normalized_audio", "final_output"):
+        assert f'"kind":"{kind}"' in registry
     assert not list((tmp_path / "renders" / "attempts" / "attempt_replay_1").rglob("*"))
 
 
@@ -89,8 +96,8 @@ def test_pre_admission_cancel_creates_no_attempt_or_receipt(tmp_path: Path) -> N
     audio, manifest, report = _inputs()
     outcome = run_full_render(project_root=tmp_path, props=props, audio_edl=audio,
         pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources={},
-        output_target_id="outt_" + "8" * 32, profile_id="replay-profile",
-        profile_hash="sha256:" + "2" * 64, cancellation_ingress_id="cancel_2",
+        output_target_id="outt_" + "8" * 32, profile_id=PROFILE_ID,
+        profile_hash=PROFILE_HASH, cancellation_ingress_id="cancel_2",
         attempt_id="attempt_cancel_1", video_producer=lambda *_: None,
         ffmpeg=Path("ffmpeg"), ffprobe=Path("ffprobe"), cancel_before_admission=True)
     assert not outcome.admitted and outcome.status == "CANCELLED_BEFORE_ADMISSION"
@@ -118,8 +125,8 @@ def test_admitted_terminal_failure_and_cancellation_persist_cleanup_receipts(
     outcome = run_full_render(
         project_root=tmp_path, props=props, audio_edl=audio,
         pcm_manifest=manifest, pcm_materialization_report=report, pcm_sources={},
-        output_target_id=target_id, profile_id="replay-profile",
-        profile_hash="sha256:" + "2" * 64, cancellation_ingress_id="cancel_terminal",
+        output_target_id=target_id, profile_id=PROFILE_ID,
+        profile_hash=PROFILE_HASH, cancellation_ingress_id="cancel_terminal",
         attempt_id="attempt_terminal_" + ("cancel" if cancel else "failure"),
         video_producer=producer, ffmpeg=Path("ffmpeg"), ffprobe=Path("ffprobe"),
         cancel_after_admission=cancel,
