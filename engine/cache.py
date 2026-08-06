@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from dataclasses import dataclass
+from typing import Mapping
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
 
@@ -14,6 +15,7 @@ class CacheEntry:
     key: str
     payload: bytes
     payload_hash: str
+    lifecycle: Mapping[str, object] | None = None
 
 def cache_key(*, profile: str, inputs: dict) -> str:
     if profile not in {"preview", "production"}: raise ValueError("CACHE_PROFILE_INVALID")
@@ -63,16 +65,20 @@ def _write_atomic(target: Path, payload: bytes) -> None:
             temporary.unlink(missing_ok=True)
 
 
-def cache_put(root: Path, key: str, payload: bytes) -> CacheEntry:
+def cache_put(root: Path, key: str, payload: bytes, *, lifecycle: Mapping[str, object] | None = None) -> CacheEntry:
     target = _target(root, key)
     if type(payload) is not bytes: raise ValueError("CACHE_PAYLOAD_INVALID")
     payload_hash = "sha256:" + hashlib.sha256(payload).hexdigest()
-    metadata = encode_canonical_json_bytes({"cache_key": key, "payload_hash": payload_hash})
+    if lifecycle is not None and not isinstance(lifecycle, Mapping): raise ValueError("CACHE_LIFECYCLE_INVALID")
+    metadata_value: dict[str, object] = {"cache_key": key, "payload_hash": payload_hash}
+    if lifecycle is not None: metadata_value["lifecycle"] = dict(lifecycle)
+    metadata = encode_canonical_json_bytes(metadata_value)
     metadata_target = _metadata_target(target)
     if target.exists() or metadata_target.exists():
         existing = cache_get(root, key)
         if existing is None or existing.payload != payload:
             raise ValueError("CACHE_COLLISION")
+        if existing.lifecycle != lifecycle: raise ValueError("CACHE_LIFECYCLE_CONFLICT")
         return existing
     _write_atomic(target, payload)
     try:
@@ -80,7 +86,7 @@ def cache_put(root: Path, key: str, payload: bytes) -> CacheEntry:
     except BaseException:
         target.unlink(missing_ok=True)
         raise
-    return CacheEntry(key=key, payload=payload, payload_hash=payload_hash)
+    return CacheEntry(key=key, payload=payload, payload_hash=payload_hash, lifecycle=lifecycle)
 
 def cache_get(root: Path, key: str) -> CacheEntry | None:
     target = _target(root, key); metadata_target = _metadata_target(target)
@@ -93,9 +99,13 @@ def cache_get(root: Path, key: str) -> CacheEntry | None:
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ValueError("CACHE_ENTRY_INVALID") from exc
     payload_hash = "sha256:" + hashlib.sha256(payload).hexdigest()
-    if metadata != {"cache_key": key, "payload_hash": payload_hash}:
+    if (set(metadata) - {"cache_key", "payload_hash", "lifecycle"}
+            or {"cache_key", "payload_hash"} - set(metadata)
+            or metadata["cache_key"] != key or metadata["payload_hash"] != payload_hash):
         raise ValueError("CACHE_ENTRY_INVALID")
-    return CacheEntry(key=key, payload=payload, payload_hash=payload_hash)
+    lifecycle = metadata.get("lifecycle")
+    if lifecycle is not None and type(lifecycle) is not dict: raise ValueError("CACHE_ENTRY_INVALID")
+    return CacheEntry(key=key, payload=payload, payload_hash=payload_hash, lifecycle=lifecycle)
 
 def incremental_action(*, previous_key: str | None, current_key: str) -> str:
     if not current_key.startswith("sha256:"): raise ValueError("CACHE_KEY_INVALID")

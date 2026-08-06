@@ -1,6 +1,6 @@
 import hashlib
 import pytest
-from engine.cache_lifecycle import CacheEntryRecord, CachePayloadObject, RetentionPolicySnapshot, plan_soft_quota, resolve_payload_object, storage_report, validate_soft_quota_plan
+from engine.cache_lifecycle import CacheEntryRecord, CachePayloadObject, RetentionPolicySnapshot, cache_write_lifecycle_metadata, plan_soft_quota, resolve_payload_object, storage_report, validate_soft_quota_plan
 
 
 def payload(data=b"same"):
@@ -33,9 +33,22 @@ def test_retained_reference_and_bad_scope_fail_closed():
         plan_soft_quota(payloads=(item,), entries=(kept,), policy=RetentionPolicySnapshot("sha256:" + "f" * 64, "other", 0, 1, 0, "2026-08-02T00:00:00Z"), retained_artifact_ids=frozenset())
 
 
+def test_orphan_payload_is_direct_reclaim_candidate():
+    item = payload()
+    plan = plan_soft_quota(payloads=(item,), entries=(), policy=policy(), retained_artifact_ids=frozenset())
+    assert [row["kind"] for row in plan["rows"]] == ["TRASH_CACHE_PAYLOAD"]
+
+
 def test_resolver_accepts_only_verified_fanout_object(tmp_path):
     data=b"same"; digest="sha256:"+hashlib.sha256(data).hexdigest(); path=tmp_path/"sha256"/digest[7:9]/digest[9:]; path.parent.mkdir(parents=True); path.write_bytes(data)
     assert resolve_payload_object(managed_root=tmp_path, payload_hash=digest) == path
+    path.unlink()
+    try:
+        path.symlink_to(tmp_path / "elsewhere")
+    except OSError:
+        pytest.skip("symlink fixture privilege unavailable")
+    with pytest.raises(ValueError, match="RESOLUTION"):
+        resolve_payload_object(managed_root=tmp_path, payload_hash=digest)
 
 
 def test_plan_rejects_registry_or_policy_drift():
@@ -43,3 +56,8 @@ def test_plan_rejects_registry_or_policy_drift():
     validate_soft_quota_plan(plan=planned, payloads=(item,), entries=entries, policy=policy())
     with pytest.raises(ValueError, match="STALE"):
         validate_soft_quota_plan(plan=planned, payloads=(item,), entries=entries, policy=RetentionPolicySnapshot("sha256:" + "e" * 64, "global_cache", 0, 100, 0, "2026-08-02T00:00:00Z"))
+
+
+def test_cache_write_metadata_is_path_free_and_reopenable():
+    metadata = cache_write_lifecycle_metadata(storage_scope_id="global_cache", cache_key="sha256:" + "a" * 64, profile="preview", payload_hash="sha256:" + "b" * 64, payload_size_bytes=3, producer_version="v1", timestamp_utc="2026-08-01T00:00:00Z")
+    assert CacheEntryRecord.materialize(metadata["cache_entry"]).payload_object_id == CachePayloadObject.materialize(metadata["payload_object"]).payload_object_id

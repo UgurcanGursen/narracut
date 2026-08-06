@@ -15,6 +15,7 @@ from engine.lifecycle import (
     append_registry_records,
     import_verified_artifact_rows,
 )
+from engine.cache_lifecycle import cache_write_lifecycle_metadata
 
 from .preview_runner import PreviewRun
 from .receipt import RenderStatus
@@ -39,6 +40,7 @@ def run_phase4_preview_cached(
     inputs: dict,
     estimated_bytes: int,
     hard_limit_bytes: int,
+    lifecycle_timestamp_utc: str,
     runner: Callable[[], PreviewRun],
 ) -> CachedPreviewOutcome:
     """Admit one preview, or return an integrity-checked exact cache hit.
@@ -79,7 +81,13 @@ def run_phase4_preview_cached(
         tuple(record.__dict__ for record in rendered.artifacts.records)
     )
     append_registry_records(registry_path=registry_path, records=records)
-    entry = cache_put(cache_root, key, rendered.preview_manifest_bytes)
+    lifecycle = cache_write_lifecycle_metadata(
+        storage_scope_id="phase14_preview_cache", cache_key=key, profile=profile,
+        payload_hash=rendered.receipt.output_sha256,
+        payload_size_bytes=len(rendered.preview_manifest_bytes),
+        producer_version="phase4a-renderer", timestamp_utc=lifecycle_timestamp_utc,
+    )
+    entry = cache_put(cache_root, key, rendered.preview_manifest_bytes, lifecycle=lifecycle)
     return CachedPreviewOutcome(
         disposition="RENDERED",
         cache_key=key,

@@ -30,7 +30,7 @@ def _run(payload=b"manifest"):
 def test_adapter_reuses_verified_input_cache_and_registry(tmp_path):
     kwargs = dict(cache_root=tmp_path / "cache", managed_storage_root=tmp_path,
         registry_path=tmp_path / "registry.jsonl", profile="preview", inputs={"x": 1}, estimated_bytes=1,
-        hard_limit_bytes=2)
+        hard_limit_bytes=2, lifecycle_timestamp_utc="2026-08-06T00:00:00Z")
     first = run_phase4_preview_cached(**kwargs, runner=lambda: _run())
     second = run_phase4_preview_cached(**kwargs, runner=lambda: _run(b"bad"))
     assert first.disposition == "RENDERED" and second.disposition == "CACHE_HIT"
@@ -42,7 +42,7 @@ def test_adapter_blocks_before_invoking_renderer_at_hard_quota(tmp_path):
     with pytest.raises(ValueError, match="HARD_QUOTA"):
         run_phase4_preview_cached(cache_root=tmp_path / "cache", managed_storage_root=tmp_path,
             registry_path=tmp_path / "r.jsonl", profile="preview", inputs={"x": 2}, estimated_bytes=1,
-            hard_limit_bytes=2, runner=lambda: _run())
+            hard_limit_bytes=2, lifecycle_timestamp_utc="2026-08-06T00:00:00Z", runner=lambda: _run())
 
 
 def test_adapter_wraps_one_real_phase4_preview_and_reuses_its_manifest(tmp_path):
@@ -60,7 +60,7 @@ def test_adapter_wraps_one_real_phase4_preview_and_reuses_its_manifest(tmp_path)
         return run
     kwargs = dict(cache_root=tmp_path / "cache", managed_storage_root=tmp_path,
         registry_path=tmp_path / "registry.jsonl", profile="preview", inputs={"render_props_hash": props.render_props_hash},
-        estimated_bytes=10_000, hard_limit_bytes=20_000)
+        estimated_bytes=10_000, hard_limit_bytes=20_000, lifecycle_timestamp_utc="2026-08-06T00:00:00Z")
     rendered = run_phase4_preview_cached(**kwargs, runner=invoke)
     reused = run_phase4_preview_cached(**kwargs, runner=lambda: pytest.fail("renderer must not run on cache hit"))
     assert rendered.disposition == "RENDERED" and reused.disposition == "CACHE_HIT"

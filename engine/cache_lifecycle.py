@@ -87,6 +87,32 @@ class CacheEntryRecord:
         return cls(cache_entry_id=identifier, cache_entry_hash=digest, **body)
 
 
+def cache_write_lifecycle_metadata(*, storage_scope_id: str, cache_key: str,
+                                   profile: str, payload_hash: str,
+                                   payload_size_bytes: int,
+                                   producer_version: str,
+                                   timestamp_utc: str) -> dict[str, object]:
+    """Create verified, path-free cache lifecycle rows for one cache write."""
+    _hash(cache_key); _hash(payload_hash); _utc(timestamp_utc)
+    payload_body = {
+        "storage_scope_id": storage_scope_id, "payload_hash": payload_hash,
+        "payload_size_bytes": payload_size_bytes, "created_at": timestamp_utc,
+        "status": "ready",
+    }
+    payload_id, _ = _identity("cpo_", payload_body)
+    payload = CachePayloadObject.materialize({"payload_object_id": payload_id, **payload_body})
+    entry_body = {
+        "storage_scope_id": storage_scope_id, "cache_key": cache_key,
+        "profile": profile, "payload_object_id": payload.payload_object_id,
+        "producer_input_hash": cache_key, "producer_version": producer_version,
+        "created_at": timestamp_utc, "last_accessed_at": timestamp_utc,
+        "registry_artifact_ids": (), "status": "ready",
+    }
+    entry_id, _ = _identity("cen_", entry_body)
+    entry = CacheEntryRecord.materialize({"cache_entry_id": entry_id, **entry_body})
+    return {"cache_entry": entry.__dict__, "payload_object": payload.__dict__}
+
+
 @dataclass(frozen=True)
 class RetentionPolicySnapshot:
     policy_hash: str
@@ -106,8 +132,14 @@ def resolve_payload_object(*, managed_root: Path, payload_hash: str) -> Path:
     """Resolve only a verified SHA-256 fan-out object under a trusted root."""
     _hash(payload_hash)
     root = managed_root.resolve(strict=True)
-    path = (root / "sha256" / payload_hash[7:9] / payload_hash[9:]).resolve(strict=True)
-    if root not in path.parents or not path.is_file() or path.is_symlink():
+    candidate = root / "sha256" / payload_hash[7:9] / payload_hash[9:]
+    current = root
+    for part in candidate.relative_to(root).parts:
+        current = current / part
+        if current.is_symlink():
+            raise ValueError("CACHE_OBJECT_RESOLUTION_INVALID")
+    path = candidate.resolve(strict=True)
+    if root not in path.parents or not path.is_file():
         raise ValueError("CACHE_OBJECT_RESOLUTION_INVALID")
     if path.stat().st_size < 0 or "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest() != payload_hash:
         raise ValueError("CACHE_OBJECT_INTEGRITY_INVALID")
@@ -133,9 +165,9 @@ def plan_soft_quota(*, payloads: tuple[CachePayloadObject, ...], entries: tuple[
     rows: list[dict[str, Any]] = []; reclaim = 0
     for payload in sorted(payloads, key=lambda item: (item.created_at, item.payload_object_id)):
         refs = [entry for entry in entries if entry.payload_object_id == payload.payload_object_id and entry.status == "ready"]
-        if not refs or payload.status != "ready" or any(set(entry.registry_artifact_ids) & retained_artifact_ids for entry in refs):
+        if payload.status != "ready" or any(set(entry.registry_artifact_ids) & retained_artifact_ids for entry in refs):
             continue
-        if any(as_of < max(_utc(entry.created_at), _utc(entry.last_accessed_at)) + timedelta(seconds=policy.cache_ttl_seconds) for entry in refs):
+        if refs and any(as_of < max(_utc(entry.created_at), _utc(entry.last_accessed_at)) + timedelta(seconds=policy.cache_ttl_seconds) for entry in refs):
             continue
         for entry in sorted(refs, key=lambda item: (item.last_accessed_at, item.created_at, item.cache_entry_id)):
             rows.append({"kind": "RETIRE_CACHE_ENTRY", "cache_entry_id": entry.cache_entry_id, "payload_object_id": payload.payload_object_id, "reclaimable_bytes": 0})
@@ -143,7 +175,7 @@ def plan_soft_quota(*, payloads: tuple[CachePayloadObject, ...], entries: tuple[
         reclaim += payload.payload_size_bytes
         if report["physical_bytes"] - reclaim <= policy.soft_limit_bytes:
             break
-    body = {"schema_version": "CACHE-SOFT-QUOTA-PLAN-V1", "policy_hash": policy.policy_hash, "storage_scope_id": policy.storage_scope_id, "as_of": policy.as_of, "payload_snapshot_hash": _digest([item.__dict__ for item in payloads]), "entry_snapshot_hash": _digest([item.__dict__ for item in entries]), "observed_physical_bytes": report["physical_bytes"], "target_physical_bytes": policy.soft_limit_bytes, "reclaimable_bytes": reclaim, "status": "PLANNED" if report["physical_bytes"] - reclaim <= policy.soft_limit_bytes else "INSUFFICIENT_ELIGIBLE_RECLAIM", "rows": rows}
+    body = {"schema_version": "CACHE-SOFT-QUOTA-PLAN-V1", "policy_hash": policy.policy_hash, "storage_scope_id": policy.storage_scope_id, "as_of": policy.as_of, "payload_snapshot_hash": _digest([item.__dict__ for item in sorted(payloads, key=lambda item: item.payload_object_id)]), "entry_snapshot_hash": _digest([item.__dict__ for item in sorted(entries, key=lambda item: item.cache_entry_id)]), "observed_physical_bytes": report["physical_bytes"], "target_physical_bytes": policy.soft_limit_bytes, "reclaimable_bytes": reclaim, "status": "PLANNED" if report["physical_bytes"] - reclaim <= policy.soft_limit_bytes else "INSUFFICIENT_ELIGIBLE_RECLAIM", "rows": rows}
     plan_id, plan_hash = _identity("csqp_", body)
     return {"plan_id": plan_id, "plan_hash": plan_hash, **body}
 
@@ -156,6 +188,6 @@ def validate_soft_quota_plan(*, plan: Mapping[str, Any], payloads: tuple[CachePa
     if plan.get("plan_id") != plan_id or plan.get("plan_hash") != plan_hash:
         raise ValueError("CACHE_PLAN_IDENTITY_INVALID")
     if (body.get("policy_hash") != policy.policy_hash or body.get("storage_scope_id") != policy.storage_scope_id
-            or body.get("payload_snapshot_hash") != _digest([item.__dict__ for item in payloads])
-            or body.get("entry_snapshot_hash") != _digest([item.__dict__ for item in entries])):
+            or body.get("payload_snapshot_hash") != _digest([item.__dict__ for item in sorted(payloads, key=lambda item: item.payload_object_id)])
+            or body.get("entry_snapshot_hash") != _digest([item.__dict__ for item in sorted(entries, key=lambda item: item.cache_entry_id)])):
         raise ValueError("CACHE_PLAN_STALE")
