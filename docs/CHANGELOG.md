@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master repair targeted implementation re-audit
+
+- Cleared lifecycle entrypoint binding findings; bounded Master repair
+  acceptance is separate.
+
 ## 2026-08-06 - Phase 14 Master repair implementation audit
 
 - Returned `FIX_REQUIRED`: pressure utility and FULL journal bridge are not
