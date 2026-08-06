@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 evidence attachment bounded acceptance
+
+- Accepted the local Phase 4/14/Domain Pack quality-check attachment package;
+  Phase 15 Master remains open for the explicitly mapped validation layers.
+
 ## 2026-08-06 - Phase 15 evidence attachment implementation audit and re-audit
 
 - Closed typed storage-policy identity and stable failure-code findings; bounded

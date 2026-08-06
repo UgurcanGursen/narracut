@@ -22,8 +22,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   selected or enabled.
 - The authorized attachment implementation is now at
   `engine/validation/evidence_attachment.py`. It has real local Phase 4
-  preview, Phase 14 registry and Domain Pack snapshot evidence; acceptance
-  remains open.
+  preview, Phase 14 registry and Domain Pack snapshot evidence; bounded
+  acceptance is at `baseline/phase15_evidence_attachment_bounded_acceptance.md`.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.

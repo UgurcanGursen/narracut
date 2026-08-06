@@ -1,5 +1,17 @@
 # Phase Acceptance
 
+## Phase 15 evidence attachment bounded acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Phase 4/14/Domain Pack canonical attachment | PASS |
+| Unregistered output and identity drift fail closed | PASS |
+| Typed storage-policy identity | PASS |
+| Real local integration gate | `1 passed` |
+| Phase 15 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase15_evidence_attachment_bounded_acceptance.md`.
+
 ## Phase 15 run-evidence and quality-gate bounded acceptance — 2026-08-06
 
 | Gate | Result |
