@@ -22,7 +22,7 @@ from .domain_resolution import EngineDomainResolutionAdapter
 from .in_memory_project_repository import InMemoryProjectRepository
 from .sqlite_project_repository import SQLiteProjectRepository
 from .engine_manual_task_factory import EngineManualTaskFactory
-from .preview_adapters import InMemoryPreviewDelivery, PersistedRenderInputResolver, ReplayPreviewExecutor
+from .preview_adapters import FilePreviewDelivery, PersistedRenderInputResolver, ReplayPreviewExecutor
 
 
 class SystemClock:
@@ -60,10 +60,8 @@ def build_runtime(*, database_path: Path | None = None) -> Runtime:
         contract_validation=contract_validation,
         eligibility=PROJECT_API_DOMAIN_ELIGIBILITY,
     )
-    repository = SQLiteProjectRepository(
-        database_path
-        or Path(tempfile.gettempdir()) / "kurgu-studio" / "studio.sqlite3"
-    )
+    active_database_path = database_path or Path(tempfile.gettempdir()) / "kurgu-studio" / "studio.sqlite3"
+    repository = SQLiteProjectRepository(active_database_path)
     service = ProjectApplicationService(
         repository=repository,
         contract_validation=contract_validation,
@@ -81,7 +79,7 @@ def build_runtime(*, database_path: Path | None = None) -> Runtime:
         render_inputs=PersistedRenderInputResolver(repository),
         preview_executor=ReplayPreviewExecutor(fixture_root=repo_root / "tests" / "fixtures" / "phase4a"),
         preview_jobs=repository,
-        preview_delivery=InMemoryPreviewDelivery(),
+        preview_delivery=FilePreviewDelivery(Path(active_database_path).parent / "preview-delivery"),
     )
     return Runtime(
         project_service=service,

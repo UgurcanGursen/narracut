@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -142,3 +144,44 @@ class InMemoryPreviewDelivery:
     def frame(self, *, delivery_id: str, project_id: str, job_id: str, frame_index: int) -> bytes | None:
         value = self._items.get(delivery_id)
         return None if value is None or value[:2] != (project_id, job_id) or frame_index not in value[4] else value[3].get(frame_index)
+
+
+class FilePreviewDelivery:
+    """Restart-safe local delivery for verified preview bytes only."""
+
+    def __init__(self, root: Path) -> None:
+        self._root = Path(root).resolve(); self._root.mkdir(parents=True, exist_ok=True)
+
+    def put(self, *, delivery_id: str, project_id: str, job_id: str, manifest: bytes, frames: Mapping[int, bytes]) -> None:
+        parsed = _canonical_object(manifest); rows = parsed.get("frames")
+        if not isinstance(rows, list): raise ValueError("PREVIEW_DELIVERY_MANIFEST_INVALID")
+        declared = frozenset(row.get("frame_index") for row in rows if type(row) is dict and type(row.get("frame_index")) is int and row["frame_index"] >= 0)
+        if not declared or declared != frozenset(frames): raise ValueError("PREVIEW_DELIVERY_MANIFEST_INVALID")
+        directory = self._directory(delivery_id, project_id, job_id)
+        if directory.exists(): raise ValueError("PREVIEW_DELIVERY_COLLISION")
+        stage = self._root / (".stage_" + uuid.uuid4().hex); stage.mkdir()
+        try:
+            self._write(stage / "manifest.json", manifest)
+            for index, content in frames.items(): self._write(stage / "frames" / f"{index}.png", bytes(content))
+            directory.parent.mkdir(parents=True, exist_ok=True); os.replace(stage, directory)
+        except BaseException:
+            raise
+
+    def manifest(self, *, delivery_id: str, project_id: str, job_id: str) -> bytes | None:
+        path = self._directory(delivery_id, project_id, job_id) / "manifest.json"
+        return None if not path.is_file() else path.read_bytes()
+
+    def frame(self, *, delivery_id: str, project_id: str, job_id: str, frame_index: int) -> bytes | None:
+        if frame_index < 0: return None
+        path = self._directory(delivery_id, project_id, job_id) / "frames" / f"{frame_index}.png"
+        return None if not path.is_file() else path.read_bytes()
+
+    def _directory(self, delivery_id: str, project_id: str, job_id: str) -> Path:
+        if not all(__import__("re").fullmatch(pattern, value or "") for pattern, value in ((r"^pdel_[a-f0-9]{24}$", delivery_id), (r"^prj_[a-z0-9][a-z0-9_-]{2,63}$", project_id), (r"^pjob_[a-f0-9]{24}$", job_id))):
+            raise ValueError("PREVIEW_DELIVERY_ID_INVALID")
+        return self._root / project_id / job_id / delivery_id
+
+    @staticmethod
+    def _write(path: Path, content: bytes) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("xb") as stream: stream.write(content); stream.flush(); os.fsync(stream.fileno())

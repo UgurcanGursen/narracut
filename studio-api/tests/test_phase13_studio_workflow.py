@@ -326,4 +326,4 @@ def test_preview_api_persists_ordered_safe_events_and_declared_delivery_only(tmp
     reopened = TestClient(create_app(build_runtime(database_path=database_path)))
     replay = reopened.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/events?after=2")
     assert [event["ordinal"] for event in replay.json()["items"]] == [3, 4]
-    assert reopened.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/manifest").status_code == 409
+    assert reopened.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/manifest").content == b'{"frames":[{"frame_index":0}]}'
