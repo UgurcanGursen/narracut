@@ -76,6 +76,10 @@ def test_missing_approved_range_and_reuse_violation_fail_closed() -> None:
     invalid = ApprovedAssetSelectionV1(selection.planner_asset_brief_pair, selection.asset_id, selection.asset_hash, "rng_missing", selection.range_hash, 0, 0, 1_000_000, 1_000_000, "replay_approved")
     with pytest.raises(EditorialIntegrationError, match="APPROVED_ASSET_SELECTION_INVALID"):
         EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(invalid,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), visualizations=(None,))
+    with pytest.raises(EditorialIntegrationError, match="AUDIO_DIRECTION_BINDING_INVALID"):
+        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(("cad_missing", HASH),), visualizations=(None,))
+    with pytest.raises(EditorialIntegrationError, match="VISUALIZATION_BINDING_INVALID"):
+        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), visualizations=(object(),))  # type: ignore[arg-type]
     first = ContinuityStateV1("splan_one", 0, "fam_one", "cap_one", None, "low").data(previous=None, policy=policy)
     second = ContinuityStateV1("splan_two", 1, "fam_one", "cap_one", None, "low").data(previous=first, policy=policy)
     with pytest.raises(EditorialIntegrationError, match="CONTINUITY_REUSE_DENIED"):
