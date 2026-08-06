@@ -11,13 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Draft the bounded Phase 14 cache-eviction/soft-quota contract defined by
-`baseline/phase14_cache_eviction_soft_quota_scope_reconciliation.md`. It must
-freeze cache-entry/registry ownership, resolved retention policy, storage
-scope, deterministic candidate ordering, dry-run/receipt and deduplication
-measurement before implementation authorization. Do not implement eviction or
-permanent deletion, provider transport, generic queue/retry, Studio FULL-render
-route or Phase 15 validation behavior.
+Independently audit the candidate
+`docs/specifications/phase14_cache_eviction_soft_quota_contract.md` against
+the Master Roadmap and current Phase 14 code. Do not authorize or implement
+eviction/permanent deletion, provider transport, generic queue/retry, Studio
+FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

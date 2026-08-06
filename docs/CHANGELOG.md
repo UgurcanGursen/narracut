@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache eviction and soft-quota candidate contract
+
+- Defined the required registry/cache bridge, deterministic retention ordering,
+  immutable policy/scope binding, dry-run/trash boundary and deduplication
+  accounting.
+- The contract is design-only and proceeds to independent audit before any
+  eviction implementation authorization.
+
 ## 2026-08-06 - Phase 14 cache eviction and soft-quota scope reconciliation
 
 - Identified the registry metadata, cache-reference, storage-scope and policy
