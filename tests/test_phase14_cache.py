@@ -13,7 +13,16 @@ def test_storage_usage_is_read_only(tmp_path):
 def test_cache_store_round_trip(tmp_path):
     key = cache_key(profile="preview", inputs={"x":1})
     cache_put(tmp_path, key, b"cached")
-    assert cache_get(tmp_path, key) == b"cached"
+    entry = cache_get(tmp_path, key)
+    assert entry and entry.payload == b"cached" and entry.payload_hash == "sha256:3673014e72b67383be302485694555a57ad393afdebaed6ded110a775bd0556d"
+
+def test_cache_rejects_payload_or_metadata_drift(tmp_path):
+    key = cache_key(profile="preview", inputs={"x": 1})
+    cache_put(tmp_path, key, b"cached")
+    target = tmp_path / "sha256" / key[7:9] / key[9:]
+    target.write_bytes(b"forged")
+    with pytest.raises(ValueError, match="ENTRY_INVALID"):
+        cache_get(tmp_path, key)
 
 def test_quota_status_is_read_only_and_validated():
     assert quota_status(used_bytes=5, soft_limit_bytes=10, hard_limit_bytes=20) == "OK"

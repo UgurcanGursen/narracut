@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import shutil
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -15,6 +15,37 @@ from engine.contracts.artifacts import PROTECTED_RETENTION_CLASSES
 
 def _sha(value: object) -> str:
     return "sha256:" + hashlib.sha256(encode_canonical_json_bytes(value)).hexdigest()
+
+
+def _file_sha(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1_048_576), b""):
+            digest.update(chunk)
+    return "sha256:" + digest.hexdigest()
+
+
+def _managed_artifact_path(root: Path, artifact_id: str) -> Path:
+    if type(artifact_id) is not str or re.fullmatch(r"[a-z][a-z0-9_]*", artifact_id) is None:
+        raise ValueError("LIFECYCLE_ARTIFACT_ID_INVALID")
+    path = (root / artifact_id).resolve()
+    if root not in path.parents:
+        raise ValueError("LIFECYCLE_MANAGED_ROOT_ESCAPE")
+    return path
+
+
+def _receipt_path(root: Path) -> Path:
+    return root / ".lifecycle" / "trash-receipts.jsonl"
+
+
+def _append_receipt(*, root: Path, receipt: Mapping[str, Any]) -> None:
+    path = _receipt_path(root); path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with path.open("ab") as stream:
+            stream.write(encode_canonical_json_bytes(dict(receipt)) + b"\n")
+            stream.flush(); os.fsync(stream.fileno())
+    except OSError as exc:
+        raise ValueError("LIFECYCLE_RECEIPT_PERSIST_FAILED") from exc
 
 
 def _identity(prefix: str, body: dict[str, Any], *excluded: str) -> tuple[str, str]:
@@ -83,17 +114,37 @@ def validate_deletion_plan(*, plan: Mapping[str, Any], records: tuple[ArtifactRe
 
 def execute_trash_plan(*, managed_root: Path, plan: Mapping[str, Any], records: tuple[ArtifactRegistryRecord, ...], policy_hash: str) -> dict[str, Any]:
     validate_deletion_plan(plan=plan, records=records, policy_hash=policy_hash)
-    root = managed_root.resolve(strict=True); moved = []
+    root = managed_root.resolve(strict=True)
+    prepared: list[tuple[Mapping[str, Any], Path, Path]] = []
     for candidate in plan["candidates"]:
-        source = (root / candidate["artifact_id"]).resolve(strict=True)
-        if root not in source.parents or not source.is_file(): raise ValueError("LIFECYCLE_TRASH_SOURCE_INVALID")
-        target = root / ".trash" / plan["plan_id"] / candidate["artifact_id"]
+        source = _managed_artifact_path(root, candidate["artifact_id"])
+        if not source.is_file() or _file_sha(source) != candidate["content_hash"]:
+            raise ValueError("LIFECYCLE_TRASH_SOURCE_INVALID")
+        target = (root / ".trash" / plan["plan_id"] / candidate["artifact_id"]).resolve()
+        if root not in target.parents:
+            raise ValueError("LIFECYCLE_MANAGED_ROOT_ESCAPE")
         target.parent.mkdir(parents=True, exist_ok=True)
         if target.exists(): raise ValueError("LIFECYCLE_TRASH_COLLISION")
-        os.replace(source, target); moved.append({"artifact_id": candidate["artifact_id"], "trash_token": candidate["trash_token"]})
-    body = {"schema_version":"LIFECYCLE-TRASH-RECEIPT-V1","plan_hash":plan["plan_hash"],"moved":moved}
-    receipt_id, receipt_hash = _identity("ltr_", body)
-    return {"receipt_id":receipt_id,"receipt_hash":receipt_hash,**body}
+        prepared.append((candidate, source, target))
+    moved: list[dict[str, Any]] = []
+    try:
+        for candidate, source, target in prepared:
+            os.replace(source, target)
+            moved.append({"artifact_id": candidate["artifact_id"], "trash_token": candidate["trash_token"], "content_hash": candidate["content_hash"], "size_bytes": candidate["size_bytes"]})
+        body = {"schema_version":"LIFECYCLE-TRASH-RECEIPT-V1","plan_hash":plan["plan_hash"],"moved":moved}
+        receipt_id, receipt_hash = _identity("ltr_", body)
+        receipt = {"receipt_id":receipt_id,"receipt_hash":receipt_hash,**body}
+        _append_receipt(root=root, receipt=receipt)
+        return receipt
+    except BaseException:
+        # A receipt is not emitted until every move is durable.  If a later
+        # move or receipt write fails, restore only entries moved in this call.
+        for item in reversed(moved):
+            source = root / ".trash" / plan["plan_id"] / item["artifact_id"]
+            target = _managed_artifact_path(root, item["artifact_id"])
+            if source.is_file() and not target.exists():
+                os.replace(source, target)
+        raise
 
 
 def restore_trash_receipt(*, managed_root: Path, plan_id: str, receipt: Mapping[str, Any]) -> None:
@@ -102,8 +153,9 @@ def restore_trash_receipt(*, managed_root: Path, plan_id: str, receipt: Mapping[
     if receipt.get("receipt_id") != receipt_id or receipt.get("receipt_hash") != receipt_hash: raise ValueError("LIFECYCLE_RECEIPT_INVALID")
     root = managed_root.resolve(strict=True)
     for item in receipt["moved"]:
-        source = root / ".trash" / plan_id / item["artifact_id"]; target = root / item["artifact_id"]
-        if not source.is_file() or target.exists(): raise ValueError("LIFECYCLE_RESTORE_INVALID")
+        source = (root / ".trash" / plan_id / item["artifact_id"]).resolve(); target = _managed_artifact_path(root, item["artifact_id"])
+        if root not in source.parents or not source.is_file() or target.exists() or _file_sha(source) != item.get("content_hash"):
+            raise ValueError("LIFECYCLE_RESTORE_INVALID")
         os.replace(source, target)
 
 
@@ -120,6 +172,38 @@ def append_registry_record(*, registry_path: Path, record: ArtifactRegistryRecor
             stream.flush(); os.fsync(stream.fileno())
     except OSError as exc:
         raise ValueError("ARTIFACT_REGISTRY_PERSIST_FAILED") from exc
+
+
+def append_registry_records(*, registry_path: Path, records: tuple[ArtifactRegistryRecord, ...]) -> None:
+    """Idempotently persist a verified batch, rejecting identity drift.
+
+    Renderer attempts repeat their immutable input nodes.  An exact existing
+    record is therefore safe to reuse, while an ID with different immutable
+    identity is always a hard failure.
+    """
+    existing = {item.artifact_id: item for item in load_registry(registry_path=registry_path)}
+    pending: dict[str, ArtifactRegistryRecord] = {}
+    for record in records:
+        prior = existing.get(record.artifact_id)
+        if prior is not None and prior != record:
+            raise ValueError("ARTIFACT_REGISTRY_IDENTITY_CONFLICT")
+        if record.artifact_id in pending and pending[record.artifact_id] != record:
+            raise ValueError("ARTIFACT_REGISTRY_IDENTITY_CONFLICT")
+        if prior is None:
+            pending[record.artifact_id] = record
+    registry_snapshot(tuple(existing.values()) + tuple(pending.values()))
+    # Do not assume a producer happened to yield a topological ordering.  Each
+    # append remains durable, while this loop admits a node only after all of
+    # its dependencies are already registered.
+    while pending:
+        ready = [record for record in pending.values()
+                 if all(dependency in existing for dependency in record.dependency_ids)]
+        if not ready:
+            raise ValueError("ARTIFACT_REGISTRY_DEPENDENCY_INVALID")
+        for record in sorted(ready, key=lambda row: row.artifact_id):
+            append_registry_record(registry_path=registry_path, record=record)
+            existing[record.artifact_id] = record
+            del pending[record.artifact_id]
 
 
 def load_registry(*, registry_path: Path) -> tuple[ArtifactRegistryRecord, ...]:
