@@ -11,10 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Record implementation authorization for the audited Phase 16 deterministic
-benchmark contract. Do not download/reference third-party media, claim
-subjective quality, add provider transport, queues/retries, UI labels or Phase
-17 packaging behavior.
+Implement the authorized deterministic Phase 16 benchmark reducer and focused
+tests using `baseline/phase16_benchmark_implementation_authorization.md`. Do
+not download/reference third-party media, claim subjective quality, add provider
+transport, queues/retries, UI labels or Phase 17 packaging behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
