@@ -1,0 +1,14 @@
+{
+  "schema_version": "PHASE16-BENCHMARK-REFERENCE-V1",
+  "domain_id": "business-tech",
+  "domain_pack_version": "0.1.0",
+  "profile_key": "business_tech_editorial_composition_v1",
+  "metric_ranges": {
+    "sequence_count": {"min": 1, "max": 250},
+    "duration_ms": {"min": 60000, "max": 1200000},
+    "base_shot_density_per_minute": {"min": 1, "max": 120},
+    "video_edit_events_per_minute": {"min": 1, "max": 180},
+    "audio_event_count": {"min": 1, "max": 10000},
+    "stock_ratio": {"min": 0, "max": 100}
+  }
+}
