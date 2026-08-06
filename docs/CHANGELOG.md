@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source outcome bounded acceptance
+
+- Accepted truthful local Phase 6 outcome attachment; Phase 15 Master remains
+  open for the explicitly mapped validation layers.
+
 ## 2026-08-06 - Phase 15 source outcome targeted implementation re-audit
 
 - Closed source-policy integrity and MANUAL_UI evidence-origin findings.

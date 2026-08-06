@@ -1,5 +1,16 @@
 # Phase Acceptance
 
+## Phase 15 source outcome bounded acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Replay/manual source outcome truthfulness | PASS |
+| Challenge/unsupported-mode fail-closed behavior | PASS |
+| Policy and evidence-origin binding | PASS |
+| Phase 15 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase15_source_outcome_bounded_acceptance.md`.
+
 ## Phase 15 evidence attachment bounded acceptance — 2026-08-06
 
 | Gate | Result |

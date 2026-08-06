@@ -11,9 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make a bounded acceptance decision for the repaired Phase 15 source-outcome
-validator. Do not close Phase 15 Master Roadmap or enable live transport,
-retry, queue/worker, media validation, Studio/UI, Phase 16 or Phase 17 behavior.
+Perform a read-only Phase 15 Master-gap reconciliation for the remaining
+source-audio, audio-boundary, expanded domain and artifact-integrity rows. Do
+not implement, enable live transport, retry, queue/worker, media validation,
+Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

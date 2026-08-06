@@ -26,7 +26,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   acceptance is at `baseline/phase15_evidence_attachment_bounded_acceptance.md`.
 - Source outcome validation is now at `engine/validation/source_outcome.py`.
   It consumes Phase 6 plans/policy only and makes challenge or unsupported
-  modes non-passing; implementation acceptance remains open.
+  modes non-passing; bounded acceptance is at
+  `baseline/phase15_source_outcome_bounded_acceptance.md`.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
