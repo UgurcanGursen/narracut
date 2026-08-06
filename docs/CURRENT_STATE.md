@@ -1,15 +1,19 @@
 # Current State
 
 Son guncelleme: 6 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 MASTER_PHASE_CLOSED / Faz 15 MASTER_PHASE_CLOSED / Faz 16 IN_PROGRESS**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 MASTER_PHASE_CLOSED / Faz 15 MASTER_PHASE_CLOSED / Faz 16 FOUNDATION_ACCEPTED (EXTERNAL EVIDENCE IN PHASE 17) / Faz 17 SCOPE_RECONCILIATION**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Phase 16 benchmark foundation in progress
+## Phase 16 benchmark foundation accepted; Master evidence remains visible
 
 - Scope reconciliation is recorded at `baseline/phase16_scope_reconciliation.md`.
-  The first package is local, deterministic and domain-bound; it does not
-  download third-party references or make a product-gate claim.
+  The local reducer, domain-bound composition profile and fail-closed comparison
+  audit are accepted at `baseline/phase16_benchmark_implementation_audit.md`.
+  It does not download third-party references or make a product-gate claim.
+  The externally selected three-video reference set and real long-form project
+  remain Phase 17 product-gate evidence as explicitly reconciled by the scope
+  decision; they are not represented as synthetic Phase 16 success data.
 
 ## Historical Phase 15 validation and observability record
 

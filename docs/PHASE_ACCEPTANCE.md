@@ -1096,3 +1096,23 @@ PHASE8_CLOSED=YES
 PHASE8_FINAL_AUDIT=PASS
 NEXT_ACTION=PLAN_PHASE9
 ```
+
+## Phase 16 deterministic benchmark foundation — 2026-08-06
+
+| Acceptance item | Status | Evidence |
+|---|---|---|
+| Canonical candidate/prior delta | ACCEPT | `engine/benchmark.py` numeric, domain/snapshot-bound delta |
+| Business-tech reference-profile comparison | ACCEPT | strict brand-free fixture and cross-domain rejection |
+| Measurable differences without subjective winner | ACCEPT | canonical counts/rates plus `UNAVAILABLE` semantics |
+| No brand copying or automatic cross-domain success | ACCEPT | exact profile schema and fail-closed comparison tests |
+| Product-gate reference/video evidence | DEFERRED_TO_PHASE17 | scope reconciliation and limitations record |
+
+```text
+PHASE16_LOCAL_BENCHMARK_ACCEPTANCE=ACCEPT
+PHASE16_EXTERNAL_REFERENCE_EVIDENCE=DEFERRED_TO_PHASE17_PRODUCT_GATE
+PHASE16_UI_PRODUCTION_LABEL=NOT_IMPLEMENTED
+PHASE16_MASTER_PHASE_CLOSED=NO
+PHASE16_FOUNDATION_ACCEPTANCE=ACCEPT
+PHASE16_EXTERNAL_EVIDENCE_OWNER=PHASE17_PRODUCT_GATE
+NEXT_ACTION=PHASE17_SCOPE_RECONCILIATION
+```

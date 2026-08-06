@@ -456,6 +456,19 @@ IMPLEMENTATION_STATUS=NOT_STARTED
 PHASE2_CLOSED=NO
 ```
 
+## Phase 16 benchmark limitations
+
+- Phase 16 measures only existing canonical planner/EDL facts. It never opens
+  reference media, so chapter structure, source density/treatment, asset-kind
+  ratios, kinetic-text density and actual source-audio use remain explicitly
+  `UNAVAILABLE` rather than silently inferred.
+- The checked-in business-tech composition profile has no brand, author,
+  transcript, image or source-media identity. It is an editorial-range contract,
+  not evidence that an external video was analysed.
+- The externally selected three-video reference set and two real 10–15 minute
+  business-tech end-to-end projects are Phase 17 product-gate evidence. No
+  Phase 16 report grants a UI production label.
+
 - The caption-groups full repository collection attempt stops in two
   FastAPI-dependent test areas because the active Python environment does not
   contain `fastapi`. The top-level non-FastAPI gate passes with

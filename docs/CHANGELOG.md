@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-08-06 - Phase 16 acceptance and Phase 17 handoff
+
+- Accepted the deterministic benchmark foundation and assigned external
+  reference/project evidence to the Phase 17 product gate without granting a
+  production-quality label.
+
+## 2026-08-06 - Phase 16 benchmark reference foundation
+
+- Added deterministic benchmark report/delta validation, strict business-tech
+  editorial composition profile comparison and fail-closed cross-domain tests.
+- Preserved explicit unavailable measurements and deferred real external-video
+  evidence to the Phase 17 product gate.
+
 ## 2026-08-06 - Phase 15 master acceptance
 
 - Closed the validation/observability phase with source, artifact,

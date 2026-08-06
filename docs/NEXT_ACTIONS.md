@@ -11,10 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the authorized deterministic Phase 16 benchmark reducer and focused
-tests using `baseline/phase16_benchmark_implementation_authorization.md`. Do
-not download/reference third-party media, claim subjective quality, add provider
-transport, queues/retries, UI labels or Phase 17 packaging behavior.
+Reconcile the exact Phase 17 local/beta package using
+`baseline/phase16_acceptance_and_phase17_handoff.md`. This first task is
+read-only: inventory existing workspace persistence, job/recovery, source/asset
+transport, UI/API, export and packaging evidence against the Master Roadmap.
+Do not add external providers, paid LLM calls or browser automation without a
+separate user authorization.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
