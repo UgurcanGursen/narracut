@@ -1,5 +1,17 @@
 # Phase Acceptance
 
+## Phase 14 cache lifecycle bounded acceptance â€” 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Cache write/hit lifecycle provenance and renderer artifact binding | PASS |
+| Reference-first soft-quota dry-run and orphan-payload planning | PASS |
+| Trusted cache object resolver and stale-plan rejection | PASS |
+| Cache-plan trash execution, soft-quota receipts, fixed REPLAY performance benchmark | OPEN |
+| Phase 14 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase14_cache_lifecycle_implementation_acceptance.md`.
+
 ## Phase 14 renderer lifecycle adapter â€” 2026-08-06
 
 | Gate | Result |

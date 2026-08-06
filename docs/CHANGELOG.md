@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache lifecycle bounded acceptance
+
+- Accepted the cache lifecycle/soft-quota dry-run package after targeted
+  re-audit; Master-level GC execution and performance evidence remain open.
+
 ## 2026-08-06 - Phase 14 cache lifecycle targeted re-audit
 
 - Cleared cache-write binding, orphan reclaim and pre-resolution symlink
