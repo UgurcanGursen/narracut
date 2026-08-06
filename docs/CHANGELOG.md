@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 trash/restore acceptance
+
+- Accepted bounded plan-scoped trash/restore with revalidation and receipt evidence; permanent deletion and cache/quota remain open.
+
 ## 2026-08-06 - Phase 14 registry planning acceptance
 
 - Accepted durable registry/reopen and immutable lifecycle dry-run planning; no destructive operation was added.
