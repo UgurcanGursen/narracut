@@ -11,10 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Draft the bounded Phase 14 closure-repair contract defined by
-`baseline/phase14_closure_repair_scope_reconciliation.md`. Do not implement
-permanent deletion, automatic worker/scheduler behavior, provider transport,
-generic queue/retry, Studio FULL-render route or Phase 15 validation behavior.
+Independently audit `docs/specifications/phase14_closure_repair_contract.md`
+before implementation authorization. Do not implement permanent deletion,
+automatic worker/scheduler behavior, provider transport, generic queue/retry,
+Studio FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

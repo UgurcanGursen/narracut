@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 closure-repair candidate contract
+
+- Defined pure sequence decisions, visible soft-quota admission and fixed FULL
+  A/V hash-preserving benchmark boundaries for independent audit.
+
 ## 2026-08-06 - Phase 14 closure-repair scope reconciliation
 
 - Froze the narrow sequence, soft-quota visibility and fixed FULL A/V evidence
