@@ -1,6 +1,6 @@
 import hashlib
 import pytest
-from engine.cache_execution import execute_cache_plan, load_cache_transactions, restore_cache_transaction
+from engine.cache_execution import effective_cache_states, execute_cache_plan, load_cache_transactions, restore_cache_transaction
 from engine.cache_lifecycle import CacheEntryRecord, CachePayloadObject, RetentionPolicySnapshot, plan_soft_quota
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
@@ -25,6 +25,16 @@ def test_plan_moves_payload_as_one_receipted_transaction_and_restores(tmp_path):
     assert not path.exists() and len(load_cache_transactions(managed_root=tmp_path)) == 1
     restored=restore_cache_transaction(managed_root=tmp_path,transaction=retired,timestamp_utc="2026-08-02T00:01:00Z")
     assert path.read_bytes()==raw and restored["kind"]=="restored" and len(load_cache_transactions(managed_root=tmp_path))==2
+    assert effective_cache_states(managed_root=tmp_path)[entry.cache_entry_id]=="restored"
+
+
+def test_two_payload_plan_retires_each_payload_reference_set(tmp_path):
+    first, second = _payload(b"one"), _payload(b"two"); entries = (_entry(first), _entry(second))
+    for item, raw in ((first,b"one"),(second,b"two")):
+        path=tmp_path/"sha256"/item.payload_hash[7:9]/item.payload_hash[9:]; path.parent.mkdir(parents=True,exist_ok=True); path.write_bytes(raw)
+    plan=plan_soft_quota(payloads=(first,second),entries=entries,policy=_policy(),retained_artifact_ids=frozenset())
+    receipt=execute_cache_plan(managed_root=tmp_path,plan=plan,payloads=(first,second),entries=entries,policy=_policy(),timestamp_utc="2026-08-02T00:00:00Z")
+    assert len(receipt["moved_payloads"])==2 and receipt["before_physical_bytes"]==6 and receipt["after_physical_bytes"]==0
 
 
 def test_failed_transaction_publication_rolls_payload_back(tmp_path, monkeypatch):

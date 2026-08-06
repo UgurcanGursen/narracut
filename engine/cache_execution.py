@@ -47,6 +47,18 @@ def load_cache_transactions(*, managed_root: Path) -> tuple[dict[str, Any], ...]
         raise ValueError("CACHE_TRANSACTION_LEDGER_INVALID") from exc
 
 
+def effective_cache_states(*, managed_root: Path) -> dict[str, str]:
+    """Replay only complete hash-valid transaction batches into effective state."""
+    states: dict[str, str] = {}
+    for transaction in load_cache_transactions(managed_root=managed_root):
+        if transaction["kind"] == "retired":
+            for identifier in transaction["retired_entry_ids"]: states[identifier] = "retired"
+            for payload in transaction["moved_payloads"]: states[payload["payload_object_id"]] = "retired"
+        elif transaction["kind"] == "restored":
+            for identifier in transaction["restored_entry_ids"]: states[identifier] = "restored"
+    return states
+
+
 def execute_cache_plan(*, managed_root: Path, plan: Mapping[str, Any],
                        payloads: tuple[CachePayloadObject, ...],
                        entries: tuple[CacheEntryRecord, ...],
@@ -58,31 +70,32 @@ def execute_cache_plan(*, managed_root: Path, plan: Mapping[str, Any],
     root = managed_root.resolve(strict=True)
     payload_by_id = {item.payload_object_id: item for item in payloads}
     entry_by_id = {item.cache_entry_id: item for item in entries}
-    retired: list[str] = []; prepared: list[tuple[CachePayloadObject, Path, Path]] = []
+    retired_by_payload: dict[str, list[str]] = {}; prepared: list[tuple[CachePayloadObject, Path, Path]] = []
     for row in plan["rows"]:
         if row["kind"] == "RETIRE_CACHE_ENTRY":
             entry = entry_by_id.get(row.get("cache_entry_id"))
             if entry is None or entry.status != "ready" or row.get("payload_object_id") != entry.payload_object_id:
                 raise ValueError("CACHE_PLAN_STALE")
-            retired.append(entry.cache_entry_id)
+            retired_by_payload.setdefault(entry.payload_object_id, []).append(entry.cache_entry_id)
         elif row["kind"] == "TRASH_CACHE_PAYLOAD":
             payload = payload_by_id.get(row.get("payload_object_id"))
             live = [item.cache_entry_id for item in entries if item.payload_object_id == row.get("payload_object_id") and item.status == "ready"]
-            if payload is None or payload.status != "ready" or sorted(live) != sorted(retired) or row.get("payload_hash") != payload.payload_hash:
+            if payload is None or payload.status != "ready" or sorted(live) != sorted(retired_by_payload.get(payload.payload_object_id, [])) or row.get("payload_hash") != payload.payload_hash:
                 raise ValueError("CACHE_PLAN_STALE")
             source = resolve_payload_object(managed_root=root, payload_hash=payload.payload_hash)
             target = (root / ".trash" / plan["plan_id"] / "sha256" / payload.payload_hash[7:9] / payload.payload_hash[9:]).resolve()
             if root not in target.parents or target.exists(): raise ValueError("CACHE_PLAN_STALE")
             target.parent.mkdir(parents=True, exist_ok=True); prepared.append((payload, source, target))
         else: raise ValueError("CACHE_PLAN_EXECUTION_INVALID")
-    moved: list[tuple[CachePayloadObject, Path, Path]] = []
+    moved: list[tuple[CachePayloadObject, Path, Path]] = []; before_bytes = sum(item[1].stat().st_size for item in prepared)
     try:
         for item in prepared:
             os.replace(item[1], item[2]); moved.append(item)
         body = {"schema_version": "CACHE-LIFECYCLE-TRANSACTION-V1", "kind": "retired",
                 "plan_hash": plan["plan_hash"], "policy_hash": policy.policy_hash,
-                "payload_snapshot_hash": plan["payload_snapshot_hash"], "entry_snapshot_hash": plan["entry_snapshot_hash"],
-                "timestamp_utc": timestamp_utc, "retired_entry_ids": sorted(retired),
+                "payload_snapshot_hash": plan["payload_snapshot_hash"], "entry_snapshot_hash": plan["entry_snapshot_hash"], "storage_scope_id": policy.storage_scope_id,
+                "before_physical_bytes": before_bytes, "after_physical_bytes": before_bytes - sum(item.payload_size_bytes for item, _, _ in moved),
+                "timestamp_utc": timestamp_utc, "retired_entry_ids": sorted(identifier for values in retired_by_payload.values() for identifier in values),
                 "moved_payloads": [{"payload_object_id": item.payload_object_id, "payload_hash": item.payload_hash, "size_bytes": item.payload_size_bytes, "trash_token": "trash/" + plan["plan_id"] + "/sha256/" + item.payload_hash[7:9] + "/" + item.payload_hash[9:]} for item, _, _ in moved]}
         transaction = _transaction(body); _append_transaction(root, transaction); return transaction
     except BaseException:
