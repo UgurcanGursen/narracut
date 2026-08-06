@@ -19,7 +19,7 @@ _HASH = re.compile(r"^sha256:[0-9a-f]{64}$")
 _RUN = re.compile(r"^[a-z][a-z0-9_]{2,80}$")
 _TOKEN = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,63}$")
 _UTC = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
-_UNSAFE = re.compile(r"(?i)(authorization|cookie|api[_-]?key|token|secret|credential|password|[a-z]:\\|/users/|/home/|\\\\)")
+_UNSAFE = re.compile(r"(?i)(authorization|cookie|api[_-]?key|token|secret|credential|password)")
 
 _EVENTS: dict[tuple[str, str], frozenset[str]] = {
     ("render", "attempt_finished"): frozenset({"SUCCEEDED", "FAILED", "CANCELLED"}),
@@ -48,7 +48,9 @@ def _valid_hash(value: object) -> bool:
 
 
 def _safe_text(value: object) -> bool:
-    return type(value) is str and len(value) <= 160 and _UNSAFE.search(value) is None
+    if type(value) is not str or len(value) > 160 or _UNSAFE.search(value) is not None:
+        return False
+    return not value.startswith(("/", "\\", "~/", "~\\")) and re.match(r"^[A-Za-z]:[\\/]", value) is None
 
 
 def _strict_json(source: bytes, code: str) -> dict[str, Any]:
@@ -267,7 +269,34 @@ def evaluate_quality_gate(*, source: bytes, required_checks: Mapping[str, str]) 
 
 
 def serialize_quality_gate_decision(value: QualityGateDecision) -> bytes:
-    if type(value) is not QualityGateDecision or value.schema_version != DECISION_V1 or not _RUN.fullmatch(value.run_id) or value.decision not in {"PASS", "WARNING", "FAIL", "NOT_READY"} or not _valid_hash(value.observations_hash): _fail("QUALITY_DECISION_INVALID")
-    if value.decision == "PASS" and value.primary_code is not None: _fail("QUALITY_DECISION_INVALID")
-    if value.decision != "PASS" and not _TOKEN.fullmatch(value.primary_code or ""): _fail("QUALITY_DECISION_INVALID")
+    _validate_quality_decision(value)
     return encode_canonical_json_bytes(value.data())
+
+
+def _validate_quality_decision(value: QualityGateDecision) -> None:
+    groups = (value.checked, value.missing, value.failed, value.warnings)
+    if (type(value) is not QualityGateDecision or value.schema_version != DECISION_V1 or not _RUN.fullmatch(value.run_id)
+            or value.decision not in {"PASS", "WARNING", "FAIL", "NOT_READY"} or not _valid_hash(value.observations_hash)
+            or any(type(group) is not tuple or any(type(item) is not str for item in group)
+                   or tuple(sorted(group)) != group or len(set(group)) != len(group)
+                   or any(item not in _CHECKS for item in group) for group in groups)
+            or set(value.missing) - set(value.checked) or set(value.failed) - set(value.checked)
+            or set(value.warnings) - set(value.checked)):
+        _fail("QUALITY_DECISION_INVALID")
+    if value.decision == "PASS":
+        if value.primary_code is not None or any(groups[1:]): _fail("QUALITY_DECISION_INVALID")
+    elif type(value.primary_code) is not str or not _TOKEN.fullmatch(value.primary_code):
+        _fail("QUALITY_DECISION_INVALID")
+
+
+def load_quality_gate_decision(source: bytes) -> QualityGateDecision:
+    raw = _strict_json(source, "QUALITY_DECISION_BYTES_INVALID")
+    required = {"schema_version", "run_id", "decision", "primary_code", "observations_hash", "checked", "missing", "failed", "warnings"}
+    if set(raw) != required or raw.get("schema_version") != DECISION_V1 or any(type(raw[key]) is not list for key in ("checked", "missing", "failed", "warnings")):
+        _fail("QUALITY_DECISION_FIELDS_INVALID")
+    try:
+        result = QualityGateDecision(raw["schema_version"], raw["run_id"], raw["decision"], raw["primary_code"], raw["observations_hash"], tuple(raw["checked"]), tuple(raw["missing"]), tuple(raw["failed"]), tuple(raw["warnings"]))
+    except (TypeError, KeyError): _fail("QUALITY_DECISION_FIELDS_INVALID")
+    _validate_quality_decision(result)
+    if serialize_quality_gate_decision(result) != source: _fail("QUALITY_DECISION_BYTES_INVALID")
+    return result

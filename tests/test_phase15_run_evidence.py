@@ -1,5 +1,6 @@
 import pytest
 
+from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.lifecycle import ArtifactRegistryRecord
 from engine.contracts.audio_edl import serialize_audio_edl
 from engine.contracts.edl import serialize_video_edl
@@ -14,9 +15,11 @@ from engine.validation.run_evidence import (
     evaluate_quality_gate,
     failure_code_reference,
     load_jsonl,
+    load_quality_gate_decision,
     project_metrics,
     render_receipt_reference,
     serialize_jsonl,
+    serialize_quality_gate_decision,
     storage_admission_reference,
 )
 from tests.test_render_bridge import FIXTURE_ROOT, ROOT, build_phase4a_rich_replay_inputs
@@ -66,6 +69,10 @@ def test_unsafe_or_cross_run_evidence_fails_closed():
         build_observation(run_id=RUN, ordinal=1, timestamp_utc=STAMP,
             category="storage", event="admission_decided", status="SUCCEEDED",
             producer="C:\\Users\\secret", evidence_references=(ref,))
+    with pytest.raises(ValueError, match="OBSERVATION_TRANSITION_INVALID"):
+        build_observation(run_id=RUN, ordinal=1, timestamp_utc=STAMP,
+            category="storage", event="admission_decided", status="ADMITTED",
+            producer="/tmp/untrusted", evidence_references=(ref,))
 
 
 def test_quality_gate_returns_not_ready_for_unsupported_required_evidence():
@@ -118,6 +125,16 @@ def test_ordinal_gap_and_duplicate_check_fail_closed():
     two = _quality(ordinal=2, check_id="storage_pressure", ref=ref)
     with pytest.raises(ValueError, match="QUALITY_CHECK_DUPLICATE"):
         evaluate_quality_gate(source=serialize_jsonl((one, two)), required_checks={"storage_pressure": POLICY})
+
+
+def test_quality_gate_decision_has_strict_canonical_ingress():
+    ref = storage_admission_reference(run_id=RUN, storage_scope_id="cache", policy_hash=POLICY, status="ADMITTED")
+    decision = evaluate_quality_gate(source=serialize_jsonl((_quality(ordinal=1, check_id="storage_pressure", ref=ref),)), required_checks={"storage_pressure": POLICY})
+    raw = serialize_quality_gate_decision(decision)
+    assert load_quality_gate_decision(raw) == decision
+    tampered = decision.data() | {"primary_code": "ILLEGAL_PASS_CODE"}
+    with pytest.raises(ValueError, match="QUALITY_DECISION"):
+        load_quality_gate_decision(encode_canonical_json_bytes(tampered))
 
 
 def test_actual_phase4_receipt_reference_is_verified(tmp_path):
