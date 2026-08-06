@@ -11,11 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Repair only P15-001 through P15-003 from
-`baseline/phase15_validation_observability_contract_audit.md` in
-`docs/specifications/phase15_validation_observability_quality_gate_contract.md`,
-then perform a targeted re-audit. Do not implement runtime code or enable a
-live transport in this task.
+Make a bounded implementation authorization decision for the accepted
+Phase 15 run-evidence and quality-gate contract. It may authorize only local
+canonical ledger/gate code and tests; it must exclude live transport, retry,
+queue/worker, media validation, Studio/UI, Phase 16 and Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

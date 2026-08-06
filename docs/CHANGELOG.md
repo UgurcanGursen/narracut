@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 validation/observability targeted contract re-audit
+
+- Closed the token/transition, evidence-reference and terminal-precedence
+  findings. A separate local implementation authorization remains required.
+
 ## 2026-08-06 - Phase 15 validation/observability contract audit
 
 - Returned `FIX_REQUIRED` for closed observation tokens, exact evidence
