@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache-plan execution candidate contract
+
+- Defined append-only cache lifecycle events, transactional payload trash and
+  receipt-driven restore as a candidate design awaiting independent audit.
+
 ## 2026-08-06 - Phase 14 cache-plan execution scope reconciliation
 
 - Identified the missing append-only cache-entry retirement, transaction and
