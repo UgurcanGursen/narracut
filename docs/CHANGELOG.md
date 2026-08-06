@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache eviction contract repair
+
+- Separated logical cache-key retirement from physical payload reclamation;
+  froze reference revalidation and receipt requirements.
+- Added trusted content-addressed object resolution and reproducible
+  UTC/access-event TTL rules. The repair is design-only and awaits targeted
+  re-audit.
+
 ## 2026-08-06 - Phase 14 cache eviction contract audit
 
 - Returned `FIX_REQUIRED` with three MAJOR design gaps: cache reference versus
