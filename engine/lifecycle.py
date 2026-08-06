@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Mapping
 
 from engine.contracts._canonical_json import encode_canonical_json_bytes
@@ -60,3 +63,28 @@ def plan_deletion(*, records: tuple[ArtifactRegistryRecord, ...], policy_hash: s
     body = {"schema_version": "LIFECYCLE-DELETION-PLAN-V1", "policy_hash": policy_hash, "as_of": as_of, "registry_snapshot_hash": snapshot_hash, "protected_root_ids": sorted(protected), "candidates": [{"artifact_id": row.artifact_id, "content_hash": row.content_hash, "size_bytes": row.size_bytes, "reason": "UNREFERENCED_RETENTION_ELIGIBLE", "trash_token": "trash/" + row.artifact_hash[7:39]} for row in candidates], "reclaimable_bytes": sum(row.size_bytes for row in candidates)}
     plan_id, plan_hash = _identity("ldp_", body)
     return {"plan_id": plan_id, "plan_hash": plan_hash, **body}
+
+
+def append_registry_record(*, registry_path: Path, record: ArtifactRegistryRecord) -> None:
+    """Durably append a verified record; never writes content or deletes files."""
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    existing = load_registry(registry_path=registry_path)
+    if any(item.artifact_id == record.artifact_id for item in existing):
+        raise ValueError("ARTIFACT_REGISTRY_DUPLICATE")
+    payload = {**record.__dict__}
+    try:
+        with registry_path.open("ab") as stream:
+            stream.write(encode_canonical_json_bytes(payload) + b"\n")
+            stream.flush(); os.fsync(stream.fileno())
+    except OSError as exc:
+        raise ValueError("ARTIFACT_REGISTRY_PERSIST_FAILED") from exc
+
+
+def load_registry(*, registry_path: Path) -> tuple[ArtifactRegistryRecord, ...]:
+    if not registry_path.exists(): return ()
+    try:
+        rows = tuple(ArtifactRegistryRecord.materialize(json.loads(line)) for line in registry_path.read_bytes().splitlines() if line)
+        registry_snapshot(rows)
+        return rows
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        raise ValueError("ARTIFACT_REGISTRY_PERSIST_INVALID") from exc

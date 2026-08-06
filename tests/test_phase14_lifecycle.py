@@ -1,6 +1,6 @@
 import pytest
 
-from engine.lifecycle import ArtifactRegistryRecord, plan_deletion, registry_snapshot
+from engine.lifecycle import ArtifactRegistryRecord, append_registry_record, load_registry, plan_deletion, registry_snapshot
 
 
 def row(identifier, *, retention="temporary", dependencies=(), locked=False):
@@ -19,3 +19,11 @@ def test_registry_rejects_cross_project_dependency_and_unsafe_field():
         ArtifactRegistryRecord.materialize({"artifact_id":"art_x","project_id":"prj_fx34","path":"C:/x"})
     with pytest.raises(ValueError, match="DEPENDENCY"):
         registry_snapshot((row("art_a"), ArtifactRegistryRecord.materialize({"artifact_id":"art_b","project_id":"prj_other","content_hash":"sha256:"+"b"*64,"size_bytes":1,"retention_class":"temporary","dependency_ids":["art_a"],"locked":False,"pinned":False,"approved":False,"producer":"t","producer_version":"1"})))
+
+
+def test_registry_reopens_and_rejects_duplicate(tmp_path):
+    path = tmp_path / "registry.jsonl"; item = row("art_a")
+    append_registry_record(registry_path=path, record=item)
+    assert load_registry(registry_path=path) == (item,)
+    with pytest.raises(ValueError, match="DUPLICATE"):
+        append_registry_record(registry_path=path, record=item)
