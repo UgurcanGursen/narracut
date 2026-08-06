@@ -58,6 +58,21 @@ class StorageQuotaManager:
         return execute_cache_plan(managed_root=managed_root, plan=plan, payloads=payloads, entries=entries, policy=policy, timestamp_utc=timestamp_utc)
 
 
+def run_with_soft_quota_admission(*, manager: StorageQuotaManager, managed_root: Path,
+                                  pressure_policy: StoragePressurePolicy,
+                                  estimated_bytes: int, policy: RetentionPolicySnapshot,
+                                  payloads: tuple[CachePayloadObject, ...],
+                                  entries: tuple[CacheEntryRecord, ...],
+                                  retained_artifact_ids: frozenset[str], runner: Callable[[], object]) -> dict[str, object]:
+    """Visible admission boundary: no runner invocation until soft quota is resolved."""
+    decision = manager.assess_render_admission(managed_root=managed_root,
+        pressure_policy=pressure_policy, estimated_bytes=estimated_bytes,
+        policy=policy, payloads=payloads, entries=entries,
+        retained_artifact_ids=retained_artifact_ids)
+    if decision["status"] != "ADMITTED": return decision
+    return {"status": "ADMITTED", "result": runner()}
+
+
 def register_committed_full_artifacts(*, project_root: Path, transaction_id: str,
                                       registry_path: Path,
                                       policy_by_kind: Mapping[str, Mapping[str, object]]) -> None:

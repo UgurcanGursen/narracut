@@ -1,6 +1,7 @@
 """Canonical Phase 14 sequence dependency decisions; no renderer scheduling."""
 from __future__ import annotations
 import hashlib
+from collections.abc import Callable
 from typing import Mapping
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
@@ -24,3 +25,17 @@ def plan_incremental_sequences(*, previous: Mapping[str, object] | None, current
     rows = [{"sequence_id": key, "action": "REUSE" if before.get(key) == value else "REBUILD"} for key, value in sorted(after.items())]
     rows.extend({"sequence_id": key, "action": "ORPHANED"} for key in sorted(set(before) - set(after)))
     return tuple(rows)
+
+
+def run_incremental_sequences(*, previous: Mapping[str, object] | None,
+                              current: Mapping[str, object],
+                              rebuilders: Mapping[str, Callable[[], object]]) -> tuple[dict[str, object], ...]:
+    """Invoke only changed sequence rebuilders; unchanged IDs are untouched."""
+    results = []
+    for decision in plan_incremental_sequences(previous=previous, current=current):
+        if decision["action"] == "REBUILD":
+            runner = rebuilders.get(decision["sequence_id"])
+            if runner is None: raise ValueError("SEQUENCE_REBUILDER_MISSING")
+            results.append({**decision, "result": runner()})
+        else: results.append(dict(decision))
+    return tuple(results)
