@@ -11,10 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform one read-only combined implementation authorization decision for the
-accepted Phase 13 canonical render-input handoff and renderer-control-plane
-contracts. It must authorize one bounded implementation package or explicitly
-reject it; no code in that decision task.
+Implement the authorized bounded Phase 13 REPLAY preview package recorded in
+`baseline/phase13_preview_implementation_authorization.md`. Preserve the two
+accepted handoff/control-plane contracts; do not implement Phase 14 lifecycle.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
