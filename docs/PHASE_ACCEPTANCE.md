@@ -29,7 +29,7 @@ Phase 15 behavior.
 | Trusted cache object resolver and stale-plan rejection | PASS |
 | Fixed REPLAY cache performance benchmark with hash preservation | PASS (bounded preview) |
 | Cache-plan trash execution and soft-quota receipts | OPEN |
-| Phase 14 Master Roadmap | OPEN / NOT CLOSED |
+| Phase 14 Master Roadmap | SUPERSEDED BY FINAL MASTER ACCEPTANCE |
 
 Evidence: `baseline/phase14_cache_lifecycle_implementation_acceptance.md`.
 
@@ -39,7 +39,7 @@ Evidence: `baseline/phase14_cache_lifecycle_implementation_acceptance.md`.
 |---|---|
 | Per-payload retirement validation and transaction receipt | PASS |
 | Rollback, restore and effective-state replay | PASS |
-| Final Phase 14 Master acceptance reconciliation | OPEN |
+| Final Phase 14 Master acceptance reconciliation | SUPERSEDED BY FINAL MASTER ACCEPTANCE |
 
 Evidence: `baseline/phase14_cache_plan_execution_acceptance.md`.
 
@@ -52,7 +52,7 @@ Evidence: `baseline/phase14_cache_plan_execution_acceptance.md`.
 | Successful Phase 4 artifact DAG durable registration | PASS (actual preview + cache reuse) |
 | Failed/cancelled result cache exclusion | PASS (adapter contract) |
 | Protected cache eviction, soft quota, dedup measurement and fixed REPLAY performance benchmark | OPEN |
-| Phase 14 Master Roadmap | OPEN / NOT CLOSED |
+| Phase 14 Master Roadmap | SUPERSEDED BY FINAL MASTER ACCEPTANCE |
 
 Evidence: `baseline/phase14_renderer_lifecycle_adapter_acceptance.md`,
 `engine/rendering/lifecycle_adapter.py` and

@@ -25,6 +25,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 
 ## Historical Phase 14 lifecycle implementation record
 
+The entries below preserve the bounded-package audit trail. Their earlier
+`OPEN`/`FIX_REQUIRED` wording is superseded by the final master acceptance
+above and must not be treated as active authorization or current status.
+
 - Durable registry/reopen, immutable dependency-aware deletion planning and
   plan-scoped trash/restore are bounded accepted packages. They are path-free
   in the registry and do not authorize permanent deletion.
