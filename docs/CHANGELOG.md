@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 run-evidence implementation audit
+
+- Returned `FIX_REQUIRED` for absolute-path no-leak coverage and strict
+  canonical quality-decision ingress; no scope expansion was authorized.
+
 ## 2026-08-06 - Phase 15 run-evidence implementation
 
 - Added local canonical observations, typed evidence references, deterministic
