@@ -11,10 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Independently audit the Phase 15 `EvidenceAttachmentValidator` implementation
-against its accepted contract and real local integration test. Do not repair it
-or add live transport, retry, queue/worker, media validation, Studio/UI, Phase
-16 or Phase 17 behavior.
+Make a bounded acceptance decision for the repaired Phase 15
+`EvidenceAttachmentValidator`. Do not close the Phase 15 Master Roadmap or add
+live transport, retry, queue/worker, media validation, Studio/UI, Phase 16 or
+Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

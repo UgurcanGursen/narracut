@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 evidence attachment implementation audit and re-audit
+
+- Closed typed storage-policy identity and stable failure-code findings; bounded
+  attachment acceptance remains a separate decision.
+
 ## 2026-08-06 - Phase 15 evidence attachment implementation
 
 - Added a local fail-closed attachment from canonical Phase 4/14/Domain Pack
