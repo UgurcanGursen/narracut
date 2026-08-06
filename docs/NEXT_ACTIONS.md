@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Independently audit
-`docs/specifications/phase15_validation_observability_quality_gate_contract.md`
-against the Phase 15 roadmap, `baseline/phase15_scope_reconciliation.md` and
-the accepted Phase 4/14 evidence. Do not implement it or enable a live
-transport before the audit result and separate implementation authorization.
+Repair only P15-001 through P15-003 from
+`baseline/phase15_validation_observability_contract_audit.md` in
+`docs/specifications/phase15_validation_observability_quality_gate_contract.md`,
+then perform a targeted re-audit. Do not implement runtime code or enable a
+live transport in this task.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

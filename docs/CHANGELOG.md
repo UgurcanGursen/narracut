@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 validation/observability contract audit
+
+- Returned `FIX_REQUIRED` for closed observation tokens, exact evidence
+  references and terminal-state precedence; no runtime implementation was
+  authorized.
+
 ## 2026-08-06 - Phase 15 validation/observability scope reconciliation
 
 - Started Phase 15 with a bounded canonical run-evidence and fail-closed
