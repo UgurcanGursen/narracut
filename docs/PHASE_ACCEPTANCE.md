@@ -9,9 +9,20 @@
 | Planner-to-executable-plan-to-EDL owner | Phase 12 |
 | Operational source/asset/timing owner | Phase 15 / Phase 17 |
 | Historical evidence preserved without false product-completion claim | PASS |
-| Next implementation authorization | NOT YET GRANTED; Phase 11 scope reconciliation only |
+| Next implementation authorization | Phase 11 bounded implementation; see Phase 11 contract acceptance |
 
 Evidence: `docs/ROADMAP_SCOPE_RECONCILIATION.md`.
+
+## Phase 11 contract acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Phase 3 sample-grid and Phase 8 eligibility boundary consumed | PASS |
+| Domain-Pack-bound policy and no-core-default rule | PASS |
+| Phase 12 executable-editorial handoff remains explicit | PASS |
+| Bounded implementation authorization | GRANTED |
+
+Evidence: `docs/specifications/phase11_audio_director_source_audio_eligibility_contract.md`.
 
 ## Phase 10 final acceptance — 2026-08-06
 

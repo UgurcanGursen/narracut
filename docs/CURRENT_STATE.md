@@ -15,8 +15,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   now distinct. Historical bounded closures do not silently assert an
   end-to-end product gate; Phase 17 cannot close with an open Deferred
   Delivery Ledger row.
-- The sole next task is a read-only Phase 11 scope/contract reconciliation
-  against the ledger. Phase 11 implementation is not yet authorized.
+- The Phase 11 Audio Director and Source Audio Eligibility contract is frozen
+  at `docs/specifications/phase11_audio_director_source_audio_eligibility_contract.md`.
+  Its bounded REPLAY/MANUAL_UI-first implementation is authorized; final EDL
+  integration remains explicitly owned by Phase 12.
 
 - Phase 10 Hierarchical Story, Narrative and Editorial Planner is accepted and
   closed. It provides Domain-Pack-bound, immutable outline, chapter, beat,

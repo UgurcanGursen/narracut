@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 11 audio-director contract freeze
+
+- Added the bounded REPLAY/MANUAL_UI-first Audio Director and Source Audio
+  Eligibility contract, including a typed Phase 3/8 handoff and Phase 12 EDL
+  ownership boundary.
+
 ## 2026-08-06 - Roadmap scope reconciliation
 
 - Added a deferred-delivery ledger so accepted foundation contracts cannot
