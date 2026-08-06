@@ -86,6 +86,7 @@ def run_phase4_preview_cached(
         payload_hash=rendered.receipt.output_sha256,
         payload_size_bytes=len(rendered.preview_manifest_bytes),
         producer_version="phase4a-renderer", timestamp_utc=lifecycle_timestamp_utc,
+        registry_artifact_ids=tuple(record.artifact_id for record in records),
     )
     entry = cache_put(cache_root, key, rendered.preview_manifest_bytes, lifecycle=lifecycle)
     return CachedPreviewOutcome(

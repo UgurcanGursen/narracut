@@ -91,7 +91,8 @@ def cache_write_lifecycle_metadata(*, storage_scope_id: str, cache_key: str,
                                    profile: str, payload_hash: str,
                                    payload_size_bytes: int,
                                    producer_version: str,
-                                   timestamp_utc: str) -> dict[str, object]:
+                                   timestamp_utc: str,
+                                   registry_artifact_ids: tuple[str, ...] = ()) -> dict[str, object]:
     """Create verified, path-free cache lifecycle rows for one cache write."""
     _hash(cache_key); _hash(payload_hash); _utc(timestamp_utc)
     payload_body = {
@@ -106,7 +107,7 @@ def cache_write_lifecycle_metadata(*, storage_scope_id: str, cache_key: str,
         "profile": profile, "payload_object_id": payload.payload_object_id,
         "producer_input_hash": cache_key, "producer_version": producer_version,
         "created_at": timestamp_utc, "last_accessed_at": timestamp_utc,
-        "registry_artifact_ids": (), "status": "ready",
+        "registry_artifact_ids": registry_artifact_ids, "status": "ready",
     }
     entry_id, _ = _identity("cen_", entry_body)
     entry = CacheEntryRecord.materialize({"cache_entry_id": entry_id, **entry_body})
