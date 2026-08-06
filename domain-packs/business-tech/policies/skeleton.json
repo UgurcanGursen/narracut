@@ -168,6 +168,17 @@
       }
     }
   },
+  "audio": {
+    "audio_director_policy": {
+      "policy_version": "AUDIO-DIRECTOR-POLICY-V1",
+      "allowed_source_audio_modes": ["clean_speech", "speech_with_ambience", "embedded_music", "ambience_only", "unusable", "disabled"],
+      "allowed_music_intensities": ["low", "medium", "high"],
+      "allowed_event_types": ["music_start", "music_change", "music_drop", "music_resume", "impact", "riser", "paper", "keyboard", "ui_click", "source_speech_in", "source_speech_out", "ambience_in", "ambience_out"],
+      "source_speech_allowed_modes": ["clean_speech", "speech_with_ambience"],
+      "source_speech_min_duration_ms": 2000,
+      "source_speech_max_duration_ms": 6000
+    }
+  },
   "safety": {
     "require_attribution": true
   }
