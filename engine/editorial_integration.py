@@ -117,8 +117,8 @@ class ExecutableEditorialPlanV1:
 
 class EditorialIntegrationCompiler:
     """Binds accepted cross-phase decisions; it does not schedule media."""
-    def compile(self, *, project_id: str, assembly_request: dict[str, object], policy: EditorialIntegrationPolicyV1, sequence_plans: tuple[dict[str, object], ...], catalog: AssetCatalogV1, selections: tuple[ApprovedAssetSelectionV1, ...], capabilities: tuple[TemplateCapabilityV1, ...], audio_plan: AudioDirectionPlanV1, visualizations: tuple[VisualizationArtifactV1 | None, ...]) -> ExecutableEditorialPlanV1:
-        if type(assembly_request) is not dict or type(policy) is not EditorialIntegrationPolicyV1 or type(sequence_plans) is not tuple or type(catalog) is not AssetCatalogV1 or type(selections) is not tuple or type(capabilities) is not tuple or type(audio_plan) is not AudioDirectionPlanV1 or type(visualizations) is not tuple or len(sequence_plans) != len(visualizations): _fail("EDITORIAL_INTEGRATION_INPUT_INVALID")
+    def compile(self, *, project_id: str, assembly_request: dict[str, object], policy: EditorialIntegrationPolicyV1, sequence_plans: tuple[dict[str, object], ...], catalog: AssetCatalogV1, selections: tuple[ApprovedAssetSelectionV1, ...], capabilities: tuple[TemplateCapabilityV1, ...], audio_plan: AudioDirectionPlanV1, chapter_audio_direction_pairs: tuple[tuple[str, str], ...], visualizations: tuple[VisualizationArtifactV1 | None, ...]) -> ExecutableEditorialPlanV1:
+        if type(assembly_request) is not dict or type(policy) is not EditorialIntegrationPolicyV1 or type(sequence_plans) is not tuple or type(catalog) is not AssetCatalogV1 or type(selections) is not tuple or type(capabilities) is not tuple or type(audio_plan) is not AudioDirectionPlanV1 or type(chapter_audio_direction_pairs) is not tuple or type(visualizations) is not tuple or len(sequence_plans) != len(visualizations) or len(sequence_plans) != len(chapter_audio_direction_pairs): _fail("EDITORIAL_INTEGRATION_INPUT_INVALID")
         if (catalog.project_id, catalog.policy_snapshot_id, catalog.policy_snapshot_hash) != (project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash): _fail("EDITORIAL_INTEGRATION_POLICY_MISMATCH")
         audio = audio_plan.data()
         if (audio["project_id"], audio["policy_snapshot_id"], audio["policy_snapshot_hash"]) != (project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash): _fail("EDITORIAL_INTEGRATION_POLICY_MISMATCH")
@@ -136,7 +136,7 @@ class EditorialIntegrationCompiler:
         if len(selection_by_brief) != len(selections): _fail("APPROVED_ASSET_SELECTION_INVALID")
         audio_directions = {(item["chapter_audio_direction_id"], item["chapter_audio_direction_hash"]): item for item in audio["chapter_directions"]}
         rows: list[dict[str, object]] = []; previous = None
-        for position, (plan, visualization) in enumerate(zip(sequence_plans, visualizations, strict=True)):
+        for position, (plan, visualization, direction_pair) in enumerate(zip(sequence_plans, visualizations, chapter_audio_direction_pairs, strict=True)):
             try: sequence_id, sequence_hash, record = validate_record("sequence_plan", plan)
             except PlannerContractError: _fail("EDITORIAL_SEQUENCE_PLAN_INVALID")
             if (record["project_id"], record["policy_snapshot_id"], record["policy_snapshot_hash"]) != (project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash): _fail("EDITORIAL_SEQUENCE_PLAN_INVALID")
@@ -152,7 +152,7 @@ class EditorialIntegrationCompiler:
             if visualization is not None and (type(visualization) is not VisualizationArtifactV1 or (visualization.policy.policy_snapshot_id, visualization.policy.policy_snapshot_hash) != (policy.policy_snapshot_id, policy.policy_snapshot_hash)) : _fail("VISUALIZATION_BINDING_INVALID")
             mode = "asset_with_visualization" if visualization is not None else "asset_only"
             if mode not in policy.allowed_execution_modes: _fail("EDITORIAL_EXECUTION_MODE_DENIED")
-            direction = next(iter(audio_directions.values())) if len(audio_directions) == 1 else None
+            direction = audio_directions.get(_pair(direction_pair, "cad_"))
             if direction is None: _fail("AUDIO_DIRECTION_BINDING_INVALID")
             state = ContinuityStateV1(sequence_id, position, assets[(selected[0]["asset_id"], selected[0]["asset_hash"])].visual_family_id, capability.capability_id, None if visualization is None else visualization.visualization_id, str(direction["music_intensity"])).data(previous=previous, policy=policy)
             row = {"sequence_plan_id": sequence_id, "sequence_plan_hash": sequence_hash, "approved_asset_selections": selected, "template_capability_id_hash": [capability.capability_id, capability.capability_hash], "visualization_id_hash": None if visualization is None else [visualization.visualization_id, visualization.visualization_hash], "chapter_audio_direction_id_hash": [direction["chapter_audio_direction_id"], direction["chapter_audio_direction_hash"]], "incoming_continuity_state_id_hash": None if previous is None else [previous["continuity_state_id"], previous["continuity_state_hash"]], "outgoing_continuity_state_id_hash": [state["continuity_state_id"], state["continuity_state_hash"]], "execution_mode": mode}
