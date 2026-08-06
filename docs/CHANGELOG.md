@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 closure-repair implementation authorization
+
+- Authorized pure sequence decisions, visible soft quota and local FULL A/V
+  replay evidence only.
+
 ## 2026-08-06 - Phase 14 closure-repair contract audit
 
 - Passed the narrow sequence/soft-quota/FULL-A/V contract audit; implementation

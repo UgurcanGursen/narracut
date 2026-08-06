@@ -11,8 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make an independent bounded implementation authorization decision for
-`docs/specifications/phase14_closure_repair_contract.md`. Do not implement
+Implement only the Phase 14 closure-repair package authorized by
+`baseline/phase14_closure_repair_implementation_authorization.md`, then run
+focused tests and request one independent implementation audit. Do not implement
 permanent deletion, automatic worker/scheduler behavior, provider transport,
 generic queue/retry, Studio FULL-render route or Phase 15 validation behavior.
 
