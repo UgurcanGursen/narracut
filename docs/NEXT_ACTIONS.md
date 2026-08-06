@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Record the bounded Phase 15 source-audio direction acceptance decision using
-`baseline/phase15_source_audio_direction_implementation_audit.md`. Do not
-claim Phase 15 Master acceptance. Do not enable live transport, retry,
-queue/worker, media decode or classification, mixing, renderer/EDL mutation,
-Studio/UI, Phase 16 or Phase 17 behavior.
+Perform a read-only Phase 15 Master-gap reconciliation for the remaining
+audio-boundary, expanded-domain/final-narration and artifact-integrity rows.
+Do not implement, enable live transport, retry, queue/worker, media decode or
+classification, mixing, renderer/EDL mutation, Studio/UI, Phase 16 or Phase
+17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

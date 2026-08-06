@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source-audio direction bounded acceptance
+
+- Accepted local Phase 8/11 source-speech policy-direction attachment; final
+  PCM/mix and audio-boundary evidence remain open.
+
 ## 2026-08-06 - Phase 15 source-audio direction implementation audit
 
 - Passed the bounded validator implementation audit, including service

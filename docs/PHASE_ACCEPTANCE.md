@@ -1,5 +1,15 @@
 # Phase Acceptance
 
+## Phase 15 source-audio direction bounded acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Phase 8/11 source-speech policy direction | PASS |
+| Recomputed contamination/ineligibility cannot PASS | PASS |
+| Phase 15 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase15_source_audio_direction_bounded_acceptance.md`.
+
 ## Phase 15 source outcome bounded acceptance — 2026-08-06
 
 | Gate | Result |
