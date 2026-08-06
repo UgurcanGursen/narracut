@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN. Faz 14 IN_PROGRESS.
 
 ## AI execution policy
 
@@ -11,9 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the accepted Phase 14 two-stage trash/restore contract with
-revalidated plan, managed-root containment and append-only receipt tests. Do
-not implement permanent deletion, cache/quota/FULL render/provider transport.
+Perform a read-only Phase 14 cache-eviction/soft-quota scope reconciliation:
+freeze protected-retention, dependency, eviction-order, cache-entry and
+deduplication-measurement invariants before any eviction implementation. Do
+not implement permanent deletion, provider transport, generic queue/retry,
+Studio FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

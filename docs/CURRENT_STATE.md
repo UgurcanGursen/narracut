@@ -1,18 +1,26 @@
 # Current State
 
 Son guncelleme: 6 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN)**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 IN_PROGRESS**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Phase 14 planning started
+## Phase 14 lifecycle implementation in progress
 
-- The read-only scope/ownership decision at
-  `baseline/phase14_scope_ownership_decision.md` selects a durable artifact
-  registry and non-destructive lifecycle-planning contract first. No cleanup,
-  cache, quota, queue or FULL-render implementation is authorized yet.
-- The first registry/planning package is accepted at
-  `baseline/phase14_registry_planning_acceptance.md`; mutation/cache work remains open.
+- Durable registry/reopen, immutable dependency-aware deletion planning and
+  plan-scoped trash/restore are bounded accepted packages. They are path-free
+  in the registry and do not authorize permanent deletion.
+- The Phase 4 REPLAY preview lifecycle adapter at
+  `engine/rendering/lifecycle_adapter.py` now derives a profile-scoped cache
+  key, validates an integrity-bound cache hit before reuse, obtains actual
+  managed-storage usage for hard-quota admission, registers the Phase 4
+  artifact DAG durably on a miss, and never caches failed/cancelled output.
+  Its actual-render evidence is recorded at
+  `baseline/phase14_renderer_lifecycle_adapter_acceptance.md`.
+- This is not Phase 14 closure: protected cache eviction/soft-quota cleanup,
+  deduplication measurement and a fixed REPLAY hash-preserving performance
+  benchmark remain open. There is no provider, generic queue/retry, Studio
+  FULL-render route or permanent delete implementation.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 

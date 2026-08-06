@@ -1,5 +1,22 @@
 # Phase Acceptance
 
+## Phase 14 renderer lifecycle adapter â€” 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Profile-isolated, payload-integrity-checked cache hit | PASS (bounded REPLAY preview) |
+| Actual managed-storage hard-quota admission before renderer invocation | PASS (bounded REPLAY preview) |
+| Successful Phase 4 artifact DAG durable registration | PASS (actual preview + cache reuse) |
+| Failed/cancelled result cache exclusion | PASS (adapter contract) |
+| Protected cache eviction, soft quota, dedup measurement and fixed REPLAY performance benchmark | OPEN |
+| Phase 14 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase14_renderer_lifecycle_adapter_acceptance.md`,
+`engine/rendering/lifecycle_adapter.py` and
+`tests/test_phase14_renderer_adapter.py`. This bounded acceptance authorizes
+neither permanent deletion nor providers, queues/retries, Studio FULL render or
+Phase 15 validation work.
+
 ## Phase 13 REPLAY preview implementation status â€” 2026-08-06
 
 | Gate | Result |

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 renderer lifecycle adapter implementation
+
+- Added a bounded Phase 4 REPLAY preview lifecycle adapter with integrity
+  checked profile-isolated cache hits, actual managed-storage hard-quota
+  admission and idempotent durable Phase 4 artifact-DAG registration.
+- Hardened cache payload/metadata verification and trash/restore source-hash
+  validation with rollback on a failed move/receipt write.
+- Actual Phase 4 preview followed by a cache-only reuse passed. This is not a
+  cache-eviction, deduplication or performance benchmark acceptance; Phase 14
+  remains open.
+
 ## 2026-08-06 - Phase 14 trash/restore acceptance
 
 - Accepted bounded plan-scoped trash/restore with revalidation and receipt evidence; permanent deletion and cache/quota remain open.

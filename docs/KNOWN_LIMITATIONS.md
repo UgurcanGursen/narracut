@@ -40,11 +40,23 @@ Son guncelleme: 6 Agustos 2026
   Phase 14 owns the required lifecycle handoff and preview performance/SLO
   measurement.
 
-## Faz 14 planning limitation
+## Faz 14 lifecycle limitation
 
-- Phase 14 has begun with a scope decision only. There is no durable registry,
-  deletion/trash/restore operation, cache, quota or performance claim until a
-  separately accepted lifecycle contract authorizes implementation.
+- Phase 14 has durable registry/reopen, immutable dry-run deletion plans,
+  managed-root trash/restore receipts, content-addressed cache identity and a
+  bounded Phase 4 REPLAY preview admission/cache/registry adapter. These are
+  local lifecycle primitives, not a complete StorageQuotaManager or
+  GarbageCollector.
+- Cache eviction has no retention-safe implementation; soft-quota cleanup,
+  LRU policy, minimum-free-disk pressure, deduplication savings and permanent
+  deletion remain unavailable. Approved/final/provenance/baseline/pinned
+  records therefore must not be presented as automatically managed cleanup
+  targets.
+- The hard quota has actual managed-storage admission evidence for the bounded
+  preview adapter, but no FULL-render/Studio route, generic queue/retry or
+  restart-safe operational storage service exists. The Phase 4 cache evidence
+  is not a fixed REPLAY performance benchmark and makes no visual/audio
+  non-regression claim.
 
 ## Faz 12 status note
 
