@@ -11,15 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Independently audit the candidate Phase 13 Canonical Render-Input Handoff
-Contract at `docs/specifications/phase13_canonical_render_input_handoff_contract.md`. Use
-`baseline/phase13_renderer_control_plane_implementation_authorization_decision.md`:
-the accepted Studio review snapshot has Phase 12/3 identities but lacks the
-canonical EDL bytes, RenderProps/fixture binding and trusted resolver required
-by the accepted renderer-control-plane contract.
-
-Verify package identity, canonical-byte/loader binding, resolver isolation and
-the Phase 14 boundary. The audit must not authorize implementation.
+Perform one read-only combined implementation authorization decision for the
+accepted Phase 13 canonical render-input handoff and renderer-control-plane
+contracts. It must authorize one bounded implementation package or explicitly
+reject it; no code in that decision task.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
