@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source-audio direction candidate contract audit
+
+- Passed the narrow Phase 8/11 policy-direction validator contract audit;
+  implementation authorization remains a separate decision.
+
 ## 2026-08-06 - Phase 15 post-source-outcome Master-gap reconciliation
 
 - Reconciled source-audio, audio-boundary, domain/narration and artifact rows
