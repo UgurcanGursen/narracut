@@ -29,9 +29,9 @@ _EVENTS: dict[tuple[str, str], frozenset[str]] = {
     ("transport", "mode_declared"): frozenset({"REPLAY", "MANUAL_UI", "DISABLED", "UNSUPPORTED"}),
     ("quality_gate", "check_evaluated"): frozenset({"PASSED", "WARNING", "FAILED", "NOT_READY", "UNSUPPORTED"}),
 }
-_CHECKS = frozenset({"render_path", "artifact_lifecycle", "storage_pressure", "domain_contract", "failure_provenance"})
+_CHECKS = frozenset({"render_path", "artifact_lifecycle", "storage_pressure", "domain_contract", "source_outcome", "failure_provenance"})
 _KIND_BY_CATEGORY = {"render": "render_receipt", "artifact": "artifact_registry", "storage": "storage_admission", "domain": "domain_snapshot"}
-_KIND_BY_CHECK = {**_KIND_BY_CATEGORY, "render_path": "render_receipt", "artifact_lifecycle": "artifact_registry", "storage_pressure": "storage_admission", "domain_contract": "domain_snapshot", "failure_provenance": "failure_code"}
+_KIND_BY_CHECK = {**_KIND_BY_CATEGORY, "render_path": "render_receipt", "artifact_lifecycle": "artifact_registry", "storage_pressure": "storage_admission", "domain_contract": "domain_snapshot", "source_outcome": "source_capture", "failure_provenance": "failure_code"}
 _METRICS = frozenset({"run_elapsed_ms", "sequence_render_ms", "cache_hit_count", "cache_miss_count", "artifact_count", "workspace_size_bytes", "cache_size_bytes", "orphan_artifact_count", "dedup_saved_bytes", "failure_count", "transport_outcome_count"})
 
 
@@ -127,7 +127,7 @@ def _reference(value: Mapping[str, object], *, run_id: str) -> EvidenceReference
     if set(value) != {"schema_version", "kind", "reference_id", "reference_hash", "run_id"}:
         _fail("EVIDENCE_REFERENCE_FIELDS_INVALID")
     item = EvidenceReference(**value)  # type: ignore[arg-type]
-    if (item.schema_version != REFERENCE_V1 or item.kind not in {"render_receipt", "artifact_registry", "storage_admission", "domain_snapshot", "failure_code"}
+    if (item.schema_version != REFERENCE_V1 or item.kind not in {"render_receipt", "artifact_registry", "storage_admission", "domain_snapshot", "source_capture", "failure_code"}
             or not _safe_text(item.reference_id) or not _valid_hash(item.reference_hash)
             or item.run_id != run_id):
         _fail("EVIDENCE_REFERENCE_INVALID")
