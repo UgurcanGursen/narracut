@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master repair integration targeted re-audit
+
+- Cleared the FULL artifact ingress finding; implementation authorization is
+  separate.
+
 ## 2026-08-06 - Phase 14 Master repair integration contract repair
 
 - Bound FULL artifact ingress to the canonical committed Phase 4B transaction
