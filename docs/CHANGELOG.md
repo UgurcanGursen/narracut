@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master repair integration candidate contract
+
+- Defined FULL artifact registry adapter, disk-pressure admission and explicit
+  local quota-manager boundaries for independent audit.
+
 ## 2026-08-06 - Phase 14 Master repair scope reconciliation
 
 - Froze explicit FULL artifact policy mapping, trusted disk-pressure admission
