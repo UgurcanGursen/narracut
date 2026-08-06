@@ -11,17 +11,15 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Write a read-only Phase 13 Canonical Render-Input Handoff Contract. Use
+Independently audit the candidate Phase 13 Canonical Render-Input Handoff
+Contract at `docs/specifications/phase13_canonical_render_input_handoff_contract.md`. Use
 `baseline/phase13_renderer_control_plane_implementation_authorization_decision.md`:
 the accepted Studio review snapshot has Phase 12/3 identities but lacks the
 canonical EDL bytes, RenderProps/fixture binding and trusted resolver required
 by the accepted renderer-control-plane contract.
 
-The specification must freeze an immutable server-validated REPLAY handoff
-package, its Phase 12/3/policy/project/sequence provenance and its narrow
-resolver boundary. It must not authorize code, renderer invocation, provider or
-browser automation, direct filesystem UI access, queue/retry, media transport,
-cache/GC, a renderer/EDL rewrite or any Phase 14 lifecycle implementation.
+Verify package identity, canonical-byte/loader binding, resolver isolation and
+the Phase 14 boundary. The audit must not authorize implementation.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
