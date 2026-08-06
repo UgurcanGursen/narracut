@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 REPLAY preview implementation acceptance audit
+
+- Returned `FIX_REQUIRED`; no Phase 13 acceptance was granted.
+- Found missing canonical snapshot admission validation, fake-executor success
+  evidence, unverified delivery descriptor semantics and incomplete UI preview
+  evidence consumption.
+- Advanced the sole next task to a bounded audit-repair authorization decision;
+  Phase 14 remains excluded.
+
 ## 2026-08-06 - Phase 13 REPLAY preview implementation (pending acceptance)
 
 - Added the bounded PREVIEW-only/REPLAY-only Studio control-plane seam:

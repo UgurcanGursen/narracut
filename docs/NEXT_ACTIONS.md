@@ -11,13 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform one bounded, read-only Phase 13 REPLAY preview implementation
-acceptance audit. Verify the current local implementation against
-`baseline/phase13_preview_implementation_authorization.md` and both accepted
-handoff/control-plane contracts; in particular require canonical two-sequence
-handoff evidence, immutable snapshot validation, safe job/event/delivery
-behavior, OpenAPI/React parity and explicit Phase 14-unavailable semantics.
-Do not implement Phase 14 lifecycle in this task.
+Make one bounded Phase 13 preview audit-repair authorization decision from
+`baseline/phase13_replay_preview_implementation_acceptance_audit.md`. It must
+decide the exact repair boundary for canonical snapshot admission, actual
+two-sequence REPLAY API evidence, verified delivery descriptors and HTTP-only
+UI evidence consumption. Do not implement Phase 14 lifecycle, FULL render,
+provider transport or generic queue/retry work.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

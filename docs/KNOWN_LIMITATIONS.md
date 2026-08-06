@@ -29,6 +29,11 @@ Son guncelleme: 6 Agustos 2026
 - The Studio endpoint accepts no path, source URL, props, EDL bytes or render
   mode. Only a trusted resolver can supply a persisted snapshot; normal
   runtime projects without one fail closed as `RENDER_INPUT_UNAVAILABLE`.
+- The local implementation's persisted snapshot admission is not yet safe for
+  acceptance: it lacks loader/hash verification before SQLite write. Its API
+  success test uses a fake executor rather than an actual two-sequence Phase 4
+  REPLAY run. These are tracked as `P13-PA-001` through `P13-PA-004` in the
+  acceptance audit; do not present the local preview seam as completed.
 
 ## Faz 12 status note
 

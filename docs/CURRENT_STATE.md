@@ -78,6 +78,12 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   regenerated HTTP-only React client/UI control. It is not accepted yet:
   canonical two-sequence handoff provenance and independent acceptance remain
   the next gate. Phase 14 storage/GC is still unavailable by design.
+- The first implementation acceptance audit is `FIX_REQUIRED` at
+  `baseline/phase13_replay_preview_implementation_acceptance_audit.md`.
+  Snapshot bytes are not verified before SQLite persistence, the success test
+  substitutes a fake executor, delivery does not derive its permitted frames
+  from a verified descriptor, and the UI does not consume preview evidence.
+  The next task is a bounded repair-authorization decision, not Phase 14 work.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:
