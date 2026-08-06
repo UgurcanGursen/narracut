@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 master acceptance
+
+- Closed the validation/observability phase with source, artifact,
+  domain/narration and audio-boundary evidence gates.
+
 ## 2026-08-06 - Phase 15 domain/final-narration safety bounded acceptance
 
 - Accepted the local compatibility, validation-extension and final-narration

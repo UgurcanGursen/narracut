@@ -14,9 +14,9 @@ Son guncelleme: 6 Agustos 2026
 
 ## Faz 15 status note
 
-- Faz 15 baslatildi; ilk paket yalniz canonical run evidence ve fail-closed
-  quality-gate siniridir. Canli source/asset/timing transport Faz 17 sahipligi
-  altinda kalir; Faz 15 bunu ancak etkinlestirildiginde dogrular.
+- Faz 15, validation/observability kapsami icin `MASTER_PHASE_CLOSED`tir.
+  Canli source/asset/timing transport Faz 17 sahipligi altinda kalir; Faz 15
+  etkinlestirilmemis modu canli basari olarak raporlamaz.
 - Pixel, semantic, claim/source ve transport validatorleri bu ilk pakette
   uygulanmis sayilmaz. Source-audio icin yalniz Phase 8/11 policy-direction
   attachment vardir; PCM mix, media classification, boundary-discontinuity ve

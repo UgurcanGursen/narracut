@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN. Faz 14 MASTER_PHASE_CLOSED. Faz 15 IN_PROGRESS.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN. Faz 14 MASTER_PHASE_CLOSED. Faz 15 MASTER_PHASE_CLOSED.
 
 ## AI execution policy
 
@@ -11,9 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the audited bounded Phase 15 audio-boundary quality gate. Do not
-claim Phase 15 Master acceptance or add media decode/mixing, renderer/EDL
-mutation, transport, queue/worker, Studio/UI, Phase 16 or Phase 17 behavior.
+Before any Phase 16 implementation, perform one read-only Phase 16 scope and
+acceptance reconciliation against the Master Roadmap and the open product-gate
+ledger. Do not alter Phase 15 evidence or begin Phase 16 implementation in
+this task.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -63,6 +63,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase15_domain_narration_safety_implementation_audit.md`.
 - Its bounded domain/final-narration safety acceptance is recorded at
   `baseline/phase15_domain_narration_safety_bounded_acceptance.md`.
+- Phase 15 is `MASTER_PHASE_CLOSED` for its validation/observability scope;
+  master evidence is `baseline/phase15_master_acceptance.md`.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.

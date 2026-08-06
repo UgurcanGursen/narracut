@@ -1,5 +1,15 @@
 # Phase Acceptance
 
+## Phase 15 final master acceptance -- 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Fail-closed quality ledger and evidence attachment | PASS |
+| Source, artifact, domain/narration and audio-boundary gates | PASS |
+| Phase 15 Master Roadmap | ACCEPT / MASTER_PHASE_CLOSED |
+
+Evidence: `baseline/phase15_master_acceptance.md`.
+
 ## Phase 15 domain/final-narration safety bounded acceptance -- 2026-08-06
 
 | Gate | Result |
