@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 run-evidence bounded acceptance
+
+- Accepted the local canonical ledger and fail-closed quality-gate package;
+  Phase 15 Master remains open for the remaining validation/observability work.
+
 ## 2026-08-06 - Phase 15 run-evidence targeted implementation re-audit
 
 - Cleared absolute-path no-leak and canonical quality-decision ingress

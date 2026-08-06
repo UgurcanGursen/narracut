@@ -11,10 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make a bounded Phase 15 acceptance decision for the local run-evidence ledger
-and quality gate using its implementation and targeted re-audit evidence. Do
-not close Phase 15 Master Roadmap or add live transport, retry, queue/worker,
-media validation, Studio/UI, Phase 16 or Phase 17 behavior.
+Perform a read-only Phase 15 Master-gap reconciliation. Map each remaining
+roadmap validation/observability acceptance criterion to an existing owner,
+the local ledger, or a future bounded package; do not implement, enable live
+transport, retry, queue/worker, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

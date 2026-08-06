@@ -1,5 +1,17 @@
 # Phase Acceptance
 
+## Phase 15 run-evidence and quality-gate bounded acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Canonical ledger, reference and metric boundary | PASS |
+| Fail-closed missing/unsupported/failure precedence | PASS |
+| Safe no-path ingress and canonical decision loader | PASS |
+| Focused Phase 15 test gate | `9 passed` |
+| Phase 15 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase15_run_evidence_bounded_acceptance.md`.
+
 ## Phase 15 validation/observability contract acceptance and implementation authorization — 2026-08-06
 
 | Gate | Result |

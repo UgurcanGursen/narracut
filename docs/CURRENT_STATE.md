@@ -13,7 +13,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Local implementation is at `engine/validation/run_evidence.py`; it writes
   canonical safe JSONL observations, validates typed Phase 4/14 evidence
   references, projects only observed metrics and produces a fail-closed gate
-  decision. Implementation acceptance remains open.
+  decision. This bounded package is accepted at
+  `baseline/phase15_run_evidence_bounded_acceptance.md`; Phase 15 Master
+  acceptance remains open.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
