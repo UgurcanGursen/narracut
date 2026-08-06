@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Draft and independently accept the bounded Phase 14 durable artifact-registry
-and non-destructive lifecycle-planning contract selected by
-`baseline/phase14_scope_ownership_decision.md`. Do not implement lifecycle,
-FULL render, provider transport or generic queue/retry work until that contract
-is accepted.
+Implement the accepted bounded Phase 14 durable artifact registry and immutable
+non-destructive lifecycle dry-run planner specified by
+`docs/specifications/phase14_durable_artifact_registry_lifecycle_planning_contract.md`.
+Do not delete/move files, implement cache/quota/FULL render/provider transport
+or generic queue/retry work.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
