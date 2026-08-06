@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache-plan execution targeted re-audit
+
+- Cleared the partial receipt/event publication finding with one canonical
+  transaction-batch state record; implementation authorization is separate.
+
 ## 2026-08-06 - Phase 14 cache-plan execution contract repair
 
 - Replaced separate receipt/event persistence with a single complete,
