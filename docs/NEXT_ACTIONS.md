@@ -11,18 +11,16 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Write a read-only Phase 13 Renderer Control-Plane Integration Contract. Use
-`baseline/phase13_master_criterion_integration_decision_report.md` as the
-authoritative decision: Phase 4 already owns bounded REPLAY preview/FULL
-render evidence, but the Studio has no safe project-bound handoff or live
-render-job view; Phase 14 remains the owner of storage/GC.
+Independently audit the candidate Phase 13 Renderer Control-Plane Integration
+Contract at `docs/specifications/phase13_renderer_control_plane_integration_contract.md`.
+Verify its Phase 4/12 provenance binding, pre-admission failure behavior,
+event/SSE reconnection semantics, safe preview delivery and Phase 14 ownership
+boundary. The audit must return an explicit accept/fix decision and must not
+authorize implementation by itself.
 
-The specification must freeze only API/application-port ownership, canonical
-preview receipt/media read models, reconnectable progress/failure event
-semantics and explicit `UNAVAILABLE_OWNER_PHASE14` storage/GC states. It must
-not authorize implementation, provider/browser automation, paid LLM calls,
-direct filesystem UI access, general queue/retry, media transport, cache/GC
-or a renderer/EDL rewrite.
+Do not implement provider/browser automation, paid LLM calls, direct
+filesystem UI access, general queue/retry, media transport, cache/GC, a
+renderer/EDL rewrite or the candidate contract in this task.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 renderer control-plane candidate contract
+
+- Added a PREVIEW-only, REPLAY-only candidate contract for an HTTP/API-safe
+  handoff to existing Phase 4 renderer evidence, persisted ordered job events
+  and safe manifest/frame delivery.
+- Kept FULL-render start, provider/queue/retry work and Phase 14 storage/GC
+  outside the candidate. It is documentation only and awaits independent audit.
+
 ## 2026-08-06 - Phase 13 Master-criterion integration decision
 
 - Reconciled the accepted Phase 4 renderer evidence with the Phase 13 Studio

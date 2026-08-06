@@ -51,7 +51,7 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   without changing either scheduler.
 - Phase 13 Studio UI, Manual LLM Gateway and Human-in-the-loop Review has an
   accepted local SQLite/OpenAPI implementation at
-  `docs/specifications/phase13_studio_manual_llm_review_contract.md`. Its
+  `docs/specifications/phase13_studio_manual_llm_review_contract.md`.
 - SQLite-backed projects can be listed and reopened across a fresh FastAPI
   application. The HTTP-only Studio provides Phase 9 research / Phase 10
   outline MANUAL_UI task creation, prompt/context handoff, canonical envelope
@@ -66,8 +66,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   render-job read model, or Phase 14 durable lifecycle view. The Studio does
   not fake those product states.
 - The Phase 13 Master-criterion integration decision is PASS at
-  `baseline/phase13_master_criterion_integration_decision_report.md`. The sole
-  next task is its read-only renderer-control-plane contract specification.
+  `baseline/phase13_master_criterion_integration_decision_report.md`. The
+  candidate renderer-control-plane contract is now at
+  `docs/specifications/phase13_renderer_control_plane_integration_contract.md`;
+  its independent acceptance remains the sole next task.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

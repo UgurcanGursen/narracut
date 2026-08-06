@@ -11,8 +11,10 @@
 | Phase 13 Master Roadmap | OPEN / NOT CLOSED |
 
 Evidence: `baseline/phase13_master_criterion_integration_decision_report.md`.
-The next task is specification-only; it grants no renderer, transport,
-cache/GC or UI implementation authority.
+The candidate specification is
+`docs/specifications/phase13_renderer_control_plane_integration_contract.md`.
+Independent acceptance is required before any renderer, transport, cache/GC or
+UI implementation authority exists.
 
 ## Phase 13 foundation acceptance â€” 2026-08-06
 
