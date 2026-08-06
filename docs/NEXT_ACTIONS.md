@@ -11,11 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the accepted bounded Phase 14 durable artifact registry and immutable
-non-destructive lifecycle dry-run planner specified by
-`docs/specifications/phase14_durable_artifact_registry_lifecycle_planning_contract.md`.
-Do not delete/move files, implement cache/quota/FULL render/provider transport
-or generic queue/retry work.
+Draft a bounded Phase 14 two-stage trash/restore and deletion-plan execution
+contract. It must consume only a revalidated immutable dry-run plan and preserve
+protected artifacts; do not implement cache/quota/FULL render/provider transport.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

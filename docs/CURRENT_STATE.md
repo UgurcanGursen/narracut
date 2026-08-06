@@ -11,6 +11,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase14_scope_ownership_decision.md` selects a durable artifact
   registry and non-destructive lifecycle-planning contract first. No cleanup,
   cache, quota, queue or FULL-render implementation is authorized yet.
+- The first registry/planning package is accepted at
+  `baseline/phase14_registry_planning_acceptance.md`; mutation/cache work remains open.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 

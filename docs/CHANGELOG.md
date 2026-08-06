@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 registry planning acceptance
+
+- Accepted durable registry/reopen and immutable lifecycle dry-run planning; no destructive operation was added.
+
 ## 2026-08-06 - Phase 14 lifecycle scope decision
 
 - Selected the durable artifact-registry and non-destructive lifecycle-planning
