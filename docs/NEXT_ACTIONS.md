@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Repair only `P14-CPE-001` in
-`docs/specifications/phase14_cache_plan_execution_contract.md`, then request a
-targeted re-audit. Do not implement permanent deletion, automatic
-worker/scheduler behavior, provider transport, generic queue/retry, Studio
-FULL-render route or Phase 15 validation behavior.
+Independently re-audit the repaired
+`docs/specifications/phase14_cache_plan_execution_contract.md` against
+`P14-CPE-001`. Do not implement permanent deletion, automatic worker/scheduler
+behavior, provider transport, generic queue/retry, Studio FULL-render route or
+Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

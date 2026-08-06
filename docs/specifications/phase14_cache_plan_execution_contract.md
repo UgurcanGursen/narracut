@@ -18,19 +18,22 @@ byte size, root containment and absence of target collision. Any mismatch is
 
 ## Append-only state and transaction
 
-The trusted scope owns an append-only `cache-lifecycle-events.jsonl` ledger.
-Each event has canonical ID/hash and contains event kind, plan hash, entry or
-payload ID, timestamp and receipt ID. The effective state is the latest valid
-event for an immutable ID; only `ready`, `retired` and `restored` transitions
-are legal. Original cache metadata is never rewritten.
+The trusted scope owns one append-only `cache-lifecycle-transactions.jsonl`
+ledger. A single canonical `CACHE-LIFECYCLE-TRANSACTION-V1` record contains
+its transaction ID/hash, receipt projection, plan/policy/snapshot bindings,
+timestamp and every ordered entry/payload transition. It is written as one
+staged canonical line, fsync'd and atomically promoted before it is visible to
+readers. The effective state is derived only from complete hash-valid batch
+records; only `ready`, `retired` and `restored` transitions are legal. Original
+cache metadata is never rewritten.
 
 Execution is all-or-nothing for one plan:
 
 1. complete non-mutating preflight;
 2. move eligible payloads to `.trash/<plan_id>/sha256/...` atomically;
-3. append one immutable receipt and ordered retirement events with fsync;
-4. if any move, receipt or ledger append fails, move all payloads back and
-   publish no successful retirement state.
+3. append one immutable receipt/transition batch with fsync;
+4. if any move or batch publication fails, move all payloads back and publish
+   no successful retirement state.
 
 The receipt records plan/policy/snapshot hashes, scope, retired entry IDs,
 moved payload IDs/hashes/sizes, before/after measured bytes and trash tokens.
@@ -38,11 +41,11 @@ It is the sole restore authority.
 
 ## Restore
 
-Restore revalidates the receipt, exact trash object hash/size, empty canonical
-destination and trusted-root containment. It atomically restores payloads,
-then appends `restored` events for the receipt's entries. Failure to publish
-the restoration ledger rolls payload moves back to trash. Permanent deletion is
-forbidden.
+Restore revalidates the receipt projection from its complete transaction, exact
+trash object hash/size, empty canonical destination and trusted-root
+containment. It atomically restores payloads, then publishes one `restored`
+transaction batch for the receipt's entries. Failure to publish the batch rolls
+payload moves back to trash. Permanent deletion is forbidden.
 
 ## Verification and exclusions
 

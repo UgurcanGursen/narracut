@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache-plan execution contract repair
+
+- Replaced separate receipt/event persistence with a single complete,
+  hash-valid transaction batch visible atomically to state readers.
+
 ## 2026-08-06 - Phase 14 cache-plan execution contract audit
 
 - Returned `FIX_REQUIRED`: separate receipt/event appends could publish partial
