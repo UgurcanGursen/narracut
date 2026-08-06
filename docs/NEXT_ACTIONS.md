@@ -11,18 +11,22 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 13 Studio UI, Manual LLM Gateway and Human-in-the-
-loop Review scope reconciliation. Freeze the API/UI ownership, project-state
-persistence boundary, task/review/approval lifecycle and Phase 12 executable
-plan/Phase 3 EDL presentation boundary before authorizing implementation.
+Implement the accepted Phase 13 Studio, Manual LLM and Human-in-the-loop
+Review contract at
+`docs/specifications/phase13_studio_manual_llm_review_contract.md` as one
+bounded package. Begin with the SQLite-backed Studio project-state port and
+reopen behavior, then add the OpenAPI-first MANUAL_UI task lifecycle and the
+immutable review/approval view-model boundary.
 
-Do not implement Phase 13 in this task. Do not introduce browser-driven LLM
-automation, paid LLM calls, queue/retry infrastructure, direct filesystem UI
-access, media opening or a renderer bypass.
+The exact acceptance gates are in that contract. Preserve the existing thin
+FastAPI/HTTP-only boundary and regenerate the TypeScript client from OpenAPI.
+Use REPLAY/MANUAL_UI fixtures; do not introduce browser-driven LLM automation,
+paid LLM calls, queue/retry infrastructure, direct filesystem UI access,
+media opening, renderer bypass, Phase 14 lifecycle work or Phase 15 transport.
 
-Phase 12 master-acceptance evidence: `5572499`, `b3ce85b`; final focused
-regression: `40 passed`. There is no open Phase 12 blocker and Phase 13 may
-now receive a bounded scope/contract authorization decision.
+Phase 13 scope authorization follows Phase 12 master-acceptance evidence
+`5572499`, `b3ce85b`, focused regression `40 passed`, and this documentation
+reconciliation. It is implementation authorization, not Phase 13 closure.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

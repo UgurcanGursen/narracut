@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 Studio implementation contract authorization
+
+- Froze the OpenAPI-first Studio boundary for durable local project state,
+  MANUAL_UI task lifecycle and immutable review/approval records.
+- Made the Phase 1 process-lifetime in-memory repository explicitly
+  insufficient for Phase 13 reopen behavior; the authorized implementation
+  begins with a replaceable SQLite-backed Studio state port.
+- Preserved Phase 12/Phase 3 artifacts as read-only hash-bound presentation
+  inputs and excluded browser automation, paid providers, rendering, queue/
+  retry, Phase 14 lifecycle and Phase 15 transport work.
+
 ## 2026-08-06 - Phase 12 master-acceptance remediation
 
 - Added a deterministic two-sequence `FinalEdlBundleV1`: each executable

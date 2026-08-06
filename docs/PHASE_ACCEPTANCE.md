@@ -1,5 +1,23 @@
 # Phase Acceptance
 
+## Phase 13 contract acceptance and implementation authorization — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| API/UI ownership and HTTP-only boundary frozen | PASS |
+| `process_lifetime` repository insufficiency made explicit | PASS |
+| SQLite Studio state / project-reopen boundary assigned | PASS |
+| MANUAL_UI task/import/validation/repair/approval lifecycle frozen | PASS |
+| Phase 12 executable-plan and Phase 3 EDL presentation-only rule | PASS |
+| Immutable hash-bound review/replacement decision rule | PASS |
+| Provider/browser automation, renderer, Phase 14 and Phase 15 exclusions | PASS |
+| Bounded Phase 13 implementation authorization | GRANTED |
+| Phase 13 overall | OPEN / NOT CLOSED |
+
+Evidence: `docs/specifications/phase13_studio_manual_llm_review_contract.md`.
+The authorization closes the scope-reconciliation task only; it is not
+implementation or final Phase 13 acceptance.
+
 ## Phase 12 final acceptance — 2026-08-06
 
 | Gate | Result |

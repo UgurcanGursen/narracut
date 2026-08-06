@@ -5,7 +5,7 @@ Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 C
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 12 closed; Phase 13 scope next
+## Latest authoritative state - Phase 12 closed; Phase 13 implementation authorized
 
 - The repository-wide Roadmap Scope Reconciliation is accepted at
   `docs/ROADMAP_SCOPE_RECONCILIATION.md`. It preserves the accepted Phase 0-10
@@ -49,9 +49,21 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   family/template policy violation fails closed. The explicit execution
   handoff creates a two-sequence, hash-bound Phase 3 video/audio EDL bundle
   without changing either scheduler.
-- The sole next task is a read-only Phase 13 Studio UI/Manual LLM/Review scope
-  reconciliation. Do not implement Phase 13 until its bounded authorization is
-  complete.
+- Phase 13 Studio UI, Manual LLM Gateway and Human-in-the-loop Review now has
+  an accepted implementation contract at
+  `docs/specifications/phase13_studio_manual_llm_review_contract.md`. Its
+  first required correction is a SQLite-backed Studio state port: the existing
+  Phase 1 `process_lifetime` in-memory repository cannot satisfy project
+  reopen after restart.
+- The authorized scope is OpenAPI-first and REPLAY/MANUAL_UI-only: persistent
+  project/task/review/approval records, typed task import/validation/repair,
+  read-only Phase 12/Phase 3 presentation, and immutable hash-bound approval
+  or replacement requests. It does not authorize provider/browser automation,
+  direct UI filesystem access, media open/render, queue/retry, Phase 14
+  lifecycle or Phase 15 transport.
+- The sole next task is the bounded Phase 13 implementation package defined by
+  that contract. Phase 13 is not closed and no final production claim follows
+  from this authorization.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:
