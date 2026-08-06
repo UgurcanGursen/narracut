@@ -11,6 +11,7 @@ from engine.rendering.bridge import build_render_props, renderer_version, serial
 from engine.rendering.fixture_assets import FixtureAssetResolver
 from engine.rendering.preview_runner import run_headless_preview
 from engine.rendering.receipt import serialize_render_receipt
+from engine.storage_manager import StoragePressurePolicy
 from engine.validation.evidence_attachment import attach_evidence
 from engine.validation.run_evidence import evaluate_quality_gate, serialize_jsonl
 from tests.test_render_bridge import FIXTURE_ROOT, ROOT, build_phase4a_rich_replay_inputs
@@ -48,7 +49,7 @@ def test_actual_phase4_phase14_domain_evidence_attaches_and_passes(tmp_path):
     props, outcome, records = _run(tmp_path); snapshot = _snapshot()
     rows = attach_evidence(run_id=RUN, timestamp_utc=STAMP, project_id=props.project_id,
         render_props_bytes=serialize_render_props(props), render_receipt_bytes=serialize_render_receipt(outcome.receipt),
-        registry_records=records, storage_scope_id="cache", storage_policy_hash="sha256:" + "a" * 64,
+        registry_records=records, storage_pressure_policy=StoragePressurePolicy("cache", 1000, 0),
         storage_admission="ADMITTED", domain_snapshot=snapshot,
         expected_policy_snapshot_id=snapshot.snapshot_id, expected_policy_snapshot_hash=snapshot.canonical_hash)
     raw = serialize_jsonl(rows)
@@ -62,6 +63,6 @@ def test_actual_phase4_phase14_domain_evidence_attaches_and_passes(tmp_path):
     with pytest.raises(ValueError, match="ARTIFACT_OUTPUT_UNREGISTERED"):
         attach_evidence(run_id=RUN, timestamp_utc=STAMP, project_id=props.project_id,
             render_props_bytes=serialize_render_props(props), render_receipt_bytes=serialize_render_receipt(outcome.receipt),
-            registry_records=(other,), storage_scope_id="cache", storage_policy_hash="sha256:" + "a" * 64,
+            registry_records=(other,), storage_pressure_policy=StoragePressurePolicy("cache", 1000, 0),
             storage_admission="ADMITTED", domain_snapshot=snapshot,
             expected_policy_snapshot_id=snapshot.snapshot_id, expected_policy_snapshot_hash=snapshot.canonical_hash)
