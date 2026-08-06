@@ -2459,7 +2459,27 @@ kinetic emphasis density
 chapter tempo curve
 ```
 
+## Faz 12A - Executable Editorial Integration
+
+Faz 12, Faz 10 planner'inin assembly request olarak kalan çıktısını doğrudan
+renderer'a göndermez. Deterministik bir integration compiler; onaylı
+asset/range/crop adaylarını, Faz 5 template capability'lerini, Faz 7
+visualization referanslarını ve Faz 11 audio direction'ını policy snapshot
+altında immutable executable editorial plan'a bağlar. Bu plan mevcut Faz 3
+compiler tarafından multi-track final EDL'ye derlenir.
+
+Bu katman source URL, frame koordinatı veya renderer props'u uydurmaz; eksik
+provenance, capability, asset, policy veya continuity girdisi fail-closed olur.
+Planner-asset-EDL akışının sahibi Faz 12'dir; Faz 10'un bounded acceptance'i
+bu çalışmayı sessizce tamamlanmış saymaz.
+
 ## Kabul kriterleri
+
+- Planner, asset catalog, template capability, visualization ve audio
+  direction girdileriyle iki aynı replay'de byte-identical executable plan ve
+  final EDL üretilir.
+- Eksik/onaysız asset, range, crop, capability, policy veya continuity
+  referansı executable plan ya da EDL'ye dönüşemez.
 
 - Video boyunca visual family tekrarları raporlanır.
 - Edit-event density chapter’a göre değişir.
@@ -2928,6 +2948,8 @@ micro-pop warning count
 - LLM call lineage
 - Cache hit/miss
 - Failure provenance
+- Enabled source/asset/timing transport attempts, timeout, retry-budget,
+  rate-limit and fallback decisions
 - Source adapter decisions
 - Artifact creation/deletion lineage
 - Storage quota and disk-pressure events
@@ -2936,6 +2958,9 @@ micro-pop warning count
 ## Kabul kriterleri
 
 - Missing veya not-implemented rapor valid sayılamaz.
+- Enabled live source, asset or timing transport uses an explicit mode policy;
+  timeout, byte/MIME, redirect/SSRF, retry-budget, rate-limit and fallback
+  outcomes are observable and testable. Unsupported modes fail closed.
 - Threshold çıktı geçsin diye değiştirilemez.
 - Validation gerçek video ve artifact’lerle çelişemez.
 - Failure code gerçek kök nedene işaret eder.
@@ -3028,6 +3053,9 @@ FastAPI kullanılması ürünleşmeye engel değildir. Spring Boot zorunlu produ
 ## Yapılacaklar
 
 - Project workspace manager
+- Selected source/asset transport operationalization without access-control
+  bypass, with Phase 15 safety and observability evidence
+- Selected trusted non-REPLAY timing producer for end-to-end projects
 - Kalıcı job queue ve retry policy ihtiyaca göre
 - Provider credentials ve secret management
 - Asset/object storage politikası
@@ -3103,6 +3131,9 @@ Local installer/launcher veya Docker Compose package
 - React/FastAPI çözümü en az iki 10–15 dakikalık gerçek belgeselde baştan sona denenmiştir.
 - Spring Boot kararı varsayımla değil ölçülen ürün ihtiyacıyla verilir.
 - Spring eklenmese de production beta dağıtımı mümkündür.
+- `docs/ROADMAP_SCOPE_RECONCILIATION.md` Deferred Delivery Ledger has no open
+  row; two end-to-end projects exercise the selected supported source, asset
+  and timing modes.
 
 ---
 
@@ -3155,6 +3186,9 @@ Faz 17 — Packaging + product gate
 - Faz 1 Domain Pack contract tamamlanmadan research/planner içine business-specific promptlar gömülemez.
 - İlk production pack `business-tech`tir; diğer domain’ler milestone’ları geciktirecek biçimde paralel uygulanmaz.
 - Faz 10, Faz 5 template capability listesi ve Faz 8 semantic catalog olmadan production karar veremez.
+- Faz 12, planner asset brief'lerini approved asset/range/crop, template,
+  visualization ve audio kararlarıyla executable editorial plan'a bağlamadan
+  final EDL üretemez.
 - Faz 11 source audio kullanımı Faz 8 asset metadata’sına bağlıdır.
 - Faz 3 sample-accurate audio contract’ı olmadan Faz 11 production mix kapsamına geçemez.
 - Faz 4’ten itibaren her artifact Faz 1 manifest sözleşmesine uymalıdır.
@@ -3499,6 +3533,12 @@ Bir faz yalnızca:
 - dokümantasyon güncellendiği
 
 zaman kapanır.
+
+Her bounded implementation ayrıca `FOUNDATION_ACCEPTED` olarak kaydedilir.
+Bir fazın `MASTER_PHASE_CLOSED` olması için kendi roadmap kriterleri ile
+`docs/ROADMAP_SCOPE_RECONCILIATION.md` içindeki kendisine ait Deferred
+Delivery Ledger satırlarının kanıtla kapanması zorunludur.
+`PRODUCT_GATE_CLOSED` yalnızca Faz 17'de ledger tamamen boşken verilebilir.
 
 ---
 

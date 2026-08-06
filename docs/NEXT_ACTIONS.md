@@ -12,10 +12,11 @@ are not the default workflow.
 ## NEXT AUTHORITATIVE TASK
 
 Perform a read-only Phase 11 Audio Director and Source Audio Eligibility
-scope/contract reconciliation. Confirm the bounded contract against the
-accepted Phase 3 audio boundary, Phase 8 asset metadata and the closed Phase
-10 planner output; identify only the minimum authorized first implementation
-slice. Do not implement Phase 11 in this task.
+scope/contract reconciliation. It must consume
+`docs/ROADMAP_SCOPE_RECONCILIATION.md`, the accepted Phase 3 audio boundary,
+Phase 8 asset metadata and Phase 10 planner output; identify the minimum
+authorized first implementation slice and its Phase 12 executable-editorial
+integration handoff. Do not implement Phase 11 in this task.
 
 Phase 10 is accepted and closed. Its accepted contract is
 `docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
@@ -23,7 +24,7 @@ Do not reopen it except for a demonstrated regression.
 
 Do not introduce provider API execution, browser-driven LLM automation, paid
 LLM calls, queue/retry infrastructure, UI expansion or a V3/EDL bridge during
-the Phase 11 reconciliation.
+the Phase 11 reconciliation. The latter is explicitly owned by Phase 12.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -5,7 +5,18 @@ Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 C
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 10 closed; Phase 11 next
+## Latest authoritative state - roadmap reconciliation closed; Phase 11 scope next
+
+- The repository-wide Roadmap Scope Reconciliation is accepted at
+  `docs/ROADMAP_SCOPE_RECONCILIATION.md`. It preserves the accepted Phase 0-10
+  foundation evidence while assigning every deferred product obligation to a
+  named Phase 12-17 owner and testable closure condition.
+- `FOUNDATION_ACCEPTED`, `MASTER_PHASE_CLOSED` and `PRODUCT_GATE_CLOSED` are
+  now distinct. Historical bounded closures do not silently assert an
+  end-to-end product gate; Phase 17 cannot close with an open Deferred
+  Delivery Ledger row.
+- The sole next task is a read-only Phase 11 scope/contract reconciliation
+  against the ledger. Phase 11 implementation is not yet authorized.
 
 - Phase 10 Hierarchical Story, Narrative and Editorial Planner is accepted and
   closed. It provides Domain-Pack-bound, immutable outline, chapter, beat,

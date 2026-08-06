@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-06 - Roadmap scope reconciliation
+
+- Added a deferred-delivery ledger so accepted foundation contracts cannot
+  leave end-to-end product obligations without a named owner phase.
+- Assigned planner-to-executable-plan-to-EDL and visual-resolution integration
+  to Phase 12; assigned operational transport verification to Phase 15 and
+  product proof to Phase 17.
+- Distinguished bounded foundation acceptance from Master Roadmap and final
+  product-gate closure without reopening accepted historical evidence.
+
 ## 2026-08-06 - Phase 10 Hierarchical Planner closure
 
 - Closed the Domain-Pack-bound hierarchical planner with immutable canonical

@@ -2,6 +2,16 @@
 
 Son guncelleme: 6 Agustos 2026
 
+## Roadmap reconciliation status note
+
+- Phase 0-10 closures are accepted foundation evidence, not an assertion that
+  the end-to-end product gate has passed. The authoritative owner, acceptance
+  evidence and remaining status of every deferred product obligation are in
+  `docs/ROADMAP_SCOPE_RECONCILIATION.md`.
+- No later phase may declare `MASTER_PHASE_CLOSED` while one of its Deferred
+  Delivery Ledger rows is open. `PRODUCT_GATE_CLOSED` remains a Phase 17-only
+  decision.
+
 ## Faz 10 status note
 
 - Phase 10 is CLOSED as a local REPLAY/MANUAL_UI-first planning boundary. It
