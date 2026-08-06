@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 domain/final-narration safety contract audit
+
+- Audited the fail-closed domain-pack compatibility and final narration safety
+  gate; implementation requires separate authorization.
+
 ## 2026-08-06 - Phase 15 artifact-integrity bounded acceptance
 
 - Accepted canonical registry/output/deletion-plan integrity validation;
