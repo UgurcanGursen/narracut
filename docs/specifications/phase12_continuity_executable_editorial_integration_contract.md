@@ -55,6 +55,10 @@ ExecutableSequenceV1
 ExecutableEditorialPlanV1
   plan_id/hash, Phase 10 assembly-request pair, policy snapshot pair,
   ordered executable sequences and explicit Phase 3 compilation handoff
+
+FinalEdlBundleV1
+  bundle_id/hash, executable-plan pair, ordered per-sequence Phase 3
+  video-EDL and hash-bound audio-EDL pairs
 ```
 
 Every ID/hash pair is recomputed from canonical JSON. All cross-phase inputs
@@ -70,7 +74,9 @@ descriptor. Phase 12 calls the existing Phase 3 video compiler; it does not
 reschedule, serialize by hand, or reinterpret its result. A Phase 3 audio EDL
 remains dependent on explicit PCM/timing inputs: Phase 11's direction is a
 policy decision, not an invented audio timestamp. The final bundle therefore
-accepts only Phase 3-produced video/audio artifacts and records their hashes.
+accepts only Phase 3-produced video/audio artifacts, requires every audio EDL
+to bind its paired video EDL, and records ordered hashes without rewriting
+either artifact.
 
 ## Acceptance gates
 
@@ -82,7 +88,7 @@ accepts only Phase 3-produced video/audio artifacts and records their hashes.
 3. Consecutive visual-family/template reuse and invalid pacing-role transitions
    are reported as deterministic continuity failures; every accepted sequence
    has explicit incoming and outgoing state.
-4. Identical replays produce byte-identical executable-plan bytes and use the
-   Phase 3 compiler output unchanged.
+4. A two-sequence identical replay produces byte-identical executable-plan and
+   final-bundle bytes; every Phase 3 video/audio EDL pair remains unchanged.
 5. No provider call, transport, queue/retry, media-open, renderer invocation,
    UI mutation or silent fallback belongs to the accepted Phase 12 boundary.

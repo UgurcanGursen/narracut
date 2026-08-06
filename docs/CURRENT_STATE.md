@@ -47,8 +47,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Continuity state is explicit for every ordered sequence; forged/missing
   provenance, range, capability, visualization, audio direction or a repeated
   family/template policy violation fails closed. The explicit execution
-  handoff calls the existing Phase 3 video compiler without changing its
-  scheduler.
+  handoff creates a two-sequence, hash-bound Phase 3 video/audio EDL bundle
+  without changing either scheduler.
 - The sole next task is a read-only Phase 13 Studio UI/Manual LLM/Review scope
   reconciliation. Do not implement Phase 13 until its bounded authorization is
   complete.

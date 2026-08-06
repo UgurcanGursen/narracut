@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-06 - Phase 12 master-acceptance remediation
+
+- Added a deterministic two-sequence `FinalEdlBundleV1`: each executable
+  sequence is bound to a Phase 3-produced video EDL and its hash-bound audio
+  EDL, with no scheduler rewrite or synthesized timing.
+- Added canonical Phase 7 visualization binding and explicit Domain-Pack pacing
+  roles. Phase 12 now meets its Master Roadmap integration acceptance within
+  the selected REPLAY/MANUAL_UI-first product mode.
+
 ## 2026-08-06 - Phase 12 Continuity and Editorial Integration closure
 
 - Closed the bounded executable-editorial integration layer with immutable

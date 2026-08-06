@@ -20,8 +20,9 @@ Do not implement Phase 13 in this task. Do not introduce browser-driven LLM
 automation, paid LLM calls, queue/retry infrastructure, direct filesystem UI
 access, media opening or a renderer bypass.
 
-Phase 12 closure evidence: `b55d888`, `58e4953`, `090dba4`; final focused
-regression: `38 passed`. There is no open Phase 12 blocker.
+Phase 12 master-acceptance evidence: `5572499`, `b3ce85b`; final focused
+regression: `40 passed`. There is no open Phase 12 blocker and Phase 13 may
+now receive a bounded scope/contract authorization decision.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
