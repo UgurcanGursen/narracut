@@ -11,13 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the authorized bounded Phase 15 domain/final-narration safety
-validator and focused tests exactly as recorded in
-`baseline/phase15_domain_narration_safety_implementation_authorization.md`.
-Do not claim Phase 15 Master acceptance, inspect arbitrary paths, delete
-anything, enable live transport, retry, queue/worker, media
-decode/classification, mixing, renderer/EDL mutation, Studio/UI, Phase 16 or
-Phase 17 behavior.
+Record the bounded Phase 15 domain/final-narration safety acceptance decision
+using `baseline/phase15_domain_narration_safety_implementation_audit.md`. Do
+not claim Phase 15 Master acceptance, inspect arbitrary paths, delete anything,
+enable live transport, retry, queue/worker, media decode/classification,
+mixing, renderer/EDL mutation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

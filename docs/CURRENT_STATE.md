@@ -59,6 +59,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   contract at `docs/specifications/phase15_domain_narration_safety_contract.md`.
 - Its implementation is authorized only by
   `baseline/phase15_domain_narration_safety_implementation_authorization.md`.
+- The implementation passed independent audit at
+  `baseline/phase15_domain_narration_safety_implementation_audit.md`.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.

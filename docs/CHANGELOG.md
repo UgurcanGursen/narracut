@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 domain/final-narration safety implementation audit
+
+- Passed compatibility, validation-extension, claim/provenance and blocked-
+  wording audit; bounded acceptance is a separate decision.
+
 ## 2026-08-06 - Phase 15 domain/final-narration safety implementation authorization
 
 - Authorized the local validator, policy declaration and focused adversarial
