@@ -11,11 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Define and independently audit the local Phase 16 benchmark contract described
-by `baseline/phase16_scope_reconciliation.md`. It must be deterministic,
-domain-bound and canonical; it must not download/reference third-party media,
-claim subjective quality, add provider transport, queues/retries, UI labels or
-Phase 17 packaging behavior.
+Record implementation authorization for the audited Phase 16 deterministic
+benchmark contract. Do not download/reference third-party media, claim
+subjective quality, add provider transport, queues/retries, UI labels or Phase
+17 packaging behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
