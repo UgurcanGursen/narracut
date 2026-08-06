@@ -11,11 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make an independent bounded Phase 14 Master repair acceptance decision using
-`baseline/phase14_master_repair_targeted_implementation_reaudit.md`. Do not
-implement permanent deletion, automatic worker/scheduler behavior, provider
-transport, generic queue/retry, Studio FULL-render route or Phase 15 validation
-behavior.
+Perform a read-only Phase 14 closure-repair scope reconciliation for the three
+gaps in `baseline/phase14_final_acceptance_audit.md`: sequence incremental
+proof, visible soft-quota pre-admission and full A/V hash-preserving benchmark.
+Do not implement permanent deletion, automatic worker/scheduler behavior,
+provider transport, generic queue/retry, Studio FULL-render route or Phase 15
+validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

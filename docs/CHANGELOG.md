@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 final acceptance audit
+
+- Kept Phase 14 open for sequence-level incremental proof, visible soft-quota
+  pre-admission and full A/V performance evidence despite passing focused gates.
+
 ## 2026-08-06 - Phase 14 Master repair targeted implementation re-audit
 
 - Cleared lifecycle entrypoint binding findings; bounded Master repair
