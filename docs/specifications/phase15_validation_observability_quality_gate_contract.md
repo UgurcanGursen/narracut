@@ -49,8 +49,8 @@ The only admissible `(category, event, status)` combinations are:
 
 | Category | Event | Allowed status | Required detail |
 |---|---|---|---|
-| `render` | `attempt_finished` | `SUCCEEDED`, `FAILED`, `CANCELLED` | `render_receipt` evidence reference |
-| `artifact` | `registry_verified` | `SUCCEEDED`, `FAILED` | `artifact_registry` evidence reference |
+| `render` | `attempt_finished` | `SUCCEEDED`, `FAILED`, `CANCELLED` | `render_receipt` evidence reference; a failed/cancelled row also has the exact public root code |
+| `artifact` | `registry_verified` | `SUCCEEDED`, `FAILED` | `artifact_registry` evidence reference; a failed row also has the exact public root code |
 | `storage` | `admission_decided` | `ADMITTED`, `BLOCKED`, `NOT_APPLICABLE` | `storage_admission` evidence reference or explicit non-applicability reason |
 | `domain` | `contract_resolved` | `SUCCEEDED`, `FAILED` | `domain_snapshot` evidence reference |
 | `transport` | `mode_declared` | `REPLAY`, `MANUAL_UI`, `DISABLED`, `UNSUPPORTED` | selected mode and, for `UNSUPPORTED`, a public code |
@@ -172,6 +172,9 @@ precedence order:
 No later `PASSED` row can change a result selected by precedence 1 or 2. The
 decision records the stable first code within its winning precedence class and
 all relevant observation ordinals; it does not drop later evidence.
+A valid matching `failure_provenance` row satisfies the provenance requirement,
+but does not erase its producer failure: the producer's root code remains the
+final `FAIL` code.
 
 ## 6. Explicit exclusions
 

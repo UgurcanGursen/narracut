@@ -10,6 +10,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - First bounded package: canonical run-evidence ledger and fail-closed quality
   decision. Scope reconciliation: `baseline/phase15_scope_reconciliation.md`.
 - Candidate contract: `docs/specifications/phase15_validation_observability_quality_gate_contract.md`.
+- Local implementation is at `engine/validation/run_evidence.py`; it writes
+  canonical safe JSONL observations, validates typed Phase 4/14 evidence
+  references, projects only observed metrics and produces a fail-closed gate
+  decision. Implementation acceptance remains open.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.

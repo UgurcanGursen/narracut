@@ -11,9 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the authorized local Phase 15 run-evidence ledger and fail-closed
-quality-gate contract with focused tests. Do not add live transport, retry,
-queue/worker, media validation, Studio/UI, Phase 16 or Phase 17 behavior.
+Independently audit the Phase 15 run-evidence/quality-gate implementation at
+`engine/validation/run_evidence.py` against its accepted contract and focused
+tests. Do not repair it, enable live transport, or add retry, queue/worker,
+media validation, Studio/UI, Phase 16 or Phase 17 behavior in this task.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

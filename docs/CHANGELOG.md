@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 run-evidence implementation
+
+- Added local canonical observations, typed evidence references, deterministic
+  metric projection and a fail-closed quality-gate reducer with focused tests.
+- No live transport, retry/queue worker, media validation, Studio/UI, Phase 16
+  or Phase 17 behavior was added.
+
 ## 2026-08-06 - Phase 15 validation/observability implementation authorization
 
 - Authorized only local canonical ledger/gate code and tests after the
