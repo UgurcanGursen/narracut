@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 post-source-outcome Master-gap reconciliation
+
+- Reconciled source-audio, audio-boundary, domain/narration and artifact rows
+  against existing canonical owners; selected only a narrow Phase 8/11
+  source-audio direction validator for contract audit.
+
 ## 2026-08-06 - Phase 15 source outcome bounded acceptance
 
 - Accepted truthful local Phase 6 outcome attachment; Phase 15 Master remains

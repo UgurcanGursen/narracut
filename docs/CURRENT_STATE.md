@@ -28,6 +28,11 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   It consumes Phase 6 plans/policy only and makes challenge or unsupported
   modes non-passing; bounded acceptance is at
   `baseline/phase15_source_outcome_bounded_acceptance.md`.
+- The post-source-outcome reconciliation is recorded at
+  `baseline/phase15_post_source_outcome_gap_reconciliation.md`. It selects
+  only a Phase 8/11 source-audio direction validator for candidate-contract
+  audit. It does not claim PCM mixing, media classification, audio-boundary
+  thresholding, final-narration safety or host-wide orphan scanning.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
