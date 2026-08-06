@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement only the Phase 14 Master repair integration package authorized by
-`baseline/phase14_master_repair_implementation_authorization.md`, then run
-focused tests and request one independent implementation audit. Do not implement
-permanent deletion, automatic worker/scheduler behavior, provider transport,
-generic queue/retry, Studio FULL-render route or Phase 15 validation behavior.
+Repair only `P14-MRI-IMP-001` and `P14-MRI-IMP-002` from
+`baseline/phase14_master_repair_implementation_audit.md`, then run focused
+tests and request a targeted re-audit. Do not implement permanent deletion,
+automatic worker/scheduler behavior, provider transport, generic queue/retry,
+Studio FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master repair implementation audit
+
+- Returned `FIX_REQUIRED`: pressure utility and FULL journal bridge are not
+  yet bound to explicit terminal renderer lifecycle seams.
+
 ## 2026-08-06 - Phase 14 Master repair implementation authorization
 
 - Authorized committed FULL registry bridge, disk-pressure admission and local
