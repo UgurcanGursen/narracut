@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 artifact-integrity candidate contract audit
+
+- Passed the registry/deletion-plan-only candidate audit; implementation
+  authorization remains separate.
+
 ## 2026-08-06 - Phase 15 post-source-audio Master-gap reconciliation
 
 - Selected only registry/deletion-plan artifact-integrity validation; actual

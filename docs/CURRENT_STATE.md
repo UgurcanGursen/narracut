@@ -45,6 +45,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - The remaining Master rows are reconciled at
   `baseline/phase15_post_source_audio_gap_reconciliation.md`; the next bounded
   candidate is registry/deletion-plan-only artifact integrity.
+- The candidate contract and audit pass are at
+  `docs/specifications/phase15_artifact_integrity_contract.md` and
+  `baseline/phase15_artifact_integrity_contract_audit.md`; a separate
+  implementation authorization is required.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
