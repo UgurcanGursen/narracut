@@ -11,11 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Repair only `P14-CR-001` through `P14-CR-003` from
-`baseline/phase14_closure_repair_implementation_audit.md`, then run focused
-tests and request a targeted re-audit. Do not implement permanent deletion,
-automatic worker/scheduler behavior, provider transport, generic queue/retry,
-Studio FULL-render route or Phase 15 validation behavior.
+Make the final Phase 14 Master acceptance decision using
+`baseline/phase14_closure_repair_targeted_implementation_reaudit.md` and all
+prior Phase 14 evidence. Do not begin Phase 15 implementation without explicit
+user authorization.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
