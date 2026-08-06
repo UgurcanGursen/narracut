@@ -61,12 +61,13 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   Phase 3 video/audio EDL review snapshot and records immutable approval or
   replacement requests. It does not mutate upstream artifacts.
 - Foundation acceptance: `baseline/phase13_foundation_acceptance_report.md`.
-  `MASTER_PHASE_CLOSED` remains open because the Studio correctly reports
-  preview/render-progress/storage as unavailable while no canonical Phase 4
-  preview handoff or Phase 14 durable lifecycle view exists. It does not fake
-  those product states.
-- The sole next task is a read-only Phase 13 Master-criterion integration
-  decision for preview, render-progress and storage/GC ownership.
+  The Phase 4 preview/FULL renderer evidence exists; `MASTER_PHASE_CLOSED`
+  remains open because it has no project-bound, API-safe Studio handoff, live
+  render-job read model, or Phase 14 durable lifecycle view. The Studio does
+  not fake those product states.
+- The Phase 13 Master-criterion integration decision is PASS at
+  `baseline/phase13_master_criterion_integration_decision_report.md`. The sole
+  next task is its read-only renderer-control-plane contract specification.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

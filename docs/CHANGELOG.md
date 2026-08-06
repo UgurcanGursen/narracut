@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 Master-criterion integration decision
+
+- Reconciled the accepted Phase 4 renderer evidence with the Phase 13 Studio
+  criteria: the missing item is an API-safe project-bound handoff and live job
+  read model, not a missing renderer implementation.
+- Kept storage, quota and GC ownership in Phase 14; no SQLite control-plane
+  record is presented as a lifecycle registry.
+- Advanced the sole next task to a read-only renderer-control-plane contract
+  specification without authorizing implementation.
+
 ## 2026-08-06 - Phase 13 Studio foundation acceptance
 
 - Added local SQLite project create/list/reopen semantics to the FastAPI Studio

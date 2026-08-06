@@ -1,5 +1,19 @@
 # Phase Acceptance
 
+## Phase 13 Master-criterion integration decision â€” 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Phase 4 preview/FULL renderer evidence rechecked | PASS |
+| Safe Studio preview handoff exists | NOT YET SATISFIED |
+| Reconnectable render-job progress/failure view exists | NOT YET SATISFIED |
+| Storage/GC ownership remains Phase 14 | PASS |
+| Phase 13 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase13_master_criterion_integration_decision_report.md`.
+The next task is specification-only; it grants no renderer, transport,
+cache/GC or UI implementation authority.
+
 ## Phase 13 foundation acceptance â€” 2026-08-06
 
 | Gate | Result |

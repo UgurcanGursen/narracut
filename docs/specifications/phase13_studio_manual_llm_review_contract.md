@@ -141,3 +141,9 @@ UI workflow checks on 2026-08-06. The evidence is recorded in
 Phase 4 preview, Phase 14 render-progress/storage/GC view, or Phase 15
 transport capability exists. Those criteria need their owning handoff before
 the Master Roadmap status can change from open to closed.
+
+The subsequent read-only ownership decision is
+`baseline/phase13_master_criterion_integration_decision_report.md`. It confirms
+that Phase 4 renderer evidence exists, while the missing boundary is its safe
+Studio handoff and reconnectable job read model; it does not widen this frozen
+implementation contract.

@@ -18,10 +18,11 @@ Son guncelleme: 6 Agustos 2026
   plane. It proves project reopen, MANUAL_UI task handoff/import/repair/
   approval and immutable Phase 12/Phase 3 review decisions; it does not make
   a provider call or automate a web AI interface.
-- `MASTER_PHASE_CLOSED` is intentionally open. No canonical Phase 4 preview
-  artifact is yet handed to the Studio, and Phase 14 has not supplied durable
-  render-progress, storage or GC read models. The UI reports unavailable
-  instead of inventing those values.
+- `MASTER_PHASE_CLOSED` is intentionally open. Phase 4 has canonical renderer
+  evidence, but no project-bound, API-safe preview handoff or reconnectable
+  render-job state is supplied to the Studio; Phase 14 has not supplied durable
+  storage or GC read models. The UI must report unavailable rather than invent
+  those values.
 
 ## Faz 12 status note
 
@@ -110,15 +111,13 @@ Son guncelleme: 6 Agustos 2026
   audio `3ae26f8a3f958a9e470a02b7a6afa0c05efe82a9`. Its proof is deterministic
   REPLAY compilation; it does not establish arbitrary provider media's
   perceptual join quality.
-- Phase 4A is accepted at `d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`, but it
-  is deliberately preview-only. It does not establish a real `FULL` render,
-  FFmpeg normalize/mux/final encode, persistent artifact lifecycle, terminal
-  cleanup or durable overwrite enforcement.
-- Phase 4B candidate contract is drafted only. It has not yet been independently
-  audited, accepted, authorized, implemented or remote closed.
-- Queue/retry, rate-limit handling, provider/source acquisition, UI expansion,
-  production asset catalog and Phase 11 audio-direction policy remain outside
-  Phase 4A and Phase 4B.
+- Phase 4A preview evidence remains at `d3f99d0c766924cc6ee7d07e80a6ea53a27e806f`.
+  Phase 4B FULL render, terminal receipt, cleanup and overwrite evidence is
+  accepted at `8bac18b386b38c03f5dc0f3f84dd10a5732ce891`; neither creates the
+  Studio control-plane handoff or Phase 14 cache/GC capability.
+- Queue/retry, rate-limit handling, provider/source acquisition, Studio job
+  progress, production asset catalog and Phase 11 audio-direction policy remain
+  outside the accepted Phase 4 renderer boundary.
 
 The historical Phase 3A limitation section below is superseded and retained as
 the pre-audio acceptance record.

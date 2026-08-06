@@ -11,15 +11,18 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 13 Master-criterion integration decision. The
-accepted SQLite/OpenAPI Manual LLM and immutable review foundation is recorded
-in `baseline/phase13_foundation_acceptance_report.md`, but do not call Phase
-13 `MASTER_PHASE_CLOSED` until a canonical Phase 4 preview handoff and Phase
-14-owned render-progress/storage/GC read-model ownership are decided.
+Write a read-only Phase 13 Renderer Control-Plane Integration Contract. Use
+`baseline/phase13_master_criterion_integration_decision_report.md` as the
+authoritative decision: Phase 4 already owns bounded REPLAY preview/FULL
+render evidence, but the Studio has no safe project-bound handoff or live
+render-job view; Phase 14 remains the owner of storage/GC.
 
-Do not silently show a fake preview, render progress or storage total. Do not
-implement provider/browser automation, paid LLM calls, direct filesystem UI
-access, queue/retry or media transport in this decision task.
+The specification must freeze only API/application-port ownership, canonical
+preview receipt/media read models, reconnectable progress/failure event
+semantics and explicit `UNAVAILABLE_OWNER_PHASE14` storage/GC states. It must
+not authorize implementation, provider/browser automation, paid LLM calls,
+direct filesystem UI access, general queue/retry, media transport, cache/GC
+or a renderer/EDL rewrite.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
