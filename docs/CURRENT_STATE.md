@@ -15,6 +15,14 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   remain Phase 17 product-gate evidence as explicitly reconciled by the scope
   decision; they are not represented as synthetic Phase 16 success data.
 
+## Phase 17 local/beta foundation in progress
+
+- Local workspace revision/recovery, source/license export, archive restore,
+  durable queue primitive, health/launcher and persisted preview delivery are
+  audited at `baseline/phase17_local_beta_implementation_audit.md`.
+- The product gate remains open for queue-route/UI integration and the required
+  real, lawful external-reference and two-project evidence.
+
 ## Historical Phase 15 validation and observability record
 
 - First bounded package: canonical run-evidence ledger and fail-closed quality

@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement P17-A only, as defined in `baseline/phase17_scope_reconciliation.md`:
-an additive local workspace-revision and durable-job-journal contract with
-atomic publication, restart recovery and focused tests. Do not migrate existing
-SQLite data, add remote/provider transport, paid LLM calls or browser
-automation.
+Implement the remaining P17 local control-plane boundary: expose the audited
+local import/export/archive/recovery capabilities through thin FastAPI routes
+and Studio UI, and connect the durable queue without changing the default
+`REPLAY`/`MANUAL_UI` policy. Do not add remote/provider transport, paid LLM
+calls or browser automation.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

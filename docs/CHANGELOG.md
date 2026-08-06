@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 17 local/beta foundation
+
+- Added local recovery, import/export/archive, queue, health/launcher and
+  restart-safe preview delivery; product-gate evidence remains explicitly open.
+
 ## 2026-08-06 - Phase 17 local/beta scope reconciliation
 
 - Inventoried the existing SQLite Studio boundary and authorized an additive

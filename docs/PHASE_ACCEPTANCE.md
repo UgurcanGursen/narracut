@@ -1116,3 +1116,14 @@ PHASE16_FOUNDATION_ACCEPTANCE=ACCEPT
 PHASE16_EXTERNAL_EVIDENCE_OWNER=PHASE17_PRODUCT_GATE
 NEXT_ACTION=PHASE17_SCOPE_RECONCILIATION
 ```
+
+## Phase 17 local/beta foundation — 2026-08-06
+
+| Acceptance item | Status |
+|---|---|
+| Reopenable/recoverable local workspace foundation | PASS |
+| Source/license export, project archive and restore | PASS |
+| Local health, launcher and persisted preview output | PASS |
+| UI tracks every stage; durable worker route | OPEN |
+| Two real 10–15 minute projects and supported real source/asset/timing modes | OPEN |
+| Product/beta acceptance | OPEN |
