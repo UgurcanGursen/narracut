@@ -179,6 +179,15 @@
       "source_speech_max_duration_ms": 6000
     }
   },
+  "editorial": {
+    "editorial_integration_policy": {
+      "policy_version": "EDITORIAL-INTEGRATION-POLICY-V1",
+      "max_consecutive_template_uses": 2,
+      "max_consecutive_visual_family_uses": 2,
+      "allowed_execution_modes": ["asset_only", "asset_with_visualization"],
+      "allowed_pacing_roles": ["mechanism", "transition_support"]
+    }
+  },
   "safety": {
     "require_attribution": true
   }

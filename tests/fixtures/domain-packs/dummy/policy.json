@@ -17,6 +17,20 @@
       "max_edit_events_per_sequence": 30
     }
   },
+  "visual": {
+    "template_policy": {
+      "preferred_template_ids": [],
+      "banned_template_ids": [],
+      "required_template_ids": [],
+      "style_preset": {
+        "preset_id": "dummy-editorial-v1",
+        "color_theme_id": "dummy-neutral-v1",
+        "typography_id": "phase5-noto-sans-v1",
+        "font_asset_hash": "sha256:bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d",
+        "tone_id": "dummy-neutral-v1"
+      }
+    }
+  },
   "audio": {
     "audio_director_policy": {
       "policy_version": "AUDIO-DIRECTOR-POLICY-V1",
@@ -26,6 +40,15 @@
       "source_speech_allowed_modes": ["clean_speech", "speech_with_ambience"],
       "source_speech_min_duration_ms": 2000,
       "source_speech_max_duration_ms": 6000
+    }
+  },
+  "editorial": {
+    "editorial_integration_policy": {
+      "policy_version": "EDITORIAL-INTEGRATION-POLICY-V1",
+      "max_consecutive_template_uses": 2,
+      "max_consecutive_visual_family_uses": 2,
+      "allowed_execution_modes": ["asset_only", "asset_with_visualization"],
+      "allowed_pacing_roles": ["dummy_role"]
     }
   }
 }
