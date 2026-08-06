@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 preview delivery and UI repair
+
+- Delivery now rejects frame mappings that do not exactly match the canonical
+  manifest's declared frame indexes.
+- The generated HTTP client/UI now retrieve safe events, manifest and a
+  server-declared preview frame. Actual Studio-to-Phase-4 acceptance evidence
+  remains open.
+
 ## 2026-08-06 - Phase 13 canonical snapshot-admission repair
 
 - Added server-owned canonical REPLAY snapshot construction and pre-persistence

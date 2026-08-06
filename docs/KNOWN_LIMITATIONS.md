@@ -31,8 +31,9 @@ Son guncelleme: 6 Agustos 2026
   runtime projects without one fail closed as `RENDER_INPUT_UNAVAILABLE`.
 - Canonical snapshot identity/EDL/RenderProps validation is now performed
   before SQLite write, but actual two-sequence Phase 4 Studio execution still
-  has no acceptance evidence. Delivery descriptors and UI preview evidence
-  consumption remain open. Do not present the local preview seam as completed.
+  has no acceptance evidence. Delivery rejects undeclared frames and the UI
+  consumes declared evidence through generated HTTP calls; durable ownership
+  remains Phase 14. Do not present the local preview seam as completed.
 
 ## Faz 12 status note
 

@@ -82,8 +82,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase13_replay_preview_implementation_acceptance_audit.md`.
   The first repair now validates canonical snapshot/EDL/RenderProps identities
   before SQLite persistence and proves two fixture snapshots reopen exactly.
-  Actual Studio renderer evidence, verified delivery descriptors and UI preview
-  evidence consumption remain open.
+  Actual Studio renderer evidence remains open. Delivery now permits only
+  manifest-declared frame indexes, and the HTTP-only UI consumes safe events
+  plus a declared frame through the generated client.
   The repair authorization is now
   `baseline/phase13_preview_audit_repair_authorization.md`; it permits only
   canonical admission, two-sequence REPLAY evidence, verified delivery and UI
