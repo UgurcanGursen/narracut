@@ -30,3 +30,7 @@ def cache_put(root: Path, key: str, payload: bytes) -> Path:
 def cache_get(root: Path, key: str) -> bytes | None:
     target = root / "sha256" / key[7:9] / key[9:]
     return target.read_bytes() if target.is_file() else None
+
+def incremental_action(*, previous_key: str | None, current_key: str) -> str:
+    if not current_key.startswith("sha256:"): raise ValueError("CACHE_KEY_INVALID")
+    return "REUSE" if previous_key == current_key else "REBUILD"
