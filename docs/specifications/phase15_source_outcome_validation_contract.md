@@ -8,11 +8,13 @@ automation, retry/backoff, rate-limit waiting or fallback acquisition.
 
 ## Canonical outcome rules
 
-The adapter receives only a validated `SourceCapturePlan`, a selected execution
-mode (`REPLAY`, `MANUAL_UI` or `DISABLED`) and the resolved policy snapshot
-identity. It recomputes/validates the plan identity through the Phase 6
-boundary, then emits one `transport/mode_declared` observation and one declared
-source-outcome quality check.
+The adapter receives only a validated `SourceCapturePlan`, its existing typed
+Phase 6 `SourcePriorityPolicy`, a selected execution mode (`REPLAY`,
+`MANUAL_UI` or `DISABLED`) and the resolved policy snapshot ID/hash. It requires
+the policy's snapshot ID/hash to equal that resolved identity, then
+recomputes/validates the plan identity through the Phase 6 boundary. It emits
+one `transport/mode_declared` observation and exactly one
+`quality_gate/check_evaluated` observation with `check_id: source_outcome`.
 
 | Capture outcome | Ledger result |
 |---|---|
@@ -27,6 +29,13 @@ An inconsistent status/fallback pair, policy identity drift, challenge with a
 snapshot/render claim, raw URL/path/credential field, or a missing snapshot
 reference is a fail-closed stable error. The adapter preserves Phase 6’s
 fallback matrix; it cannot reinterpret a challenge page as source success.
+
+The closed public errors are `SOURCE_OUTCOME_REQUEST_INVALID`,
+`SOURCE_OUTCOME_PLAN_INVALID`, `SOURCE_OUTCOME_POLICY_MISMATCH`,
+`SOURCE_OUTCOME_FALLBACK_INVALID`, `SOURCE_OUTCOME_SNAPSHOT_MISSING`,
+`SOURCE_OUTCOME_CHALLENGE_FORBIDDEN` and `SOURCE_OUTCOME_MODE_UNSUPPORTED`.
+Their observation references carry only the plan ID/hash, policy snapshot
+ID/hash and safe status/fallback tokens; no URL or source text is recorded.
 
 ## Required future-live outcome shape
 

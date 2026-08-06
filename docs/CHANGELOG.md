@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source outcome contract targeted re-audit
+
+- Closed typed source-policy binding and closed outcome-token findings;
+  implementation authorization remains separate.
+
 ## 2026-08-06 - Phase 15 source outcome contract audit
 
 - Returned `FIX_REQUIRED` for typed source-policy binding and closed
