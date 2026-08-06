@@ -36,6 +36,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   lifecycle package is accepted, while Phase 14 Master remains open for
   cache-plan execution/receipts. Fixed REPLAY preview/cache performance evidence
   is accepted at `baseline/phase14_replay_performance_acceptance.md`.
+  Cache-plan execution requires an append-only reference-retirement and
+  rollback/restore contract; its scope reconciliation is recorded at
+  `baseline/phase14_cache_plan_execution_scope_reconciliation.md`.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 

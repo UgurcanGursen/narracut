@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache-plan execution scope reconciliation
+
+- Identified the missing append-only cache-entry retirement, transaction and
+  restoration boundaries required before soft-quota execution can be safe.
+
 ## 2026-08-06 - Phase 14 fixed REPLAY performance acceptance
 
 - Accepted the bounded initial-render versus verified-cache-hit replay
