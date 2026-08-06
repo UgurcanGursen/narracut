@@ -127,3 +127,66 @@ class ReviewSnapshotRecord:
     executable_plan: Mapping[str, Any]
     final_edl_bundle: Mapping[str, Any]
     created_at: str
+
+
+@dataclass(frozen=True)
+class RenderInputSnapshotRecord:
+    snapshot_id: str
+    snapshot_hash: str
+    project_id: str
+    executable_sequence_id: str
+    executable_sequence_hash: str
+    domain_pack_version: str
+    policy_snapshot_id: str
+    policy_snapshot_hash: str
+    executable_plan_id: str
+    executable_plan_hash: str
+    final_edl_bundle_id: str
+    final_edl_bundle_hash: str
+    video_edl_bytes: bytes
+    audio_edl_bytes: bytes
+    render_props_bytes: bytes
+    render_props_id: str
+    render_props_hash: str
+    fixture_manifest_id: str
+    fixture_manifest_hash: str
+    mode: Literal["preview_replay"]
+    created_at: str
+
+
+@dataclass(frozen=True)
+class PreviewJobRecord:
+    job_id: str
+    preview_request_id: str
+    preview_request_hash: str
+    attempt_ordinal: int
+    project_id: str
+    sequence_id: str
+    snapshot_id: str
+    snapshot_hash: str
+    state: Literal["requested", "admitted", "running", "succeeded", "failed", "cancelled", "rejected_pre_admission"]
+    created_at: str
+    updated_at: str
+    public_failure_code: str | None = None
+    receipt_hash: str | None = None
+    preview_manifest_hash: str | None = None
+    delivery_id: str | None = None
+
+
+@dataclass(frozen=True)
+class PreviewJobEvent:
+    job_id: str
+    ordinal: int
+    event_id: str
+    state: str
+    created_at: str
+    public_code: str | None = None
+
+
+@dataclass(frozen=True)
+class PreviewExecutionResult:
+    state: Literal["succeeded", "failed", "cancelled"]
+    receipt_hash: str | None
+    preview_manifest_bytes: bytes | None
+    frames: Mapping[int, bytes]
+    public_failure_code: str | None = None

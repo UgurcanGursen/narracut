@@ -8,12 +8,16 @@ from typing import Any, Literal, Mapping
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
 from .errors import ApplicationError, ApplicationIssue
-from .models import ReviewSnapshotRecord, StudioTaskRecord, StudioTaskView
+from .models import PreviewExecutionResult, PreviewJobRecord, ReviewSnapshotRecord, StudioTaskRecord, StudioTaskView
 from .ports import (
     Clock,
     ManualTaskFactoryPort,
     ProjectRepository,
     StudioWorkflowRepository,
+    PreviewExecutionPort,
+    RenderJobRepositoryPort,
+    PreviewDeliveryPort,
+    StudioRenderInputResolverPort,
 )
 
 
@@ -33,11 +37,19 @@ class StudioWorkflowService:
         workflow: StudioWorkflowRepository,
         task_factory: ManualTaskFactoryPort,
         clock: Clock,
+        render_inputs: StudioRenderInputResolverPort | None = None,
+        preview_executor: PreviewExecutionPort | None = None,
+        preview_jobs: RenderJobRepositoryPort | None = None,
+        preview_delivery: PreviewDeliveryPort | None = None,
     ) -> None:
         self.projects = projects
         self.workflow = workflow
         self.task_factory = task_factory
         self.clock = clock
+        self.render_inputs = render_inputs
+        self.preview_executor = preview_executor
+        self.preview_jobs = preview_jobs
+        self.preview_delivery = preview_delivery
 
     def create_task(
         self,
@@ -237,6 +249,91 @@ class StudioWorkflowService:
         decision = {"decision_id": "rdec_" + digest[7:27], "decision_hash": digest, **body}
         self.workflow.put_review_decision(decision)
         return decision
+
+    def request_preview(self, *, project_id: str, sequence_id: str) -> PreviewJobRecord:
+        project = self._project(project_id)
+        review = self.workflow.get_review_snapshot(project_id)
+        if review is None:
+            raise _error("REVIEW_BINDING_INVALID", "/project_id", "No immutable review binding is available.")
+        sequence = next((item for item in review.executable_plan["sequences"] if item["executable_sequence_id"] == sequence_id), None)
+        if sequence is None:
+            raise _error("SEQUENCE_NOT_REVIEWABLE", "/sequence_id", "The sequence is not reviewable.")
+        if self.render_inputs is None or self.preview_executor is None or self.preview_jobs is None:
+            raise _error("RENDER_INPUT_UNAVAILABLE", "/sequence_id", "No trusted REPLAY render input is available.")
+        snapshot = self.render_inputs.resolve(project_id=project_id, sequence_id=sequence_id, review_snapshot=review)
+        if snapshot is None:
+            raise _error("RENDER_INPUT_UNAVAILABLE", "/sequence_id", "No trusted REPLAY render input is available.")
+        if (snapshot.project_id, snapshot.executable_sequence_id, snapshot.executable_sequence_hash, snapshot.policy_snapshot_id, snapshot.policy_snapshot_hash, snapshot.domain_pack_version) != (project_id, sequence_id, sequence["executable_sequence_hash"], project.domain.policy_snapshot_id, project.domain.policy_snapshot["canonical_hash"], project.domain.domain_pack_version):
+            raise _error("REVIEW_BINDING_INVALID", "/sequence_id", "The render input is not bound to the current review.")
+        request_body = {"project_id": project_id, "sequence_id": sequence_id, "policy_snapshot_hash": snapshot.policy_snapshot_hash, "executable_plan_hash": snapshot.executable_plan_hash, "final_edl_bundle_hash": snapshot.final_edl_bundle_hash, "render_props_hash": snapshot.render_props_hash, "mode": "PREVIEW_REPLAY_V1"}
+        request_hash = _hash(request_body)
+        active = self.preview_jobs.get_active_preview_job(request_hash)
+        if active is not None:
+            return active
+        attempt = self.preview_jobs.next_preview_attempt(request_hash)
+        now = self.clock.now_utc()
+        job = PreviewJobRecord(job_id="pjob_" + hashlib.sha256((request_hash + ":" + str(attempt)).encode()).hexdigest()[:24], preview_request_id="preq_" + request_hash[7:31], preview_request_hash=request_hash, attempt_ordinal=attempt, project_id=project_id, sequence_id=sequence_id, snapshot_id=snapshot.snapshot_id, snapshot_hash=snapshot.snapshot_hash, state="requested", created_at=now, updated_at=now)
+        try:
+            self.preview_jobs.create_preview_job(job)
+        except ValueError as exc:
+            active = self.preview_jobs.get_active_preview_job(request_hash)
+            if active is not None:
+                return active
+            raise _error("RENDER_REQUEST_CONFLICT", "/sequence_id", "The preview request conflicts with another attempt.") from exc
+        self.preview_jobs.transition_preview_job(job.job_id, state="admitted", created_at=self.clock.now_utc())
+        self.preview_jobs.transition_preview_job(job.job_id, state="running", created_at=self.clock.now_utc())
+        try:
+            outcome = self.preview_executor.execute(snapshot, timestamp_utc=self.clock.now_utc())
+        except Exception:
+            outcome = PreviewExecutionResult(state="failed", receipt_hash=None, preview_manifest_bytes=None, frames={}, public_failure_code="PREVIEW_EXECUTION_FAILED")
+        if outcome.state == "succeeded" and outcome.receipt_hash and outcome.preview_manifest_bytes is not None:
+            manifest_hash = "sha256:" + hashlib.sha256(outcome.preview_manifest_bytes).hexdigest()
+            delivery_id = "pdel_" + hashlib.sha256((job.job_id + manifest_hash).encode()).hexdigest()[:24]
+            if self.preview_delivery is None:
+                outcome = PreviewExecutionResult(state="failed", receipt_hash=outcome.receipt_hash, preview_manifest_bytes=None, frames={}, public_failure_code="PREVIEW_DELIVERY_UNAVAILABLE")
+                self.preview_jobs.transition_preview_job(job.job_id, state="failed", created_at=self.clock.now_utc(), public_failure_code=outcome.public_failure_code, receipt_hash=outcome.receipt_hash)
+                return self._preview_job(project_id, job.job_id)
+            self.preview_delivery.put(delivery_id=delivery_id, project_id=project_id, job_id=job.job_id, manifest=outcome.preview_manifest_bytes, frames=outcome.frames)
+            self.preview_jobs.transition_preview_job(job.job_id, state="succeeded", created_at=self.clock.now_utc(), receipt_hash=outcome.receipt_hash, preview_manifest_hash=manifest_hash, delivery_id=delivery_id)
+        else:
+            self.preview_jobs.transition_preview_job(job.job_id, state=outcome.state, created_at=self.clock.now_utc(), public_failure_code=outcome.public_failure_code or "PREVIEW_EXECUTION_FAILED", receipt_hash=outcome.receipt_hash)
+        return self._preview_job(project_id, job.job_id)
+
+    def preview_manifest(self, *, project_id: str, job_id: str) -> bytes:
+        job = self._preview_job(project_id, job_id)
+        if job.state != "succeeded" or not job.delivery_id or self.preview_delivery is None:
+            raise _error("PREVIEW_DELIVERY_UNAVAILABLE", "/job_id", "Preview delivery is unavailable.")
+        value = self.preview_delivery.manifest(delivery_id=job.delivery_id, project_id=project_id, job_id=job_id)
+        if value is None:
+            raise _error("PREVIEW_DELIVERY_UNAVAILABLE", "/job_id", "Preview delivery is unavailable.")
+        return value
+
+    def preview_frame(self, *, project_id: str, job_id: str, frame_index: int) -> bytes:
+        job = self._preview_job(project_id, job_id)
+        if frame_index < 0 or job.state != "succeeded" or not job.delivery_id or self.preview_delivery is None:
+            raise _error("PREVIEW_DELIVERY_UNAVAILABLE", "/frame_index", "Preview delivery is unavailable.")
+        value = self.preview_delivery.frame(delivery_id=job.delivery_id, project_id=project_id, job_id=job_id, frame_index=frame_index)
+        if value is None:
+            raise _error("PREVIEW_FRAME_UNAVAILABLE", "/frame_index", "The requested preview frame is unavailable.")
+        return value
+
+    def preview_job(self, *, project_id: str, job_id: str) -> PreviewJobRecord:
+        return self._preview_job(project_id, job_id)
+
+    def preview_events(self, *, project_id: str, job_id: str, after: int) -> tuple[Mapping[str, Any], ...]:
+        if after < 0:
+            raise _error("PREVIEW_EVENT_CURSOR_INVALID", "/after", "The event cursor is invalid.")
+        self._preview_job(project_id, job_id)
+        assert self.preview_jobs is not None
+        return tuple({"ordinal": item.ordinal, "event_id": item.event_id, "state": item.state, "created_at": item.created_at, "public_code": item.public_code} for item in self.preview_jobs.list_preview_events(job_id, after=after))
+
+    def _preview_job(self, project_id: str, job_id: str) -> PreviewJobRecord:
+        if self.preview_jobs is None:
+            raise _error("PREVIEW_JOB_NOT_FOUND", "/job_id", "The preview job was not found.")
+        job = self.preview_jobs.get_preview_job(job_id)
+        if job is None or job.project_id != project_id:
+            raise _error("PREVIEW_JOB_NOT_FOUND", "/job_id", "The preview job was not found.")
+        return job
 
     def _project(self, project_id: str):
         project = self.projects.get(project_id)

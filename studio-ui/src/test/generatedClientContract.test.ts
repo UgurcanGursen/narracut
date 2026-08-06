@@ -73,7 +73,7 @@ describe('generated client contract', () => {
       ),
     );
     expect(createHash('sha256').update(openApi).digest('hex')).toBe(
-      '0a456e49e57283ad7364e8d77f0d6e4cb0659872c7d1cdeb039ef96597e1b76d',
+      'a5762adfb824510fc4d3d442b0f3d41fdaa5ba0641ccb776de2ff6b2f452a700',
     );
   });
 });

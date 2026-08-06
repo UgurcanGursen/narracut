@@ -22,6 +22,7 @@ from .domain_resolution import EngineDomainResolutionAdapter
 from .in_memory_project_repository import InMemoryProjectRepository
 from .sqlite_project_repository import SQLiteProjectRepository
 from .engine_manual_task_factory import EngineManualTaskFactory
+from .preview_adapters import InMemoryPreviewDelivery, PersistedRenderInputResolver, ReplayPreviewExecutor
 
 
 class SystemClock:
@@ -77,6 +78,10 @@ def build_runtime(*, database_path: Path | None = None) -> Runtime:
             domain_packs_root=repo_root / "domain-packs"
         ),
         clock=SystemClock(),
+        render_inputs=PersistedRenderInputResolver(repository),
+        preview_executor=ReplayPreviewExecutor(fixture_root=repo_root / "tests" / "fixtures" / "phase4a"),
+        preview_jobs=repository,
+        preview_delivery=InMemoryPreviewDelivery(),
     )
     return Runtime(
         project_service=service,

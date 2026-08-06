@@ -18,6 +18,12 @@ EXPECTED_METHODS = {
     "/api/v1/projects/{project_id}/review": {"get"},
     "/api/v1/projects/{project_id}/review/sequences/{sequence_id}": {"get"},
     "/api/v1/projects/{project_id}/review/sequences/{sequence_id}/decision": {"post"},
+    "/api/v1/projects/{project_id}/sequences/{sequence_id}/preview-renders": {"post"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}": {"get"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/events": {"get"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/events/stream": {"get"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/manifest": {"get"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/frames/{frame_index}": {"get"},
 }
 
 

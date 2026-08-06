@@ -201,6 +201,116 @@ export type ExtensionReferenceDto = {
 };
 
 /**
+ * PreviewEventCollectionDTO
+ */
+export type PreviewEventCollectionDto = {
+    /**
+     * Count
+     */
+    count: number;
+    /**
+     * Items
+     */
+    items: Array<PreviewEventDto>;
+    /**
+     * Job Id
+     */
+    job_id: string;
+};
+
+/**
+ * PreviewEventDTO
+ */
+export type PreviewEventDto = {
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Event Id
+     */
+    event_id: string;
+    /**
+     * Ordinal
+     */
+    ordinal: number;
+    /**
+     * Public Code
+     */
+    public_code: string | null;
+    /**
+     * State
+     */
+    state: string;
+};
+
+/**
+ * PreviewJobDTO
+ */
+export type PreviewJobDto = {
+    /**
+     * Attempt Ordinal
+     */
+    attempt_ordinal: number;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Delivery Id
+     */
+    delivery_id: string | null;
+    /**
+     * Job Id
+     */
+    job_id: string;
+    /**
+     * Preview Manifest Hash
+     */
+    preview_manifest_hash: string | null;
+    /**
+     * Preview Request Hash
+     */
+    preview_request_hash: string;
+    /**
+     * Preview Request Id
+     */
+    preview_request_id: string;
+    /**
+     * Project Id
+     */
+    project_id: string;
+    /**
+     * Public Failure Code
+     */
+    public_failure_code: string | null;
+    /**
+     * Receipt Hash
+     */
+    receipt_hash: string | null;
+    /**
+     * Sequence Id
+     */
+    sequence_id: string;
+    /**
+     * Snapshot Hash
+     */
+    snapshot_hash: string;
+    /**
+     * Snapshot Id
+     */
+    snapshot_id: string;
+    /**
+     * State
+     */
+    state: 'requested' | 'admitted' | 'running' | 'succeeded' | 'failed' | 'cancelled' | 'rejected_pre_admission';
+    /**
+     * Updated At
+     */
+    updated_at: string;
+};
+
+/**
  * ProjectArtifactsResponseDTO
  */
 export type ProjectArtifactsResponseDto = {
@@ -771,6 +881,212 @@ export type ListProjectArtifactsResponses = {
 
 export type ListProjectArtifactsResponse = ListProjectArtifactsResponses[keyof ListProjectArtifactsResponses];
 
+export type GetPreviewJobData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Job Id
+         */
+        job_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/preview-renders/{job_id}';
+};
+
+export type GetPreviewJobErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type GetPreviewJobError = GetPreviewJobErrors[keyof GetPreviewJobErrors];
+
+export type GetPreviewJobResponses = {
+    /**
+     * Successful Response
+     */
+    200: PreviewJobDto;
+};
+
+export type GetPreviewJobResponse = GetPreviewJobResponses[keyof GetPreviewJobResponses];
+
+export type ListPreviewEventsData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Job Id
+         */
+        job_id: string;
+    };
+    query?: {
+        /**
+         * After
+         */
+        after?: number;
+    };
+    url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/events';
+};
+
+export type ListPreviewEventsErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type ListPreviewEventsError = ListPreviewEventsErrors[keyof ListPreviewEventsErrors];
+
+export type ListPreviewEventsResponses = {
+    /**
+     * Successful Response
+     */
+    200: PreviewEventCollectionDto;
+};
+
+export type ListPreviewEventsResponse = ListPreviewEventsResponses[keyof ListPreviewEventsResponses];
+
+export type StreamPreviewEventsData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Job Id
+         */
+        job_id: string;
+    };
+    query?: {
+        /**
+         * After
+         */
+        after?: number;
+    };
+    url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/events/stream';
+};
+
+export type StreamPreviewEventsErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type StreamPreviewEventsError = StreamPreviewEventsErrors[keyof StreamPreviewEventsErrors];
+
+export type StreamPreviewEventsResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type GetPreviewFrameData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Job Id
+         */
+        job_id: string;
+        /**
+         * Frame Index
+         */
+        frame_index: number;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/frames/{frame_index}';
+};
+
+export type GetPreviewFrameErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type GetPreviewFrameError = GetPreviewFrameErrors[keyof GetPreviewFrameErrors];
+
+export type GetPreviewFrameResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type GetPreviewManifestData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Job Id
+         */
+        job_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/manifest';
+};
+
+export type GetPreviewManifestErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type GetPreviewManifestError = GetPreviewManifestErrors[keyof GetPreviewManifestErrors];
+
+export type GetPreviewManifestResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
 export type GetProjectReviewData = {
     body?: never;
     path: {
@@ -918,6 +1234,48 @@ export type DecideSequenceReviewResponses = {
 };
 
 export type DecideSequenceReviewResponse = DecideSequenceReviewResponses[keyof DecideSequenceReviewResponses];
+
+export type RequestSequencePreviewData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Sequence Id
+         */
+        sequence_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/sequences/{sequence_id}/preview-renders';
+};
+
+export type RequestSequencePreviewErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type RequestSequencePreviewError = RequestSequencePreviewErrors[keyof RequestSequencePreviewErrors];
+
+export type RequestSequencePreviewResponses = {
+    /**
+     * Successful Response
+     */
+    201: PreviewJobDto;
+};
+
+export type RequestSequencePreviewResponse = RequestSequencePreviewResponses[keyof RequestSequencePreviewResponses];
 
 export type GetProjectStatusData = {
     body?: never;

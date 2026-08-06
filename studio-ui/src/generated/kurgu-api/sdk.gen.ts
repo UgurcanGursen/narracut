@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { ApproveStudioTaskData, ApproveStudioTaskErrors, ApproveStudioTaskResponses, CreateProjectData, CreateProjectErrors, CreateProjectResponses, CreateStudioTaskData, CreateStudioTaskErrors, CreateStudioTaskRepairData, CreateStudioTaskRepairErrors, CreateStudioTaskRepairResponses, CreateStudioTaskResponses, DecideSequenceReviewData, DecideSequenceReviewErrors, DecideSequenceReviewResponses, GetProjectReviewData, GetProjectReviewErrors, GetProjectReviewResponses, GetProjectStatusData, GetProjectStatusErrors, GetProjectStatusResponses, GetSequenceReviewData, GetSequenceReviewErrors, GetSequenceReviewResponses, GetStudioTaskData, GetStudioTaskErrors, GetStudioTaskResponses, ListProjectArtifactsData, ListProjectArtifactsErrors, ListProjectArtifactsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ListStudioTasksData, ListStudioTasksErrors, ListStudioTasksResponses, RegisterReviewSnapshotData, RegisterReviewSnapshotErrors, RegisterReviewSnapshotResponses, SubmitStudioTaskResponseData, SubmitStudioTaskResponseErrors, SubmitStudioTaskResponseResponses } from './types.gen';
+import type { ApproveStudioTaskData, ApproveStudioTaskErrors, ApproveStudioTaskResponses, CreateProjectData, CreateProjectErrors, CreateProjectResponses, CreateStudioTaskData, CreateStudioTaskErrors, CreateStudioTaskRepairData, CreateStudioTaskRepairErrors, CreateStudioTaskRepairResponses, CreateStudioTaskResponses, DecideSequenceReviewData, DecideSequenceReviewErrors, DecideSequenceReviewResponses, GetPreviewFrameData, GetPreviewFrameErrors, GetPreviewFrameResponses, GetPreviewJobData, GetPreviewJobErrors, GetPreviewJobResponses, GetPreviewManifestData, GetPreviewManifestErrors, GetPreviewManifestResponses, GetProjectReviewData, GetProjectReviewErrors, GetProjectReviewResponses, GetProjectStatusData, GetProjectStatusErrors, GetProjectStatusResponses, GetSequenceReviewData, GetSequenceReviewErrors, GetSequenceReviewResponses, GetStudioTaskData, GetStudioTaskErrors, GetStudioTaskResponses, ListPreviewEventsData, ListPreviewEventsErrors, ListPreviewEventsResponses, ListProjectArtifactsData, ListProjectArtifactsErrors, ListProjectArtifactsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ListStudioTasksData, ListStudioTasksErrors, ListStudioTasksResponses, RegisterReviewSnapshotData, RegisterReviewSnapshotErrors, RegisterReviewSnapshotResponses, RequestSequencePreviewData, RequestSequencePreviewErrors, RequestSequencePreviewResponses, StreamPreviewEventsData, StreamPreviewEventsErrors, StreamPreviewEventsResponses, SubmitStudioTaskResponseData, SubmitStudioTaskResponseErrors, SubmitStudioTaskResponseResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -41,6 +41,31 @@ export const createProject = <ThrowOnError extends boolean = false>(options: Opt
 export const listProjectArtifacts = <ThrowOnError extends boolean = false>(options: Options<ListProjectArtifactsData, ThrowOnError>): RequestResult<ListProjectArtifactsResponses, ListProjectArtifactsErrors, ThrowOnError> => (options.client ?? client).get<ListProjectArtifactsResponses, ListProjectArtifactsErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/artifacts', ...options });
 
 /**
+ * Get Preview
+ */
+export const getPreviewJob = <ThrowOnError extends boolean = false>(options: Options<GetPreviewJobData, ThrowOnError>): RequestResult<GetPreviewJobResponses, GetPreviewJobErrors, ThrowOnError> => (options.client ?? client).get<GetPreviewJobResponses, GetPreviewJobErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/preview-renders/{job_id}', ...options });
+
+/**
+ * List Preview Events
+ */
+export const listPreviewEvents = <ThrowOnError extends boolean = false>(options: Options<ListPreviewEventsData, ThrowOnError>): RequestResult<ListPreviewEventsResponses, ListPreviewEventsErrors, ThrowOnError> => (options.client ?? client).get<ListPreviewEventsResponses, ListPreviewEventsErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/events', ...options });
+
+/**
+ * Stream Preview Events
+ */
+export const streamPreviewEvents = <ThrowOnError extends boolean = false>(options: Options<StreamPreviewEventsData, ThrowOnError>): RequestResult<StreamPreviewEventsResponses, StreamPreviewEventsErrors, ThrowOnError> => (options.client ?? client).get<StreamPreviewEventsResponses, StreamPreviewEventsErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/events/stream', ...options });
+
+/**
+ * Preview Frame
+ */
+export const getPreviewFrame = <ThrowOnError extends boolean = false>(options: Options<GetPreviewFrameData, ThrowOnError>): RequestResult<GetPreviewFrameResponses, GetPreviewFrameErrors, ThrowOnError> => (options.client ?? client).get<GetPreviewFrameResponses, GetPreviewFrameErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/frames/{frame_index}', ...options });
+
+/**
+ * Preview Manifest
+ */
+export const getPreviewManifest = <ThrowOnError extends boolean = false>(options: Options<GetPreviewManifestData, ThrowOnError>): RequestResult<GetPreviewManifestResponses, GetPreviewManifestErrors, ThrowOnError> => (options.client ?? client).get<GetPreviewManifestResponses, GetPreviewManifestErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/preview-renders/{job_id}/manifest', ...options });
+
+/**
  * Get Project Review
  */
 export const getProjectReview = <ThrowOnError extends boolean = false>(options: Options<GetProjectReviewData, ThrowOnError>): RequestResult<GetProjectReviewResponses, GetProjectReviewErrors, ThrowOnError> => (options.client ?? client).get<GetProjectReviewResponses, GetProjectReviewErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/review', ...options });
@@ -73,6 +98,11 @@ export const decideSequenceReview = <ThrowOnError extends boolean = false>(optio
         ...options.headers
     }
 });
+
+/**
+ * Request Preview
+ */
+export const requestSequencePreview = <ThrowOnError extends boolean = false>(options: Options<RequestSequencePreviewData, ThrowOnError>): RequestResult<RequestSequencePreviewResponses, RequestSequencePreviewErrors, ThrowOnError> => (options.client ?? client).post<RequestSequencePreviewResponses, RequestSequencePreviewErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/sequences/{sequence_id}/preview-renders', ...options });
 
 /**
  * Get Project Status

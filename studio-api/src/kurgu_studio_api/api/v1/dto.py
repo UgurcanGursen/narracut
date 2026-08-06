@@ -229,3 +229,38 @@ class ReviewDecisionDTO(BaseModel):
     created_at: str
     producer: str
     producer_version: str
+
+
+class PreviewJobDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    job_id: str
+    preview_request_id: str
+    preview_request_hash: str
+    attempt_ordinal: int
+    project_id: str
+    sequence_id: str
+    snapshot_id: str
+    snapshot_hash: str
+    state: Literal["requested", "admitted", "running", "succeeded", "failed", "cancelled", "rejected_pre_admission"]
+    created_at: str
+    updated_at: str
+    public_failure_code: str | None
+    receipt_hash: str | None
+    preview_manifest_hash: str | None
+    delivery_id: str | None
+
+
+class PreviewEventDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    ordinal: int
+    event_id: str
+    state: str
+    created_at: str
+    public_code: str | None
+
+
+class PreviewEventCollectionDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    job_id: str
+    items: list[PreviewEventDTO]
+    count: int

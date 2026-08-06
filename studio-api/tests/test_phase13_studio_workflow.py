@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 from kurgu_studio_api import create_app
 from kurgu_studio_api.infrastructure.runtime import build_runtime
+from kurgu_studio_api.application.models import PreviewExecutionResult, RenderInputSnapshotRecord
 
 
 def _hash(value: dict) -> str:
@@ -186,3 +187,70 @@ def test_phase12_bound_review_snapshot_is_hash_locked(tmp_path: Path) -> None:
     assert decision.status_code == 200
     assert decision.json()["video_edl_hash"] == "sha256:" + "d" * 64
     assert client.post(f"/api/v1/projects/{project_id}/review/sequences/eseq_alpha/decision", json={"action": "replacement_requested", "replacement_kind": "asset_change"}).status_code == 409
+
+
+class _SuccessfulPreviewExecutor:
+    def execute(self, snapshot: RenderInputSnapshotRecord, *, timestamp_utc: str) -> PreviewExecutionResult:
+        del snapshot, timestamp_utc
+        manifest = b'{"frames":[{"frame_index":0}]}'
+        return PreviewExecutionResult("succeeded", "sha256:" + "2" * 64, manifest, {0: b"png"})
+
+
+def _install_preview_input(client: TestClient, project_id: str) -> tuple[object, dict]:
+    runtime = client.app.state.runtime
+    task = client.post(f"/api/v1/projects/{project_id}/tasks", json={"family": "research", "task_type": "source_discovery", "backend_mode": "replay", "topic": "AI chips"}).json()
+    bound = _bound_snapshot(project_id, task["policy_snapshot_id"], task["policy_snapshot_hash"])
+    assert client.post(f"/api/v1/projects/{project_id}/review-snapshots", json=bound).status_code == 201
+    sequence = bound["executable_plan"]["sequences"][0]
+    record = RenderInputSnapshotRecord(
+        snapshot_id="risnap_test_alpha", snapshot_hash="sha256:" + "3" * 64,
+        project_id=project_id, executable_sequence_id=sequence["executable_sequence_id"], executable_sequence_hash=sequence["executable_sequence_hash"],
+        domain_pack_version="0.1.0", policy_snapshot_id=task["policy_snapshot_id"], policy_snapshot_hash=task["policy_snapshot_hash"],
+        executable_plan_id=bound["executable_plan"]["executable_editorial_plan_id"], executable_plan_hash=bound["executable_plan"]["executable_editorial_plan_hash"],
+        final_edl_bundle_id=bound["final_edl_bundle"]["final_edl_bundle_id"], final_edl_bundle_hash=bound["final_edl_bundle"]["final_edl_bundle_hash"],
+        video_edl_bytes=b"{}", audio_edl_bytes=b"{}", render_props_bytes=b"{}", render_props_id="rprops_test", render_props_hash="sha256:" + "4" * 64,
+        fixture_manifest_id="fixman_test", fixture_manifest_hash="sha256:" + "5" * 64, mode="preview_replay", created_at="2026-08-06T00:00:00Z",
+    )
+    runtime.project_repository.put_render_input(record)
+    assert runtime.workflow_service is not None
+    runtime.workflow_service.preview_executor = _SuccessfulPreviewExecutor()
+    return runtime, sequence
+
+
+def test_preview_api_rejects_absent_trusted_input(tmp_path: Path) -> None:
+    client = TestClient(create_app(build_runtime(database_path=tmp_path / "studio.sqlite3")))
+    project_id = _project(client)
+    response = client.post(f"/api/v1/projects/{project_id}/sequences/eseq_alpha/preview-renders")
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "REVIEW_BINDING_INVALID"
+
+
+def test_preview_api_persists_ordered_safe_events_and_declared_delivery_only(tmp_path: Path) -> None:
+    database_path = tmp_path / "studio.sqlite3"
+    client = TestClient(create_app(build_runtime(database_path=database_path)))
+    project_id = _project(client)
+    _, sequence = _install_preview_input(client, project_id)
+    created = client.post(f"/api/v1/projects/{project_id}/sequences/{sequence['executable_sequence_id']}/preview-renders")
+    assert created.status_code == 201
+    job = created.json()
+    assert job["state"] == "succeeded"
+    assert job["attempt_ordinal"] == 1
+    events = client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/events").json()
+    assert [event["state"] for event in events["items"]] == ["requested", "admitted", "running", "succeeded"]
+    assert [event["ordinal"] for event in events["items"]] == [1, 2, 3, 4]
+    streamed = client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/events/stream?after=2")
+    assert streamed.headers["content-type"].startswith("text/event-stream")
+    assert "id: 3" in streamed.text and "id: 4" in streamed.text
+    assert client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/manifest").content == b'{"frames":[{"frame_index":0}]}'
+    assert client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/frames/0").content == b"png"
+    assert client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/frames/1").status_code == 404
+    second = client.post(f"/api/v1/projects/{project_id}/sequences/{sequence['executable_sequence_id']}/preview-renders")
+    assert second.status_code == 201
+    assert second.json()["job_id"] != job["job_id"]
+    assert second.json()["attempt_ordinal"] == 2
+    other_project = _project(client)
+    assert client.get(f"/api/v1/projects/{other_project}/preview-renders/{job['job_id']}").status_code == 404
+    reopened = TestClient(create_app(build_runtime(database_path=database_path)))
+    replay = reopened.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/events?after=2")
+    assert [event["ordinal"] for event in replay.json()["items"]] == [3, 4]
+    assert reopened.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/manifest").status_code == 409

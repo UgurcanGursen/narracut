@@ -14,7 +14,7 @@ from threading import RLock
 from typing import Any, Mapping
 
 from ..application.models import ProjectAggregate, ResolvedDomainSelection
-from ..application.models import ReviewSnapshotRecord, StudioTaskRecord, StudioTaskView
+from ..application.models import PreviewJobEvent, PreviewJobRecord, RenderInputSnapshotRecord, ReviewSnapshotRecord, StudioTaskRecord, StudioTaskView
 from ..application.ports import RepositoryCollisionError
 
 
@@ -69,6 +69,35 @@ class SQLiteProjectRepository:
               sequence_id TEXT NOT NULL,
               payload_json BLOB NOT NULL,
               UNIQUE(project_id, sequence_id)
+            );
+            CREATE TABLE IF NOT EXISTS studio_render_inputs (
+              snapshot_id TEXT PRIMARY KEY,
+              snapshot_hash TEXT NOT NULL UNIQUE,
+              project_id TEXT NOT NULL REFERENCES studio_projects(project_id),
+              sequence_id TEXT NOT NULL,
+              payload_json BLOB NOT NULL,
+              video_edl_bytes BLOB NOT NULL,
+              audio_edl_bytes BLOB NOT NULL,
+              render_props_bytes BLOB NOT NULL,
+              created_at TEXT NOT NULL,
+              UNIQUE(project_id, sequence_id, snapshot_hash)
+            );
+            CREATE TABLE IF NOT EXISTS studio_preview_jobs (
+              job_id TEXT PRIMARY KEY,
+              request_hash TEXT NOT NULL,
+              attempt_ordinal INTEGER NOT NULL,
+              project_id TEXT NOT NULL REFERENCES studio_projects(project_id),
+              payload_json BLOB NOT NULL,
+              active INTEGER NOT NULL,
+              UNIQUE(request_hash, attempt_ordinal)
+            );
+            CREATE UNIQUE INDEX IF NOT EXISTS studio_one_active_preview_request
+              ON studio_preview_jobs(request_hash) WHERE active = 1;
+            CREATE TABLE IF NOT EXISTS studio_preview_job_events (
+              job_id TEXT NOT NULL REFERENCES studio_preview_jobs(job_id),
+              ordinal INTEGER NOT NULL,
+              payload_json BLOB NOT NULL,
+              PRIMARY KEY(job_id, ordinal)
             );
             """
         )
@@ -302,6 +331,89 @@ class SQLiteProjectRepository:
                 self.connection.commit()
             except sqlite3.IntegrityError as exc:
                 raise ValueError("REVIEW_SEQUENCE_LOCKED") from exc
+
+    def put_render_input(self, value: RenderInputSnapshotRecord) -> None:
+        payload = {field: getattr(value, field) for field in value.__dataclass_fields__ if not field.endswith("_bytes")}
+        with self._lock:
+            try:
+                self.connection.execute(
+                    """INSERT INTO studio_render_inputs(snapshot_id, snapshot_hash, project_id, sequence_id, payload_json, video_edl_bytes, audio_edl_bytes, render_props_bytes, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                    (value.snapshot_id, value.snapshot_hash, value.project_id, value.executable_sequence_id,
+                     self._encode(payload), value.video_edl_bytes, value.audio_edl_bytes,
+                     value.render_props_bytes, value.created_at),
+                )
+                self.connection.commit()
+            except sqlite3.IntegrityError as exc:
+                raise ValueError("RENDER_INPUT_IMMUTABILITY") from exc
+
+    def get_render_input(self, project_id: str, sequence_id: str) -> RenderInputSnapshotRecord | None:
+        with self._lock:
+            row = self.connection.execute(
+                """SELECT payload_json, video_edl_bytes, audio_edl_bytes, render_props_bytes
+                FROM studio_render_inputs WHERE project_id = ? AND sequence_id = ? ORDER BY created_at DESC LIMIT 1""",
+                (project_id, sequence_id),
+            ).fetchone()
+        if row is None:
+            return None
+        return RenderInputSnapshotRecord(**(self._decode(row[0]) | {
+            "video_edl_bytes": row[1], "audio_edl_bytes": row[2], "render_props_bytes": row[3],
+        }))
+
+    def create_preview_job(self, job: PreviewJobRecord) -> None:
+        payload = {field: getattr(job, field) for field in job.__dataclass_fields__}
+        with self._lock:
+            try:
+                self.connection.execute(
+                    "INSERT INTO studio_preview_jobs(job_id, request_hash, attempt_ordinal, project_id, payload_json, active) VALUES (?, ?, ?, ?, ?, 1)",
+                    (job.job_id, job.preview_request_hash, job.attempt_ordinal, job.project_id, self._encode(payload)),
+                )
+                self._append_preview_event(job, ordinal=1, state="requested", created_at=job.created_at, public_code=None)
+                self.connection.commit()
+            except sqlite3.IntegrityError as exc:
+                raise ValueError("RENDER_REQUEST_CONFLICT") from exc
+
+    def get_preview_job(self, job_id: str) -> PreviewJobRecord | None:
+        with self._lock:
+            row = self.connection.execute("SELECT payload_json FROM studio_preview_jobs WHERE job_id = ?", (job_id,)).fetchone()
+        return None if row is None else PreviewJobRecord(**self._decode(row[0]))
+
+    def get_active_preview_job(self, request_hash: str) -> PreviewJobRecord | None:
+        with self._lock:
+            row = self.connection.execute("SELECT payload_json FROM studio_preview_jobs WHERE request_hash = ? AND active = 1", (request_hash,)).fetchone()
+        return None if row is None else PreviewJobRecord(**self._decode(row[0]))
+
+    def next_preview_attempt(self, request_hash: str) -> int:
+        with self._lock:
+            row = self.connection.execute("SELECT COALESCE(MAX(attempt_ordinal), 0) FROM studio_preview_jobs WHERE request_hash = ?", (request_hash,)).fetchone()
+        return int(row[0]) + 1
+
+    def transition_preview_job(self, job_id: str, *, state: str, created_at: str, public_failure_code: str | None = None, receipt_hash: str | None = None, preview_manifest_hash: str | None = None, delivery_id: str | None = None) -> PreviewJobRecord:
+        allowed = {"requested": {"admitted", "rejected_pre_admission"}, "admitted": {"running", "cancelled", "failed"}, "running": {"succeeded", "failed", "cancelled"}}
+        with self._lock:
+            current = self.get_preview_job(job_id)
+            if current is None or state not in allowed.get(current.state, set()):
+                raise ValueError("PREVIEW_JOB_TRANSITION_INVALID")
+            if state == "succeeded" and (not receipt_hash or not preview_manifest_hash or not delivery_id):
+                raise ValueError("PREVIEW_JOB_SUCCESS_INCOMPLETE")
+            terminal = state in {"succeeded", "failed", "cancelled", "rejected_pre_admission"}
+            value = PreviewJobRecord(**({field: getattr(current, field) for field in current.__dataclass_fields__} | {"state": state, "updated_at": created_at, "public_failure_code": public_failure_code, "receipt_hash": receipt_hash, "preview_manifest_hash": preview_manifest_hash, "delivery_id": delivery_id}))
+            self.connection.execute("UPDATE studio_preview_jobs SET payload_json = ?, active = ? WHERE job_id = ?", (self._encode({field: getattr(value, field) for field in value.__dataclass_fields__}), 0 if terminal else 1, job_id))
+            ordinal = self.connection.execute("SELECT COALESCE(MAX(ordinal), 0) + 1 FROM studio_preview_job_events WHERE job_id = ?", (job_id,)).fetchone()[0]
+            self._append_preview_event(value, ordinal=int(ordinal), state=state, created_at=created_at, public_code=public_failure_code)
+            self.connection.commit()
+        return value
+
+    def list_preview_events(self, job_id: str, *, after: int) -> tuple[PreviewJobEvent, ...]:
+        with self._lock:
+            rows = self.connection.execute("SELECT payload_json FROM studio_preview_job_events WHERE job_id = ? AND ordinal > ? ORDER BY ordinal ASC", (job_id, after)).fetchall()
+        return tuple(PreviewJobEvent(**self._decode(row[0])) for row in rows)
+
+    def _append_preview_event(self, job: PreviewJobRecord, *, ordinal: int, state: str, created_at: str, public_code: str | None) -> None:
+        body = {"job_id": job.job_id, "ordinal": ordinal, "state": state, "created_at": created_at, "public_code": public_code}
+        digest = "sha256:" + __import__("hashlib").sha256(self._encode(body)).hexdigest()
+        value = PreviewJobEvent(event_id="pevt_" + digest[7:31], **body)
+        self.connection.execute("INSERT INTO studio_preview_job_events(job_id, ordinal, payload_json) VALUES (?, ?, ?)", (job.job_id, ordinal, self._encode({field: getattr(value, field) for field in value.__dataclass_fields__})))
 
     def _task_view(self, row: tuple[bytes, str | None, str | None, bytes | None]) -> StudioTaskView:
         task = StudioTaskRecord(**self._decode(row[0]))

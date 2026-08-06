@@ -44,6 +44,14 @@ EXPECTED = {
     "/api/v1/projects/{project_id}/review/sequences/{sequence_id}/decision": {
         "post": "decideSequenceReview"
     },
+    "/api/v1/projects/{project_id}/sequences/{sequence_id}/preview-renders": {
+        "post": "requestSequencePreview"
+    },
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}": {"get": "getPreviewJob"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/events": {"get": "listPreviewEvents"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/events/stream": {"get": "streamPreviewEvents"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/manifest": {"get": "getPreviewManifest"},
+    "/api/v1/projects/{project_id}/preview-renders/{job_id}/frames/{frame_index}": {"get": "getPreviewFrame"},
 }
 
 
@@ -85,6 +93,8 @@ def test_openapi_components_include_stable_request_response_and_error_models() -
         "ReviewDecisionRequestDTO",
         "SequenceReviewDTO",
         "ProjectReviewDTO",
+        "PreviewJobDTO",
+        "PreviewEventCollectionDTO",
     }
     assert expected.issubset(schemas)
     assert "HTTPValidationError" not in schemas

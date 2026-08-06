@@ -5,12 +5,15 @@ import {
   approveStudioTask as generatedApproveStudioTask,
   decideSequenceReview as generatedDecideSequenceReview,
   getProjectReview as generatedGetProjectReview,
+  getPreviewJob as generatedGetPreviewJob,
+  listPreviewEvents as generatedListPreviewEvents,
   getProjectStatus as generatedGetProjectStatus,
   listProjects as generatedListProjects,
   getSequenceReview as generatedGetSequenceReview,
   listStudioTasks as generatedListStudioTasks,
   listProjectArtifacts as generatedListProjectArtifacts,
   submitStudioTaskResponse as generatedSubmitStudioTaskResponse,
+  requestSequencePreview as generatedRequestSequencePreview,
 } from '../generated/kurgu-api';
 import { createClient } from '../generated/kurgu-api/client';
 import type {
@@ -28,6 +31,8 @@ import type {
   StudioTaskCreateRequestDto,
   StudioTaskDto,
   StudioTaskResponseSubmitDto,
+  PreviewEventCollectionDto,
+  PreviewJobDto,
 } from '../generated/kurgu-api/types.gen';
 
 import { StudioApiError } from './studioApiError';
@@ -47,6 +52,8 @@ export type {
   StudioTaskCreateRequestDto,
   StudioTaskDto,
   StudioTaskResponseSubmitDto,
+  PreviewEventCollectionDto,
+  PreviewJobDto,
 };
 
 export interface StudioApi {
@@ -83,6 +90,9 @@ export interface StudioApi {
     sequenceId: string,
     request: ReviewDecisionRequestDto,
   ): Promise<ReviewDecisionDto>;
+  requestSequencePreview(projectId: string, sequenceId: string): Promise<PreviewJobDto>;
+  getPreviewJob(projectId: string, jobId: string): Promise<PreviewJobDto>;
+  listPreviewEvents(projectId: string, jobId: string, after?: number): Promise<PreviewEventCollectionDto>;
 }
 
 const SAFE_ERROR_MESSAGES: Readonly<Record<string, string>> = {
@@ -107,6 +117,11 @@ const SAFE_ERROR_MESSAGES: Readonly<Record<string, string>> = {
   REVIEW_SNAPSHOT_INVALID: 'The review snapshot is not valid.',
   REVIEW_SEQUENCE_LOCKED: 'The sequence already has a review decision.',
   REVIEW_DECISION_INVALID: 'The review decision is invalid.',
+  RENDER_INPUT_UNAVAILABLE: 'No trusted REPLAY render input is available.',
+  REVIEW_BINDING_INVALID: 'No immutable review binding is available.',
+  SEQUENCE_NOT_REVIEWABLE: 'The sequence is not reviewable.',
+  PREVIEW_DELIVERY_UNAVAILABLE: 'Preview delivery is unavailable.',
+  PREVIEW_FRAME_UNAVAILABLE: 'The requested preview frame is unavailable.',
   INTERNAL_ERROR: 'An internal error occurred.',
 };
 
@@ -325,6 +340,15 @@ export function createStudioApi(options: { baseUrl?: string } = {}): StudioApi {
           path: { project_id: projectId, sequence_id: sequenceId },
         }),
       );
+    },
+    requestSequencePreview(projectId: string, sequenceId: string) {
+      return execute<PreviewJobDto>(generatedRequestSequencePreview({ client, path: { project_id: projectId, sequence_id: sequenceId } }));
+    },
+    getPreviewJob(projectId: string, jobId: string) {
+      return execute<PreviewJobDto>(generatedGetPreviewJob({ client, path: { project_id: projectId, job_id: jobId } }));
+    },
+    listPreviewEvents(projectId: string, jobId: string, after = 0) {
+      return execute<PreviewEventCollectionDto>(generatedListPreviewEvents({ client, path: { project_id: projectId, job_id: jobId }, query: { after } }));
     },
   });
 }
