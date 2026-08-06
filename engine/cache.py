@@ -12,6 +12,10 @@ def storage_usage(root: Path) -> dict[str, int]:
     resolved = root.resolve(strict=True)
     return {"file_count":sum(1 for item in resolved.rglob("*") if item.is_file()),"bytes":sum(item.stat().st_size for item in resolved.rglob("*") if item.is_file())}
 
+def quota_status(*, used_bytes: int, soft_limit_bytes: int, hard_limit_bytes: int) -> str:
+    if not 0 <= soft_limit_bytes <= hard_limit_bytes or used_bytes < 0: raise ValueError("QUOTA_POLICY_INVALID")
+    return "HARD_LIMIT" if used_bytes >= hard_limit_bytes else "SOFT_LIMIT" if used_bytes >= soft_limit_bytes else "OK"
+
 def cache_put(root: Path, key: str, payload: bytes) -> Path:
     if not key.startswith("sha256:"): raise ValueError("CACHE_KEY_INVALID")
     target = root / "sha256" / key[7:9] / key[9:]

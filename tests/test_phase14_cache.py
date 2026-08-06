@@ -1,5 +1,5 @@
 import pytest
-from engine.cache import cache_get, cache_key, cache_put, storage_usage
+from engine.cache import cache_get, cache_key, cache_put, quota_status, storage_usage
 
 def test_cache_key_is_deterministic_and_profile_isolated():
     assert cache_key(profile="preview", inputs={"source":"sha256:x"}) == cache_key(profile="preview", inputs={"source":"sha256:x"})
@@ -14,3 +14,8 @@ def test_cache_store_round_trip(tmp_path):
     key = cache_key(profile="preview", inputs={"x":1})
     cache_put(tmp_path, key, b"cached")
     assert cache_get(tmp_path, key) == b"cached"
+
+def test_quota_status_is_read_only_and_validated():
+    assert quota_status(used_bytes=5, soft_limit_bytes=10, hard_limit_bytes=20) == "OK"
+    assert quota_status(used_bytes=10, soft_limit_bytes=10, hard_limit_bytes=20) == "SOFT_LIMIT"
+    assert quota_status(used_bytes=20, soft_limit_bytes=10, hard_limit_bytes=20) == "HARD_LIMIT"
