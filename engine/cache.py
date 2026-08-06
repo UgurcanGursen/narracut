@@ -17,6 +17,10 @@ def quota_status(*, used_bytes: int, soft_limit_bytes: int, hard_limit_bytes: in
     if not 0 <= soft_limit_bytes <= hard_limit_bytes or used_bytes < 0: raise ValueError("QUOTA_POLICY_INVALID")
     return "HARD_LIMIT" if used_bytes >= hard_limit_bytes else "SOFT_LIMIT" if used_bytes >= soft_limit_bytes else "OK"
 
+def render_admission(*, used_bytes: int, estimated_bytes: int, hard_limit_bytes: int) -> str:
+    if min(used_bytes, estimated_bytes, hard_limit_bytes) < 0: raise ValueError("QUOTA_POLICY_INVALID")
+    return "BLOCKED_HARD_QUOTA" if used_bytes + estimated_bytes > hard_limit_bytes else "ADMITTED"
+
 def cache_put(root: Path, key: str, payload: bytes) -> Path:
     if not key.startswith("sha256:"): raise ValueError("CACHE_KEY_INVALID")
     target = root / "sha256" / key[7:9] / key[9:]

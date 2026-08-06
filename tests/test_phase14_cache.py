@@ -1,5 +1,5 @@
 import pytest
-from engine.cache import cache_get, cache_key, cache_put, incremental_action, quota_status, storage_usage
+from engine.cache import cache_get, cache_key, cache_put, incremental_action, quota_status, render_admission, storage_usage
 
 def test_cache_key_is_deterministic_and_profile_isolated():
     assert cache_key(profile="preview", inputs={"source":"sha256:x"}) == cache_key(profile="preview", inputs={"source":"sha256:x"})
@@ -24,3 +24,6 @@ def test_incremental_action_never_reuses_changed_key():
     key = cache_key(profile="preview", inputs={"x":1})
     assert incremental_action(previous_key=key, current_key=key) == "REUSE"
     assert incremental_action(previous_key=key, current_key=cache_key(profile="preview", inputs={"x":2})) == "REBUILD"
+
+def test_hard_quota_blocks_new_render_admission():
+    assert render_admission(used_bytes=9, estimated_bytes=2, hard_limit_bytes=10) == "BLOCKED_HARD_QUOTA"
