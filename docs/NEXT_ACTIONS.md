@@ -11,20 +11,21 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 12 Continuity/Pacing and Executable Editorial
-Integration scope reconciliation. Freeze the policy, immutable input/output
-contracts, Phase 10 planner / Phase 8 approved asset-range-crop / Phase 5
-capability / Phase 7 visualization / Phase 11 audio-direction handoffs, and
-the Phase 3 final-EDL compiler boundary before authorizing implementation.
+Implement the bounded Phase 12 Continuity/Pacing and Executable Editorial
+Integration contract in frozen order. Bind accepted Phase 10 planner, Phase 8
+approved asset/range/crop, Phase 5 capability, optional Phase 7 visualization
+and Phase 11 audio-direction decisions into immutable executable plans; pass
+only explicit verified timing inputs to the existing Phase 3 compiler.
 
-Do not implement Phase 12 in this task. Do not introduce provider API
-execution, browser-driven LLM automation, paid LLM calls, queue/retry
-infrastructure, UI expansion or a renderer bypass. Phase 12 must fail closed
-on missing provenance, approval, capability, policy or continuity input.
+Do not introduce provider API execution, browser-driven LLM automation, paid
+LLM calls, queue/retry infrastructure, UI expansion, media opening or a
+renderer bypass. Phase 12 must fail closed on missing provenance, approval,
+capability, policy, continuity or timing input.
 
+Phase 12 contract evidence:
+`docs/specifications/phase12_continuity_executable_editorial_integration_contract.md`.
 Phase 11 closure evidence: `6717de4`, `24daca7`; final focused regression:
-`57 passed`. There is no open Phase 11 blocker. Phase 12 has not yet received
-an implementation authorization.
+`57 passed`. There is no open Phase 11 blocker.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

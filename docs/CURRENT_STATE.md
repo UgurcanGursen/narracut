@@ -5,7 +5,7 @@ Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 C
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 11 closed; Phase 12 scope next
+## Latest authoritative state - Phase 12 contract frozen; implementation next
 
 - The repository-wide Roadmap Scope Reconciliation is accepted at
   `docs/ROADMAP_SCOPE_RECONCILIATION.md`. It preserves the accepted Phase 0-10
@@ -39,9 +39,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - The final snapshot-ingress re-audit passed with no BLOCKER or MAJOR after
   sealing source-produced payloads as canonical immutable bytes. Final related
   gate: `98 passed, 1 skipped`; focused planner gate: `8 passed`.
-- The sole next task is a read-only Phase 12 Continuity/Pacing and Executable
-  Editorial Integration scope reconciliation. Do not implement Phase 12 until
-  that bounded contract/acceptance authorization is complete.
+- The Phase 12 Continuity/Pacing and Executable Editorial Integration contract
+  is frozen at `docs/specifications/phase12_continuity_executable_editorial_integration_contract.md`.
+  Its bounded REPLAY/MANUAL_UI-first implementation is authorized; it is the
+  owner of the planner-to-executable-plan-to-Phase-3-EDL bridge.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

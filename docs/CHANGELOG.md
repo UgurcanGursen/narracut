@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 12 executable editorial integration contract freeze
+
+- Added the bounded Phase 12 policy/continuity and executable-editorial-plan
+  contract, including Phase 10/8/5/7/11 lineage and the explicit Phase 3
+  compiler handoff boundary.
+
 ## 2026-08-06 - Phase 11 Audio Director closure
 
 - Closed the bounded REPLAY/MANUAL_UI-first Audio Director with immutable,

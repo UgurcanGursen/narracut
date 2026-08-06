@@ -1,5 +1,17 @@
 # Phase Acceptance
 
+## Phase 12 contract acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Phase 10/8/5/7/11 handoff ownership frozen | PASS |
+| Domain-Pack policy and no-core-default rule | PASS |
+| Phase 3 compiler remains sole frame/sample scheduler | PASS |
+| Missing provenance/approval/capability/continuity must fail closed | PASS |
+| Bounded implementation authorization | GRANTED |
+
+Evidence: `docs/specifications/phase12_continuity_executable_editorial_integration_contract.md`.
+
 ## Phase 11 final acceptance — 2026-08-06
 
 | Gate | Result |
