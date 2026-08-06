@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source-audio direction implementation authorization
+
+- Authorized only the local Phase 8/11 policy-direction validator, additive
+  ledger tokens and focused tests.
+
 ## 2026-08-06 - Phase 15 source-audio direction candidate contract audit
 
 - Passed the narrow Phase 8/11 policy-direction validator contract audit;

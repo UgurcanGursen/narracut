@@ -11,12 +11,13 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Record one bounded Phase 15 implementation authorization decision for
-`SourceAudioDirectionValidator`, using the audited candidate contract at
-`docs/specifications/phase15_source_audio_direction_contract.md`. Do not
-implement until that decision is recorded. Do not enable live transport,
-retry, queue/worker, media decode or classification, mixing, renderer/EDL
-mutation, Studio/UI, Phase 16 or Phase 17 behavior.
+Implement the authorized bounded Phase 15 `SourceAudioDirectionValidator` and
+focused tests exactly as recorded in
+`baseline/phase15_source_audio_direction_implementation_authorization.md`.
+Then perform one independent implementation audit; do not claim package or
+Phase 15 Master acceptance. Do not enable live transport, retry, queue/worker,
+media decode or classification, mixing, renderer/EDL mutation, Studio/UI,
+Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -36,7 +36,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - Its candidate contract and independent audit pass are at
   `docs/specifications/phase15_source_audio_direction_contract.md` and
   `baseline/phase15_source_audio_direction_contract_audit.md`. A separate
-  implementation authorization is still required.
+  bounded implementation authorization is recorded at
+  `baseline/phase15_source_audio_direction_implementation_authorization.md`.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
