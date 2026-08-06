@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 run-evidence targeted implementation re-audit
+
+- Cleared absolute-path no-leak and canonical quality-decision ingress
+  findings; bounded acceptance remains a separate decision.
+
 ## 2026-08-06 - Phase 15 run-evidence implementation audit
 
 - Returned `FIX_REQUIRED` for absolute-path no-leak coverage and strict

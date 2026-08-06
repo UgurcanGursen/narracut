@@ -11,9 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Repair only P15-I-001 and P15-I-002 from
-`baseline/phase15_validation_observability_implementation_audit.md`, then
-perform a targeted re-audit. Do not add live transport, retry, queue/worker,
+Make a bounded Phase 15 acceptance decision for the local run-evidence ledger
+and quality gate using its implementation and targeted re-audit evidence. Do
+not close Phase 15 Master Roadmap or add live transport, retry, queue/worker,
 media validation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
