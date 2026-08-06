@@ -122,10 +122,18 @@ class InMemoryPreviewDelivery:
     """Attempt-local delivery, intentionally lost on process restart."""
 
     def __init__(self) -> None:
-        self._items: dict[str, tuple[str, str, bytes, dict[int, bytes]]] = {}
+        self._items: dict[str, tuple[str, str, bytes, dict[int, bytes], frozenset[int]]] = {}
 
     def put(self, *, delivery_id: str, project_id: str, job_id: str, manifest: bytes, frames: Mapping[int, bytes]) -> None:
-        self._items[delivery_id] = (project_id, job_id, bytes(manifest), {int(key): bytes(value) for key, value in frames.items()})
+        parsed = _canonical_object(manifest)
+        rows = parsed.get("frames")
+        if not isinstance(rows, list):
+            raise ValueError("PREVIEW_DELIVERY_MANIFEST_INVALID")
+        declared = frozenset(row.get("frame_index") for row in rows if type(row) is dict and type(row.get("frame_index")) is int and row["frame_index"] >= 0)
+        copied = {int(key): bytes(value) for key, value in frames.items()}
+        if not declared or declared != frozenset(copied):
+            raise ValueError("PREVIEW_DELIVERY_MANIFEST_INVALID")
+        self._items[delivery_id] = (project_id, job_id, bytes(manifest), copied, declared)
 
     def manifest(self, *, delivery_id: str, project_id: str, job_id: str) -> bytes | None:
         value = self._items.get(delivery_id)
@@ -133,4 +141,4 @@ class InMemoryPreviewDelivery:
 
     def frame(self, *, delivery_id: str, project_id: str, job_id: str, frame_index: int) -> bytes | None:
         value = self._items.get(delivery_id)
-        return None if value is None or value[:2] != (project_id, job_id) else value[3].get(frame_index)
+        return None if value is None or value[:2] != (project_id, job_id) or frame_index not in value[4] else value[3].get(frame_index)

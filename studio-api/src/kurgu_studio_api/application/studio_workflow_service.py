@@ -293,7 +293,11 @@ class StudioWorkflowService:
                 outcome = PreviewExecutionResult(state="failed", receipt_hash=outcome.receipt_hash, preview_manifest_bytes=None, frames={}, public_failure_code="PREVIEW_DELIVERY_UNAVAILABLE")
                 self.preview_jobs.transition_preview_job(job.job_id, state="failed", created_at=self.clock.now_utc(), public_failure_code=outcome.public_failure_code, receipt_hash=outcome.receipt_hash)
                 return self._preview_job(project_id, job.job_id)
-            self.preview_delivery.put(delivery_id=delivery_id, project_id=project_id, job_id=job.job_id, manifest=outcome.preview_manifest_bytes, frames=outcome.frames)
+            try:
+                self.preview_delivery.put(delivery_id=delivery_id, project_id=project_id, job_id=job.job_id, manifest=outcome.preview_manifest_bytes, frames=outcome.frames)
+            except (TypeError, ValueError):
+                self.preview_jobs.transition_preview_job(job.job_id, state="failed", created_at=self.clock.now_utc(), public_failure_code="PREVIEW_DELIVERY_UNAVAILABLE", receipt_hash=outcome.receipt_hash)
+                return self._preview_job(project_id, job.job_id)
             self.preview_jobs.transition_preview_job(job.job_id, state="succeeded", created_at=self.clock.now_utc(), receipt_hash=outcome.receipt_hash, preview_manifest_hash=manifest_hash, delivery_id=delivery_id)
         else:
             self.preview_jobs.transition_preview_job(job.job_id, state=outcome.state, created_at=self.clock.now_utc(), public_failure_code=outcome.public_failure_code or "PREVIEW_EXECUTION_FAILED", receipt_hash=outcome.receipt_hash)

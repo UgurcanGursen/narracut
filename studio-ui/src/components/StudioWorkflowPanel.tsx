@@ -4,6 +4,7 @@ import {
   StudioApiError,
   type ProjectReviewDto,
   type PreviewJobDto,
+  type PreviewEventCollectionDto,
   type SequenceReviewDto,
   type StudioApi,
   type StudioTaskDto,
@@ -29,6 +30,8 @@ export function StudioWorkflowPanel({ api, projectId }: StudioWorkflowPanelProps
   const [review, setReview] = useState<ProjectReviewDto | null>(null);
   const [sequence, setSequence] = useState<SequenceReviewDto | null>(null);
   const [preview, setPreview] = useState<PreviewJobDto | null>(null);
+  const [previewEvents, setPreviewEvents] = useState<PreviewEventCollectionDto | null>(null);
+  const [previewFrameUrl, setPreviewFrameUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<StudioApiError | null>(null);
 
@@ -108,7 +111,7 @@ export function StudioWorkflowPanel({ api, projectId }: StudioWorkflowPanelProps
   }
 
   async function openSequence(sequenceId: string) {
-    setBusy(true); setError(null); setPreview(null);
+    setBusy(true); setError(null); setPreview(null); setPreviewEvents(null); setPreviewFrameUrl(null);
     try { setSequence(await api.getSequenceReview(projectId, sequenceId)); }
     catch (caught) { setError(safeError(caught)); }
     finally { setBusy(false); }
@@ -120,7 +123,14 @@ export function StudioWorkflowPanel({ api, projectId }: StudioWorkflowPanelProps
     try {
       const sequenceId = requiredText(sequence.sequence.executable_sequence_id);
       if (!sequenceId) throw new StudioApiError('API_ERROR', 'The review sequence is invalid.');
-      setPreview(await api.requestSequencePreview(projectId, sequenceId));
+      const job = await api.requestSequencePreview(projectId, sequenceId);
+      setPreview(job);
+      setPreviewEvents(await api.listPreviewEvents(projectId, job.job_id));
+      if (job.state === 'succeeded') {
+        const manifest: unknown = JSON.parse(await api.getPreviewManifest(projectId, job.job_id));
+        const first = typeof manifest === 'object' && manifest !== null && Array.isArray((manifest as { frames?: unknown }).frames) ? (manifest as { frames: Array<{ frame_index?: unknown }> }).frames[0] : undefined;
+        if (typeof first?.frame_index === 'number') setPreviewFrameUrl(URL.createObjectURL(await api.getPreviewFrame(projectId, job.job_id, first.frame_index)));
+      }
     } catch (caught) { setError(safeError(caught)); }
     finally { setBusy(false); }
   }
@@ -167,7 +177,7 @@ export function StudioWorkflowPanel({ api, projectId }: StudioWorkflowPanelProps
       <button type="button" onClick={() => void checkReview()} disabled={busy}>Check review availability</button>
       {review?.status === 'unavailable' ? <p className="empty-state">No executable review snapshot is available yet.</p> : null}
       {review?.status === 'available' ? <div className="review-list">{review.sequence_ids.map((sequenceId) => <button type="button" key={sequenceId} className="secondary-button" onClick={() => void openSequence(sequenceId)} disabled={busy}>Review sequence</button>)}</div> : null}
-      {sequence ? <div className="workflow-detail"><p><strong>Video EDL:</strong> {requiredText(sequence.edl_binding.video_edl_hash)}</p><p><strong>Audio EDL:</strong> {requiredText(sequence.edl_binding.audio_edl_hash)}</p><button type="button" className="secondary-button" onClick={() => void requestPreview()} disabled={busy}>Render preview</button>{preview ? <p className="workflow-copy">Preview attempt {preview.attempt_ordinal}: {preview.state}{preview.public_failure_code ? ` (${preview.public_failure_code})` : ''}</p> : null}{sequence.decision ? <p className="validation-warning">Decision locked: {requiredText(sequence.decision.action)}</p> : <div className="decision-actions"><button type="button" onClick={() => void decide('approve')} disabled={busy}>Approve sequence</button><button type="button" className="secondary-button" onClick={() => void decide('replacement_requested')} disabled={busy}>Request asset change</button></div>}</div> : null}
+      {sequence ? <div className="workflow-detail"><p><strong>Video EDL:</strong> {requiredText(sequence.edl_binding.video_edl_hash)}</p><p><strong>Audio EDL:</strong> {requiredText(sequence.edl_binding.audio_edl_hash)}</p><button type="button" className="secondary-button" onClick={() => void requestPreview()} disabled={busy}>Render preview</button>{preview ? <><p className="workflow-copy">Preview attempt {preview.attempt_ordinal}: {preview.state}{preview.public_failure_code ? ` (${preview.public_failure_code})` : ''}</p>{previewEvents ? <p className="workflow-copy">Stages: {previewEvents.items.map((item) => item.state).join(' → ')}</p> : null}{previewFrameUrl ? <img className="preview-frame" src={previewFrameUrl} alt="Server-declared preview frame" /> : null}</> : null}{sequence.decision ? <p className="validation-warning">Decision locked: {requiredText(sequence.decision.action)}</p> : <div className="decision-actions"><button type="button" onClick={() => void decide('approve')} disabled={busy}>Approve sequence</button><button type="button" className="secondary-button" onClick={() => void decide('replacement_requested')} disabled={busy}>Request asset change</button></div>}</div> : null}
     </section>
     {error ? <div className="error-state workflow-error" role="alert"><strong>{error.code}</strong><span>{error.message}</span></div> : null}
   </section>;

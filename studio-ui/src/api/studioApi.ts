@@ -6,6 +6,8 @@ import {
   decideSequenceReview as generatedDecideSequenceReview,
   getProjectReview as generatedGetProjectReview,
   getPreviewJob as generatedGetPreviewJob,
+  getPreviewManifest as generatedGetPreviewManifest,
+  getPreviewFrame as generatedGetPreviewFrame,
   listPreviewEvents as generatedListPreviewEvents,
   getProjectStatus as generatedGetProjectStatus,
   listProjects as generatedListProjects,
@@ -93,6 +95,8 @@ export interface StudioApi {
   requestSequencePreview(projectId: string, sequenceId: string): Promise<PreviewJobDto>;
   getPreviewJob(projectId: string, jobId: string): Promise<PreviewJobDto>;
   listPreviewEvents(projectId: string, jobId: string, after?: number): Promise<PreviewEventCollectionDto>;
+  getPreviewManifest(projectId: string, jobId: string): Promise<string>;
+  getPreviewFrame(projectId: string, jobId: string, frameIndex: number): Promise<Blob>;
 }
 
 const SAFE_ERROR_MESSAGES: Readonly<Record<string, string>> = {
@@ -349,6 +353,16 @@ export function createStudioApi(options: { baseUrl?: string } = {}): StudioApi {
     },
     listPreviewEvents(projectId: string, jobId: string, after = 0) {
       return execute<PreviewEventCollectionDto>(generatedListPreviewEvents({ client, path: { project_id: projectId, job_id: jobId }, query: { after } }));
+    },
+    async getPreviewManifest(projectId: string, jobId: string) {
+      const value = await execute<unknown>(generatedGetPreviewManifest({ client, path: { project_id: projectId, job_id: jobId }, parseAs: 'text' }));
+      if (typeof value !== 'string') throw new StudioApiError('API_ERROR', 'The preview manifest is invalid.');
+      return value;
+    },
+    async getPreviewFrame(projectId: string, jobId: string, frameIndex: number) {
+      const value = await execute<unknown>(generatedGetPreviewFrame({ client, path: { project_id: projectId, job_id: jobId, frame_index: frameIndex }, parseAs: 'blob' }));
+      if (!(value instanceof Blob)) throw new StudioApiError('API_ERROR', 'The preview frame is invalid.');
+      return value;
     },
   });
 }
