@@ -1,6 +1,7 @@
 """Phase 14 deterministic cache identity and read-only storage reporting."""
 from __future__ import annotations
 import hashlib
+import os
 from pathlib import Path
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 
@@ -21,7 +22,10 @@ def cache_put(root: Path, key: str, payload: bytes) -> Path:
     target = root / "sha256" / key[7:9] / key[9:]
     target.parent.mkdir(parents=True, exist_ok=True)
     if target.exists() and target.read_bytes() != payload: raise ValueError("CACHE_COLLISION")
-    target.write_bytes(payload); return target
+    temporary = target.with_suffix(".staging")
+    with temporary.open("xb") as stream:
+        stream.write(payload); stream.flush(); os.fsync(stream.fileno())
+    os.replace(temporary, target); return target
 
 def cache_get(root: Path, key: str) -> bytes | None:
     target = root / "sha256" / key[7:9] / key[9:]
