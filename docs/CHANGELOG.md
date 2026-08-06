@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 closure-repair contract audit
+
+- Passed the narrow sequence/soft-quota/FULL-A/V contract audit; implementation
+  authorization remains separate.
+
 ## 2026-08-06 - Phase 14 closure-repair candidate contract
 
 - Defined pure sequence decisions, visible soft-quota admission and fixed FULL

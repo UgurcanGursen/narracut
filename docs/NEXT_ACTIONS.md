@@ -11,10 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Independently audit `docs/specifications/phase14_closure_repair_contract.md`
-before implementation authorization. Do not implement permanent deletion,
-automatic worker/scheduler behavior, provider transport, generic queue/retry,
-Studio FULL-render route or Phase 15 validation behavior.
+Make an independent bounded implementation authorization decision for
+`docs/specifications/phase14_closure_repair_contract.md`. Do not implement
+permanent deletion, automatic worker/scheduler behavior, provider transport,
+generic queue/retry, Studio FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
