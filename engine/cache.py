@@ -11,3 +11,14 @@ def cache_key(*, profile: str, inputs: dict) -> str:
 def storage_usage(root: Path) -> dict[str, int]:
     resolved = root.resolve(strict=True)
     return {"file_count":sum(1 for item in resolved.rglob("*") if item.is_file()),"bytes":sum(item.stat().st_size for item in resolved.rglob("*") if item.is_file())}
+
+def cache_put(root: Path, key: str, payload: bytes) -> Path:
+    if not key.startswith("sha256:"): raise ValueError("CACHE_KEY_INVALID")
+    target = root / "sha256" / key[7:9] / key[9:]
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists() and target.read_bytes() != payload: raise ValueError("CACHE_COLLISION")
+    target.write_bytes(payload); return target
+
+def cache_get(root: Path, key: str) -> bytes | None:
+    target = root / "sha256" / key[7:9] / key[9:]
+    return target.read_bytes() if target.is_file() else None
