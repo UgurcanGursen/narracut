@@ -96,6 +96,17 @@ def execute_trash_plan(*, managed_root: Path, plan: Mapping[str, Any], records: 
     return {"receipt_id":receipt_id,"receipt_hash":receipt_hash,**body}
 
 
+def restore_trash_receipt(*, managed_root: Path, plan_id: str, receipt: Mapping[str, Any]) -> None:
+    body = {key: value for key, value in receipt.items() if key not in {"receipt_id", "receipt_hash"}}
+    receipt_id, receipt_hash = _identity("ltr_", body)
+    if receipt.get("receipt_id") != receipt_id or receipt.get("receipt_hash") != receipt_hash: raise ValueError("LIFECYCLE_RECEIPT_INVALID")
+    root = managed_root.resolve(strict=True)
+    for item in receipt["moved"]:
+        source = root / ".trash" / plan_id / item["artifact_id"]; target = root / item["artifact_id"]
+        if not source.is_file() or target.exists(): raise ValueError("LIFECYCLE_RESTORE_INVALID")
+        os.replace(source, target)
+
+
 def append_registry_record(*, registry_path: Path, record: ArtifactRegistryRecord) -> None:
     """Durably append a verified record; never writes content or deletes files."""
     registry_path.parent.mkdir(parents=True, exist_ok=True)
