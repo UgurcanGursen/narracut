@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache-plan execution contract audit
+
+- Returned `FIX_REQUIRED`: separate receipt/event appends could publish partial
+  durable state. A single batch-transaction record is required before code.
+
 ## 2026-08-06 - Phase 14 cache-plan execution candidate contract
 
 - Defined append-only cache lifecycle events, transactional payload trash and
