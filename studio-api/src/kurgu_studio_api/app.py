@@ -30,6 +30,10 @@ def create_app(runtime: Runtime | None = None) -> FastAPI:
     )
     application.openapi_version = OPENAPI_VERSION
     application.state.runtime = active_runtime
+    @application.get("/health", include_in_schema=False)
+    def health() -> dict[str, str]:
+        """Local liveness only; it never reports credentials or provider state."""
+        return {"status": "ok", "scope": "local_beta"}
     register_exception_handlers(application)
     application.include_router(
         create_v1_router(
