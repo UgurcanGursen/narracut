@@ -12,6 +12,7 @@ from engine.contracts.audio_edl import serialize_audio_edl
 from engine.contracts.edl import serialize_video_edl
 from tests.test_render_bridge import FIXTURE_ROOT, ROOT, build_phase4a_rich_replay_inputs
 from engine.lifecycle import load_registry
+from engine.performance import benchmark_hash_preserving
 
 
 def _run(payload=b"manifest"):
@@ -61,8 +62,15 @@ def test_adapter_wraps_one_real_phase4_preview_and_reuses_its_manifest(tmp_path)
     kwargs = dict(cache_root=tmp_path / "cache", managed_storage_root=tmp_path,
         registry_path=tmp_path / "registry.jsonl", profile="preview", inputs={"render_props_hash": props.render_props_hash},
         estimated_bytes=10_000, hard_limit_bytes=20_000, lifecycle_timestamp_utc="2026-08-06T00:00:00Z")
-    rendered = run_phase4_preview_cached(**kwargs, runner=invoke)
-    reused = run_phase4_preview_cached(**kwargs, runner=lambda: pytest.fail("renderer must not run on cache hit"))
+    outcomes = []
+    def baseline() -> bytes:
+        outcome = run_phase4_preview_cached(**kwargs, runner=invoke); outcomes.append(outcome)
+        return outcome.preview_manifest_bytes
+    def candidate() -> bytes:
+        outcome = run_phase4_preview_cached(**kwargs, runner=lambda: pytest.fail("renderer must not run on cache hit")); outcomes.append(outcome)
+        return outcome.preview_manifest_bytes
+    receipt = benchmark_hash_preserving(baseline=baseline, candidate=candidate)
+    rendered, reused = outcomes
     assert rendered.disposition == "RENDERED" and reused.disposition == "CACHE_HIT"
-    assert reused.output_sha256 == rendered.output_sha256
+    assert receipt["quality_preserved"] and receipt["improved"]
     assert {record.artifact_id for record in load_registry(registry_path=tmp_path / "registry.jsonl")} == {record.artifact_id for record in runs[0].artifacts.records}
