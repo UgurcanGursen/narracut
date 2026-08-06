@@ -75,17 +75,17 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   append-only SQLite preview-job/event log, trusted persisted render-input
   resolver seam, Phase-4-owned REPLAY executor adapter, safe attempt-local
   manifest/frame delivery endpoints, finite reconnectable SSE projection and
-  regenerated HTTP-only React client/UI control. It is not accepted yet:
-  canonical two-sequence handoff provenance and independent acceptance remain
-  the next gate. Phase 14 storage/GC is still unavailable by design.
-- The first implementation acceptance audit is `FIX_REQUIRED` at
+  regenerated HTTP-only React client/UI control. Its bounded repair is accepted
+  at `baseline/phase13_preview_audit_repair_acceptance_report.md`; Phase 14
+  storage/GC is still unavailable by design.
+- The first implementation acceptance audit was `FIX_REQUIRED` at
   `baseline/phase13_replay_preview_implementation_acceptance_audit.md`.
-  The first repair now validates canonical snapshot/EDL/RenderProps identities
-  before SQLite persistence and proves two fixture snapshots reopen exactly.
-  Actual Studio renderer evidence remains open. Delivery now permits only
-  manifest-declared frame indexes, and the HTTP-only UI consumes safe events
-  plus a declared frame through the generated client.
-  The repair authorization is now
+  The accepted repair validates canonical snapshot/EDL/RenderProps identities
+  before SQLite persistence; two project-bound Phase 12/3 inputs reopen
+  exactly and each invokes the actual Phase 4 REPLAY runner through Studio.
+  Delivery permits only manifest-declared frame indexes and is unavailable
+  after restart; the HTTP-only UI consumes safe events plus a declared frame
+  through the generated client. The repair authorization was
   `baseline/phase13_preview_audit_repair_authorization.md`; it permits only
   canonical admission, two-sequence REPLAY evidence, verified delivery and UI
   evidence-consumption repairs, not Phase 14 work.

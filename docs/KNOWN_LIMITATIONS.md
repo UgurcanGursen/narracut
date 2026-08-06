@@ -19,21 +19,20 @@ Son guncelleme: 6 Agustos 2026
   approval and immutable Phase 12/Phase 3 review decisions; it does not make
   a provider call or automate a web AI interface.
 - `MASTER_PHASE_CLOSED` is intentionally open. The local implementation has a
-  REPLAY-only preview job/event/delivery seam, but acceptance has not yet
-  proved a canonical two-sequence Phase 12/3 handoff into it. Phase 14 has not
-  supplied durable storage or GC read models; the UI must report unavailable
-  rather than invent those values.
+  verified two-sequence Phase 12/3-to-Phase-4 REPLAY preview handoff, but Phase
+  14 has not supplied durable storage or GC read models; the UI must report
+  unavailable rather than invent those values.
 - Preview delivery is intentionally attempt-local memory. It is unavailable
   after application restart and is not an artifact store, cache, retention
   mechanism, quota calculation or restoration claim.
 - The Studio endpoint accepts no path, source URL, props, EDL bytes or render
   mode. Only a trusted resolver can supply a persisted snapshot; normal
   runtime projects without one fail closed as `RENDER_INPUT_UNAVAILABLE`.
-- Canonical snapshot identity/EDL/RenderProps validation is now performed
-  before SQLite write, but actual two-sequence Phase 4 Studio execution still
-  has no acceptance evidence. Delivery rejects undeclared frames and the UI
-  consumes declared evidence through generated HTTP calls; durable ownership
-  remains Phase 14. Do not present the local preview seam as completed.
+- Canonical snapshot identity/EDL/RenderProps validation is performed before
+  SQLite write, and actual two-sequence Phase 4 Studio execution has bounded
+  acceptance evidence. Delivery rejects undeclared frames and the UI consumes
+  declared evidence through generated HTTP calls; durable ownership remains
+  Phase 14. Do not present the local preview seam as durable lifecycle work.
 
 ## Faz 12 status note
 

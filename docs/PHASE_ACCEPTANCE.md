@@ -4,15 +4,18 @@
 
 | Gate | Result |
 |---|---|
-| Local SQLite job/event lineage and safe API/UI implementation | FIX_REQUIRED (`P13-PA-001`..`004`) |
-| Canonical two-sequence Phase 12/3 handoff evidence | NOT SATISFIED |
+| Local SQLite job/event lineage and safe API/UI implementation | ACCEPT (bounded repair) |
+| Canonical two-sequence Phase 12/3 handoff evidence | PASS (actual Studio-to-Phase-4 REPLAY execution) |
 | Phase 14 durable storage/GC handoff | UNAVAILABLE_OWNER_PHASE14 |
 | Phase 13 Master Roadmap | OPEN / NOT CLOSED |
 
 The implementation consumes no caller-provided paths, URLs, EDL bytes,
-RenderProps or render mode. The acceptance audit at
-`baseline/phase13_replay_preview_implementation_acceptance_audit.md` is
-`FIX_REQUIRED`; no Phase 13 closure claim is permitted.
+RenderProps or render mode. The original audit at
+`baseline/phase13_replay_preview_implementation_acceptance_audit.md` was
+`FIX_REQUIRED`; its bounded repair is accepted at
+`baseline/phase13_preview_audit_repair_acceptance_report.md`. No Phase 13
+Master closure claim is permitted: durable lifecycle and storage remain Phase
+14 ownership.
 
 ## Phase 13 Master-criterion integration decision â€” 2026-08-06
 

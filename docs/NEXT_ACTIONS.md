@@ -11,11 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the bounded Phase 13 preview audit repair authorized by
-`baseline/phase13_preview_audit_repair_authorization.md`. Close only
-`P13-PA-001` through `P13-PA-004`; then run the acceptance gates. Do not
-implement Phase 14 lifecycle, FULL render, provider transport or generic
-queue/retry work.
+Perform a read-only Phase 13 Master-closure reconciliation using
+`baseline/phase13_preview_audit_repair_acceptance_report.md`. Decide whether
+any remaining Phase 13 Master criterion is implementable without crossing the
+Phase 14 durable-lifecycle boundary; otherwise record the formal Phase 14
+handoff. Do not implement Phase 14 lifecycle, FULL render, provider transport
+or generic queue/retry work.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

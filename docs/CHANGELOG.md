@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 actual Studio REPLAY preview acceptance repair
+
+- Replaced the fake success-only evidence with a canonical two-sequence Studio
+  HTTP test that invokes the real Phase 4 REPLAY runner and verifies five
+  manifest-declared PNG frames for each sequence.
+- The bounded audit repair is accepted; persistent artifact lifecycle, cache,
+  cleanup, storage accounting and FULL render remain explicitly deferred to
+  Phase 14.
+
 ## 2026-08-06 - Phase 13 preview delivery and UI repair
 
 - Delivery now rejects frame mappings that do not exactly match the canonical
