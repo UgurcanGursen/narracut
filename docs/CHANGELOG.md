@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 closure-repair implementation audit
+
+- Returned `FIX_REQUIRED`: pure closure evidence is not yet consumed by real
+  lifecycle entrypoints or a fixed FULL A/V replay fixture.
+
 ## 2026-08-06 - Phase 14 closure-repair implementation authorization
 
 - Authorized pure sequence decisions, visible soft quota and local FULL A/V
