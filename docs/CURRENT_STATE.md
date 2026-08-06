@@ -20,6 +20,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase15_master_gap_reconciliation.md`. The next bounded package is
   canonical Phase 4/14/domain evidence attachment; no live transport is
   selected or enabled.
+- The authorized attachment implementation is now at
+  `engine/validation/evidence_attachment.py`. It has real local Phase 4
+  preview, Phase 14 registry and Domain Pack snapshot evidence; acceptance
+  remains open.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.

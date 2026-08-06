@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 evidence attachment implementation
+
+- Added a local fail-closed attachment from canonical Phase 4/14/Domain Pack
+  evidence to the first four quality checks; implementation acceptance is open.
+
 ## 2026-08-06 - Phase 15 evidence attachment implementation authorization
 
 - Authorized only local cross-evidence attachment and focused tests.
