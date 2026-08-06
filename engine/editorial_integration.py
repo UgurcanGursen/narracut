@@ -16,7 +16,7 @@ from engine.contracts.audio_edl import AudioEdlArtifact, serialize_audio_edl
 from engine.planner.contracts import PlannerContractError, validate_record
 from engine.rendering.template_contract import TemplateDefinition, TemplateId, template_policy_from_policy_snapshot
 from engine.rendering.template_registry import TemplateRegistry
-from engine.visualization import VisualizationArtifactV1
+from engine.visualization import VisualizationArtifactV1, serialize_visualization_artifact
 
 
 EDITORIAL_INTEGRATION_POLICY_V1 = "EDITORIAL-INTEGRATION-POLICY-V1"
@@ -169,7 +169,10 @@ class EditorialIntegrationCompiler:
             capability_pairs = tuple(map(tuple, record["template_capability_id_hash_pairs"])); available = [caps[pair] for pair in capability_pairs if pair in caps]
             if not available: _fail("TEMPLATE_CAPABILITY_MISSING")
             capability = sorted(available, key=lambda item: item.capability_id)[0]
-            if visualization is not None and (type(visualization) is not VisualizationArtifactV1 or (visualization.policy.policy_snapshot_id, visualization.policy.policy_snapshot_hash) != (policy.policy_snapshot_id, policy.policy_snapshot_hash)) : _fail("VISUALIZATION_BINDING_INVALID")
+            if visualization is not None:
+                if type(visualization) is not VisualizationArtifactV1 or (visualization.policy.policy_snapshot_id, visualization.policy.policy_snapshot_hash) != (policy.policy_snapshot_id, policy.policy_snapshot_hash): _fail("VISUALIZATION_BINDING_INVALID")
+                try: serialize_visualization_artifact(visualization)
+                except Exception: _fail("VISUALIZATION_BINDING_INVALID")
             mode = "asset_with_visualization" if visualization is not None else "asset_only"
             if mode not in policy.allowed_execution_modes: _fail("EDITORIAL_EXECUTION_MODE_DENIED")
             direction = audio_directions.get(_pair(direction_pair, "cad_"))

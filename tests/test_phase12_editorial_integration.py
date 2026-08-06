@@ -27,6 +27,9 @@ from engine.editorial_integration import (ApprovedAssetSelectionV1, ContinuitySt
                                            editorial_integration_policy_from_snapshot,
                                            template_capabilities_from_snapshot)
 from engine.planner import PlannerAssemblyRequestV1, SequencePlanV1, planner_policy_from_snapshot
+from engine.visualization import (VisualizationItemV1, VisualizationKind,
+                                  compile_visualization_artifact,
+                                  visualization_policy_from_snapshot)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -108,6 +111,14 @@ def test_phase3_video_compiler_receives_only_explicit_execution_handoff() -> Non
     source = SourceDescriptor(selection.asset_id, 30, 1, 0, 30, SourcePlaybackMode.FIT, SourceFitMode.COVER, 0, 0, 1_000_000, 1_000_000, 1_000_000, first.source_id, last.source_id)
     edl = compile_phase3_video_edl_from_execution(execution=plan["sequences"][0], cue=cue, source=source, caption_groups=groups, emphasis_events=events, word_to_frame=frames, caption_preview=preview, v5_v6_collision_report=report, fps_numerator=30, fps_denominator=1)
     assert edl.sequence_id == plan["sequences"][0]["executable_sequence_id"]
+
+
+def test_phase7_visualization_is_canonically_bound_when_selected() -> None:
+    from tests.test_visualization_contracts import _capture, _chart
+    snapshot, request, sequence, catalog, selection, caps, audio, direction = _inputs()
+    capture = _capture(); visualization = compile_visualization_artifact(title="Q1", editorial_role="quantify", policy=visualization_policy_from_snapshot(snapshot), items=(_chart(capture),), capture_plans={capture.source_capture_plan_id: capture})
+    plan = EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=editorial_integration_policy_from_snapshot(snapshot), sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), pacing_roles=("mechanism",), visualizations=(visualization,)).data()
+    assert plan["sequences"][0]["execution_mode"] == "asset_with_visualization"
 
 
 def test_two_sequence_plan_produces_hash_bound_video_and_audio_edl_bundle() -> None:
