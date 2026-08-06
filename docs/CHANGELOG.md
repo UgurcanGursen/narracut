@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master repair scope reconciliation
+
+- Froze explicit FULL artifact policy mapping, trusted disk-pressure admission
+  and synchronous quota-facade boundaries before implementation design.
+
 ## 2026-08-06 - Phase 14 Master acceptance reconciliation
 
 - Kept Phase 14 open for FULL artifact registration, free-disk admission and
