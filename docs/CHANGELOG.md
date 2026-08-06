@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 - Phase 17 IBM and WeWork evidence preparation
+
+- Selected two 12–15 minute real-project briefs and recorded public factual
+  source candidates, individually licensed media candidates and the precise
+  non-REPLAY timing-contract gap.
+- Kept product-gate evidence open: no external source/media was imported, no
+  benchmark reference accepted and no real render claimed.
+
 ## 2026-08-06 - Phase 17 local/beta foundation
 
 - Added local recovery, import/export/archive, queue, health/launcher and

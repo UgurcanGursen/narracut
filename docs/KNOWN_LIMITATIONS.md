@@ -456,6 +456,23 @@ IMPLEMENTATION_STATUS=NOT_STARTED
 PHASE2_CLOSED=NO
 ```
 
+## Phase 17 product-gate evidence limitations
+
+- `baseline/phase17_ibm_wework_evidence_preparation.md` records two selected
+  project briefs and candidate public sources/media. It is not an import,
+  accepted claim set, benchmark result, timing result, render run or product
+  acceptance.
+- The listed Commons assets require a fresh file-page license check and local
+  hash/provenance capture at import time. Corporate logos, third-party footage,
+  screenshots and generic stock are not implicitly licensed by that list.
+- The candidate local WhisperX timing path has no paid API requirement, but
+  the current canonical `AlignmentResult` contract rejects non-REPLAY results.
+  It cannot be called trusted, and either real project cannot count toward the
+  product gate, until a bounded fail-closed adapter, calibration evidence and
+  an accepted end-to-end artifact exist.
+- The three reference videos have not yet been accepted. Public availability
+  is analysis access only and never permission to download or reuse media.
+
 ## Phase 16 benchmark limitations
 
 - Phase 16 measures only existing canonical planner/EDL facts. It never opens

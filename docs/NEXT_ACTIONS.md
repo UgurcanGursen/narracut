@@ -11,11 +11,17 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the remaining P17 local control-plane boundary: expose the audited
-local import/export/archive/recovery capabilities through thin FastAPI routes
-and Studio UI, and connect the durable queue without changing the default
-`REPLAY`/`MANUAL_UI` policy. Do not add remote/provider transport, paid LLM
-calls or browser automation.
+Implement a bounded P17 local non-REPLAY timing-adapter contract and its
+fail-closed integration for the two selected real projects. Preserve existing
+`REPLAY` behaviour; do not add a commercial API, provider credential, browser
+automation or an unbounded background worker. The implementation must make
+timeout, cancellation, resource limits, raw-output lineage, confidence and
+manual calibration evidence explicit. Its scope baseline is
+`baseline/phase17_ibm_wework_evidence_preparation.md`.
+
+The separately audited local import/export/archive/recovery operations still
+need thin FastAPI/UI exposure and durable-queue route integration before the
+product gate can close; neither task is replaced by the timing adapter.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -5,6 +5,8 @@ Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 C
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
+Phase 17 current sub-status: `PRODUCT_GATE_EVIDENCE_PREPARATION`.
+
 ## Phase 16 benchmark foundation accepted; Master evidence remains visible
 
 - Scope reconciliation is recorded at `baseline/phase16_scope_reconciliation.md`.
@@ -22,6 +24,16 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   audited at `baseline/phase17_local_beta_implementation_audit.md`.
 - The product gate remains open for queue-route/UI integration and the required
   real, lawful external-reference and two-project evidence.
+
+## Phase 17 IBM + WeWork product-gate evidence preparation
+
+- Two 12–15 minute business-tech project briefs, public factual-source
+  candidates, individually licensed media candidates and the non-REPLAY timing
+  contract gap are recorded in
+  `baseline/phase17_ibm_wework_evidence_preparation.md`.
+- This is preparation evidence only: no external source has been imported, no
+  timing producer is trusted, no benchmark reference is accepted and no real
+  project/render run is claimed.
 
 ## Historical Phase 15 validation and observability record
 
