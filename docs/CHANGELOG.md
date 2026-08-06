@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 post-source-audio Master-gap reconciliation
+
+- Selected only registry/deletion-plan artifact-integrity validation; actual
+  audio-boundary measurement and final-narration/domain safety remain open.
+
 ## 2026-08-06 - Phase 15 source-audio direction bounded acceptance
 
 - Accepted local Phase 8/11 source-speech policy-direction attachment; final

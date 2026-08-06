@@ -11,11 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 15 Master-gap reconciliation for the remaining
-audio-boundary, expanded-domain/final-narration and artifact-integrity rows.
-Do not implement, enable live transport, retry, queue/worker, media decode or
-classification, mixing, renderer/EDL mutation, Studio/UI, Phase 16 or Phase
-17 behavior.
+Create and independently audit a candidate contract for Phase 15
+`ArtifactIntegrityValidator`, as bounded by
+`baseline/phase15_post_source_audio_gap_reconciliation.md`. Do not implement
+it yet. Do not inspect arbitrary paths, delete anything, enable live
+transport, retry, queue/worker, media decode/classification, mixing,
+renderer/EDL mutation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

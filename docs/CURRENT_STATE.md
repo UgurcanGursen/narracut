@@ -42,6 +42,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   passed independent implementation audit at
   `baseline/phase15_source_audio_direction_implementation_audit.md`; bounded
   acceptance is at `baseline/phase15_source_audio_direction_bounded_acceptance.md`.
+- The remaining Master rows are reconciled at
+  `baseline/phase15_post_source_audio_gap_reconciliation.md`; the next bounded
+  candidate is registry/deletion-plan-only artifact integrity.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
