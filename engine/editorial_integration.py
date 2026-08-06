@@ -11,6 +11,8 @@ from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.contracts.domain import policy_snapshot_hash
 from engine.contracts.models import DomainPolicySnapshot
 from engine.contracts.edl import CueWordRange, SourceDescriptor, TimelineTrack, VideoEditIntent, VideoEdlArtifact, compile_video_edl
+from engine.contracts.edl import serialize_video_edl
+from engine.contracts.audio_edl import AudioEdlArtifact, serialize_audio_edl
 from engine.planner.contracts import PlannerContractError, validate_record
 from engine.rendering.template_contract import TemplateDefinition, TemplateId, template_policy_from_policy_snapshot
 from engine.rendering.template_registry import TemplateRegistry
@@ -115,10 +117,27 @@ class ExecutableEditorialPlanV1:
         return {"executable_editorial_plan_id": "eeplan_" + digest[7:27], "executable_editorial_plan_hash": digest, **body}
 
 
+@dataclass(frozen=True)
+class FinalEdlBundleV1:
+    executable_plan: ExecutableEditorialPlanV1; video_edls: tuple[VideoEdlArtifact, ...]; audio_edls: tuple[AudioEdlArtifact, ...]
+    def data(self) -> dict[str, object]:
+        plan = self.executable_plan.data()
+        if type(self.executable_plan) is not ExecutableEditorialPlanV1 or type(self.video_edls) is not tuple or type(self.audio_edls) is not tuple or len(self.video_edls) != len(self.audio_edls) or len(self.video_edls) != len(plan["sequences"]): _fail("FINAL_EDL_BUNDLE_INVALID")
+        rows = []
+        for execution, video, audio in zip(plan["sequences"], self.video_edls, self.audio_edls, strict=True):
+            if type(video) is not VideoEdlArtifact or type(audio) is not AudioEdlArtifact: _fail("FINAL_EDL_BUNDLE_INVALID")
+            try: serialize_video_edl(video); serialize_audio_edl(audio)
+            except Exception: _fail("FINAL_EDL_BUNDLE_INVALID")
+            if (video.sequence_id, audio.sequence_id) != (execution["executable_sequence_id"], execution["executable_sequence_id"]) or (audio.video_edl_id, audio.video_edl_hash) != (video.video_edl_id, video.video_edl_hash): _fail("FINAL_EDL_BUNDLE_BINDING_INVALID")
+            rows.append({"executable_sequence_id": execution["executable_sequence_id"], "executable_sequence_hash": execution["executable_sequence_hash"], "video_edl_id": video.video_edl_id, "video_edl_hash": video.video_edl_hash, "audio_edl_id": audio.audio_edl_id, "audio_edl_hash": audio.audio_edl_hash})
+        body = {"schema_version": "PHASE12-FINAL-EDL-BUNDLE-V1", "executable_editorial_plan_id": plan["executable_editorial_plan_id"], "executable_editorial_plan_hash": plan["executable_editorial_plan_hash"], "sequence_edls": rows}; digest = _hash(body)
+        return {"final_edl_bundle_id": "fedl_" + digest[7:27], "final_edl_bundle_hash": digest, **body}
+
+
 class EditorialIntegrationCompiler:
     """Binds accepted cross-phase decisions; it does not schedule media."""
-    def compile(self, *, project_id: str, assembly_request: dict[str, object], policy: EditorialIntegrationPolicyV1, sequence_plans: tuple[dict[str, object], ...], catalog: AssetCatalogV1, selections: tuple[ApprovedAssetSelectionV1, ...], capabilities: tuple[TemplateCapabilityV1, ...], audio_plan: AudioDirectionPlanV1, chapter_audio_direction_pairs: tuple[tuple[str, str], ...], visualizations: tuple[VisualizationArtifactV1 | None, ...]) -> ExecutableEditorialPlanV1:
-        if type(assembly_request) is not dict or type(policy) is not EditorialIntegrationPolicyV1 or type(sequence_plans) is not tuple or type(catalog) is not AssetCatalogV1 or type(selections) is not tuple or type(capabilities) is not tuple or type(audio_plan) is not AudioDirectionPlanV1 or type(chapter_audio_direction_pairs) is not tuple or type(visualizations) is not tuple or len(sequence_plans) != len(visualizations) or len(sequence_plans) != len(chapter_audio_direction_pairs): _fail("EDITORIAL_INTEGRATION_INPUT_INVALID")
+    def compile(self, *, project_id: str, assembly_request: dict[str, object], policy: EditorialIntegrationPolicyV1, sequence_plans: tuple[dict[str, object], ...], catalog: AssetCatalogV1, selections: tuple[ApprovedAssetSelectionV1, ...], capabilities: tuple[TemplateCapabilityV1, ...], audio_plan: AudioDirectionPlanV1, chapter_audio_direction_pairs: tuple[tuple[str, str], ...], pacing_roles: tuple[str, ...], visualizations: tuple[VisualizationArtifactV1 | None, ...]) -> ExecutableEditorialPlanV1:
+        if type(assembly_request) is not dict or type(policy) is not EditorialIntegrationPolicyV1 or type(sequence_plans) is not tuple or type(catalog) is not AssetCatalogV1 or type(selections) is not tuple or type(capabilities) is not tuple or type(audio_plan) is not AudioDirectionPlanV1 or type(chapter_audio_direction_pairs) is not tuple or type(pacing_roles) is not tuple or type(visualizations) is not tuple or len(sequence_plans) != len(visualizations) or len(sequence_plans) != len(chapter_audio_direction_pairs) or len(sequence_plans) != len(pacing_roles): _fail("EDITORIAL_INTEGRATION_INPUT_INVALID")
         if (catalog.project_id, catalog.policy_snapshot_id, catalog.policy_snapshot_hash) != (project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash): _fail("EDITORIAL_INTEGRATION_POLICY_MISMATCH")
         audio = audio_plan.data()
         if (audio["project_id"], audio["policy_snapshot_id"], audio["policy_snapshot_hash"]) != (project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash): _fail("EDITORIAL_INTEGRATION_POLICY_MISMATCH")
@@ -136,7 +155,8 @@ class EditorialIntegrationCompiler:
         if len(selection_by_brief) != len(selections): _fail("APPROVED_ASSET_SELECTION_INVALID")
         audio_directions = {(item["chapter_audio_direction_id"], item["chapter_audio_direction_hash"]): item for item in audio["chapter_directions"]}
         rows: list[dict[str, object]] = []; previous = None
-        for position, (plan, visualization, direction_pair) in enumerate(zip(sequence_plans, visualizations, chapter_audio_direction_pairs, strict=True)):
+        for position, (plan, visualization, direction_pair, pacing_role) in enumerate(zip(sequence_plans, visualizations, chapter_audio_direction_pairs, pacing_roles, strict=True)):
+            if type(pacing_role) is not str or pacing_role not in policy.allowed_pacing_roles: _fail("PACING_ROLE_DENIED")
             try: sequence_id, sequence_hash, record = validate_record("sequence_plan", plan)
             except PlannerContractError: _fail("EDITORIAL_SEQUENCE_PLAN_INVALID")
             if (record["project_id"], record["policy_snapshot_id"], record["policy_snapshot_hash"]) != (project_id, policy.policy_snapshot_id, policy.policy_snapshot_hash): _fail("EDITORIAL_SEQUENCE_PLAN_INVALID")
@@ -155,7 +175,7 @@ class EditorialIntegrationCompiler:
             direction = audio_directions.get(_pair(direction_pair, "cad_"))
             if direction is None: _fail("AUDIO_DIRECTION_BINDING_INVALID")
             state = ContinuityStateV1(sequence_id, position, assets[(selected[0]["asset_id"], selected[0]["asset_hash"])].visual_family_id, capability.capability_id, None if visualization is None else visualization.visualization_id, str(direction["music_intensity"])).data(previous=previous, policy=policy)
-            row = {"sequence_plan_id": sequence_id, "sequence_plan_hash": sequence_hash, "approved_asset_selections": selected, "template_capability_id_hash": [capability.capability_id, capability.capability_hash], "visualization_id_hash": None if visualization is None else [visualization.visualization_id, visualization.visualization_hash], "chapter_audio_direction_id_hash": [direction["chapter_audio_direction_id"], direction["chapter_audio_direction_hash"]], "incoming_continuity_state_id_hash": None if previous is None else [previous["continuity_state_id"], previous["continuity_state_hash"]], "outgoing_continuity_state_id_hash": [state["continuity_state_id"], state["continuity_state_hash"]], "execution_mode": mode}
+            row = {"sequence_plan_id": sequence_id, "sequence_plan_hash": sequence_hash, "approved_asset_selections": selected, "template_capability_id_hash": [capability.capability_id, capability.capability_hash], "visualization_id_hash": None if visualization is None else [visualization.visualization_id, visualization.visualization_hash], "chapter_audio_direction_id_hash": [direction["chapter_audio_direction_id"], direction["chapter_audio_direction_hash"]], "incoming_continuity_state_id_hash": None if previous is None else [previous["continuity_state_id"], previous["continuity_state_hash"]], "outgoing_continuity_state_id_hash": [state["continuity_state_id"], state["continuity_state_hash"]], "execution_mode": mode, "pacing_role": pacing_role}
             digest = _hash(row); rows.append({"executable_sequence_id": "eseq_" + digest[7:27], "executable_sequence_hash": digest, **row}); previous = state
         return ExecutableEditorialPlanV1(project_id, request_pair, policy, tuple(rows))
 
@@ -165,11 +185,16 @@ def canonical_executable_editorial_plan_json(plan: ExecutableEditorialPlanV1) ->
     return encode_canonical_json_bytes(plan.data())
 
 
+def canonical_final_edl_bundle_json(bundle: FinalEdlBundleV1) -> bytes:
+    if type(bundle) is not FinalEdlBundleV1: _fail("FINAL_EDL_BUNDLE_INVALID")
+    return encode_canonical_json_bytes(bundle.data())
+
+
 def compile_phase3_video_edl_from_execution(*, execution: dict[str, object], cue: CueWordRange, source: SourceDescriptor, caption_groups: object, emphasis_events: object, word_to_frame: object, caption_preview: object, v5_v6_collision_report: object, fps_numerator: int, fps_denominator: int) -> VideoEdlArtifact:
     """Compile one explicit approved execution through the existing Phase 3 compiler."""
     if type(execution) is not dict or type(cue) is not CueWordRange or type(source) is not SourceDescriptor:
         _fail("PHASE3_HANDOFF_INVALID")
-    required = {"executable_sequence_id", "executable_sequence_hash", "sequence_plan_id", "sequence_plan_hash", "approved_asset_selections", "template_capability_id_hash", "visualization_id_hash", "chapter_audio_direction_id_hash", "incoming_continuity_state_id_hash", "outgoing_continuity_state_id_hash", "execution_mode"}
+    required = {"executable_sequence_id", "executable_sequence_hash", "sequence_plan_id", "sequence_plan_hash", "approved_asset_selections", "template_capability_id_hash", "visualization_id_hash", "chapter_audio_direction_id_hash", "incoming_continuity_state_id_hash", "outgoing_continuity_state_id_hash", "execution_mode", "pacing_role"}
     if set(execution) != required or not _id(execution["executable_sequence_id"], "eseq_") or not _hash_ok(execution["executable_sequence_hash"]) or type(execution["approved_asset_selections"]) is not list or not execution["approved_asset_selections"]:
         _fail("PHASE3_HANDOFF_INVALID")
     selected = execution["approved_asset_selections"][0]

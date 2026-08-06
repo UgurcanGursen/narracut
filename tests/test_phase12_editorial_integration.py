@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import dataclasses
 from pathlib import Path
 
 import pytest
@@ -14,10 +15,14 @@ from engine.audio_director import (AudioDirectionPlanV1, ChapterAudioDirectionV1
                                    audio_director_policy_from_snapshot)
 from engine.contracts import DomainPackRegistry, DomainPolicyResolver, SchemaCatalog
 from engine.contracts.edl import CueWordRange, SourceDescriptor, SourceFitMode, SourcePlaybackMode
+from engine.contracts.audio_edl import compile_audio_edl
+from engine.contracts.word_to_frame import TemporalFrameRate
 from engine.editorial_integration import (ApprovedAssetSelectionV1, ContinuityStateV1,
                                            EditorialIntegrationCompiler,
                                            EditorialIntegrationError,
+                                           FinalEdlBundleV1,
                                            canonical_executable_editorial_plan_json,
+                                           canonical_final_edl_bundle_json,
                                            compile_phase3_video_edl_from_execution,
                                            editorial_integration_policy_from_snapshot,
                                            template_capabilities_from_snapshot)
@@ -62,8 +67,8 @@ def test_executable_plan_is_deterministic_and_policy_bound() -> None:
     snapshot, request, sequence, catalog, selection, caps, audio, direction = _inputs()
     policy = editorial_integration_policy_from_snapshot(snapshot)
     compiler = EditorialIntegrationCompiler()
-    first = compiler.compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), visualizations=(None,))
-    second = compiler.compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), visualizations=(None,))
+    first = compiler.compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), pacing_roles=("mechanism",), visualizations=(None,))
+    second = compiler.compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), pacing_roles=("mechanism",), visualizations=(None,))
     assert first.data() == second.data()
     assert canonical_executable_editorial_plan_json(first) == canonical_executable_editorial_plan_json(second)
     assert first.data()["sequences"][0]["execution_mode"] == "asset_only"
@@ -75,11 +80,11 @@ def test_missing_approved_range_and_reuse_violation_fail_closed() -> None:
     policy = editorial_integration_policy_from_snapshot(snapshot)
     invalid = ApprovedAssetSelectionV1(selection.planner_asset_brief_pair, selection.asset_id, selection.asset_hash, "rng_missing", selection.range_hash, 0, 0, 1_000_000, 1_000_000, "replay_approved")
     with pytest.raises(EditorialIntegrationError, match="APPROVED_ASSET_SELECTION_INVALID"):
-        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(invalid,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), visualizations=(None,))
+        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(invalid,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), pacing_roles=("mechanism",), visualizations=(None,))
     with pytest.raises(EditorialIntegrationError, match="AUDIO_DIRECTION_BINDING_INVALID"):
-        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(("cad_missing", HASH),), visualizations=(None,))
+        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(("cad_missing", HASH),), pacing_roles=("mechanism",), visualizations=(None,))
     with pytest.raises(EditorialIntegrationError, match="VISUALIZATION_BINDING_INVALID"):
-        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), visualizations=(object(),))  # type: ignore[arg-type]
+        EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=policy, sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), pacing_roles=("mechanism",), visualizations=(object(),))  # type: ignore[arg-type]
     first = ContinuityStateV1("splan_one", 0, "fam_one", "cap_one", None, "low").data(previous=None, policy=policy)
     second = ContinuityStateV1("splan_two", 1, "fam_one", "cap_one", None, "low").data(previous=first, policy=policy)
     with pytest.raises(EditorialIntegrationError, match="CONTINUITY_REUSE_DENIED"):
@@ -96,10 +101,38 @@ def test_dummy_pack_resolves_the_same_core_capability_contract() -> None:
 def test_phase3_video_compiler_receives_only_explicit_execution_handoff() -> None:
     from tests.test_edl import _deps
     snapshot, request, sequence, catalog, selection, caps, audio, direction = _inputs()
-    plan = EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=editorial_integration_policy_from_snapshot(snapshot), sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), visualizations=(None,)).data()
+    plan = EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=editorial_integration_policy_from_snapshot(snapshot), sequence_plans=(sequence,), catalog=catalog, selections=(selection,), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=(direction,), pacing_roles=("mechanism",), visualizations=(None,)).data()
     groups, events, frames, preview, report = _deps()
     first, last = frames.word_frames[0], frames.word_frames[-1]
     cue = CueWordRange(frames.project_id, frames.document_id, frames.narration_revision_id, first.source_id, last.source_id)
     source = SourceDescriptor(selection.asset_id, 30, 1, 0, 30, SourcePlaybackMode.FIT, SourceFitMode.COVER, 0, 0, 1_000_000, 1_000_000, 1_000_000, first.source_id, last.source_id)
     edl = compile_phase3_video_edl_from_execution(execution=plan["sequences"][0], cue=cue, source=source, caption_groups=groups, emphasis_events=events, word_to_frame=frames, caption_preview=preview, v5_v6_collision_report=report, fps_numerator=30, fps_denominator=1)
     assert edl.sequence_id == plan["sequences"][0]["executable_sequence_id"]
+
+
+def test_two_sequence_plan_produces_hash_bound_video_and_audio_edl_bundle() -> None:
+    from tests.test_audio_edl import _compile_inputs
+    from tests.test_edl import _deps
+    snapshot, request, first, catalog, selection, caps, _, _ = _inputs()
+    cap = caps[0]; planner_policy = planner_policy_from_snapshot(snapshot); second_brief = ("pbrief_phase12_two", HASH)
+    second = SequencePlanV1("prj_phase12", planner_policy, "beat_phase12_two", HASH, 1, "Explain", 30_000, (("clm_phase12_two", HASH),), (("fact_phase12_two", HASH),), ((cap.capability_id, cap.capability_hash),), (second_brief,), tuple(f"edit two {x}" for x in range(10)), (), (), None, None, "accepted", 1, "2026-08-06T00:00:00Z").data()
+    request = PlannerAssemblyRequestV1("prj_phase12", snapshot.snapshot_id, snapshot.canonical_hash, ((first["sequence_plan_id"], first["sequence_plan_hash"]), (second["sequence_plan_id"], second["sequence_plan_hash"])), ("psnap_claim", HASH), ("psnap_asset", HASH), ("psnap_template", HASH), ("psnap_cont", HASH)).data()
+    selection_two = dataclasses.replace(selection, planner_asset_brief_pair=second_brief)
+    audio_policy = audio_director_policy_from_snapshot(snapshot)
+    audio = AudioDirectionPlanV1("prj_phase12", audio_policy, (ChapterAudioDirectionV1("chap_phase12", HASH, "medium", ("music_start",), ()), ChapterAudioDirectionV1("chap_phase12_two", HASH, "low", ("music_change",), ())), ())
+    audio_rows = audio.data()["chapter_directions"]
+    direction_pairs = tuple((str(row["chapter_audio_direction_id"]), str(row["chapter_audio_direction_hash"])) for row in audio_rows)
+    plan = EditorialIntegrationCompiler().compile(project_id="prj_phase12", assembly_request=request, policy=editorial_integration_policy_from_snapshot(snapshot), sequence_plans=(first, second), catalog=catalog, selections=(selection, selection_two), capabilities=caps, audio_plan=audio, chapter_audio_direction_pairs=direction_pairs, pacing_roles=("mechanism", "transition_support"), visualizations=(None, None))
+    videos, audios = [], []
+    for execution, rate in zip(plan.data()["sequences"], (TemporalFrameRate(30, 1), TemporalFrameRate(30_000, 1_001)), strict=True):
+        kwargs = _compile_inputs(rate=rate); groups, events, frames, preview, report = _deps(rate=rate)
+        first_word, last_word = frames.word_frames[0], frames.word_frames[-1]
+        cue = CueWordRange(frames.project_id, frames.document_id, frames.narration_revision_id, first_word.source_id, last_word.source_id)
+        selected = execution["approved_asset_selections"][0]
+        source = SourceDescriptor(str(selected["asset_id"]), 30, 1, 0, 30, SourcePlaybackMode.FIT, SourceFitMode.COVER, 0, 0, 1_000_000, 1_000_000, 1_000_000, first_word.source_id, last_word.source_id)
+        video = compile_phase3_video_edl_from_execution(execution=execution, cue=cue, source=source, caption_groups=groups, emphasis_events=events, word_to_frame=frames, caption_preview=preview, v5_v6_collision_report=report, fps_numerator=rate.numerator, fps_denominator=rate.denominator)
+        kwargs["video_edl"] = video
+        videos.append(video); audios.append(compile_audio_edl(**kwargs))
+    bundle = FinalEdlBundleV1(plan, tuple(videos), tuple(audios))
+    assert len(bundle.data()["sequence_edls"]) == 2
+    assert canonical_final_edl_bundle_json(bundle) == canonical_final_edl_bundle_json(bundle)
