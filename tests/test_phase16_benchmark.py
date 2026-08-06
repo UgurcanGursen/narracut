@@ -1,0 +1,10 @@
+from __future__ import annotations
+from engine.benchmark import compile_benchmark,canonical_benchmark_json
+from tests.test_phase12_editorial_integration import _inputs
+from tests.test_audio_edl import _compile_inputs
+from tests.test_edl import _deps
+from engine.editorial_integration import EditorialIntegrationCompiler,editorial_integration_policy_from_snapshot,compile_phase3_video_edl_from_execution
+from engine.contracts.edl import CueWordRange,SourceDescriptor,SourcePlaybackMode,SourceFitMode
+from engine.contracts.audio_edl import compile_audio_edl
+def test_phase16_report_is_canonical_and_marks_unavailable_metrics():
+ s,r,seq,catalog,selection,caps,audio,direction=_inputs(); plan=EditorialIntegrationCompiler().compile(project_id="prj_phase12",assembly_request=r,policy=editorial_integration_policy_from_snapshot(s),sequence_plans=(seq,),catalog=catalog,selections=(selection,),capabilities=caps,audio_plan=audio,chapter_audio_direction_pairs=(direction,),pacing_roles=("mechanism",),visualizations=(None,)); groups,events,frames,preview,report=_deps(); first,last=frames.word_frames[0],frames.word_frames[-1]; cue=CueWordRange(frames.project_id,frames.document_id,frames.narration_revision_id,first.source_id,last.source_id); selected=plan.data()["sequences"][0]["approved_asset_selections"][0]; source=SourceDescriptor(str(selected["asset_id"]),30,1,0,30,SourcePlaybackMode.FIT,SourceFitMode.COVER,0,0,1_000_000,1_000_000,1_000_000,first.source_id,last.source_id); video=compile_phase3_video_edl_from_execution(execution=plan.data()["sequences"][0],cue=cue,source=source,caption_groups=groups,emphasis_events=events,word_to_frame=frames,caption_preview=preview,v5_v6_collision_report=report,fps_numerator=30,fps_denominator=1); kwargs=_compile_inputs(); kwargs["video_edl"]=video; audio_edl=compile_audio_edl(**kwargs); result=compile_benchmark(snapshot=s,plan=plan,videos=(video,),audios=(audio_edl,)); assert result.metrics["sequence_count"]==1 and result.metrics["stock_ratio"]=="UNAVAILABLE"; assert canonical_benchmark_json(result)==canonical_benchmark_json(result)
