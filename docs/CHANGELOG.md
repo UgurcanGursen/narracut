@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 canonical snapshot-admission repair
+
+- Added server-owned canonical REPLAY snapshot construction and pre-persistence
+  identity validation for video/audio EDL bytes, RenderProps and fixture
+  binding.
+- Added a two-sequence fixture persistence/reopen proof. This is a partial
+  repair only; actual Studio renderer, delivery and UI acceptance gates remain
+  open.
+
 ## 2026-08-06 - Phase 13 preview audit-repair authorization
 
 - Authorized one narrow repair package for `P13-PA-001` through `P13-PA-004`.

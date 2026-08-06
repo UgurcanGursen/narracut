@@ -80,9 +80,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   the next gate. Phase 14 storage/GC is still unavailable by design.
 - The first implementation acceptance audit is `FIX_REQUIRED` at
   `baseline/phase13_replay_preview_implementation_acceptance_audit.md`.
-  Snapshot bytes are not verified before SQLite persistence, the success test
-  substitutes a fake executor, delivery does not derive its permitted frames
-  from a verified descriptor, and the UI does not consume preview evidence.
+  The first repair now validates canonical snapshot/EDL/RenderProps identities
+  before SQLite persistence and proves two fixture snapshots reopen exactly.
+  Actual Studio renderer evidence, verified delivery descriptors and UI preview
+  evidence consumption remain open.
   The repair authorization is now
   `baseline/phase13_preview_audit_repair_authorization.md`; it permits only
   canonical admission, two-sequence REPLAY evidence, verified delivery and UI
