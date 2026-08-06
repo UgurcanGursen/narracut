@@ -15,7 +15,7 @@ from engine.lifecycle import (
     append_registry_records,
     import_verified_artifact_rows,
 )
-from engine.cache_lifecycle import cache_write_lifecycle_metadata
+from engine.cache_lifecycle import cache_write_lifecycle_metadata, load_cache_write_lifecycle_metadata
 
 from .preview_runner import PreviewRun
 from .receipt import RenderStatus
@@ -52,6 +52,13 @@ def run_phase4_preview_cached(
     key = cache_key(profile=profile, inputs=inputs)
     hit = cache_get(cache_root, key)
     if hit is not None:
+        if hit.lifecycle is None:
+            raise ValueError("CACHE_LIFECYCLE_MISSING")
+        entry_record, payload_record = load_cache_write_lifecycle_metadata(hit.lifecycle)
+        if (entry_record.cache_key != key or entry_record.profile != profile
+                or payload_record.payload_hash != hit.payload_hash
+                or payload_record.payload_size_bytes != len(hit.payload)):
+            raise ValueError("CACHE_LIFECYCLE_METADATA_INVALID")
         return CachedPreviewOutcome(
             disposition="CACHE_HIT",
             cache_key=key,

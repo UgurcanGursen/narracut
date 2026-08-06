@@ -114,6 +114,16 @@ def cache_write_lifecycle_metadata(*, storage_scope_id: str, cache_key: str,
     return {"cache_entry": entry.__dict__, "payload_object": payload.__dict__}
 
 
+def load_cache_write_lifecycle_metadata(value: Mapping[str, object]) -> tuple[CacheEntryRecord, CachePayloadObject]:
+    if set(value) != {"cache_entry", "payload_object"} or type(value["cache_entry"]) is not dict or type(value["payload_object"]) is not dict:
+        raise ValueError("CACHE_LIFECYCLE_METADATA_INVALID")
+    entry = CacheEntryRecord.materialize(value["cache_entry"])
+    payload = CachePayloadObject.materialize(value["payload_object"])
+    if entry.payload_object_id != payload.payload_object_id or entry.storage_scope_id != payload.storage_scope_id:
+        raise ValueError("CACHE_LIFECYCLE_METADATA_INVALID")
+    return entry, payload
+
+
 @dataclass(frozen=True)
 class RetentionPolicySnapshot:
     policy_hash: str

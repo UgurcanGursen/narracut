@@ -1,6 +1,6 @@
 import hashlib
 import pytest
-from engine.cache_lifecycle import CacheEntryRecord, CachePayloadObject, RetentionPolicySnapshot, cache_write_lifecycle_metadata, plan_soft_quota, resolve_payload_object, storage_report, validate_soft_quota_plan
+from engine.cache_lifecycle import CacheEntryRecord, CachePayloadObject, RetentionPolicySnapshot, cache_write_lifecycle_metadata, load_cache_write_lifecycle_metadata, plan_soft_quota, resolve_payload_object, storage_report, validate_soft_quota_plan
 
 
 def payload(data=b"same"):
@@ -60,4 +60,5 @@ def test_plan_rejects_registry_or_policy_drift():
 
 def test_cache_write_metadata_is_path_free_and_reopenable():
     metadata = cache_write_lifecycle_metadata(storage_scope_id="global_cache", cache_key="sha256:" + "a" * 64, profile="preview", payload_hash="sha256:" + "b" * 64, payload_size_bytes=3, producer_version="v1", timestamp_utc="2026-08-01T00:00:00Z")
-    assert CacheEntryRecord.materialize(metadata["cache_entry"]).payload_object_id == CachePayloadObject.materialize(metadata["payload_object"]).payload_object_id
+    entry, payload = load_cache_write_lifecycle_metadata(metadata)
+    assert entry.payload_object_id == payload.payload_object_id
