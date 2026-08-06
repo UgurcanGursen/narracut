@@ -24,6 +24,9 @@ Son guncelleme: 6 Agustos 2026
 - Artifact-integrity gate'i canonical Phase 14 registry/output/deletion-plan
   tutarliligini fail-closed dogrular; host dosya sistemi taramasi veya fiziksel
   silme/trash isleminin basarili olduguna dair yeni bir iddia uretmez.
+- Final-narration gate'i domain policy, claim provenance ve acik lexical
+  blok-listesi icin fail-closed admission saglar; hukuki/faktuel semantic
+  adjudication veya claim-source truth validation iddia etmez.
 
 ## Faz 13 status note
 

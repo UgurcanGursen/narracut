@@ -1,5 +1,15 @@
 # Phase Acceptance
 
+## Phase 15 domain/final-narration safety bounded acceptance -- 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Domain compatibility and validation extension | PASS |
+| Unsupported claim status and blocked wording rejection | PASS |
+| Phase 15 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase15_domain_narration_safety_bounded_acceptance.md`.
+
 ## Phase 15 artifact-integrity bounded acceptance -- 2026-08-06
 
 | Gate | Result |

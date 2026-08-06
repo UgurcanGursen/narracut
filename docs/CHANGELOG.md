@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 domain/final-narration safety bounded acceptance
+
+- Accepted the local compatibility, validation-extension and final-narration
+  lexical/provenance gate; Phase 15 Master closure remains open.
+
 ## 2026-08-06 - Phase 15 domain/final-narration safety implementation audit
 
 - Passed compatibility, validation-extension, claim/provenance and blocked-
