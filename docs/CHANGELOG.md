@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source-audio direction implementation audit
+
+- Passed the bounded validator implementation audit, including service
+  recomputation, closed ledger tokens and real Phase 4 receipt regression.
+
 ## 2026-08-06 - Phase 15 source-audio direction implementation authorization
 
 - Authorized only the local Phase 8/11 policy-direction validator, additive

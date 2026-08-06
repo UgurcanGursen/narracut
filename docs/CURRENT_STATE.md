@@ -38,6 +38,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase15_source_audio_direction_contract_audit.md`. A separate
   bounded implementation authorization is recorded at
   `baseline/phase15_source_audio_direction_implementation_authorization.md`.
+- The implemented validator at `engine/validation/source_audio_direction.py`
+  passed independent implementation audit at
+  `baseline/phase15_source_audio_direction_implementation_audit.md`; bounded
+  acceptance remains a separate decision.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.

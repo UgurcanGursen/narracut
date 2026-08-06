@@ -62,9 +62,10 @@ A structurally invalid or unverifiable input is rejected before observation
 creation with a closed public error code. A structurally valid plan that
 cannot preserve the source-speech safety condition yields a `FAILED`
 `source_audio_safety` observation with a closed, non-secret public code.
-A caller without a complete canonical plan is `NOT_READY`, never PASS. A plan
-with no source-speech direction is PASS only for this narrow policy-direction
-check; it does not assert a final PCM output was analysed.
+An orchestration caller without a complete canonical plan emits no check; a
+quality gate that requires the absent check is therefore `NOT_READY`, never
+PASS. A plan with no source-speech direction is PASS only for this narrow
+policy-direction check; it does not assert a final PCM output was analysed.
 
 ## Required tests
 
