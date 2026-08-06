@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 artifact-integrity implementation authorization
+
+- Authorized only local registry/deletion-plan validation, ledger tokens and
+  focused tests.
+
 ## 2026-08-06 - Phase 15 artifact-integrity candidate contract audit
 
 - Passed the registry/deletion-plan-only candidate audit; implementation
