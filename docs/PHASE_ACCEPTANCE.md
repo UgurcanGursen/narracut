@@ -1,5 +1,25 @@
 # Phase Acceptance
 
+## Phase 14 final master acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Canonical changed-sequence incremental execution | PASS |
+| Stale-safe cache and preview/production separation | PASS |
+| FULL committed-journal registry ingress | PASS |
+| Protected dry-run, trash/restore and receipt lifecycle | PASS |
+| Hard quota / minimum-free-disk admission | PASS |
+| Visible soft-quota plan before runner execution | PASS |
+| Dedup physical-versus-logical accounting | PASS |
+| Local REPLAY preview and FULL A/V hash-preserving evidence | PASS |
+| Phase 14 Master Roadmap | ACCEPT / MASTER_PHASE_CLOSED |
+
+Evidence: `baseline/phase14_master_acceptance.md` and
+`baseline/phase14_closure_repair_targeted_implementation_reaudit.md`.
+This closure excludes permanent deletion, autonomous workers/schedulers,
+provider transport, generic queues/retries, Studio FULL-render routes and
+Phase 15 behavior.
+
 ## Phase 14 cache lifecycle bounded acceptance â€” 2026-08-06
 
 | Gate | Result |

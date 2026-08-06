@@ -40,23 +40,20 @@ Son guncelleme: 6 Agustos 2026
   Phase 14 owns the required lifecycle handoff and preview performance/SLO
   measurement.
 
-## Faz 14 lifecycle limitation
+## Faz 14 status note
 
-- Phase 14 has durable registry/reopen, immutable dry-run deletion plans,
-  managed-root trash/restore receipts, content-addressed cache identity and a
-  bounded Phase 4 REPLAY preview admission/cache/registry adapter. These are
-  local lifecycle primitives, not a complete StorageQuotaManager or
-  GarbageCollector.
-- Cache eviction has no retention-safe implementation; soft-quota cleanup,
-  LRU policy, minimum-free-disk pressure, deduplication savings and permanent
-  deletion remain unavailable. Approved/final/provenance/baseline/pinned
-  records therefore must not be presented as automatically managed cleanup
-  targets.
-- The hard quota has actual managed-storage admission evidence for the bounded
-  preview adapter, but no FULL-render/Studio route, generic queue/retry or
-  restart-safe operational storage service exists. The Phase 4 cache evidence
-  is not a fixed REPLAY performance benchmark and makes no visual/audio
-  non-regression claim.
+- Faz 14, local deterministic lifecycle sınırı için `MASTER_PHASE_CLOSED`tır:
+  durable registry/reopen, immutable deletion planı, plan-scoped trash/restore,
+  content-addressable cache, protected/reference-aware quota planı,
+  hard/min-free admission, dedup muhasebesi ve hash-korumalı A/V REPLAY kanıtı
+  vardır. Ayrıntılı kabul kanıtı `baseline/phase14_master_acceptance.md`dir.
+- Bu bir networked operasyon servisi değildir. Permanent deletion, otomatik
+  worker/scheduler, provider/source transport, generic queue/retry, Studio
+  FULL-render route ve restart-safe dağıtık operasyonlar sonraki kapsamların
+  sahibidir; bunlar mevcut Faz 14 kapanışından çıkarılamaz.
+- Soft-quota sınırında sistem görünür immutable cleanup planı üretir ve plan
+  çözülmeden render runner’ını çağırmaz. Gizli/aralıklarla çalışan cleanup
+  worker’ı yoktur; receipt-backed execution açıkça çağrılan sınırdır.
 
 ## Faz 12 status note
 

@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN. Faz 14 IN_PROGRESS.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN. Faz 14 MASTER_PHASE_CLOSED.
 
 ## AI execution policy
 
@@ -11,10 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make the final Phase 14 Master acceptance decision using
-`baseline/phase14_closure_repair_targeted_implementation_reaudit.md` and all
-prior Phase 14 evidence. Do not begin Phase 15 implementation without explicit
-user authorization.
+Wait for explicit user authorization before beginning any Phase 15 work. No
+Phase 15 implementation, specification, audit or documentation change is
+authorized by this repository state.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

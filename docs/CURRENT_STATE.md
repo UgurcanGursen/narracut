@@ -1,11 +1,29 @@
 # Current State
 
 Son guncelleme: 6 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 IN_PROGRESS**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 MASTER_PHASE_CLOSED**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Phase 14 lifecycle implementation in progress
+## Phase 14 lifecycle master acceptance
+
+- Faz 14, yerel ve deterministic lifecycle sınırı için `MASTER_PHASE_CLOSED`
+  durumundadır. Kabul kaydı `baseline/phase14_master_acceptance.md` içindedir.
+  Faz 15 başlatılmamıştır.
+- Kapanış; canonical sequence dependency snapshot’ından yalnız değişen
+  sequence’in yürütülmesi, cache/profile bütünlüğü, FULL committed-journal
+  registry import’u, dry-run/trash/restore, hard quota + minimum-free-disk
+  admission, görünür soft-quota planı, dedup muhasebesi ve hash-korumalı yerel
+  FULL A/V kanıtını kapsar.
+- Ham eski Phase 4 renderer çağrıları geriye uyumluluk için korunur. Lifecycle
+  garantisi `run_phase4_preview_cached` ve `run_full_with_lifecycle` gibi açık
+  Phase 14 giriş noktalarında uygulanır; bu ayrım gizli bir başarı iddiası
+  değildir.
+- Permanent deletion, otonom worker/scheduler, provider transport, generic
+  queue/retry, Studio FULL-render route ve Faz 15 validation/observability
+  davranışı uygulanmamıştır.
+
+## Historical Phase 14 lifecycle implementation record
 
 - Durable registry/reopen, immutable dependency-aware deletion planning and
   plan-scoped trash/restore are bounded accepted packages. They are path-free

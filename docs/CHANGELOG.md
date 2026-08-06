@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 master acceptance
+
+- Accepted the local deterministic cache/artifact lifecycle, storage/GC and
+  performance boundary after final focused and actual FFmpeg preview gates.
+- Permanent deletion, autonomous worker/scheduler, provider transport,
+  generic queue/retry, Studio FULL-render route and Phase 15 remain excluded.
+
 ## 2026-08-06 - Phase 14 closure-repair targeted implementation re-audit
 
 - Cleared sequence lifecycle, visible soft-quota and real local FULL A/V

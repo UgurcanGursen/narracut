@@ -1,6 +1,11 @@
 # Quality Benchmarks
 
-Son güncelleme: 24 Temmuz 2026
+> Phase 14 note (2026-08-06): local REPLAY lifecycle evidence is not a Phase
+> 16 reference-quality threshold. The FFmpeg fixture preserves final MP4 bytes
+> plus audio-plan/filter/PCM hashes across two producers; see
+> `baseline/phase14_master_acceptance.md`.
+
+Son güncelleme: 6 Ağustos 2026
 
 ## Mevcut kanıtlar
 
@@ -33,4 +38,3 @@ benchmark olarak sınıflandırılmamıştır.
 - System `ffprobe` ile black-screen analizi.
 - `stage3-development-baseline` tag'ine bağlı salt-okunur artifact paketi.
 - Roadmap Faz 16 referans benchmark metrikleri; bunlar Faz 0 kapsamı dışıdır.
-
