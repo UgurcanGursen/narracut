@@ -65,6 +65,13 @@ def plan_deletion(*, records: tuple[ArtifactRegistryRecord, ...], policy_hash: s
     return {"plan_id": plan_id, "plan_hash": plan_hash, **body}
 
 
+def validate_deletion_plan(*, plan: Mapping[str, Any], records: tuple[ArtifactRegistryRecord, ...], policy_hash: str) -> None:
+    body = {key: value for key, value in plan.items() if key not in {"plan_id", "plan_hash"}}
+    plan_id, plan_hash = _identity("ldp_", body)
+    if plan.get("plan_id") != plan_id or plan.get("plan_hash") != plan_hash: raise ValueError("LIFECYCLE_PLAN_IDENTITY_INVALID")
+    if plan.get("policy_hash") != policy_hash or plan.get("registry_snapshot_hash") != registry_snapshot(records): raise ValueError("LIFECYCLE_PLAN_STALE")
+
+
 def append_registry_record(*, registry_path: Path, record: ArtifactRegistryRecord) -> None:
     """Durably append a verified record; never writes content or deletes files."""
     registry_path.parent.mkdir(parents=True, exist_ok=True)

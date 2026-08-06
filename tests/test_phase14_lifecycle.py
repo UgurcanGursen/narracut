@@ -1,6 +1,6 @@
 import pytest
 
-from engine.lifecycle import ArtifactRegistryRecord, append_registry_record, load_registry, plan_deletion, registry_snapshot
+from engine.lifecycle import ArtifactRegistryRecord, append_registry_record, load_registry, plan_deletion, registry_snapshot, validate_deletion_plan
 
 
 def row(identifier, *, retention="temporary", dependencies=(), locked=False):
@@ -27,3 +27,10 @@ def test_registry_reopens_and_rejects_duplicate(tmp_path):
     assert load_registry(registry_path=path) == (item,)
     with pytest.raises(ValueError, match="DUPLICATE"):
         append_registry_record(registry_path=path, record=item)
+
+
+def test_plan_becomes_stale_after_registry_or_policy_change():
+    first = row("art_a"); plan = plan_deletion(records=(first,), policy_hash="sha256:" + "p" * 64, as_of="now", root_ids=frozenset())
+    validate_deletion_plan(plan=plan, records=(first,), policy_hash="sha256:" + "p" * 64)
+    with pytest.raises(ValueError, match="STALE"):
+        validate_deletion_plan(plan=plan, records=(first,), policy_hash="sha256:" + "q" * 64)
