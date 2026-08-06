@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master repair integration contract audit
+
+- Returned `FIX_REQUIRED`: FULL artifact rows must enter through the committed
+  Phase 4B transaction journal, not the terminal outcome object.
+
 ## 2026-08-06 - Phase 14 Master repair integration candidate contract
 
 - Defined FULL artifact registry adapter, disk-pressure admission and explicit

@@ -11,9 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Independently audit
-`docs/specifications/phase14_master_repair_integration_contract.md` before any
-implementation authorization. Do not implement permanent deletion, automatic
+Repair only `P14-MRI-001` in
+`docs/specifications/phase14_master_repair_integration_contract.md`, then
+request a targeted re-audit. Do not implement permanent deletion, automatic
 worker/scheduler behavior, provider transport, generic queue/retry, Studio
 FULL-render route or Phase 15 validation behavior.
 
