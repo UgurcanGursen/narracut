@@ -8,6 +8,7 @@ from .models import (
     CreateProjectCommand,
     ProjectAggregate,
     ProjectCreatedView,
+    ProjectListView,
     ProjectStatusView,
 )
 from .ports import (
@@ -72,7 +73,11 @@ class ProjectApplicationService:
                     ),
                 ),
             ) from exc
-        return ProjectCreatedView(project=project, domain=domain)
+        return ProjectCreatedView(
+            project=project,
+            domain=domain,
+            persistence_scope=self.repository.persistence_scope,
+        )
 
     def get_project_status(self, project_id: str) -> ProjectStatusView:
         aggregate = self._required_project(project_id)
@@ -83,6 +88,24 @@ class ProjectApplicationService:
             updated_at=project["updated_at"],
             version=project["version"],
             domain=aggregate.domain,
+            persistence_scope=self.repository.persistence_scope,
+        )
+
+    def list_projects(self) -> ProjectListView:
+        items = tuple(
+            ProjectStatusView(
+                project_id=aggregate.project["project_id"],
+                status=aggregate.project["status"],
+                updated_at=aggregate.project["updated_at"],
+                version=aggregate.project["version"],
+                domain=aggregate.domain,
+                persistence_scope=self.repository.persistence_scope,
+            )
+            for aggregate in self.repository.list_projects()
+        )
+        return ProjectListView(
+            items=items,
+            persistence_scope=self.repository.persistence_scope,
         )
 
     def list_project_artifacts(self, project_id: str) -> ArtifactCollectionView:
@@ -91,7 +114,11 @@ class ProjectApplicationService:
         if items is None:
             raise self._not_found(project_id)
         self.contract_validation.validate_artifacts(items, project_id=project_id)
-        return ArtifactCollectionView(project_id=project_id, items=items)
+        return ArtifactCollectionView(
+            project_id=project_id,
+            items=items,
+            persistence_scope=self.repository.persistence_scope,
+        )
 
     def _required_project(self, project_id: str) -> ProjectAggregate:
         aggregate = self.repository.get(project_id)

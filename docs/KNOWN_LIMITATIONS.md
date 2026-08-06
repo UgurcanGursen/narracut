@@ -12,6 +12,17 @@ Son guncelleme: 6 Agustos 2026
   Delivery Ledger rows is open. `PRODUCT_GATE_CLOSED` remains a Phase 17-only
   decision.
 
+## Faz 13 status note
+
+- Phase 13 is FOUNDATION_ACCEPTED as a local SQLite/OpenAPI Studio control
+  plane. It proves project reopen, MANUAL_UI task handoff/import/repair/
+  approval and immutable Phase 12/Phase 3 review decisions; it does not make
+  a provider call or automate a web AI interface.
+- `MASTER_PHASE_CLOSED` is intentionally open. No canonical Phase 4 preview
+  artifact is yet handed to the Studio, and Phase 14 has not supplied durable
+  render-progress, storage or GC read models. The UI reports unavailable
+  instead of inventing those values.
+
 ## Faz 12 status note
 
 - Phase 12 is CLOSED only as a local executable-editorial-plan and Phase 3

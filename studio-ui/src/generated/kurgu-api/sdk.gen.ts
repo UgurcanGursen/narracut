@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateProjectData, CreateProjectErrors, CreateProjectResponses, GetProjectStatusData, GetProjectStatusErrors, GetProjectStatusResponses, ListProjectArtifactsData, ListProjectArtifactsErrors, ListProjectArtifactsResponses } from './types.gen';
+import type { ApproveStudioTaskData, ApproveStudioTaskErrors, ApproveStudioTaskResponses, CreateProjectData, CreateProjectErrors, CreateProjectResponses, CreateStudioTaskData, CreateStudioTaskErrors, CreateStudioTaskRepairData, CreateStudioTaskRepairErrors, CreateStudioTaskRepairResponses, CreateStudioTaskResponses, DecideSequenceReviewData, DecideSequenceReviewErrors, DecideSequenceReviewResponses, GetProjectReviewData, GetProjectReviewErrors, GetProjectReviewResponses, GetProjectStatusData, GetProjectStatusErrors, GetProjectStatusResponses, GetSequenceReviewData, GetSequenceReviewErrors, GetSequenceReviewResponses, GetStudioTaskData, GetStudioTaskErrors, GetStudioTaskResponses, ListProjectArtifactsData, ListProjectArtifactsErrors, ListProjectArtifactsResponses, ListProjectsData, ListProjectsErrors, ListProjectsResponses, ListStudioTasksData, ListStudioTasksErrors, ListStudioTasksResponses, RegisterReviewSnapshotData, RegisterReviewSnapshotErrors, RegisterReviewSnapshotResponses, SubmitStudioTaskResponseData, SubmitStudioTaskResponseErrors, SubmitStudioTaskResponseResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -17,6 +17,11 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta;
 };
+
+/**
+ * List Projects
+ */
+export const listProjects = <ThrowOnError extends boolean = false>(options?: Options<ListProjectsData, ThrowOnError>): RequestResult<ListProjectsResponses, ListProjectsErrors, ThrowOnError> => (options?.client ?? client).get<ListProjectsResponses, ListProjectsErrors, ThrowOnError>({ url: '/api/v1/projects', ...options });
 
 /**
  * Create Project
@@ -36,6 +41,84 @@ export const createProject = <ThrowOnError extends boolean = false>(options: Opt
 export const listProjectArtifacts = <ThrowOnError extends boolean = false>(options: Options<ListProjectArtifactsData, ThrowOnError>): RequestResult<ListProjectArtifactsResponses, ListProjectArtifactsErrors, ThrowOnError> => (options.client ?? client).get<ListProjectArtifactsResponses, ListProjectArtifactsErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/artifacts', ...options });
 
 /**
+ * Get Project Review
+ */
+export const getProjectReview = <ThrowOnError extends boolean = false>(options: Options<GetProjectReviewData, ThrowOnError>): RequestResult<GetProjectReviewResponses, GetProjectReviewErrors, ThrowOnError> => (options.client ?? client).get<GetProjectReviewResponses, GetProjectReviewErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/review', ...options });
+
+/**
+ * Register Snapshot
+ */
+export const registerReviewSnapshot = <ThrowOnError extends boolean = false>(options: Options<RegisterReviewSnapshotData, ThrowOnError>): RequestResult<RegisterReviewSnapshotResponses, RegisterReviewSnapshotErrors, ThrowOnError> => (options.client ?? client).post<RegisterReviewSnapshotResponses, RegisterReviewSnapshotErrors, ThrowOnError>({
+    url: '/api/v1/projects/{project_id}/review-snapshots',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get Sequence Review
+ */
+export const getSequenceReview = <ThrowOnError extends boolean = false>(options: Options<GetSequenceReviewData, ThrowOnError>): RequestResult<GetSequenceReviewResponses, GetSequenceReviewErrors, ThrowOnError> => (options.client ?? client).get<GetSequenceReviewResponses, GetSequenceReviewErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/review/sequences/{sequence_id}', ...options });
+
+/**
+ * Decide Sequence
+ */
+export const decideSequenceReview = <ThrowOnError extends boolean = false>(options: Options<DecideSequenceReviewData, ThrowOnError>): RequestResult<DecideSequenceReviewResponses, DecideSequenceReviewErrors, ThrowOnError> => (options.client ?? client).post<DecideSequenceReviewResponses, DecideSequenceReviewErrors, ThrowOnError>({
+    url: '/api/v1/projects/{project_id}/review/sequences/{sequence_id}/decision',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Get Project Status
  */
 export const getProjectStatus = <ThrowOnError extends boolean = false>(options: Options<GetProjectStatusData, ThrowOnError>): RequestResult<GetProjectStatusResponses, GetProjectStatusErrors, ThrowOnError> => (options.client ?? client).get<GetProjectStatusResponses, GetProjectStatusErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/status', ...options });
+
+/**
+ * List Tasks
+ */
+export const listStudioTasks = <ThrowOnError extends boolean = false>(options: Options<ListStudioTasksData, ThrowOnError>): RequestResult<ListStudioTasksResponses, ListStudioTasksErrors, ThrowOnError> => (options.client ?? client).get<ListStudioTasksResponses, ListStudioTasksErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/tasks', ...options });
+
+/**
+ * Create Task
+ */
+export const createStudioTask = <ThrowOnError extends boolean = false>(options: Options<CreateStudioTaskData, ThrowOnError>): RequestResult<CreateStudioTaskResponses, CreateStudioTaskErrors, ThrowOnError> => (options.client ?? client).post<CreateStudioTaskResponses, CreateStudioTaskErrors, ThrowOnError>({
+    url: '/api/v1/projects/{project_id}/tasks',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Get Task
+ */
+export const getStudioTask = <ThrowOnError extends boolean = false>(options: Options<GetStudioTaskData, ThrowOnError>): RequestResult<GetStudioTaskResponses, GetStudioTaskErrors, ThrowOnError> => (options.client ?? client).get<GetStudioTaskResponses, GetStudioTaskErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/tasks/{task_id}', ...options });
+
+/**
+ * Approve Task
+ */
+export const approveStudioTask = <ThrowOnError extends boolean = false>(options: Options<ApproveStudioTaskData, ThrowOnError>): RequestResult<ApproveStudioTaskResponses, ApproveStudioTaskErrors, ThrowOnError> => (options.client ?? client).post<ApproveStudioTaskResponses, ApproveStudioTaskErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/tasks/{task_id}/approve', ...options });
+
+/**
+ * Create Repair
+ */
+export const createStudioTaskRepair = <ThrowOnError extends boolean = false>(options: Options<CreateStudioTaskRepairData, ThrowOnError>): RequestResult<CreateStudioTaskRepairResponses, CreateStudioTaskRepairErrors, ThrowOnError> => (options.client ?? client).post<CreateStudioTaskRepairResponses, CreateStudioTaskRepairErrors, ThrowOnError>({ url: '/api/v1/projects/{project_id}/tasks/{task_id}/repair', ...options });
+
+/**
+ * Submit Response
+ */
+export const submitStudioTaskResponse = <ThrowOnError extends boolean = false>(options: Options<SubmitStudioTaskResponseData, ThrowOnError>): RequestResult<SubmitStudioTaskResponseResponses, SubmitStudioTaskResponseErrors, ThrowOnError> => (options.client ?? client).post<SubmitStudioTaskResponseResponses, SubmitStudioTaskResponseErrors, ThrowOnError>({
+    url: '/api/v1/projects/{project_id}/tasks/{task_id}/response',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});

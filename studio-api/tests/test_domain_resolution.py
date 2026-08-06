@@ -18,12 +18,12 @@ def test_business_pack_uses_real_registry_and_resolver(
         "domain_id": "business-tech",
         "domain_pack_version": "0.1.0",
         "profile_id": "dpf_business_default",
-        "policy_snapshot_id": "dps_d18e9981c3f4bcca8e3f",
+        "policy_snapshot_id": "dps_095df66f67927f691e77",
     }
     stored = runtime.project_repository.get(FIXED_PROJECT_ID)
     assert stored is not None
     assert stored.domain.policy_snapshot["canonical_hash"] == (
-        "sha256:d18e9981c3f4bcca8e3f5a8f62c838d0e0ecbd14e6cd229e2702c08e2a3f3f2c"
+        "sha256:095df66f67927f691e773b171e0b9dd8f2e7d7f150a04d0736c268b62fcf8198"
     )
     assert stored.domain.policy_snapshot["resolved_policy"][
         "policy_bundles"

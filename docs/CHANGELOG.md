@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 Studio foundation acceptance
+
+- Added local SQLite project create/list/reopen semantics to the FastAPI Studio
+  control plane and regenerated the OpenAPI TypeScript client.
+- Added Phase 9 research and Phase 10 outline MANUAL_UI task lifecycle:
+  prompt/context handoff, canonical response-envelope validation, repair and
+  immutable approval without a provider API or browser automation.
+- Added hash-bound Phase 12 executable-plan / Phase 3 video-audio EDL review
+  snapshots and immutable approval/replacement decisions. Preview/render
+  progress/storage remain explicit unavailable states pending their Phase 4/14
+  canonical handoff; no false product completion is claimed.
+
 ## 2026-08-06 - Phase 13 Studio implementation contract authorization
 
 - Froze the OpenAPI-first Studio boundary for durable local project state,

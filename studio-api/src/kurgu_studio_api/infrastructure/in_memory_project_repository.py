@@ -11,6 +11,8 @@ from ..application.ports import RepositoryCollisionError
 
 
 class InMemoryProjectRepository:
+    persistence_scope = "process_lifetime"
+
     def __init__(self):
         self._projects: dict[str, ProjectAggregate] = {}
         self._lock = RLock()
@@ -26,6 +28,13 @@ class InMemoryProjectRepository:
         with self._lock:
             aggregate = self._projects.get(project_id)
             return deepcopy(aggregate) if aggregate is not None else None
+
+    def list_projects(self) -> tuple[ProjectAggregate, ...]:
+        with self._lock:
+            return tuple(
+                deepcopy(aggregate)
+                for _, aggregate in sorted(self._projects.items())
+            )
 
     def list_artifacts(
         self,

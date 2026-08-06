@@ -215,7 +215,7 @@ export type ProjectArtifactsResponseDto = {
     /**
      * Persistence Scope
      */
-    persistence_scope: 'process_lifetime';
+    persistence_scope: 'process_lifetime' | 'local_sqlite';
     /**
      * Project Id
      */
@@ -248,7 +248,7 @@ export type ProjectCreateResponseDto = {
     /**
      * Persistence Scope
      */
-    persistence_scope: 'process_lifetime';
+    persistence_scope: 'process_lifetime' | 'local_sqlite';
     project: ProjectDocumentDto;
 };
 
@@ -299,6 +299,50 @@ export type ProjectDocumentDto = {
 };
 
 /**
+ * ProjectListResponseDTO
+ */
+export type ProjectListResponseDto = {
+    /**
+     * Count
+     */
+    count: number;
+    /**
+     * Items
+     */
+    items: Array<ProjectStatusResponseDto>;
+    /**
+     * Persistence Scope
+     */
+    persistence_scope: 'process_lifetime' | 'local_sqlite';
+};
+
+/**
+ * ProjectReviewDTO
+ */
+export type ProjectReviewDto = {
+    /**
+     * Project Id
+     */
+    project_id: string;
+    /**
+     * Sequence Ids
+     */
+    sequence_ids: Array<string>;
+    /**
+     * Snapshot Hash
+     */
+    snapshot_hash: string | null;
+    /**
+     * Snapshot Id
+     */
+    snapshot_id: string | null;
+    /**
+     * Status
+     */
+    status: 'available' | 'unavailable';
+};
+
+/**
  * ProjectStatusResponseDTO
  */
 export type ProjectStatusResponseDto = {
@@ -306,7 +350,7 @@ export type ProjectStatusResponseDto = {
     /**
      * Persistence Scope
      */
-    persistence_scope: 'process_lifetime';
+    persistence_scope: 'process_lifetime' | 'local_sqlite';
     /**
      * Project Id
      */
@@ -350,6 +394,311 @@ export type ResolvedDomainDto = {
      */
     resolution_mode: 'core_only' | 'domain_pack';
 };
+
+/**
+ * ReviewDecisionDTO
+ */
+export type ReviewDecisionDto = {
+    /**
+     * Action
+     */
+    action: 'approve' | 'replacement_requested';
+    /**
+     * Audio Edl Hash
+     */
+    audio_edl_hash: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Decision Hash
+     */
+    decision_hash: string;
+    /**
+     * Decision Id
+     */
+    decision_id: string;
+    /**
+     * Executable Sequence Hash
+     */
+    executable_sequence_hash: string;
+    /**
+     * Producer
+     */
+    producer: string;
+    /**
+     * Producer Version
+     */
+    producer_version: string;
+    /**
+     * Project Id
+     */
+    project_id: string;
+    /**
+     * Replacement Kind
+     */
+    replacement_kind: 'asset_change' | 'replan' | null;
+    /**
+     * Sequence Id
+     */
+    sequence_id: string;
+    /**
+     * Snapshot Hash
+     */
+    snapshot_hash: string;
+    /**
+     * Snapshot Id
+     */
+    snapshot_id: string;
+    /**
+     * Video Edl Hash
+     */
+    video_edl_hash: string;
+};
+
+/**
+ * ReviewDecisionRequestDTO
+ */
+export type ReviewDecisionRequestDto = {
+    /**
+     * Action
+     */
+    action: 'approve' | 'replacement_requested';
+    /**
+     * Replacement Kind
+     */
+    replacement_kind?: 'asset_change' | 'replan' | null;
+};
+
+/**
+ * ReviewSnapshotCreateDTO
+ */
+export type ReviewSnapshotCreateDto = {
+    /**
+     * Executable Plan
+     */
+    executable_plan: {
+        [key: string]: unknown;
+    };
+    /**
+     * Final Edl Bundle
+     */
+    final_edl_bundle: {
+        [key: string]: unknown;
+    };
+};
+
+/**
+ * ReviewSnapshotDTO
+ */
+export type ReviewSnapshotDto = {
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Policy Snapshot Hash
+     */
+    policy_snapshot_hash: string;
+    /**
+     * Policy Snapshot Id
+     */
+    policy_snapshot_id: string;
+    /**
+     * Project Id
+     */
+    project_id: string;
+    /**
+     * Snapshot Hash
+     */
+    snapshot_hash: string;
+    /**
+     * Snapshot Id
+     */
+    snapshot_id: string;
+};
+
+/**
+ * SequenceReviewDTO
+ */
+export type SequenceReviewDto = {
+    /**
+     * Decision
+     */
+    decision: {
+        [key: string]: unknown;
+    } | null;
+    /**
+     * Edl Binding
+     */
+    edl_binding: {
+        [key: string]: unknown;
+    };
+    /**
+     * Sequence
+     */
+    sequence: {
+        [key: string]: unknown;
+    };
+    /**
+     * Snapshot Hash
+     */
+    snapshot_hash: string;
+    /**
+     * Snapshot Id
+     */
+    snapshot_id: string;
+};
+
+/**
+ * StudioTaskCollectionDTO
+ */
+export type StudioTaskCollectionDto = {
+    /**
+     * Count
+     */
+    count: number;
+    /**
+     * Items
+     */
+    items: Array<StudioTaskDto>;
+    /**
+     * Project Id
+     */
+    project_id: string;
+};
+
+/**
+ * StudioTaskCreateRequestDTO
+ */
+export type StudioTaskCreateRequestDto = {
+    /**
+     * Backend Mode
+     */
+    backend_mode: 'replay' | 'manual_ui';
+    /**
+     * Family
+     */
+    family: 'research' | 'planner';
+    /**
+     * Task Type
+     */
+    task_type: 'source_discovery' | 'outline';
+    /**
+     * Topic
+     */
+    topic: string;
+};
+
+/**
+ * StudioTaskDTO
+ */
+export type StudioTaskDto = {
+    /**
+     * Attempt
+     */
+    attempt: number;
+    /**
+     * Backend Mode
+     */
+    backend_mode: 'replay' | 'manual_ui';
+    /**
+     * Context Package
+     */
+    context_package: {
+        [key: string]: unknown;
+    };
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Family
+     */
+    family: 'research' | 'planner';
+    /**
+     * Parent Task Id
+     */
+    parent_task_id: string | null;
+    /**
+     * Policy Snapshot Hash
+     */
+    policy_snapshot_hash: string;
+    /**
+     * Policy Snapshot Id
+     */
+    policy_snapshot_id: string;
+    /**
+     * Project Id
+     */
+    project_id: string;
+    /**
+     * Prompt
+     */
+    prompt: string;
+    /**
+     * Response Hash
+     */
+    response_hash: string | null;
+    /**
+     * Status
+     */
+    status: 'waiting' | 'valid' | 'repair_required' | 'approved';
+    /**
+     * Task Hash
+     */
+    task_hash: string;
+    /**
+     * Task Id
+     */
+    task_id: string;
+    /**
+     * Task Type
+     */
+    task_type: string;
+    /**
+     * Validation Issues
+     */
+    validation_issues: Array<string>;
+};
+
+/**
+ * StudioTaskResponseSubmitDTO
+ */
+export type StudioTaskResponseSubmitDto = {
+    /**
+     * Payload
+     */
+    payload: {
+        [key: string]: unknown;
+    };
+};
+
+export type ListProjectsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/projects';
+};
+
+export type ListProjectsErrors = {
+    /**
+     * Internal Server Error
+     */
+    500: ErrorEnvelopeDto;
+};
+
+export type ListProjectsError = ListProjectsErrors[keyof ListProjectsErrors];
+
+export type ListProjectsResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProjectListResponseDto;
+};
+
+export type ListProjectsResponse = ListProjectsResponses[keyof ListProjectsResponses];
 
 export type CreateProjectData = {
     body: ProjectCreateRequestDto;
@@ -422,6 +771,154 @@ export type ListProjectArtifactsResponses = {
 
 export type ListProjectArtifactsResponse = ListProjectArtifactsResponses[keyof ListProjectArtifactsResponses];
 
+export type GetProjectReviewData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/review';
+};
+
+export type GetProjectReviewErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type GetProjectReviewError = GetProjectReviewErrors[keyof GetProjectReviewErrors];
+
+export type GetProjectReviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: ProjectReviewDto;
+};
+
+export type GetProjectReviewResponse = GetProjectReviewResponses[keyof GetProjectReviewResponses];
+
+export type RegisterReviewSnapshotData = {
+    body: ReviewSnapshotCreateDto;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/review-snapshots';
+};
+
+export type RegisterReviewSnapshotErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type RegisterReviewSnapshotError = RegisterReviewSnapshotErrors[keyof RegisterReviewSnapshotErrors];
+
+export type RegisterReviewSnapshotResponses = {
+    /**
+     * Successful Response
+     */
+    201: ReviewSnapshotDto;
+};
+
+export type RegisterReviewSnapshotResponse = RegisterReviewSnapshotResponses[keyof RegisterReviewSnapshotResponses];
+
+export type GetSequenceReviewData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Sequence Id
+         */
+        sequence_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/review/sequences/{sequence_id}';
+};
+
+export type GetSequenceReviewErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type GetSequenceReviewError = GetSequenceReviewErrors[keyof GetSequenceReviewErrors];
+
+export type GetSequenceReviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: SequenceReviewDto;
+};
+
+export type GetSequenceReviewResponse = GetSequenceReviewResponses[keyof GetSequenceReviewResponses];
+
+export type DecideSequenceReviewData = {
+    body: ReviewDecisionRequestDto;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Sequence Id
+         */
+        sequence_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/review/sequences/{sequence_id}/decision';
+};
+
+export type DecideSequenceReviewErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type DecideSequenceReviewError = DecideSequenceReviewErrors[keyof DecideSequenceReviewErrors];
+
+export type DecideSequenceReviewResponses = {
+    /**
+     * Successful Response
+     */
+    200: ReviewDecisionDto;
+};
+
+export type DecideSequenceReviewResponse = DecideSequenceReviewResponses[keyof DecideSequenceReviewResponses];
+
 export type GetProjectStatusData = {
     body?: never;
     path: {
@@ -459,3 +956,243 @@ export type GetProjectStatusResponses = {
 };
 
 export type GetProjectStatusResponse = GetProjectStatusResponses[keyof GetProjectStatusResponses];
+
+export type ListStudioTasksData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/tasks';
+};
+
+export type ListStudioTasksErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type ListStudioTasksError = ListStudioTasksErrors[keyof ListStudioTasksErrors];
+
+export type ListStudioTasksResponses = {
+    /**
+     * Successful Response
+     */
+    200: StudioTaskCollectionDto;
+};
+
+export type ListStudioTasksResponse = ListStudioTasksResponses[keyof ListStudioTasksResponses];
+
+export type CreateStudioTaskData = {
+    body: StudioTaskCreateRequestDto;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/tasks';
+};
+
+export type CreateStudioTaskErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type CreateStudioTaskError = CreateStudioTaskErrors[keyof CreateStudioTaskErrors];
+
+export type CreateStudioTaskResponses = {
+    /**
+     * Successful Response
+     */
+    201: StudioTaskDto;
+};
+
+export type CreateStudioTaskResponse = CreateStudioTaskResponses[keyof CreateStudioTaskResponses];
+
+export type GetStudioTaskData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Task Id
+         */
+        task_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/tasks/{task_id}';
+};
+
+export type GetStudioTaskErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type GetStudioTaskError = GetStudioTaskErrors[keyof GetStudioTaskErrors];
+
+export type GetStudioTaskResponses = {
+    /**
+     * Successful Response
+     */
+    200: StudioTaskDto;
+};
+
+export type GetStudioTaskResponse = GetStudioTaskResponses[keyof GetStudioTaskResponses];
+
+export type ApproveStudioTaskData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Task Id
+         */
+        task_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/tasks/{task_id}/approve';
+};
+
+export type ApproveStudioTaskErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type ApproveStudioTaskError = ApproveStudioTaskErrors[keyof ApproveStudioTaskErrors];
+
+export type ApproveStudioTaskResponses = {
+    /**
+     * Successful Response
+     */
+    200: StudioTaskDto;
+};
+
+export type ApproveStudioTaskResponse = ApproveStudioTaskResponses[keyof ApproveStudioTaskResponses];
+
+export type CreateStudioTaskRepairData = {
+    body?: never;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Task Id
+         */
+        task_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/tasks/{task_id}/repair';
+};
+
+export type CreateStudioTaskRepairErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type CreateStudioTaskRepairError = CreateStudioTaskRepairErrors[keyof CreateStudioTaskRepairErrors];
+
+export type CreateStudioTaskRepairResponses = {
+    /**
+     * Successful Response
+     */
+    201: StudioTaskDto;
+};
+
+export type CreateStudioTaskRepairResponse = CreateStudioTaskRepairResponses[keyof CreateStudioTaskRepairResponses];
+
+export type SubmitStudioTaskResponseData = {
+    body: StudioTaskResponseSubmitDto;
+    path: {
+        /**
+         * Project Id
+         */
+        project_id: string;
+        /**
+         * Task Id
+         */
+        task_id: string;
+    };
+    query?: never;
+    url: '/api/v1/projects/{project_id}/tasks/{task_id}/response';
+};
+
+export type SubmitStudioTaskResponseErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorEnvelopeDto;
+    /**
+     * Conflict
+     */
+    409: ErrorEnvelopeDto;
+    /**
+     * Unprocessable Content
+     */
+    422: ErrorEnvelopeDto;
+};
+
+export type SubmitStudioTaskResponseError = SubmitStudioTaskResponseErrors[keyof SubmitStudioTaskResponseErrors];
+
+export type SubmitStudioTaskResponseResponses = {
+    /**
+     * Successful Response
+     */
+    200: StudioTaskDto;
+};
+
+export type SubmitStudioTaskResponseResponse = SubmitStudioTaskResponseResponses[keyof SubmitStudioTaskResponseResponses];

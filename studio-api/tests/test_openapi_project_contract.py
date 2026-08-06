@@ -11,10 +11,38 @@ from kurgu_studio_api.openapi_export import _render_openapi_bytes
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OPENAPI_PATH = REPO_ROOT / "shared-schemas" / "openapi" / "openapi.json"
 EXPECTED = {
-    "/api/v1/projects": {"post": "createProject"},
+    "/api/v1/projects": {"get": "listProjects", "post": "createProject"},
     "/api/v1/projects/{project_id}/status": {"get": "getProjectStatus"},
     "/api/v1/projects/{project_id}/artifacts": {
         "get": "listProjectArtifacts"
+    },
+    "/api/v1/projects/{project_id}/tasks": {
+        "get": "listStudioTasks",
+        "post": "createStudioTask",
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}": {
+        "get": "getStudioTask"
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/response": {
+        "post": "submitStudioTaskResponse"
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/approve": {
+        "post": "approveStudioTask"
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/repair": {
+        "post": "createStudioTaskRepair"
+    },
+    "/api/v1/projects/{project_id}/review-snapshots": {
+        "post": "registerReviewSnapshot"
+    },
+    "/api/v1/projects/{project_id}/review": {
+        "get": "getProjectReview"
+    },
+    "/api/v1/projects/{project_id}/review/sequences/{sequence_id}": {
+        "get": "getSequenceReview"
+    },
+    "/api/v1/projects/{project_id}/review/sequences/{sequence_id}/decision": {
+        "post": "decideSequenceReview"
     },
 }
 
@@ -44,11 +72,19 @@ def test_openapi_components_include_stable_request_response_and_error_models() -
         "ProjectCreateRequestDTO",
         "ProjectCreateResponseDTO",
         "ProjectStatusResponseDTO",
+        "ProjectListResponseDTO",
         "ProjectArtifactsResponseDTO",
         "CoreOnlyDomainCreateDTO",
         "DomainPackDomainCreateDTO",
         "ErrorEnvelopeDTO",
         "ArtifactDTO",
+        "StudioTaskCreateRequestDTO",
+        "StudioTaskResponseSubmitDTO",
+        "StudioTaskDTO",
+        "ReviewSnapshotCreateDTO",
+        "ReviewDecisionRequestDTO",
+        "SequenceReviewDTO",
+        "ProjectReviewDTO",
     }
     assert expected.issubset(schemas)
     assert "HTTPValidationError" not in schemas

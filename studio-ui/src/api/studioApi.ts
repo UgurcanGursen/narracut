@@ -1,7 +1,16 @@
 import {
   createProject as generatedCreateProject,
+  createStudioTask as generatedCreateStudioTask,
+  createStudioTaskRepair as generatedCreateStudioTaskRepair,
+  approveStudioTask as generatedApproveStudioTask,
+  decideSequenceReview as generatedDecideSequenceReview,
+  getProjectReview as generatedGetProjectReview,
   getProjectStatus as generatedGetProjectStatus,
+  listProjects as generatedListProjects,
+  getSequenceReview as generatedGetSequenceReview,
+  listStudioTasks as generatedListStudioTasks,
   listProjectArtifacts as generatedListProjectArtifacts,
+  submitStudioTaskResponse as generatedSubmitStudioTaskResponse,
 } from '../generated/kurgu-api';
 import { createClient } from '../generated/kurgu-api/client';
 import type {
@@ -10,6 +19,15 @@ import type {
   ProjectCreateRequestDto,
   ProjectCreateResponseDto,
   ProjectStatusResponseDto,
+  ProjectListResponseDto,
+  ProjectReviewDto,
+  ReviewDecisionDto,
+  ReviewDecisionRequestDto,
+  SequenceReviewDto,
+  StudioTaskCollectionDto,
+  StudioTaskCreateRequestDto,
+  StudioTaskDto,
+  StudioTaskResponseSubmitDto,
 } from '../generated/kurgu-api/types.gen';
 
 import { StudioApiError } from './studioApiError';
@@ -20,16 +38,51 @@ export type {
   ProjectCreateRequestDto,
   ProjectCreateResponseDto,
   ProjectStatusResponseDto,
+  ProjectListResponseDto,
+  ProjectReviewDto,
+  ReviewDecisionDto,
+  ReviewDecisionRequestDto,
+  SequenceReviewDto,
+  StudioTaskCollectionDto,
+  StudioTaskCreateRequestDto,
+  StudioTaskDto,
+  StudioTaskResponseSubmitDto,
 };
 
 export interface StudioApi {
   createProject(
     request: ProjectCreateRequestDto,
   ): Promise<ProjectCreateResponseDto>;
+  listProjects(): Promise<ProjectListResponseDto>;
   getProjectStatus(projectId: string): Promise<ProjectStatusResponseDto>;
   listProjectArtifacts(
     projectId: string,
   ): Promise<ProjectArtifactsResponseDto>;
+  listStudioTasks(projectId: string): Promise<StudioTaskCollectionDto>;
+  createStudioTask(
+    projectId: string,
+    request: StudioTaskCreateRequestDto,
+  ): Promise<StudioTaskDto>;
+  submitStudioTaskResponse(
+    projectId: string,
+    taskId: string,
+    request: StudioTaskResponseSubmitDto,
+  ): Promise<StudioTaskDto>;
+  approveStudioTask(projectId: string, taskId: string): Promise<StudioTaskDto>;
+  createStudioTaskRepair(
+    projectId: string,
+    taskId: string,
+  ): Promise<StudioTaskDto>;
+  getProjectReview(projectId: string): Promise<ProjectReviewDto>;
+  getSequenceReview(
+    projectId: string,
+    sequenceId: string,
+  ): Promise<SequenceReviewDto>;
+  decideSequenceReview(
+    projectId: string,
+    sequenceId: string,
+    request: ReviewDecisionRequestDto,
+  ): Promise<ReviewDecisionDto>;
 }
 
 const SAFE_ERROR_MESSAGES: Readonly<Record<string, string>> = {
@@ -43,6 +96,17 @@ const SAFE_ERROR_MESSAGES: Readonly<Record<string, string>> = {
     'The profile does not match the selected domain pack.',
   PROJECT_NOT_FOUND: 'The requested project was not found.',
   PROJECT_ID_COLLISION: 'The project could not be created.',
+  TASK_NOT_FOUND: 'The requested task was not found.',
+  TASK_PROJECT_MISMATCH: 'The task does not belong to this project.',
+  TASK_STATE_INVALID: 'The task is not waiting for a response.',
+  TASK_NOT_VALID: 'Only a valid task result can be approved.',
+  TASK_UNAVAILABLE: 'The requested task is unavailable for this project.',
+  REPAIR_NOT_REQUIRED: 'A repair is not required for this task.',
+  REVIEW_SNAPSHOT_NOT_FOUND: 'No executable review snapshot is available.',
+  REVIEW_SEQUENCE_NOT_FOUND: 'The requested review sequence was not found.',
+  REVIEW_SNAPSHOT_INVALID: 'The review snapshot is not valid.',
+  REVIEW_SEQUENCE_LOCKED: 'The sequence already has a review decision.',
+  REVIEW_DECISION_INVALID: 'The review decision is invalid.',
   INTERNAL_ERROR: 'An internal error occurred.',
 };
 
@@ -174,6 +238,9 @@ export function createStudioApi(options: { baseUrl?: string } = {}): StudioApi {
         }),
       );
     },
+    listProjects() {
+      return execute<ProjectListResponseDto>(generatedListProjects({ client }));
+    },
     getProjectStatus(projectId: string) {
       return execute<ProjectStatusResponseDto>(
         generatedGetProjectStatus({
@@ -187,6 +254,75 @@ export function createStudioApi(options: { baseUrl?: string } = {}): StudioApi {
         generatedListProjectArtifacts({
           client,
           path: { project_id: projectId },
+        }),
+      );
+    },
+    listStudioTasks(projectId: string) {
+      return execute<StudioTaskCollectionDto>(
+        generatedListStudioTasks({ client, path: { project_id: projectId } }),
+      );
+    },
+    createStudioTask(projectId: string, request: StudioTaskCreateRequestDto) {
+      return execute<StudioTaskDto>(
+        generatedCreateStudioTask({
+          body: request,
+          client,
+          path: { project_id: projectId },
+        }),
+      );
+    },
+    submitStudioTaskResponse(
+      projectId: string,
+      taskId: string,
+      request: StudioTaskResponseSubmitDto,
+    ) {
+      return execute<StudioTaskDto>(
+        generatedSubmitStudioTaskResponse({
+          body: request,
+          client,
+          path: { project_id: projectId, task_id: taskId },
+        }),
+      );
+    },
+    approveStudioTask(projectId: string, taskId: string) {
+      return execute<StudioTaskDto>(
+        generatedApproveStudioTask({
+          client,
+          path: { project_id: projectId, task_id: taskId },
+        }),
+      );
+    },
+    createStudioTaskRepair(projectId: string, taskId: string) {
+      return execute<StudioTaskDto>(
+        generatedCreateStudioTaskRepair({
+          client,
+          path: { project_id: projectId, task_id: taskId },
+        }),
+      );
+    },
+    getProjectReview(projectId: string) {
+      return execute<ProjectReviewDto>(
+        generatedGetProjectReview({ client, path: { project_id: projectId } }),
+      );
+    },
+    getSequenceReview(projectId: string, sequenceId: string) {
+      return execute<SequenceReviewDto>(
+        generatedGetSequenceReview({
+          client,
+          path: { project_id: projectId, sequence_id: sequenceId },
+        }),
+      );
+    },
+    decideSequenceReview(
+      projectId: string,
+      sequenceId: string,
+      request: ReviewDecisionRequestDto,
+    ) {
+      return execute<ReviewDecisionDto>(
+        generatedDecideSequenceReview({
+          body: request,
+          client,
+          path: { project_id: projectId, sequence_id: sequenceId },
         }),
       );
     },

@@ -75,7 +75,7 @@ class ProjectCreateResponseDTO(BaseModel):
 
     project: ProjectDocumentDTO
     domain: ResolvedDomainDTO
-    persistence_scope: Literal["process_lifetime"]
+    persistence_scope: Literal["process_lifetime", "local_sqlite"]
 
 
 class ProjectStatusResponseDTO(BaseModel):
@@ -86,7 +86,15 @@ class ProjectStatusResponseDTO(BaseModel):
     updated_at: str
     version: int
     domain: ResolvedDomainDTO
-    persistence_scope: Literal["process_lifetime"]
+    persistence_scope: Literal["process_lifetime", "local_sqlite"]
+
+
+class ProjectListResponseDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    items: list[ProjectStatusResponseDTO]
+    count: int
+    persistence_scope: Literal["process_lifetime", "local_sqlite"]
 
 
 class ArtifactDTO(BaseModel):
@@ -120,4 +128,104 @@ class ProjectArtifactsResponseDTO(BaseModel):
     project_id: str
     items: list[ArtifactDTO]
     count: int
-    persistence_scope: Literal["process_lifetime"]
+    persistence_scope: Literal["process_lifetime", "local_sqlite"]
+
+
+class StudioTaskCreateRequestDTO(StrictRequestDTO):
+    family: Literal["research", "planner"]
+    task_type: Literal["source_discovery", "outline"]
+    backend_mode: Literal["replay", "manual_ui"]
+    topic: str = Field(min_length=1, max_length=500)
+
+
+class StudioTaskResponseSubmitDTO(StrictRequestDTO):
+    payload: dict[str, Any]
+
+
+class StudioTaskDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    task_id: str
+    task_hash: str
+    project_id: str
+    policy_snapshot_id: str
+    policy_snapshot_hash: str
+    family: Literal["research", "planner"]
+    task_type: str
+    backend_mode: Literal["replay", "manual_ui"]
+    prompt: str
+    context_package: dict[str, Any]
+    parent_task_id: str | None
+    attempt: int
+    created_at: str
+    status: Literal["waiting", "valid", "repair_required", "approved"]
+    validation_issues: list[str]
+    response_hash: str | None
+
+
+class StudioTaskCollectionDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    project_id: str
+    items: list[StudioTaskDTO]
+    count: int
+
+
+class ReviewSnapshotCreateDTO(StrictRequestDTO):
+    executable_plan: dict[str, Any]
+    final_edl_bundle: dict[str, Any]
+
+
+class ReviewSnapshotDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    snapshot_id: str
+    snapshot_hash: str
+    project_id: str
+    policy_snapshot_id: str
+    policy_snapshot_hash: str
+    created_at: str
+
+
+class ReviewDecisionRequestDTO(StrictRequestDTO):
+    action: Literal["approve", "replacement_requested"]
+    replacement_kind: Literal["asset_change", "replan"] | None = None
+
+
+class SequenceReviewDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    snapshot_id: str
+    snapshot_hash: str
+    sequence: dict[str, Any]
+    edl_binding: dict[str, Any]
+    decision: dict[str, Any] | None
+
+
+class ProjectReviewDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["available", "unavailable"]
+    project_id: str
+    snapshot_id: str | None
+    snapshot_hash: str | None
+    sequence_ids: list[str]
+
+
+class ReviewDecisionDTO(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision_id: str
+    decision_hash: str
+    project_id: str
+    sequence_id: str
+    snapshot_id: str
+    snapshot_hash: str
+    executable_sequence_hash: str
+    video_edl_hash: str
+    audio_edl_hash: str
+    action: Literal["approve", "replacement_requested"]
+    replacement_kind: Literal["asset_change", "replan"] | None
+    created_at: str
+    producer: str
+    producer_version: str

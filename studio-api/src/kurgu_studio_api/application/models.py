@@ -57,7 +57,7 @@ class ProjectAggregate:
 class ProjectCreatedView:
     project: Mapping[str, Any]
     domain: ResolvedDomainSelection
-    persistence_scope: Literal["process_lifetime"] = "process_lifetime"
+    persistence_scope: Literal["process_lifetime", "local_sqlite"] = "process_lifetime"
 
 
 @dataclass(frozen=True)
@@ -67,15 +67,63 @@ class ProjectStatusView:
     updated_at: str
     version: int
     domain: ResolvedDomainSelection
-    persistence_scope: Literal["process_lifetime"] = "process_lifetime"
+    persistence_scope: Literal["process_lifetime", "local_sqlite"] = "process_lifetime"
+
+
+@dataclass(frozen=True)
+class ProjectListView:
+    items: tuple[ProjectStatusView, ...]
+    persistence_scope: Literal["process_lifetime", "local_sqlite"] = "process_lifetime"
+
+    @property
+    def count(self) -> int:
+        return len(self.items)
 
 
 @dataclass(frozen=True)
 class ArtifactCollectionView:
     project_id: str
     items: tuple[Mapping[str, Any], ...]
-    persistence_scope: Literal["process_lifetime"] = "process_lifetime"
+    persistence_scope: Literal["process_lifetime", "local_sqlite"] = "process_lifetime"
 
     @property
     def count(self) -> int:
         return len(self.items)
+
+
+@dataclass(frozen=True)
+class StudioTaskRecord:
+    task_id: str
+    task_hash: str
+    project_id: str
+    policy_snapshot_id: str
+    policy_snapshot_hash: str
+    family: Literal["research", "planner"]
+    task_type: str
+    backend_mode: Literal["replay", "manual_ui"]
+    prompt: str
+    context_package: Mapping[str, Any]
+    payload: Mapping[str, Any]
+    parent_task_id: str | None
+    attempt: int
+    created_at: str
+
+
+@dataclass(frozen=True)
+class StudioTaskView:
+    record: StudioTaskRecord
+    status: Literal["waiting", "valid", "repair_required", "approved"]
+    validation_issues: tuple[str, ...]
+    response_hash: str | None
+
+
+@dataclass(frozen=True)
+class ReviewSnapshotRecord:
+    snapshot_id: str
+    snapshot_hash: str
+    project_id: str
+    policy_snapshot_id: str
+    policy_snapshot_hash: str
+    executable_plan: Mapping[str, Any]
+    final_edl_bundle: Mapping[str, Any]
+    created_at: str

@@ -1,6 +1,6 @@
 # Phase 13 Studio, Manual LLM and Review Contract
 
-Status: accepted implementation scope; Phase 13 implementation authorized
+Status: FOUNDATION_ACCEPTED; Master Roadmap closure remains open
 
 ## Objective and ownership
 
@@ -131,3 +131,13 @@ Phase 13 may be marked `MASTER_PHASE_CLOSED` only after these gates and every
 Phase 13 Master Roadmap criterion with an available owner is demonstrated.
 Phase 14/15-backed operational render, storage and transport views remain
 explicitly unavailable until their owners provide canonical evidence.
+
+## Foundation acceptance evidence
+
+The bounded implementation passed its local SQLite, API, generated-client and
+UI workflow checks on 2026-08-06. The evidence is recorded in
+`baseline/phase13_foundation_acceptance_report.md` and
+`docs/PHASE_ACCEPTANCE.md`. This is deliberately not a claim that a canonical
+Phase 4 preview, Phase 14 render-progress/storage/GC view, or Phase 15
+transport capability exists. Those criteria need their owning handoff before
+the Master Roadmap status can change from open to closed.

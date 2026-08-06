@@ -302,7 +302,10 @@
             "type": "array"
           },
           "persistence_scope": {
-            "const": "process_lifetime",
+            "enum": [
+              "process_lifetime",
+              "local_sqlite"
+            ],
             "title": "Persistence Scope",
             "type": "string"
           },
@@ -362,7 +365,10 @@
             "$ref": "#/components/schemas/ResolvedDomainDTO"
           },
           "persistence_scope": {
-            "const": "process_lifetime",
+            "enum": [
+              "process_lifetime",
+              "local_sqlite"
+            ],
             "title": "Persistence Scope",
             "type": "string"
           },
@@ -437,6 +443,92 @@
         "title": "ProjectDocumentDTO",
         "type": "object"
       },
+      "ProjectListResponseDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectStatusResponseDTO"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "persistence_scope": {
+            "enum": [
+              "process_lifetime",
+              "local_sqlite"
+            ],
+            "title": "Persistence Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "items",
+          "count",
+          "persistence_scope"
+        ],
+        "title": "ProjectListResponseDTO",
+        "type": "object"
+      },
+      "ProjectReviewDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "sequence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sequence Ids",
+            "type": "array"
+          },
+          "snapshot_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Hash"
+          },
+          "snapshot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Id"
+          },
+          "status": {
+            "enum": [
+              "available",
+              "unavailable"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "project_id",
+          "snapshot_id",
+          "snapshot_hash",
+          "sequence_ids"
+        ],
+        "title": "ProjectReviewDTO",
+        "type": "object"
+      },
       "ProjectStatusResponseDTO": {
         "additionalProperties": false,
         "properties": {
@@ -444,7 +536,10 @@
             "$ref": "#/components/schemas/ResolvedDomainDTO"
           },
           "persistence_scope": {
-            "const": "process_lifetime",
+            "enum": [
+              "process_lifetime",
+              "local_sqlite"
+            ],
             "title": "Persistence Scope",
             "type": "string"
           },
@@ -513,17 +608,483 @@
         ],
         "title": "ResolvedDomainDTO",
         "type": "object"
+      },
+      "ReviewDecisionDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "approve",
+              "replacement_requested"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "audio_edl_hash": {
+            "title": "Audio Edl Hash",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "decision_hash": {
+            "title": "Decision Hash",
+            "type": "string"
+          },
+          "decision_id": {
+            "title": "Decision Id",
+            "type": "string"
+          },
+          "executable_sequence_hash": {
+            "title": "Executable Sequence Hash",
+            "type": "string"
+          },
+          "producer": {
+            "title": "Producer",
+            "type": "string"
+          },
+          "producer_version": {
+            "title": "Producer Version",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "replacement_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "asset_change",
+                  "replan"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replacement Kind"
+          },
+          "sequence_id": {
+            "title": "Sequence Id",
+            "type": "string"
+          },
+          "snapshot_hash": {
+            "title": "Snapshot Hash",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "video_edl_hash": {
+            "title": "Video Edl Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_id",
+          "decision_hash",
+          "project_id",
+          "sequence_id",
+          "snapshot_id",
+          "snapshot_hash",
+          "executable_sequence_hash",
+          "video_edl_hash",
+          "audio_edl_hash",
+          "action",
+          "replacement_kind",
+          "created_at",
+          "producer",
+          "producer_version"
+        ],
+        "title": "ReviewDecisionDTO",
+        "type": "object"
+      },
+      "ReviewDecisionRequestDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "approve",
+              "replacement_requested"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "replacement_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "asset_change",
+                  "replan"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Replacement Kind"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "ReviewDecisionRequestDTO",
+        "type": "object"
+      },
+      "ReviewSnapshotCreateDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "executable_plan": {
+            "additionalProperties": true,
+            "title": "Executable Plan",
+            "type": "object"
+          },
+          "final_edl_bundle": {
+            "additionalProperties": true,
+            "title": "Final Edl Bundle",
+            "type": "object"
+          }
+        },
+        "required": [
+          "executable_plan",
+          "final_edl_bundle"
+        ],
+        "title": "ReviewSnapshotCreateDTO",
+        "type": "object"
+      },
+      "ReviewSnapshotDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "policy_snapshot_hash": {
+            "title": "Policy Snapshot Hash",
+            "type": "string"
+          },
+          "policy_snapshot_id": {
+            "title": "Policy Snapshot Id",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "snapshot_hash": {
+            "title": "Snapshot Hash",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "snapshot_hash",
+          "project_id",
+          "policy_snapshot_id",
+          "policy_snapshot_hash",
+          "created_at"
+        ],
+        "title": "ReviewSnapshotDTO",
+        "type": "object"
+      },
+      "SequenceReviewDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "decision": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision"
+          },
+          "edl_binding": {
+            "additionalProperties": true,
+            "title": "Edl Binding",
+            "type": "object"
+          },
+          "sequence": {
+            "additionalProperties": true,
+            "title": "Sequence",
+            "type": "object"
+          },
+          "snapshot_hash": {
+            "title": "Snapshot Hash",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "title": "Snapshot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "snapshot_hash",
+          "sequence",
+          "edl_binding",
+          "decision"
+        ],
+        "title": "SequenceReviewDTO",
+        "type": "object"
+      },
+      "StudioTaskCollectionDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StudioTaskDTO"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id",
+          "items",
+          "count"
+        ],
+        "title": "StudioTaskCollectionDTO",
+        "type": "object"
+      },
+      "StudioTaskCreateRequestDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "backend_mode": {
+            "enum": [
+              "replay",
+              "manual_ui"
+            ],
+            "title": "Backend Mode",
+            "type": "string"
+          },
+          "family": {
+            "enum": [
+              "research",
+              "planner"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "task_type": {
+            "enum": [
+              "source_discovery",
+              "outline"
+            ],
+            "title": "Task Type",
+            "type": "string"
+          },
+          "topic": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Topic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "family",
+          "task_type",
+          "backend_mode",
+          "topic"
+        ],
+        "title": "StudioTaskCreateRequestDTO",
+        "type": "object"
+      },
+      "StudioTaskDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt": {
+            "title": "Attempt",
+            "type": "integer"
+          },
+          "backend_mode": {
+            "enum": [
+              "replay",
+              "manual_ui"
+            ],
+            "title": "Backend Mode",
+            "type": "string"
+          },
+          "context_package": {
+            "additionalProperties": true,
+            "title": "Context Package",
+            "type": "object"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "family": {
+            "enum": [
+              "research",
+              "planner"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "parent_task_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Task Id"
+          },
+          "policy_snapshot_hash": {
+            "title": "Policy Snapshot Hash",
+            "type": "string"
+          },
+          "policy_snapshot_id": {
+            "title": "Policy Snapshot Id",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "prompt": {
+            "title": "Prompt",
+            "type": "string"
+          },
+          "response_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Response Hash"
+          },
+          "status": {
+            "enum": [
+              "waiting",
+              "valid",
+              "repair_required",
+              "approved"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "task_hash": {
+            "title": "Task Hash",
+            "type": "string"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "string"
+          },
+          "task_type": {
+            "title": "Task Type",
+            "type": "string"
+          },
+          "validation_issues": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Validation Issues",
+            "type": "array"
+          }
+        },
+        "required": [
+          "task_id",
+          "task_hash",
+          "project_id",
+          "policy_snapshot_id",
+          "policy_snapshot_hash",
+          "family",
+          "task_type",
+          "backend_mode",
+          "prompt",
+          "context_package",
+          "parent_task_id",
+          "attempt",
+          "created_at",
+          "status",
+          "validation_issues",
+          "response_hash"
+        ],
+        "title": "StudioTaskDTO",
+        "type": "object"
+      },
+      "StudioTaskResponseSubmitDTO": {
+        "additionalProperties": false,
+        "properties": {
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          }
+        },
+        "required": [
+          "payload"
+        ],
+        "title": "StudioTaskResponseSubmitDTO",
+        "type": "object"
       }
     }
   },
   "info": {
-    "description": "Phase 1 thin project contract API with process-lifetime persistence.",
+    "description": "Phase 13 local Studio API with SQLite project persistence.",
     "title": "Kurgu Studio API",
     "version": "0.1.0"
   },
   "openapi": "3.1.0",
   "paths": {
     "/api/v1/projects": {
+      "get": {
+        "operationId": "listProjects",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectListResponseDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "List Projects",
+        "tags": [
+          "projects"
+        ]
+      },
       "post": {
         "operationId": "createProject",
         "requestBody": {
@@ -647,6 +1208,268 @@
         ]
       }
     },
+    "/api/v1/projects/{project_id}/review": {
+      "get": {
+        "operationId": "getProjectReview",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectReviewDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Get Project Review",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/review-snapshots": {
+      "post": {
+        "operationId": "registerReviewSnapshot",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewSnapshotCreateDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewSnapshotDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Register Snapshot",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/review/sequences/{sequence_id}": {
+      "get": {
+        "operationId": "getSequenceReview",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "sequence_id",
+            "required": true,
+            "schema": {
+              "pattern": "^eseq_[a-z0-9]+$",
+              "title": "Sequence Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SequenceReviewDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Get Sequence Review",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/review/sequences/{sequence_id}/decision": {
+      "post": {
+        "operationId": "decideSequenceReview",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "sequence_id",
+            "required": true,
+            "schema": {
+              "pattern": "^eseq_[a-z0-9]+$",
+              "title": "Sequence Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewDecisionRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewDecisionDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Decide Sequence",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
     "/api/v1/projects/{project_id}/status": {
       "get": {
         "operationId": "getProjectStatus",
@@ -707,6 +1530,432 @@
         "summary": "Get Project Status",
         "tags": [
           "projects"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks": {
+      "get": {
+        "operationId": "listStudioTasks",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioTaskCollectionDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "List Tasks",
+        "tags": [
+          "studio-workflow"
+        ]
+      },
+      "post": {
+        "operationId": "createStudioTask",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudioTaskCreateRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioTaskDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Create Task",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}": {
+      "get": {
+        "operationId": "getStudioTask",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "pattern": "^(task|ptask)_[a-z0-9]+$",
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioTaskDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Get Task",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/approve": {
+      "post": {
+        "operationId": "approveStudioTask",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "pattern": "^(task|ptask)_[a-z0-9]+$",
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioTaskDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Approve Task",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/repair": {
+      "post": {
+        "operationId": "createStudioTaskRepair",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "pattern": "^(task|ptask)_[a-z0-9]+$",
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioTaskDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Create Repair",
+        "tags": [
+          "studio-workflow"
+        ]
+      }
+    },
+    "/api/v1/projects/{project_id}/tasks/{task_id}/response": {
+      "post": {
+        "operationId": "submitStudioTaskResponse",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "required": true,
+            "schema": {
+              "pattern": "^prj_[a-z0-9][a-z0-9_-]{2,63}$",
+              "title": "Project Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "pattern": "^(task|ptask)_[a-z0-9]+$",
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudioTaskResponseSubmitDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudioTaskDTO"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDTO"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Submit Response",
+        "tags": [
+          "studio-workflow"
         ]
       }
     }

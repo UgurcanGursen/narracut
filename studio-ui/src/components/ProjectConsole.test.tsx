@@ -28,7 +28,7 @@ describe('ProjectConsole', () => {
     expect(screen.getByLabelText('Project title')).toBeInTheDocument();
     expect(screen.getByLabelText('Domain selection')).toHaveValue('core_only');
     expect(
-      screen.getByText(/stored only for the lifetime of the current API process/i),
+      screen.getByText(/persistence boundary returned by the API/i),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create project' })).toBeDisabled();
 

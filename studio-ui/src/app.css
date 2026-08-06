@@ -23,7 +23,8 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -111,7 +112,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
   width: 100%;
   min-height: 3rem;
   border: 1px solid #bac5bf;
@@ -123,6 +125,7 @@ select {
 
 input:focus,
 select:focus,
+textarea:focus,
 button:focus-visible {
   outline: 3px solid rgba(39, 117, 88, 0.24);
   outline-offset: 2px;
@@ -277,6 +280,37 @@ button:disabled {
 .artifact-list span {
   color: #6a7671;
   font-size: 0.82rem;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.workflow-panel h2 { color: #172d25; font-size: 1.25rem; }
+.workflow-copy { color: #66726e; font-size: 0.9rem; line-height: 1.5; }
+
+textarea {
+  min-height: 8rem;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.78rem;
+}
+
+.secondary-button { margin-top: 0.75rem; background: #e1ebe5; color: #1a4937; }
+.secondary-button:hover:not(:disabled) { background: #cfdfd5; }
+.task-list, .review-list { display: grid; gap: 0.5rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+.task-select { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 2.8rem; margin: 0; background: #eff4f0; color: #244534; padding: 0.65rem 0.75rem; }
+.workflow-detail { display: grid; gap: 0.7rem; }
+.workflow-detail p { overflow-wrap: anywhere; color: #40554b; font-size: 0.86rem; }
+.validation-warning { border-left: 3px solid #bc8631; background: #fff7e8; color: #66502d !important; padding: 0.65rem 0.8rem; }
+.decision-actions { display: grid; gap: 0.4rem; }
+.workflow-error { grid-column: 1 / -1; }
+
+@media (max-width: 900px) {
+  .workflow-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 820px) {

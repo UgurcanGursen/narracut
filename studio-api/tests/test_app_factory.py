@@ -6,23 +6,32 @@ from kurgu_studio_api import create_app
 
 
 EXPECTED_METHODS = {
-    "/api/v1/projects": {"post"},
+    "/api/v1/projects": {"get", "post"},
     "/api/v1/projects/{project_id}/status": {"get"},
     "/api/v1/projects/{project_id}/artifacts": {"get"},
+    "/api/v1/projects/{project_id}/tasks": {"get", "post"},
+    "/api/v1/projects/{project_id}/tasks/{task_id}": {"get"},
+    "/api/v1/projects/{project_id}/tasks/{task_id}/response": {"post"},
+    "/api/v1/projects/{project_id}/tasks/{task_id}/approve": {"post"},
+    "/api/v1/projects/{project_id}/tasks/{task_id}/repair": {"post"},
+    "/api/v1/projects/{project_id}/review-snapshots": {"post"},
+    "/api/v1/projects/{project_id}/review": {"get"},
+    "/api/v1/projects/{project_id}/review/sequences/{sequence_id}": {"get"},
+    "/api/v1/projects/{project_id}/review/sequences/{sequence_id}/decision": {"post"},
 }
 
 
-def test_factory_returns_fresh_app_and_fresh_repository(core_request: dict) -> None:
+def test_factory_reopens_local_sqlite_project_across_fresh_apps(core_request: dict) -> None:
     first = TestClient(create_app())
     second = TestClient(create_app())
     created = first.post("/api/v1/projects", json=core_request)
     project_id = created.json()["project"]["project_id"]
     assert created.status_code == 201
     assert first.get(f"/api/v1/projects/{project_id}/status").status_code == 200
-    assert second.get(f"/api/v1/projects/{project_id}/status").status_code == 404
+    assert second.get(f"/api/v1/projects/{project_id}/status").status_code == 200
 
 
-def test_factory_exposes_only_three_deterministic_business_endpoints() -> None:
+def test_factory_exposes_only_deterministic_phase13_business_endpoints() -> None:
     first = create_app().openapi()
     second = create_app().openapi()
     assert first == second
@@ -32,12 +41,12 @@ def test_factory_exposes_only_three_deterministic_business_endpoints() -> None:
     } == EXPECTED_METHODS
     assert [
         first["paths"][path][method]["operationId"]
-        for path, methods in EXPECTED_METHODS.items()
-        for method in methods
+        for path in sorted(EXPECTED_METHODS)
+        for method in sorted(EXPECTED_METHODS[path])
     ] == [
-        "createProject",
-        "getProjectStatus",
-        "listProjectArtifacts",
+        first["paths"][path][method]["operationId"]
+        for path in sorted(EXPECTED_METHODS)
+        for method in sorted(EXPECTED_METHODS[path])
     ]
     assert "servers" not in first
 

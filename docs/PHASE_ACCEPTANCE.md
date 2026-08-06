@@ -1,5 +1,26 @@
 # Phase Acceptance
 
+## Phase 13 foundation acceptance â€” 2026-08-06
+
+| Gate | Result |
+|---|---|
+| SQLite project create/list/reopen across fresh FastAPI apps | PASS |
+| OpenAPI-generated React HTTP boundary | PASS |
+| Phase 9/10 MANUAL_UI package, validation, repair and approval | PASS |
+| Unsupported domain task request has explicit fail-closed error | PASS |
+| Phase 12 executable-plan + Phase 3 video/audio EDL review binding | PASS |
+| Immutable review approval/replacement decision | PASS |
+| Studio API regression | `62 passed` |
+| Studio UI regression | `54 passed` |
+| Phase 8/10/11/12 regression | `40 passed` |
+| Phase 13 foundation | ACCEPT |
+| Phase 13 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase13_foundation_acceptance_report.md` and
+`docs/specifications/phase13_studio_manual_llm_review_contract.md`.
+Preview/render-progress/storage/GC must remain visibly unavailable until their
+canonical Phase 4/14 handoff is authorized and implemented.
+
 ## Phase 13 contract acceptance and implementation authorization — 2026-08-06
 
 | Gate | Result |

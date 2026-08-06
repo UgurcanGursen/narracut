@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 NEXT.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN.
 
 ## AI execution policy
 
@@ -11,22 +11,15 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the accepted Phase 13 Studio, Manual LLM and Human-in-the-loop
-Review contract at
-`docs/specifications/phase13_studio_manual_llm_review_contract.md` as one
-bounded package. Begin with the SQLite-backed Studio project-state port and
-reopen behavior, then add the OpenAPI-first MANUAL_UI task lifecycle and the
-immutable review/approval view-model boundary.
+Perform a read-only Phase 13 Master-criterion integration decision. The
+accepted SQLite/OpenAPI Manual LLM and immutable review foundation is recorded
+in `baseline/phase13_foundation_acceptance_report.md`, but do not call Phase
+13 `MASTER_PHASE_CLOSED` until a canonical Phase 4 preview handoff and Phase
+14-owned render-progress/storage/GC read-model ownership are decided.
 
-The exact acceptance gates are in that contract. Preserve the existing thin
-FastAPI/HTTP-only boundary and regenerate the TypeScript client from OpenAPI.
-Use REPLAY/MANUAL_UI fixtures; do not introduce browser-driven LLM automation,
-paid LLM calls, queue/retry infrastructure, direct filesystem UI access,
-media opening, renderer bypass, Phase 14 lifecycle work or Phase 15 transport.
-
-Phase 13 scope authorization follows Phase 12 master-acceptance evidence
-`5572499`, `b3ce85b`, focused regression `40 passed`, and this documentation
-reconciliation. It is implementation authorization, not Phase 13 closure.
+Do not silently show a fake preview, render progress or storage total. Do not
+implement provider/browser automation, paid LLM calls, direct filesystem UI
+access, queue/retry or media transport in this decision task.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -1,8 +1,9 @@
 # Kurgu Studio UI
 
-This directory contains the Phase 1 React 19, TypeScript, and Vite Studio
-shell. It creates a project through the thin Studio API, then reads the
-project status and artifact collection returned by the real HTTP contracts.
+This directory contains the Phase 13 React 19, TypeScript and Vite Studio.
+It creates or reopens a project through the Studio API, runs Manual LLM task
+copy/import/validation/repair/approval workflows, and displays API-backed
+editorial-review availability and immutable decisions.
 
 The browser boundary is intentionally narrow:
 
@@ -86,8 +87,10 @@ The `true-crime-legal` contract example is not a public project option.
 Project IDs and workspace/output paths are server-owned and are not editable
 in the UI.
 
-Project persistence is process-lifetime in memory. Restarting the API clears
-created projects. There is no WorkspaceStore, SQLite, durable reopen,
-authentication, upload, render/job orchestration, progress stream, or
-artifact-write operation in this shell. This local developer slice makes no
-production internet-deployment claim.
+The default Studio runtime reports `local_sqlite` and supports project reopen.
+The browser receives only API view models: it does not import engine modules,
+read repository paths or open media. A user may explicitly open a web AI tab,
+copy a task prompt and paste/upload a response; the Studio performs no browser
+automation or provider call. Renderer, preview job orchestration, queue/retry,
+artifact lifecycle/GC, media transport, authentication and internet-facing
+deployment remain outside this local control-plane boundary.

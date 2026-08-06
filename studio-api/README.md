@@ -1,35 +1,41 @@
 # Kurgu Studio API
 
-This directory contains the Phase 1 thin Studio API project contract slice.
-It has a real FastAPI application factory, strict request/response DTOs, an
-HTTP-independent application service, replaceable ports, and three endpoints:
+This directory contains the Phase 13 local Studio control plane. It has a real
+FastAPI application factory, strict request/response DTOs, HTTP-independent
+application services and replaceable infrastructure ports. The public API
+supports project create/list/reopen, Manual LLM task lifecycle, and read-only
+hash-bound sequence review decisions.
 
 ```text
 POST /api/v1/projects
 GET  /api/v1/projects/{project_id}/status
 GET  /api/v1/projects/{project_id}/artifacts
+GET/POST /api/v1/projects/{project_id}/tasks
+POST /api/v1/projects/{project_id}/tasks/{task_id}/response
+POST /api/v1/projects/{project_id}/tasks/{task_id}/approve
+POST /api/v1/projects/{project_id}/tasks/{task_id}/repair
+GET  /api/v1/projects/{project_id}/review
+GET/POST review snapshot and sequence decision endpoints
 ```
 
 The dependency set is isolated from the repository root `requirements.txt`.
-It is intentionally limited to the thin API surface and public V3 contract
-validation imports. WorkspaceStore, SQLite, renderer integration, durable
-persistence, authentication, and internet-facing deployment are not provided.
+It is intentionally limited to the Studio API surface and public engine
+contract imports. Authentication, internet-facing deployment, provider calls,
+browser automation, renderer invocation, job queues and media transport are
+not provided.
 
 ## Application factory
 
-`kurgu_studio_api.create_app()` returns a new FastAPI instance and a new
-in-memory project repository on every call. Application metadata and OpenAPI
-3.1 behavior are fixed rather than derived from the environment, current
-directory, hostname, time, or Git state.
+`kurgu_studio_api.create_app()` returns a new FastAPI instance with a local
+SQLite project repository by default. Fresh application instances reopen the
+same local Studio state. Tests can inject the in-memory repository through a
+custom runtime to isolate a unit boundary. Application metadata and OpenAPI
+3.1 behavior are fixed rather than derived from hostname, time or Git state.
 
-Project persistence is explicitly process-lifetime only. A successful create
-can be read from the same app instance, but a new app instance or process
-restart starts with an empty catalog. There is no reopen, revision, recovery,
-atomic disk persistence, WorkspaceStore, or production persistence guarantee.
-Every successful response reports:
+Project persistence is explicitly reported by every project response:
 
 ```json
-{"persistence_scope": "process_lifetime"}
+{"persistence_scope": "local_sqlite"}
 ```
 
 ## Public domain eligibility
@@ -76,9 +82,9 @@ $env:PYTHONPATH = "$(Get-Location)\studio-api\src"
 ```
 
 The exporter accepts no app import target and no output path. It always writes
-or checks `shared-schemas/openapi/openapi.json`. The artifact contains exactly
-the three project contracts above. It contains no health, job, render,
-update/delete, artifact-write, or other endpoint.
+or checks `shared-schemas/openapi/openapi.json`. Task and review operations are
+included; no health, provider, media-open, render, queue/retry or artifact
+lifecycle-write endpoint is included.
 
 ## Clean venv install
 

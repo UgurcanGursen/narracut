@@ -99,6 +99,32 @@ describe('createStudioApi', () => {
     });
   });
 
+  it('uses generated HTTP operations for the Manual LLM task boundary', async () => {
+    installRelativeRequestSupport();
+    const task = {
+      task_id: 'task_abc', task_hash: 'sha256:abc', project_id: projectId,
+      policy_snapshot_id: 'dps_snapshot', policy_snapshot_hash: 'sha256:policy',
+      family: 'research', task_type: 'source_discovery', backend_mode: 'manual_ui',
+      prompt: 'Return JSON.', context_package: { topic: 'AI chips' }, parent_task_id: null,
+      attempt: 0, created_at: '2026-08-06T00:00:00Z', status: 'waiting',
+      validation_issues: [], response_hash: null,
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(task, 201));
+    vi.stubGlobal('fetch', fetchMock);
+    const api = createStudioApi();
+
+    await api.createStudioTask(projectId, {
+      family: 'research', task_type: 'source_discovery', backend_mode: 'manual_ui', topic: 'AI chips',
+    });
+
+    const request = requestAt(fetchMock, 0);
+    expect(request.method).toBe('POST');
+    expect(new URL(request.url).pathname).toBe(`/api/v1/projects/${projectId}/tasks`);
+    expect(JSON.parse(await request.clone().text())).toEqual({
+      family: 'research', task_type: 'source_discovery', backend_mode: 'manual_ui', topic: 'AI chips',
+    });
+  });
+
   it('keeps explicit client base URLs isolated per facade instance', async () => {
     const fetchMock = vi
       .fn()

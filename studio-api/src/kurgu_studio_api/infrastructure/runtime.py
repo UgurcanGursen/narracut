@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+import tempfile
 from uuid import uuid4
 
 from engine.contracts import (
@@ -14,10 +15,13 @@ from engine.contracts import (
 )
 
 from ..application.project_service import ProjectApplicationService
+from ..application.studio_workflow_service import StudioWorkflowService
 from .contract_adapter import EngineContractValidationAdapter
 from .domain_eligibility import PROJECT_API_DOMAIN_ELIGIBILITY
 from .domain_resolution import EngineDomainResolutionAdapter
 from .in_memory_project_repository import InMemoryProjectRepository
+from .sqlite_project_repository import SQLiteProjectRepository
+from .engine_manual_task_factory import EngineManualTaskFactory
 
 
 class SystemClock:
@@ -37,12 +41,13 @@ class UuidProjectIdFactory:
 @dataclass(frozen=True)
 class Runtime:
     project_service: ProjectApplicationService
-    project_repository: InMemoryProjectRepository
+    project_repository: InMemoryProjectRepository | SQLiteProjectRepository
     contract_validation: EngineContractValidationAdapter
     domain_resolution: EngineDomainResolutionAdapter
+    workflow_service: StudioWorkflowService | None = None
 
 
-def build_runtime() -> Runtime:
+def build_runtime(*, database_path: Path | None = None) -> Runtime:
     repo_root = Path(__file__).resolve().parents[4]
     catalog = SchemaCatalog(repo_root / "schema" / "v3")
     contract_validation = EngineContractValidationAdapter(catalog)
@@ -54,7 +59,10 @@ def build_runtime() -> Runtime:
         contract_validation=contract_validation,
         eligibility=PROJECT_API_DOMAIN_ELIGIBILITY,
     )
-    repository = InMemoryProjectRepository()
+    repository = SQLiteProjectRepository(
+        database_path
+        or Path(tempfile.gettempdir()) / "kurgu-studio" / "studio.sqlite3"
+    )
     service = ProjectApplicationService(
         repository=repository,
         contract_validation=contract_validation,
@@ -62,9 +70,18 @@ def build_runtime() -> Runtime:
         project_id_factory=UuidProjectIdFactory(),
         clock=SystemClock(),
     )
+    workflow_service = StudioWorkflowService(
+        projects=repository,
+        workflow=repository,
+        task_factory=EngineManualTaskFactory(
+            domain_packs_root=repo_root / "domain-packs"
+        ),
+        clock=SystemClock(),
+    )
     return Runtime(
         project_service=service,
         project_repository=repository,
         contract_validation=contract_validation,
         domain_resolution=domain_resolution,
+        workflow_service=workflow_service,
     )

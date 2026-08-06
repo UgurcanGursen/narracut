@@ -21,6 +21,7 @@ from .dto import (
     ProjectArtifactsResponseDTO,
     ProjectCreateRequestDTO,
     ProjectCreateResponseDTO,
+    ProjectListResponseDTO,
     ProjectStatusResponseDTO,
     ResolvedDomainDTO,
 )
@@ -67,6 +68,30 @@ def create_projects_router(
     service: ProjectApplicationService,
 ) -> APIRouter:
     router = APIRouter(prefix="/projects", tags=["projects"])
+
+    @router.get(
+        "",
+        operation_id="listProjects",
+        response_model=ProjectListResponseDTO,
+        responses={500: {"model": ErrorEnvelopeDTO}},
+    )
+    def list_projects() -> ProjectListResponseDTO:
+        view = service.list_projects()
+        return ProjectListResponseDTO(
+            items=[
+                ProjectStatusResponseDTO(
+                    project_id=item.project_id,
+                    status=item.status,
+                    updated_at=item.updated_at,
+                    version=item.version,
+                    domain=_resolved_domain_dto(item.domain),
+                    persistence_scope=item.persistence_scope,
+                )
+                for item in view.items
+            ],
+            count=view.count,
+            persistence_scope=view.persistence_scope,
+        )
 
     @router.post(
         "",

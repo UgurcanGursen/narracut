@@ -1,11 +1,11 @@
 # Current State
 
 Son guncelleme: 6 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 NEXT**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN)**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 12 closed; Phase 13 implementation authorized
+## Latest authoritative state - Phase 13 Studio foundation accepted
 
 - The repository-wide Roadmap Scope Reconciliation is accepted at
   `docs/ROADMAP_SCOPE_RECONCILIATION.md`. It preserves the accepted Phase 0-10
@@ -49,21 +49,24 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   family/template policy violation fails closed. The explicit execution
   handoff creates a two-sequence, hash-bound Phase 3 video/audio EDL bundle
   without changing either scheduler.
-- Phase 13 Studio UI, Manual LLM Gateway and Human-in-the-loop Review now has
-  an accepted implementation contract at
+- Phase 13 Studio UI, Manual LLM Gateway and Human-in-the-loop Review has an
+  accepted local SQLite/OpenAPI implementation at
   `docs/specifications/phase13_studio_manual_llm_review_contract.md`. Its
-  first required correction is a SQLite-backed Studio state port: the existing
-  Phase 1 `process_lifetime` in-memory repository cannot satisfy project
-  reopen after restart.
-- The authorized scope is OpenAPI-first and REPLAY/MANUAL_UI-only: persistent
-  project/task/review/approval records, typed task import/validation/repair,
-  read-only Phase 12/Phase 3 presentation, and immutable hash-bound approval
-  or replacement requests. It does not authorize provider/browser automation,
-  direct UI filesystem access, media open/render, queue/retry, Phase 14
-  lifecycle or Phase 15 transport.
-- The sole next task is the bounded Phase 13 implementation package defined by
-  that contract. Phase 13 is not closed and no final production claim follows
-  from this authorization.
+- SQLite-backed projects can be listed and reopened across a fresh FastAPI
+  application. The HTTP-only Studio provides Phase 9 research / Phase 10
+  outline MANUAL_UI task creation, prompt/context handoff, canonical envelope
+  validation, repair and approval; unsupported `core_only` task creation fails
+  explicitly instead of silently falling back to business-tech.
+- The Studio presents a canonical Phase 12 executable-plan and hash-bound
+  Phase 3 video/audio EDL review snapshot and records immutable approval or
+  replacement requests. It does not mutate upstream artifacts.
+- Foundation acceptance: `baseline/phase13_foundation_acceptance_report.md`.
+  `MASTER_PHASE_CLOSED` remains open because the Studio correctly reports
+  preview/render-progress/storage as unavailable while no canonical Phase 4
+  preview handoff or Phase 14 durable lifecycle view exists. It does not fake
+  those product states.
+- The sole next task is a read-only Phase 13 Master-criterion integration
+  decision for preview, render-progress and storage/GC ownership.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

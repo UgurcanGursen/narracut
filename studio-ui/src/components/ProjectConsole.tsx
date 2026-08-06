@@ -4,15 +4,15 @@ import {
   StudioApiError,
   type ProjectArtifactsResponseDto,
   type ProjectCreateRequestDto,
-  type ProjectCreateResponseDto,
+  type ProjectListResponseDto,
   type ProjectStatusResponseDto,
   type StudioApi,
 } from '../api/studioApi';
+import { StudioWorkflowPanel } from './StudioWorkflowPanel';
 
 type DomainChoice = 'core_only' | 'business_tech';
 
 interface ProjectResult {
-  created: ProjectCreateResponseDto;
   status: ProjectStatusResponseDto;
   artifacts: ProjectArtifactsResponseDto;
 }
@@ -51,6 +51,7 @@ export function ProjectConsole({ api }: ProjectConsoleProps) {
     useState<DomainChoice>('core_only');
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ProjectResult | null>(null);
+  const [savedProjects, setSavedProjects] = useState<ProjectListResponseDto | null>(null);
   const [error, setError] = useState<StudioApiError | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -72,7 +73,7 @@ export function ProjectConsole({ api }: ProjectConsoleProps) {
         api.getProjectStatus(projectId),
         api.listProjectArtifacts(projectId),
       ]);
-      setResult({ created, status, artifacts });
+      setResult({ status, artifacts });
     } catch (caught) {
       setError(
         caught instanceof StudioApiError
@@ -87,7 +88,38 @@ export function ProjectConsole({ api }: ProjectConsoleProps) {
     }
   }
 
+  async function refreshSavedProjects() {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      setSavedProjects(await api.listProjects());
+    } catch (caught) {
+      setError(caught instanceof StudioApiError ? caught : new StudioApiError('UNEXPECTED_ERROR', 'The project catalog could not be loaded.'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function openSavedProject(projectId: string) {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const [status, artifacts] = await Promise.all([
+        api.getProjectStatus(projectId),
+        api.listProjectArtifacts(projectId),
+      ]);
+      setResult({ status, artifacts });
+    } catch (caught) {
+      setError(caught instanceof StudioApiError ? caught : new StudioApiError('UNEXPECTED_ERROR', 'The saved project could not be opened.'));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
+    <>
     <section className="console-grid" aria-label="Project console">
       <section className="panel form-panel">
         <div className="section-heading">
@@ -129,12 +161,17 @@ export function ProjectConsole({ api }: ProjectConsoleProps) {
             {busy ? 'Creating project…' : 'Create project'}
           </button>
         </form>
+        <button className="secondary-button" type="button" onClick={() => void refreshSavedProjects()} disabled={busy}>
+          Open a saved project
+        </button>
+        {savedProjects && savedProjects.count === 0 ? <p className="empty-state">No saved projects are available.</p> : null}
+        {savedProjects && savedProjects.count > 0 ? <ul className="task-list">{savedProjects.items.map((project) => <li key={project.project_id}><button className="task-select" type="button" onClick={() => void openSavedProject(project.project_id)} disabled={busy}><strong>Saved project</strong><span>{project.status}</span></button></li>)}</ul> : null}
 
-        <aside className="persistence-note" aria-label="Persistence limitation">
-          <strong>Process-lifetime storage</strong>
+        <aside className="persistence-note" aria-label="Persistence note">
+          <strong>Persistence scope is API-reported</strong>
           <p>
-            Project data is stored only for the lifetime of the current API
-            process. Restarting the API clears this project.
+            The Studio displays the persistence boundary returned by the API.
+            A Phase 13 runtime uses local SQLite and can reopen a project.
           </p>
         </aside>
       </section>
@@ -170,11 +207,11 @@ export function ProjectConsole({ api }: ProjectConsoleProps) {
             <dl className="facts">
               <div>
                 <dt>Project ID</dt>
-                <dd>{result.created.project.project_id}</dd>
+                <dd>{result.status.project_id}</dd>
               </div>
               <div>
                 <dt>Canonical status</dt>
-                <dd>{result.created.project.status}</dd>
+                <dd>{result.status.status}</dd>
               </div>
               <div>
                 <dt>Status endpoint</dt>
@@ -236,5 +273,7 @@ export function ProjectConsole({ api }: ProjectConsoleProps) {
         ) : null}
       </section>
     </section>
+    {result ? <StudioWorkflowPanel api={api} projectId={result.status.project_id} /> : null}
+    </>
   );
 }
