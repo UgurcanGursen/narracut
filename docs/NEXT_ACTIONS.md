@@ -11,9 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Record the bounded Phase 15 artifact-integrity acceptance decision using
-`baseline/phase15_artifact_integrity_implementation_audit.md`. Do not claim
-Phase 15 Master acceptance. Do not inspect arbitrary paths, delete anything,
+Reconcile and specify the remaining Phase 15 domain/final-narration validation
+gate: core/domain-pack compatibility, declared validation-extension readiness,
+and fail-closed blocked wording or unsupported legal-status behavior. Do not
+claim Phase 15 Master acceptance, inspect arbitrary paths, delete anything,
 enable live transport, retry, queue/worker, media decode/classification,
 mixing, renderer/EDL mutation, Studio/UI, Phase 16 or Phase 17 behavior.
 

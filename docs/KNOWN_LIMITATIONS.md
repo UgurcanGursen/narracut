@@ -21,6 +21,9 @@ Son guncelleme: 6 Agustos 2026
   uygulanmis sayilmaz. Source-audio icin yalniz Phase 8/11 policy-direction
   attachment vardir; PCM mix, media classification, boundary-discontinuity ve
   micro-pop kaniti yoksa yeni gate bunlari PASS olarak raporlayamaz.
+- Artifact-integrity gate'i canonical Phase 14 registry/output/deletion-plan
+  tutarliligini fail-closed dogrular; host dosya sistemi taramasi veya fiziksel
+  silme/trash isleminin basarili olduguna dair yeni bir iddia uretmez.
 
 ## Faz 13 status note
 

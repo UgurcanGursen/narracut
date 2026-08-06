@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 artifact-integrity bounded acceptance
+
+- Accepted canonical registry/output/deletion-plan integrity validation;
+  physical lifecycle operations and Phase 15 Master closure remain out of scope.
+
 ## 2026-08-06 - Phase 15 artifact-integrity implementation audit
 
 - Passed registry/output/deletion-plan integrity audit; bounded acceptance is

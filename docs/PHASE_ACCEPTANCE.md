@@ -1,5 +1,15 @@
 # Phase Acceptance
 
+## Phase 15 artifact-integrity bounded acceptance -- 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Registry/output/deletion-plan integrity | PASS |
+| Protected dependency and stale/forged-plan rejection | PASS |
+| Phase 15 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase15_artifact_integrity_bounded_acceptance.md`.
+
 ## Phase 15 source-audio direction bounded acceptance — 2026-08-06
 
 | Gate | Result |
