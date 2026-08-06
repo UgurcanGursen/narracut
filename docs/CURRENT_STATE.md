@@ -83,7 +83,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   Snapshot bytes are not verified before SQLite persistence, the success test
   substitutes a fake executor, delivery does not derive its permitted frames
   from a verified descriptor, and the UI does not consume preview evidence.
-  The next task is a bounded repair-authorization decision, not Phase 14 work.
+  The repair authorization is now
+  `baseline/phase13_preview_audit_repair_authorization.md`; it permits only
+  canonical admission, two-sequence REPLAY evidence, verified delivery and UI
+  evidence-consumption repairs, not Phase 14 work.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

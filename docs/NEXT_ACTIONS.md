@@ -11,12 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make one bounded Phase 13 preview audit-repair authorization decision from
-`baseline/phase13_replay_preview_implementation_acceptance_audit.md`. It must
-decide the exact repair boundary for canonical snapshot admission, actual
-two-sequence REPLAY API evidence, verified delivery descriptors and HTTP-only
-UI evidence consumption. Do not implement Phase 14 lifecycle, FULL render,
-provider transport or generic queue/retry work.
+Implement the bounded Phase 13 preview audit repair authorized by
+`baseline/phase13_preview_audit_repair_authorization.md`. Close only
+`P13-PA-001` through `P13-PA-004`; then run the acceptance gates. Do not
+implement Phase 14 lifecycle, FULL render, provider transport or generic
+queue/retry work.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

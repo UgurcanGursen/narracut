@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 preview audit-repair authorization
+
+- Authorized one narrow repair package for `P13-PA-001` through `P13-PA-004`.
+- Kept Phase 14 lifecycle/storage/GC, FULL render, providers and queues out of
+  scope; no acceptance or closure is claimed by this decision.
+
 ## 2026-08-06 - Phase 13 REPLAY preview implementation acceptance audit
 
 - Returned `FIX_REQUIRED`; no Phase 13 acceptance was granted.
