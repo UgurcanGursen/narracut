@@ -1,9 +1,18 @@
 # Current State
 
 Son guncelleme: 6 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 MASTER_PHASE_CLOSED**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 MASTER_PHASE_CLOSED / Faz 15 IN_PROGRESS**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
+
+## Phase 15 validation and observability in progress
+
+- First bounded package: canonical run-evidence ledger and fail-closed quality
+  decision. Scope reconciliation: `baseline/phase15_scope_reconciliation.md`.
+- Candidate contract: `docs/specifications/phase15_validation_observability_quality_gate_contract.md`.
+- Live transport, provider calls, retry execution, queue/worker, browser
+  automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
+  not authorized by this package.
 
 ## Phase 14 lifecycle master acceptance
 

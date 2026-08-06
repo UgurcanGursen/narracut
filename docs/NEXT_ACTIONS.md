@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN. Faz 14 MASTER_PHASE_CLOSED.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 FOUNDATION_ACCEPTED / MASTER OPEN. Faz 14 MASTER_PHASE_CLOSED. Faz 15 IN_PROGRESS.
 
 ## AI execution policy
 
@@ -11,9 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Wait for explicit user authorization before beginning any Phase 15 work. No
-Phase 15 implementation, specification, audit or documentation change is
-authorized by this repository state.
+Independently audit
+`docs/specifications/phase15_validation_observability_quality_gate_contract.md`
+against the Phase 15 roadmap, `baseline/phase15_scope_reconciliation.md` and
+the accepted Phase 4/14 evidence. Do not implement it or enable a live
+transport before the audit result and separate implementation authorization.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

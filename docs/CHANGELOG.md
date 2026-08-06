@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 validation/observability scope reconciliation
+
+- Started Phase 15 with a bounded canonical run-evidence and fail-closed
+  quality-gate contract; no live transport or operational worker was added.
+
 ## 2026-08-06 - Phase 14 master acceptance
 
 - Accepted the local deterministic cache/artifact lifecycle, storage/GC and

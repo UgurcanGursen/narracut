@@ -12,6 +12,15 @@ Son guncelleme: 6 Agustos 2026
   Delivery Ledger rows is open. `PRODUCT_GATE_CLOSED` remains a Phase 17-only
   decision.
 
+## Faz 15 status note
+
+- Faz 15 baslatildi; ilk paket yalniz canonical run evidence ve fail-closed
+  quality-gate siniridir. Canli source/asset/timing transport Faz 17 sahipligi
+  altinda kalir; Faz 15 bunu ancak etkinlestirildiginde dogrular.
+- Pixel, audio, semantic, claim/source ve transport validatorleri bu ilk
+  pakette uygulanmis sayilmaz. Kanitlari yoksa yeni gate bunlari PASS olarak
+  raporlayamaz.
+
 ## Faz 13 status note
 
 - Phase 13 is FOUNDATION_ACCEPTED as a local SQLite/OpenAPI Studio control
