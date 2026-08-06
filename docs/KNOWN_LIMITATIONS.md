@@ -12,6 +12,17 @@ Son guncelleme: 6 Agustos 2026
   Delivery Ledger rows is open. `PRODUCT_GATE_CLOSED` remains a Phase 17-only
   decision.
 
+## Faz 11 status note
+
+- Phase 11 is CLOSED only as a local, policy-bound audio-direction planning
+  boundary. It does not open or classify media, perform vocal/music
+  separation, mix/normalize PCM, invoke FFmpeg, create an EDL, select an
+  asset, or call a provider.
+- Phase 3 remains the owner of sample-accurate 48 kHz compilation; Phase 12
+  must bind approved visual decisions and Phase 11 direction into an
+  executable editorial plan before the final EDL can exist. Live transport,
+  queues/retries and Studio review remain later-phase work.
+
 ## Faz 10 status note
 
 - Phase 10 is CLOSED as a local REPLAY/MANUAL_UI-first planning boundary. It

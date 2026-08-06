@@ -1,11 +1,11 @@
 # Current State
 
 Son guncelleme: 6 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 NEXT**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 NEXT**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - roadmap reconciliation closed; Phase 11 scope next
+## Latest authoritative state - Phase 11 closed; Phase 12 scope next
 
 - The repository-wide Roadmap Scope Reconciliation is accepted at
   `docs/ROADMAP_SCOPE_RECONCILIATION.md`. It preserves the accepted Phase 0-10
@@ -15,10 +15,17 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   now distinct. Historical bounded closures do not silently assert an
   end-to-end product gate; Phase 17 cannot close with an open Deferred
   Delivery Ledger row.
-- The Phase 11 Audio Director and Source Audio Eligibility contract is frozen
-  at `docs/specifications/phase11_audio_director_source_audio_eligibility_contract.md`.
-  Its bounded REPLAY/MANUAL_UI-first implementation is authorized; final EDL
-  integration remains explicitly owned by Phase 12.
+- Phase 11 Audio Director and Source Audio Eligibility is CLOSED as a bounded
+  REPLAY/MANUAL_UI-first planning layer. `engine/audio_director.py` emits
+  immutable, Domain-Pack-bound source-audio analyses, chapter directions and
+  48 kHz PCM-handoff plans from accepted Phase 8 eligibility metadata.
+- Source speech is fail-closed to `eligible` + `rights_confirmed` Phase 8
+  assets, with a 2--6 second duration, narration pause and BGM hard-duck/mute
+  requirement. Embedded music, ambience-only, unusable and disabled modes
+  cannot emit source-speech directives.
+- Phase 11 produces neither an EDL nor renderer input, provider call, media
+  classification, mix or concrete asset selection. Phase 12 remains the owner
+  of executable editorial integration and final EDL compilation.
 
 - Phase 10 Hierarchical Story, Narrative and Editorial Planner is accepted and
   closed. It provides Domain-Pack-bound, immutable outline, chapter, beat,
@@ -32,9 +39,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - The final snapshot-ingress re-audit passed with no BLOCKER or MAJOR after
   sealing source-produced payloads as canonical immutable bytes. Final related
   gate: `98 passed, 1 skipped`; focused planner gate: `8 passed`.
-- The sole next task is a read-only Phase 11 Audio Director and Source Audio
-  Eligibility scope/contract reconciliation. Do not implement Phase 11 until
-  that bounded authorization work is complete.
+- The sole next task is a read-only Phase 12 Continuity/Pacing and Executable
+  Editorial Integration scope reconciliation. Do not implement Phase 12 until
+  that bounded contract/acceptance authorization is complete.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

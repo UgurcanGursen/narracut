@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 NEXT.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 NEXT.
 
 ## AI execution policy
 
@@ -11,18 +11,20 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the bounded Phase 11 Audio Director and Source Audio Eligibility
-contract in frozen order. Consume accepted Phase 8 eligibility metadata and
-emit only Domain-Pack-bound, immutable audio-direction artifacts with a 48 kHz
-PCM handoff. Final EDL integration remains a Phase 12 responsibility.
+Perform a read-only Phase 12 Continuity/Pacing and Executable Editorial
+Integration scope reconciliation. Freeze the policy, immutable input/output
+contracts, Phase 10 planner / Phase 8 approved asset-range-crop / Phase 5
+capability / Phase 7 visualization / Phase 11 audio-direction handoffs, and
+the Phase 3 final-EDL compiler boundary before authorizing implementation.
 
-Phase 10 is accepted and closed. Its accepted contract is
-`docs/specifications/phase10_hierarchical_story_editorial_planner_contract.md`.
-Do not reopen it except for a demonstrated regression.
+Do not implement Phase 12 in this task. Do not introduce provider API
+execution, browser-driven LLM automation, paid LLM calls, queue/retry
+infrastructure, UI expansion or a renderer bypass. Phase 12 must fail closed
+on missing provenance, approval, capability, policy or continuity input.
 
-Do not introduce provider API execution, browser-driven LLM automation, paid
-LLM calls, queue/retry infrastructure, UI expansion or a V3/EDL bridge. The
-latter is explicitly owned by Phase 12.
+Phase 11 closure evidence: `6717de4`, `24daca7`; final focused regression:
+`57 passed`. There is no open Phase 11 blocker. Phase 12 has not yet received
+an implementation authorization.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

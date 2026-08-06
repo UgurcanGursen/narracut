@@ -1,5 +1,24 @@
 # Phase Acceptance
 
+## Phase 11 final acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Immutable, Domain-Pack-bound audio-direction artifacts | ACCEPT / CLOSED |
+| Phase 8 `eligible` + `rights_confirmed` source-speech gate | PASS |
+| Narration pause, BGM hard-duck/mute and 2--6 second speech enforcement | PASS |
+| Per-chapter explicit music state and embedded/ambience speech rejection | PASS |
+| Business-tech / dummy-pack core-contract parity | PASS |
+| Byte-identical 48 kHz PCM handoff replay | PASS |
+| No EDL, renderer, transport, provider, media-open or asset-selection boundary leak | PASS |
+| Targeted implementation re-audit | PASS (type-validation finding repaired; no remaining blocker) |
+| Phase 3 + Phase 8 + Phase 11 regression gate | `57 passed` |
+| Phase 11 overall | CLOSED |
+
+Evidence: `docs/specifications/phase11_audio_director_source_audio_eligibility_contract.md`,
+`engine/audio_director.py`, `tests/test_phase11_audio_director.py`, commits
+`6717de4` and `24daca7`.
+
 ## Roadmap Scope Reconciliation acceptance — 2026-08-06
 
 | Gate | Result |

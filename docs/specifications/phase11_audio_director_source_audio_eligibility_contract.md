@@ -1,6 +1,6 @@
 # Phase 11 Audio Director and Source Audio Eligibility Contract
 
-Status: accepted implementation scope
+Status: accepted and closed bounded implementation scope
 
 ## Boundary
 

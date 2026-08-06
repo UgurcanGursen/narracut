@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-06 - Phase 11 Audio Director closure
+
+- Closed the bounded REPLAY/MANUAL_UI-first Audio Director with immutable,
+  Domain-Pack-bound source-audio analysis, chapter-direction and 48 kHz PCM
+  handoff artifacts.
+- Bound source speech to accepted Phase 8 `eligible` + `rights_confirmed`
+  metadata and enforced narration pause, BGM hard-duck/mute, duration and
+  source-speech event-pair rules fail-closed.
+- Verified business-tech/dummy-pack parity and Phase 3/8/11 regression
+  coverage (`57 passed`). Final EDL integration remains owned by Phase 12.
+
 ## 2026-08-06 - Phase 11 audio-director contract freeze
 
 - Added the bounded REPLAY/MANUAL_UI-first Audio Director and Source Audio
