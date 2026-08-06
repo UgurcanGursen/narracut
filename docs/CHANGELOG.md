@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache lifecycle targeted re-audit
+
+- Cleared cache-write binding, orphan reclaim and pre-resolution symlink
+  findings, including one actual Phase 4 REPLAY render/cache-reuse proof.
+- The bounded package is awaiting an independent acceptance decision; Phase 14
+  is not closed.
+
 ## 2026-08-06 - Phase 14 cache lifecycle implementation audit
 
 - Returned `FIX_REQUIRED` for missing active-cache lifecycle binding, orphan

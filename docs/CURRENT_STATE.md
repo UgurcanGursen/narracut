@@ -32,6 +32,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase14_cache_eviction_soft_quota_implementation_authorization.md`.
   Its first implementation audit is `FIX_REQUIRED` for cache-write lifecycle
   binding, orphan reclaim planning and trusted resolver symlink handling.
+  The targeted re-audit passes those bounded findings; a separate cache
+  lifecycle acceptance decision is next, while Phase 14 Master remains open.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 
