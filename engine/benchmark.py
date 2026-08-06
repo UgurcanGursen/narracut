@@ -17,9 +17,18 @@ def _fail(c:str)->None:raise ValueError(c)
 class BenchmarkReportV1:
     report_id:str; report_hash:str; project_id:str; domain_id:str; domain_pack_version:str; policy_snapshot_id:str; policy_snapshot_hash:str; executable_plan_id:str; executable_plan_hash:str; metrics:dict[str,Any]
     def data(self)->dict[str,Any]:return {"schema_version":BENCHMARK_V1,**self.__dict__}
+@dataclass(frozen=True)
+class BenchmarkDeltaV1:
+    candidate_report_id:str; prior_report_id:str; domain_id:str; domain_pack_version:str; numeric_deltas:dict[str,int]
+    def data(self)->dict[str,Any]:return {"schema_version":"PHASE16-BENCHMARK-DELTA-V1",**self.__dict__}
 def canonical_benchmark_json(value:BenchmarkReportV1)->bytes:
     if type(value)is not BenchmarkReportV1:_fail("BENCHMARK_REPORT_INVALID")
     return encode_canonical_json_bytes(value.data())
+def compare_benchmarks(*,candidate:BenchmarkReportV1,prior:BenchmarkReportV1)->BenchmarkDeltaV1:
+    if type(candidate)is not BenchmarkReportV1 or type(prior)is not BenchmarkReportV1 or (candidate.domain_id,candidate.domain_pack_version,candidate.policy_snapshot_id)!=(prior.domain_id,prior.domain_pack_version,prior.policy_snapshot_id):_fail("BENCHMARK_DOMAIN_MISMATCH")
+    keys=("sequence_count","duration_ms","video_edit_event_count","video_edit_events_per_minute","audio_event_count")
+    if any(type(candidate.metrics.get(k)) is not int or type(prior.metrics.get(k)) is not int for k in keys):_fail("BENCHMARK_INPUT_UNAVAILABLE")
+    return BenchmarkDeltaV1(candidate.report_id,prior.report_id,candidate.domain_id,candidate.domain_pack_version,{k:int(candidate.metrics[k])-int(prior.metrics[k]) for k in keys})
 def compile_benchmark(*,snapshot:DomainPolicySnapshot,plan:ExecutableEditorialPlanV1,videos:tuple[VideoEdlArtifact,...],audios:tuple[AudioEdlArtifact,...])->BenchmarkReportV1:
     if type(snapshot)is not DomainPolicySnapshot or not snapshot.immutable or snapshot.canonical_hash!=policy_snapshot_hash({n:getattr(snapshot,n) for n in snapshot.__dataclass_fields__}):_fail("BENCHMARK_DOMAIN_MISMATCH")
     if type(plan)is not ExecutableEditorialPlanV1 or type(videos)is not tuple or type(audios)is not tuple:_fail("BENCHMARK_INPUT_UNAVAILABLE")
