@@ -1,7 +1,7 @@
 # Phase 13 REPLAY Preview Implementation Acceptance Audit
 
-Date: 2026-08-06  
-Scope: commit `ca055bd` only; PREVIEW/REPLAY control plane and UI boundary.  
+Date: 2026-08-06
+Scope: commit `ca055bd` only; PREVIEW/REPLAY control plane and UI boundary.
 Decision: **FIX_REQUIRED**
 
 ## Evidence run
