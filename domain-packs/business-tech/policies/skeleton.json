@@ -189,6 +189,13 @@
     }
   },
   "safety": {
-    "require_attribution": true
+    "require_attribution": true,
+    "final_narration_validation_policy": {
+      "policy_version": "FINAL-NARRATION-VALIDATION-POLICY-V1",
+      "required_validation_rule": "final_narration_safety",
+      "allowed_claim_statuses": ["reported", "attributed", "contested"],
+      "allowed_safe_wording_tokens": ["reported", "attributed", "according_to_source"],
+      "blocked_wording_tokens": ["convicted", "guilty", "liable"]
+    }
   }
 }

@@ -67,6 +67,11 @@
         "name": "metric_source_required",
         "version": "0.1.0",
         "description": "Metrics require a source reference."
+      },
+      {
+        "name": "final_narration_safety",
+        "version": "0.1.0",
+        "description": "Final narration requires domain-bound claim status and wording validation."
       }
     ]
   },
