@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache-plan execution implementation authorization
+
+- Authorized one bounded transaction/receipt/trash/restore implementation
+  package after the targeted contract re-audit.
+
 ## 2026-08-06 - Phase 14 cache-plan execution targeted re-audit
 
 - Cleared the partial receipt/event publication finding with one canonical
