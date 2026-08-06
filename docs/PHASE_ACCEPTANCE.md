@@ -18,6 +18,18 @@ Its targeted audit passed at
 Implementation authorization remains required; renderer, transport, cache/GC
 or UI implementation authority does not follow from the audit.
 
+## Phase 13 renderer control-plane implementation authorization — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Review snapshot has Phase 12/3 identity references | PASS |
+| Trusted canonical EDL bytes + RenderProps resolver exists | NOT YET SATISFIED |
+| Renderer-control-plane implementation authorization | NOT AUTHORIZED |
+
+Evidence:
+`baseline/phase13_renderer_control_plane_implementation_authorization_decision.md`.
+The next task is a handoff specification, not implementation.
+
 ## Phase 13 foundation acceptance â€” 2026-08-06
 
 | Gate | Result |

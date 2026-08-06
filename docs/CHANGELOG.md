@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 renderer control-plane implementation decision
+
+- Did not authorize a nominal preview API: existing review snapshots carry EDL
+  identities only and cannot safely construct Phase 4 RenderProps or canonical
+  preview inputs.
+- Advanced to a bounded canonical render-input handoff specification before any
+  renderer-control-plane implementation.
+
 ## 2026-08-06 - Phase 13 renderer control-plane specification accepted
 
 - Targeted adversarial audit passed after separating immutable request identity

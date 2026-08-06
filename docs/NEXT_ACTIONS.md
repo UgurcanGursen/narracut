@@ -11,17 +11,17 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only implementation authorization decision for the accepted
-Phase 13 Renderer Control-Plane Integration Contract at
-`docs/specifications/phase13_renderer_control_plane_integration_contract.md`.
-Use `baseline/phase13_renderer_control_plane_specification_audit_report.md`.
-If authorization is appropriate, name the exact additive application ports,
-SQLite control-plane tables, FastAPI/OpenAPI routes, generated client/UI files
-and focused regression gates; do not write code in this decision task.
+Write a read-only Phase 13 Canonical Render-Input Handoff Contract. Use
+`baseline/phase13_renderer_control_plane_implementation_authorization_decision.md`:
+the accepted Studio review snapshot has Phase 12/3 identities but lacks the
+canonical EDL bytes, RenderProps/fixture binding and trusted resolver required
+by the accepted renderer-control-plane contract.
 
-Do not authorize provider/browser automation, paid LLM calls, direct filesystem
-UI access, general queue/retry, media transport, cache/GC, a renderer/EDL
-rewrite or any Phase 14 lifecycle implementation.
+The specification must freeze an immutable server-validated REPLAY handoff
+package, its Phase 12/3/policy/project/sequence provenance and its narrow
+resolver boundary. It must not authorize code, renderer invocation, provider or
+browser automation, direct filesystem UI access, queue/retry, media transport,
+cache/GC, a renderer/EDL rewrite or any Phase 14 lifecycle implementation.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

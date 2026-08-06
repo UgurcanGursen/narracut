@@ -71,7 +71,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `docs/specifications/phase13_renderer_control_plane_integration_contract.md`;
   its audit is recorded in
   `baseline/phase13_renderer_control_plane_specification_audit_report.md`.
-  The sole next task is a separate implementation authorization decision.
+  The implementation authorization decision is NOT AUTHORIZED at
+  `baseline/phase13_renderer_control_plane_implementation_authorization_decision.md`:
+  the Studio persists EDL identity references but has no trusted canonical
+  render-input package. The sole next task is its handoff specification.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

@@ -23,6 +23,10 @@ Son guncelleme: 6 Agustos 2026
   render-job state is supplied to the Studio; Phase 14 has not supplied durable
   storage or GC read models. The UI must report unavailable rather than invent
   those values.
+- The review snapshot carries Phase 3 EDL identities, not their canonical bytes
+  or a trusted Phase 4 RenderProps/fixture binding. Renderer-control-plane code
+  is therefore not authorized until the Phase 13 canonical render-input handoff
+  is specified and accepted.
 
 ## Faz 12 status note
 
