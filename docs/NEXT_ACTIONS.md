@@ -11,10 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make a bounded implementation authorization decision for the accepted
-Phase 15 run-evidence and quality-gate contract. It may authorize only local
-canonical ledger/gate code and tests; it must exclude live transport, retry,
-queue/worker, media validation, Studio/UI, Phase 16 and Phase 17 behavior.
+Implement the authorized local Phase 15 run-evidence ledger and fail-closed
+quality-gate contract with focused tests. Do not add live transport, retry,
+queue/worker, media validation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

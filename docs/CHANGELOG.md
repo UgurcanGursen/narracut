@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 validation/observability implementation authorization
+
+- Authorized only local canonical ledger/gate code and tests after the
+  contract re-audit; no transport or operational runtime was authorized.
+
 ## 2026-08-06 - Phase 15 validation/observability targeted contract re-audit
 
 - Closed the token/transition, evidence-reference and terminal-precedence

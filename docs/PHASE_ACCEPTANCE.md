@@ -1,5 +1,18 @@
 # Phase Acceptance
 
+## Phase 15 validation/observability contract acceptance and implementation authorization — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Scope discipline and Phase 17 transport ownership | PASS |
+| Closed observation/evidence/terminal decision contract | PASS |
+| Bounded local ledger/gate implementation authorization | GRANTED |
+| Phase 15 Master Roadmap | OPEN / NOT CLOSED |
+
+Evidence: `baseline/phase15_scope_reconciliation.md`,
+`baseline/phase15_validation_observability_contract_targeted_reaudit.md` and
+`baseline/phase15_validation_observability_implementation_authorization.md`.
+
 ## Phase 14 final master acceptance — 2026-08-06
 
 | Gate | Result |
