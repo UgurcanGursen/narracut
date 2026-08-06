@@ -11,12 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Reconcile the exact Phase 17 local/beta package using
-`baseline/phase16_acceptance_and_phase17_handoff.md`. This first task is
-read-only: inventory existing workspace persistence, job/recovery, source/asset
-transport, UI/API, export and packaging evidence against the Master Roadmap.
-Do not add external providers, paid LLM calls or browser automation without a
-separate user authorization.
+Implement P17-A only, as defined in `baseline/phase17_scope_reconciliation.md`:
+an additive local workspace-revision and durable-job-journal contract with
+atomic publication, restart recovery and focused tests. Do not migrate existing
+SQLite data, add remote/provider transport, paid LLM calls or browser
+automation.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

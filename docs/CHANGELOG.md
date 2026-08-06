@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 17 local/beta scope reconciliation
+
+- Inventoried the existing SQLite Studio boundary and authorized an additive
+  workspace/recovery-first delivery order; the real product gate remains open.
+
 ## 2026-08-06 - Phase 16 acceptance and Phase 17 handoff
 
 - Accepted the deterministic benchmark foundation and assigned external
