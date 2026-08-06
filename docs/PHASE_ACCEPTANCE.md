@@ -1,5 +1,18 @@
 # Phase Acceptance
 
+## Phase 13 REPLAY preview implementation status â€” 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Local SQLite job/event lineage and safe API/UI implementation | IMPLEMENTED / PENDING AUDIT |
+| Canonical two-sequence Phase 12/3 handoff evidence | PENDING ACCEPTANCE |
+| Phase 14 durable storage/GC handoff | UNAVAILABLE_OWNER_PHASE14 |
+| Phase 13 Master Roadmap | OPEN / NOT CLOSED |
+
+The implementation consumes no caller-provided paths, URLs, EDL bytes,
+RenderProps or render mode. Its acceptance must independently verify the two
+accepted Phase 13 contracts before any closure claim is made.
+
 ## Phase 13 Master-criterion integration decision â€” 2026-08-06
 
 | Gate | Result |

@@ -18,15 +18,17 @@ Son guncelleme: 6 Agustos 2026
   plane. It proves project reopen, MANUAL_UI task handoff/import/repair/
   approval and immutable Phase 12/Phase 3 review decisions; it does not make
   a provider call or automate a web AI interface.
-- `MASTER_PHASE_CLOSED` is intentionally open. Phase 4 has canonical renderer
-  evidence, but no project-bound, API-safe preview handoff or reconnectable
-  render-job state is supplied to the Studio; Phase 14 has not supplied durable
-  storage or GC read models. The UI must report unavailable rather than invent
-  those values.
-- The review snapshot carries Phase 3 EDL identities, not their canonical bytes
-  or a trusted Phase 4 RenderProps/fixture binding. Renderer-control-plane code
-  is therefore not authorized until the Phase 13 canonical render-input handoff
-  is specified and accepted.
+- `MASTER_PHASE_CLOSED` is intentionally open. The local implementation has a
+  REPLAY-only preview job/event/delivery seam, but acceptance has not yet
+  proved a canonical two-sequence Phase 12/3 handoff into it. Phase 14 has not
+  supplied durable storage or GC read models; the UI must report unavailable
+  rather than invent those values.
+- Preview delivery is intentionally attempt-local memory. It is unavailable
+  after application restart and is not an artifact store, cache, retention
+  mechanism, quota calculation or restoration claim.
+- The Studio endpoint accepts no path, source URL, props, EDL bytes or render
+  mode. Only a trusted resolver can supply a persisted snapshot; normal
+  runtime projects without one fail closed as `RENDER_INPUT_UNAVAILABLE`.
 
 ## Faz 12 status note
 

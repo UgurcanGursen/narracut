@@ -11,9 +11,13 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the authorized bounded Phase 13 REPLAY preview package recorded in
-`baseline/phase13_preview_implementation_authorization.md`. Preserve the two
-accepted handoff/control-plane contracts; do not implement Phase 14 lifecycle.
+Perform one bounded, read-only Phase 13 REPLAY preview implementation
+acceptance audit. Verify the current local implementation against
+`baseline/phase13_preview_implementation_authorization.md` and both accepted
+handoff/control-plane contracts; in particular require canonical two-sequence
+handoff evidence, immutable snapshot validation, safe job/event/delivery
+behavior, OpenAPI/React parity and explicit Phase 14-unavailable semantics.
+Do not implement Phase 14 lifecycle in this task.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

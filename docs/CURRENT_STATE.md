@@ -71,12 +71,13 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `docs/specifications/phase13_renderer_control_plane_integration_contract.md`;
   its audit is recorded in
   `baseline/phase13_renderer_control_plane_specification_audit_report.md`.
-  The implementation authorization decision is NOT AUTHORIZED at
-  `baseline/phase13_renderer_control_plane_implementation_authorization_decision.md`:
-  the Studio persists EDL identity references but has no trusted canonical
-  render-input package. The candidate handoff contract is at
-  `docs/specifications/phase13_canonical_render_input_handoff_contract.md`;
-  its audit is the sole next task.
+  The bounded implementation is now in local verification: it adds an
+  append-only SQLite preview-job/event log, trusted persisted render-input
+  resolver seam, Phase-4-owned REPLAY executor adapter, safe attempt-local
+  manifest/frame delivery endpoints, finite reconnectable SSE projection and
+  regenerated HTTP-only React client/UI control. It is not accepted yet:
+  canonical two-sequence handoff provenance and independent acceptance remain
+  the next gate. Phase 14 storage/GC is still unavailable by design.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

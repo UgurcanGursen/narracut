@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 REPLAY preview implementation (pending acceptance)
+
+- Added the bounded PREVIEW-only/REPLAY-only Studio control-plane seam:
+  persisted request/job/event lineage, explicit terminal states, finite SSE
+  replay, safe manifest/declared-frame delivery and typed unavailable errors.
+- Added a trusted persisted render-input resolver and Phase 4 execution adapter
+  without accepting paths, URLs, EDL/props bytes or mode from React clients.
+- Regenerated OpenAPI and TypeScript client; the HTTP-only Studio UI can issue
+  a preview request and display its safe job state. Phase 14 storage/GC,
+  providers, generic queues/retries and FULL render remain excluded.
+- This entry records implementation only, not Phase 13 acceptance or master
+  closure; the authoritative next action is one independent acceptance audit.
+
 ## 2026-08-06 - Phase 13 renderer control-plane implementation decision
 
 - Did not authorize a nominal preview API: existing review snapshots carry EDL
