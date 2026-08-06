@@ -46,6 +46,14 @@ def registry_snapshot(records: tuple[ArtifactRegistryRecord, ...]) -> str:
     if len(by_id) != len(records): raise ValueError("ARTIFACT_REGISTRY_DUPLICATE")
     for item in records:
         if any(dep not in by_id or by_id[dep].project_id != item.project_id for dep in item.dependency_ids): raise ValueError("ARTIFACT_REGISTRY_DEPENDENCY_INVALID")
+    visiting: set[str] = set(); visited: set[str] = set()
+    def visit(identifier: str) -> None:
+        if identifier in visiting: raise ValueError("ARTIFACT_REGISTRY_CYCLE")
+        if identifier in visited: return
+        visiting.add(identifier)
+        for dependency in by_id[identifier].dependency_ids: visit(dependency)
+        visiting.remove(identifier); visited.add(identifier)
+    for identifier in by_id: visit(identifier)
     return _sha([item.__dict__ for item in sorted(records, key=lambda row: row.artifact_id)])
 
 

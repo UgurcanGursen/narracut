@@ -34,3 +34,10 @@ def test_plan_becomes_stale_after_registry_or_policy_change():
     validate_deletion_plan(plan=plan, records=(first,), policy_hash="sha256:" + "p" * 64)
     with pytest.raises(ValueError, match="STALE"):
         validate_deletion_plan(plan=plan, records=(first,), policy_hash="sha256:" + "q" * 64)
+
+
+def test_protected_retention_and_cycles_fail_closed():
+    protected = row("art_f", retention="final")
+    assert plan_deletion(records=(protected,), policy_hash="sha256:" + "p" * 64, as_of="now", root_ids=frozenset())["candidates"] == []
+    with pytest.raises(ValueError, match="CYCLE"):
+        registry_snapshot((row("art_a", dependencies=("art_b",)), row("art_b", dependencies=("art_a",))))
