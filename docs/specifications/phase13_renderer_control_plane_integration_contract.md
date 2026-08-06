@@ -1,6 +1,6 @@
 # Phase 13 Renderer Control-Plane Integration Contract
 
-Status: candidate specification; read-only design only, no implementation authorization
+Status: accepted specification; implementation authorization remains separate
 
 ## 1. Objective
 

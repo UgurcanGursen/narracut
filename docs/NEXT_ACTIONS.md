@@ -11,16 +11,17 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Independently audit the candidate Phase 13 Renderer Control-Plane Integration
-Contract at `docs/specifications/phase13_renderer_control_plane_integration_contract.md`.
-Verify its Phase 4/12 provenance binding, pre-admission failure behavior,
-event/SSE reconnection semantics, safe preview delivery and Phase 14 ownership
-boundary. The audit must return an explicit accept/fix decision and must not
-authorize implementation by itself.
+Perform a read-only implementation authorization decision for the accepted
+Phase 13 Renderer Control-Plane Integration Contract at
+`docs/specifications/phase13_renderer_control_plane_integration_contract.md`.
+Use `baseline/phase13_renderer_control_plane_specification_audit_report.md`.
+If authorization is appropriate, name the exact additive application ports,
+SQLite control-plane tables, FastAPI/OpenAPI routes, generated client/UI files
+and focused regression gates; do not write code in this decision task.
 
-Do not implement provider/browser automation, paid LLM calls, direct
-filesystem UI access, general queue/retry, media transport, cache/GC, a
-renderer/EDL rewrite or the candidate contract in this task.
+Do not authorize provider/browser automation, paid LLM calls, direct filesystem
+UI access, general queue/retry, media transport, cache/GC, a renderer/EDL
+rewrite or any Phase 14 lifecycle implementation.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

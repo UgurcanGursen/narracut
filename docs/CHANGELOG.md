@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 13 renderer control-plane specification accepted
+
+- Targeted adversarial audit passed after separating immutable request identity
+  from per-attempt job/ordinal/receipt/delivery lineage.
+- The specification remains design-only; the next task is a separate bounded
+  implementation authorization decision.
+
 ## 2026-08-06 - Phase 13 renderer control-plane candidate contract
 
 - Added a PREVIEW-only, REPLAY-only candidate contract for an HTTP/API-safe

@@ -13,8 +13,10 @@
 Evidence: `baseline/phase13_master_criterion_integration_decision_report.md`.
 The candidate specification is
 `docs/specifications/phase13_renderer_control_plane_integration_contract.md`.
-Independent acceptance is required before any renderer, transport, cache/GC or
-UI implementation authority exists.
+Its targeted audit passed at
+`baseline/phase13_renderer_control_plane_specification_audit_report.md`.
+Implementation authorization remains required; renderer, transport, cache/GC
+or UI implementation authority does not follow from the audit.
 
 ## Phase 13 foundation acceptance â€” 2026-08-06
 
