@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import subprocess
 import time
 from dataclasses import dataclass
@@ -67,30 +68,31 @@ class LocalTimingAdapter:
         self,
         *,
         audio_file: Path,
-        word_ids: tuple[str, ...],
+        words: tuple[tuple[str, str], ...],
         work_dir: Path,
         cancelled: Callable[[], bool] | None = None,
     ) -> LocalTimingResult:
-        if not isinstance(audio_file, Path) or not audio_file.is_file() or not word_ids or any(type(item) is not str or not item for item in word_ids):
+        if not isinstance(audio_file, Path) or not audio_file.is_file() or not words or any(type(word_id) is not str or not word_id or type(text) is not str or not text for word_id, text in words):
             raise ValueError("LOCAL_TIMING_INPUT_INVALID")
         if not isinstance(work_dir, Path):
             raise ValueError("LOCAL_TIMING_WORKDIR_INVALID")
         size = audio_file.stat().st_size
         audio_hash = _hash_file(audio_file)
-        request = {"schema_version": LOCAL_TIMING_REQUEST_V1, "audio_sha256": audio_hash, "word_ids": list(word_ids)}
+        request = {"schema_version": LOCAL_TIMING_REQUEST_V1, "audio_file_name": "input.wav", "audio_sha256": audio_hash, "words": [{"word_id": word_id, "text": text} for word_id, text in words]}
         request_hash = "sha256:" + hashlib.sha256(encode_canonical_json_bytes(request)).hexdigest()
         if size > self._limits.max_input_bytes:
             return LocalTimingResult("FAILED", "INPUT_TOO_LARGE", request_hash, audio_hash, None, ())
         work_dir.mkdir(parents=True, exist_ok=True)
         request_file = work_dir / "local_timing_request.json"
         output_file = work_dir / "local_timing_output.json"
+        shutil.copyfile(audio_file, work_dir / "input.wav")
         request_file.write_bytes(encode_canonical_json_bytes(request))
         if output_file.exists():
             output_file.unlink()
         if cancelled is not None and cancelled():
             return LocalTimingResult("CANCELLED", "CANCELLED", request_hash, audio_hash, None, ())
         with self._run_lock:
-            return self._execute(request_file, output_file, request_hash, audio_hash, word_ids, cancelled)
+            return self._execute(request_file, output_file, request_hash, audio_hash, tuple(word_id for word_id, _ in words), cancelled)
 
     def _execute(self, request_file: Path, output_file: Path, request_hash: str, audio_hash: str, word_ids: tuple[str, ...], cancelled: Callable[[], bool] | None) -> LocalTimingResult:
         try:

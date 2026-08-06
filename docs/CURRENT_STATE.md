@@ -38,6 +38,9 @@ Phase 17 current sub-status: `PRODUCT_GATE_EVIDENCE_PREPARATION`.
   with one-run concurrency, input/output byte limits, timeout, cancellation,
   canonical-output and exact word-ID checks. It is not yet a trusted timing
   producer or an `AlignmentResult` integration.
+- `tools/local_timing_faster_whisper.py` is the local-only faster-whisper
+  wrapper. It uses a supplied pinned model directory with `local_files_only`
+  and rejects transcript/ASR word divergence instead of manufacturing timing.
 
 ## Historical Phase 15 validation and observability record
 

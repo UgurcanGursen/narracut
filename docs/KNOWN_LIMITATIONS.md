@@ -474,6 +474,9 @@ PHASE2_CLOSED=NO
   does not install/pin a WhisperX executable or model, enforce a platform-level
   child-process memory limit, publish an `AlignmentResult`, or replace the
   existing REPLAY provenance gates.
+- The checked-in faster-whisper wrapper relies on a manually pinned local
+  model directory and currently runs CPU/int8. No real narration has yet been
+  aligned or manually calibrated; AMD GPU acceleration is not claimed.
 - The three reference videos have not yet been accepted. Public availability
   is analysis access only and never permission to download or reuse media.
 

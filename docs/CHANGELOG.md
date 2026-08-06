@@ -6,6 +6,8 @@
   input/output caps, timeout, cancellation, canonical output and exact
   word-ID validation. No model, provider, network client or REPLAY fallback
   was added.
+- Added a local faster-whisper worker that requires a pinned local model and
+  rejects ASR/transcript divergence before writing a timing result.
 
 ## 2026-08-06 - Phase 17 IBM and WeWork evidence preparation
 
