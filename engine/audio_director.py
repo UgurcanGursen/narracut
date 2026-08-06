@@ -111,7 +111,7 @@ class SourceAudioAnalysisV1:
             _fail("SOURCE_AUDIO_ANALYSIS_INVALID")
         speech = self.source_audio_mode.value in policy.source_speech_allowed_modes
         if speech:
-            if not policy.source_speech_min_duration_ms <= self.recommended_duration_ms <= policy.source_speech_max_duration_ms or self.narration_conflict_policy != "pause" or self.bgm_conflict_policy not in {"hard_duck", "mute"}: _fail("SOURCE_AUDIO_SPEECH_POLICY_INVALID")
+            if type(self.recommended_duration_ms) is not int or not policy.source_speech_min_duration_ms <= self.recommended_duration_ms <= policy.source_speech_max_duration_ms or self.narration_conflict_policy != "pause" or self.bgm_conflict_policy not in {"hard_duck", "mute"}: _fail("SOURCE_AUDIO_SPEECH_POLICY_INVALID")
         elif self.recommended_duration_ms != 0 or self.narration_conflict_policy != "none" or self.bgm_conflict_policy != "none":
             _fail("SOURCE_AUDIO_MODE_POLICY_INVALID")
         value = {"asset_id": self.asset_id, "asset_hash": self.asset_hash, "source_audio_mode": self.source_audio_mode.value, "speech_presence_bps": self.speech_presence_bps, "music_contamination_bps": self.music_contamination_bps, "noise_bps": self.noise_bps, "speech_intelligibility_bps": self.speech_intelligibility_bps, "recommended_duration_ms": self.recommended_duration_ms, "narration_conflict_policy": self.narration_conflict_policy, "bgm_conflict_policy": self.bgm_conflict_policy, "policy_snapshot_id": policy.policy_snapshot_id, "policy_snapshot_hash": policy.policy_snapshot_hash, "audio_director_policy_hash": policy.policy_hash}
@@ -128,7 +128,7 @@ class ChapterAudioDirectionV1:
     source_analysis_id_hash_pairs: tuple[tuple[str, str], ...]
 
     def data(self, policy: AudioDirectorPolicyV1, analyses: dict[str, dict[str, object]]) -> dict[str, object]:
-        if type(self.event_type_tokens) is not tuple or type(self.source_analysis_id_hash_pairs) is not tuple:
+        if type(analyses) is not dict or type(self.event_type_tokens) is not tuple or type(self.source_analysis_id_hash_pairs) is not tuple:
             _fail("CHAPTER_AUDIO_DIRECTION_IMMUTABLE_INPUT_REQUIRED")
         events = _tokens(self.event_type_tokens, empty=True)
         pairs = tuple(self.source_analysis_id_hash_pairs)
@@ -156,7 +156,7 @@ class AudioDirectionPlanV1:
     analyses: tuple[SourceAudioAnalysisV1, ...]
 
     def data(self) -> dict[str, object]:
-        if not _id(self.project_id, "prj_") or type(self.policy) is not AudioDirectorPolicyV1 or type(self.directions) is not tuple or type(self.analyses) is not tuple: _fail("AUDIO_DIRECTION_PLAN_INVALID")
+        if not _id(self.project_id, "prj_") or type(self.policy) is not AudioDirectorPolicyV1 or type(self.directions) is not tuple or type(self.analyses) is not tuple or any(type(item) is not ChapterAudioDirectionV1 for item in self.directions) or any(type(item) is not SourceAudioAnalysisV1 for item in self.analyses): _fail("AUDIO_DIRECTION_PLAN_INVALID")
         analysis_rows = tuple(item.data(self.policy) for item in self.analyses)
         if len({item["analysis_id"] for item in analysis_rows}) != len(analysis_rows): _fail("AUDIO_DIRECTION_PLAN_INVALID")
         by_id = {str(item["analysis_id"]): item for item in analysis_rows}
@@ -172,6 +172,8 @@ class AudioDirectorService:
 
     def analyze(self, *, asset: AssetRecordV1, policy: AudioDirectorPolicyV1, source_audio_mode: SourceAudioMode, speech_presence_bps: int, music_contamination_bps: int, noise_bps: int, speech_intelligibility_bps: int, recommended_duration_ms: int = 0) -> SourceAudioAnalysisV1:
         if type(asset) is not AssetRecordV1 or type(policy) is not AudioDirectorPolicyV1 or type(source_audio_mode) is not SourceAudioMode: _fail("SOURCE_AUDIO_ASSET_INVALID")
+        if any(type(value) is not int or not 0 <= value <= 10_000 for value in (speech_presence_bps, music_contamination_bps, noise_bps, speech_intelligibility_bps)) or type(recommended_duration_ms) is not int:
+            _fail("SOURCE_AUDIO_ANALYSIS_INVALID")
         eligibility = asset.source_audio_eligibility
         if type(eligibility) is not dict or (eligibility.get("policy_snapshot_id"), eligibility.get("policy_snapshot_hash")) != (policy.policy_snapshot_id, policy.policy_snapshot_hash) or type(eligibility.get("reason_tokens")) is not list or any(type(token) is not str for token in eligibility["reason_tokens"]): _fail("SOURCE_AUDIO_ASSET_INVALID")
         speech_mode = source_audio_mode.value in policy.source_speech_allowed_modes

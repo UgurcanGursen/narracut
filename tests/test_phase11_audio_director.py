@@ -123,6 +123,13 @@ def test_speech_audio_requires_pause_and_hard_duck_or_mute() -> None:
     )
     with pytest.raises(AudioDirectorError, match="SOURCE_AUDIO_SPEECH_POLICY_INVALID"):
         too_long.data(policy)
+    with pytest.raises(AudioDirectorError, match="SOURCE_AUDIO_ANALYSIS_INVALID"):
+        AudioDirectorService().analyze(
+            asset=_asset(policy), policy=policy, source_audio_mode=SourceAudioMode.CLEAN_SPEECH,
+            speech_presence_bps="9000",  # type: ignore[arg-type]
+            music_contamination_bps=0, noise_bps=0, speech_intelligibility_bps=9_000,
+            recommended_duration_ms=3_000,
+        )
 
 
 def test_embedded_music_cannot_emit_source_speech_events() -> None:
