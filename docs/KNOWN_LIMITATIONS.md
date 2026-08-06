@@ -33,6 +33,12 @@ Son guncelleme: 6 Agustos 2026
   acceptance evidence. Delivery rejects undeclared frames and the UI consumes
   declared evidence through generated HTTP calls; durable ownership remains
   Phase 14. Do not present the local preview seam as durable lifecycle work.
+- The preview endpoint executes the bounded REPLAY runner synchronously. Its
+  persisted event history is safe to replay after completion, but it is not a
+  restart-safe worker or an in-render live-progress system. A fake percentage,
+  background thread or queue without artifact/recovery ownership is forbidden;
+  Phase 14 owns the required lifecycle handoff and preview performance/SLO
+  measurement.
 
 ## Faz 12 status note
 

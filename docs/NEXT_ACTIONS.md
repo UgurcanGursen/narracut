@@ -11,12 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 13 Master-closure reconciliation using
-`baseline/phase13_preview_audit_repair_acceptance_report.md`. Decide whether
-any remaining Phase 13 Master criterion is implementable without crossing the
-Phase 14 durable-lifecycle boundary; otherwise record the formal Phase 14
-handoff. Do not implement Phase 14 lifecycle, FULL render, provider transport
-or generic queue/retry work.
+Plan the bounded Phase 14 artifact lifecycle, cache, storage/GC and performance
+architecture package using
+`baseline/phase13_master_closure_reconciliation_report.md`. First produce a
+read-only scope/ownership decision; do not implement lifecycle, FULL render,
+provider transport or generic queue/retry work until that decision is accepted.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

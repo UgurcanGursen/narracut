@@ -89,6 +89,12 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase13_preview_audit_repair_authorization.md`; it permits only
   canonical admission, two-sequence REPLAY evidence, verified delivery and UI
   evidence-consumption repairs, not Phase 14 work.
+- The Phase 13 Master-closure reconciliation is recorded at
+  `baseline/phase13_master_closure_reconciliation_report.md`. The bounded
+  preview repair is accepted, but live in-render execution ownership,
+  restart-safe recovery, artifact lifecycle, storage/GC view and preview SLO
+  measurement require the formal Phase 14 handoff. Faz 13 therefore remains
+  `FOUNDATION_ACCEPTED / MASTER OPEN`.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

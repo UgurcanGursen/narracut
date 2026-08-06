@@ -6,6 +6,7 @@
 |---|---|
 | Local SQLite job/event lineage and safe API/UI implementation | ACCEPT (bounded repair) |
 | Canonical two-sequence Phase 12/3 handoff evidence | PASS (actual Studio-to-Phase-4 REPLAY execution) |
+| Live in-render execution ownership and preview SLO | UNAVAILABLE_OWNER_PHASE14 |
 | Phase 14 durable storage/GC handoff | UNAVAILABLE_OWNER_PHASE14 |
 | Phase 13 Master Roadmap | OPEN / NOT CLOSED |
 
@@ -15,7 +16,7 @@ RenderProps or render mode. The original audit at
 `FIX_REQUIRED`; its bounded repair is accepted at
 `baseline/phase13_preview_audit_repair_acceptance_report.md`. No Phase 13
 Master closure claim is permitted: durable lifecycle and storage remain Phase
-14 ownership.
+14 ownership. See `baseline/phase13_master_closure_reconciliation_report.md`.
 
 ## Phase 13 Master-criterion integration decision â€” 2026-08-06
 
