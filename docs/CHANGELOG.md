@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source outcome implementation audit
+
+- Returned `FIX_REQUIRED` for source-policy integrity and MANUAL_UI evidence
+  origin binding; no operational transport work was authorized.
+
 ## 2026-08-06 - Phase 15 source outcome implementation
 
 - Added local Phase 6 capture-plan outcome validation; challenge and unsupported
