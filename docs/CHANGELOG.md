@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache eviction implementation authorization
+
+- Authorized one bounded cache-entry/payload/soft-quota planning package after
+  the targeted contract re-audit.
+- Permanent delete, worker/provider/queue, Studio FULL-render and Phase 15
+  remain excluded; implementation still requires audit and documentation gates.
+
 ## 2026-08-06 - Phase 14 cache eviction contract targeted re-audit
 
 - Cleared all three contract findings without expanding scope.

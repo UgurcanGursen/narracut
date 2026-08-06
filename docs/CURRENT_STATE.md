@@ -28,7 +28,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   its independent audit is `FIX_REQUIRED` for cache-reference/payload,
   trusted-resolver and reproducible-TTL gaps. The bounded repair is awaiting a
   targeted re-audit, not eviction implementation. The targeted re-audit now
-  passes; a separate implementation authorization decision is next.
+  passes; the bounded implementation authorization is recorded at
+  `baseline/phase14_cache_eviction_soft_quota_implementation_authorization.md`.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 

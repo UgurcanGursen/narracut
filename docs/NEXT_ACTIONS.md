@@ -11,11 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make an independent Phase 14 cache-eviction/soft-quota implementation
-authorization decision using the candidate contract and
-`baseline/phase14_cache_eviction_soft_quota_targeted_reaudit.md`. Do not
-implement eviction/permanent deletion, provider transport, generic queue/retry,
-Studio FULL-render route or Phase 15 validation behavior.
+Implement only the Phase 14 cache-eviction/soft-quota package authorized by
+`baseline/phase14_cache_eviction_soft_quota_implementation_authorization.md`,
+then run focused tests and request one independent implementation audit. Do not
+implement permanent deletion, automatic worker/scheduler behavior, provider
+transport, generic queue/retry, Studio FULL-render route or Phase 15 validation
+behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
