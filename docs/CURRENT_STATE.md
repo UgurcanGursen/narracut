@@ -27,7 +27,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   contract is `docs/specifications/phase14_cache_eviction_soft_quota_contract.md`;
   its independent audit is `FIX_REQUIRED` for cache-reference/payload,
   trusted-resolver and reproducible-TTL gaps. The bounded repair is awaiting a
-  targeted re-audit, not eviction implementation.
+  targeted re-audit, not eviction implementation. The targeted re-audit now
+  passes; a separate implementation authorization decision is next.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 

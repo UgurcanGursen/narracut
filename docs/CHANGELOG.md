@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache eviction contract targeted re-audit
+
+- Cleared all three contract findings without expanding scope.
+- The next task is a separate implementation authorization decision; no
+  eviction implementation has been accepted or started.
+
 ## 2026-08-06 - Phase 14 cache eviction contract repair
 
 - Separated logical cache-key retirement from physical payload reclamation;
