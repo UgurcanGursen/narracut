@@ -11,10 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 15 Master-gap reconciliation. Map each remaining
-roadmap validation/observability acceptance criterion to an existing owner,
-the local ledger, or a future bounded package; do not implement, enable live
-transport, retry, queue/worker, Studio/UI, Phase 16 or Phase 17 behavior.
+Define and independently audit a candidate contract for the selected Phase 15
+`EvidenceAttachmentValidator` package in
+`baseline/phase15_master_gap_reconciliation.md`. It may attach only accepted
+Phase 4 receipt, Phase 14 registry/admission and Domain Pack snapshot evidence;
+do not implement it or add live transport, retry, queue/worker, media
+validation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

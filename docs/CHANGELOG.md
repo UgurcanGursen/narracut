@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 Master-gap reconciliation
+
+- Mapped all remaining validation/observability acceptance rows to existing
+  owners or future bounded packages; selected only canonical evidence attachment
+  as the next package.
+
 ## 2026-08-06 - Phase 15 run-evidence bounded acceptance
 
 - Accepted the local canonical ledger and fail-closed quality-gate package;

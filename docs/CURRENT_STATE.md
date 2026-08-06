@@ -16,6 +16,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   decision. This bounded package is accepted at
   `baseline/phase15_run_evidence_bounded_acceptance.md`; Phase 15 Master
   acceptance remains open.
+- Master-gap ownership is frozen at
+  `baseline/phase15_master_gap_reconciliation.md`. The next bounded package is
+  canonical Phase 4/14/domain evidence attachment; no live transport is
+  selected or enabled.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
