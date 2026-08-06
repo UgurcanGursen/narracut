@@ -11,11 +11,12 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only, requirement-by-requirement Phase 14 Master acceptance
-reconciliation across artifact registry, cache/incremental render, storage/GC,
-quota and performance evidence. Do not implement permanent deletion, automatic
-worker/scheduler behavior, provider transport, generic queue/retry, Studio
-FULL-render route or Phase 15 validation behavior.
+Perform a read-only Phase 14 Master repair-scope reconciliation for the three
+findings in `baseline/phase14_master_acceptance_reconciliation.md`: FULL
+artifact registry bridge, trusted free-disk guard and explicit local quota
+manager facade. Do not implement permanent deletion, automatic worker/scheduler
+behavior, provider transport, generic queue/retry, Studio FULL-render route or
+Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -39,6 +39,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   Cache-plan execution requires an append-only reference-retirement and
   rollback/restore contract; its scope reconciliation is recorded at
   `baseline/phase14_cache_plan_execution_scope_reconciliation.md`.
+  Phase 14 Master reconciliation is `FIX_REQUIRED`: FULL artifact registry
+  bridge, minimum-free-disk guard and explicit quota manager remain open at
+  `baseline/phase14_master_acceptance_reconciliation.md`.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master acceptance reconciliation
+
+- Kept Phase 14 open for FULL artifact registration, free-disk admission and
+  explicit quota-manager ownership despite bounded cache/GC/performance passes.
+
 ## 2026-08-06 - Phase 14 cache-plan execution bounded acceptance
 
 - Accepted the transaction/soft-quota execution package; final Master
