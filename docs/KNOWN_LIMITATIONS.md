@@ -470,6 +470,10 @@ PHASE2_CLOSED=NO
   It cannot be called trusted, and either real project cannot count toward the
   product gate, until a bounded fail-closed adapter, calibration evidence and
   an accepted end-to-end artifact exist.
+- `engine/local_timing.py` establishes only the local-process boundary. It
+  does not install/pin a WhisperX executable or model, enforce a platform-level
+  child-process memory limit, publish an `AlignmentResult`, or replace the
+  existing REPLAY provenance gates.
 - The three reference videos have not yet been accepted. Public availability
   is analysis access only and never permission to download or reuse media.
 

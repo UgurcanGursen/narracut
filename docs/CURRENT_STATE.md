@@ -34,6 +34,10 @@ Phase 17 current sub-status: `PRODUCT_GATE_EVIDENCE_PREPARATION`.
 - This is preparation evidence only: no external source has been imported, no
   timing producer is trusted, no benchmark reference is accepted and no real
   project/render run is claimed.
+- `engine/local_timing.py` now provides an isolated local executable boundary
+  with one-run concurrency, input/output byte limits, timeout, cancellation,
+  canonical-output and exact word-ID checks. It is not yet a trusted timing
+  producer or an `AlignmentResult` integration.
 
 ## Historical Phase 15 validation and observability record
 

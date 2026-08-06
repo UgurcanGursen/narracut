@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 17 local timing process boundary
+
+- Added a local-only, single-run timing executable boundary with explicit
+  input/output caps, timeout, cancellation, canonical output and exact
+  word-ID validation. No model, provider, network client or REPLAY fallback
+  was added.
+
 ## 2026-08-06 - Phase 17 IBM and WeWork evidence preparation
 
 - Selected two 12–15 minute real-project briefs and recorded public factual
