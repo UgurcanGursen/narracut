@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache lifecycle implementation audit
+
+- Returned `FIX_REQUIRED` for missing active-cache lifecycle binding, orphan
+  reclaim and pre-resolution symlink validation.
+- The next task is a bounded repair; no package acceptance or Phase 14 closure
+  is claimed.
+
 ## 2026-08-06 - Phase 14 cache eviction implementation authorization
 
 - Authorized one bounded cache-entry/payload/soft-quota planning package after

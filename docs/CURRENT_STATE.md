@@ -30,6 +30,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   targeted re-audit, not eviction implementation. The targeted re-audit now
   passes; the bounded implementation authorization is recorded at
   `baseline/phase14_cache_eviction_soft_quota_implementation_authorization.md`.
+  Its first implementation audit is `FIX_REQUIRED` for cache-write lifecycle
+  binding, orphan reclaim planning and trusted resolver symlink handling.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 
