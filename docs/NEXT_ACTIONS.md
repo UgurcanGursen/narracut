@@ -11,9 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Draft a bounded Phase 14 two-stage trash/restore and deletion-plan execution
-contract. It must consume only a revalidated immutable dry-run plan and preserve
-protected artifacts; do not implement cache/quota/FULL render/provider transport.
+Implement the accepted Phase 14 two-stage trash/restore contract with
+revalidated plan, managed-root containment and append-only receipt tests. Do
+not implement permanent deletion, cache/quota/FULL render/provider transport.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
