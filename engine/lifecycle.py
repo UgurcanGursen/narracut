@@ -130,3 +130,9 @@ def load_registry(*, registry_path: Path) -> tuple[ArtifactRegistryRecord, ...]:
         return rows
     except (OSError, json.JSONDecodeError, ValueError) as exc:
         raise ValueError("ARTIFACT_REGISTRY_PERSIST_INVALID") from exc
+
+
+def import_verified_artifact_rows(rows: tuple[Mapping[str, Any], ...]) -> tuple[ArtifactRegistryRecord, ...]:
+    records = tuple(ArtifactRegistryRecord.materialize({key: row[key] for key in ("artifact_id","project_id","content_hash","size_bytes","retention_class","dependency_ids","locked","pinned","approved","producer","producer_version")}) for row in rows)
+    registry_snapshot(records)
+    return records

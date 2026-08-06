@@ -1,6 +1,6 @@
 import pytest
 
-from engine.lifecycle import ArtifactRegistryRecord, append_registry_record, execute_trash_plan, load_registry, plan_deletion, registry_snapshot, restore_trash_receipt, validate_deletion_plan
+from engine.lifecycle import ArtifactRegistryRecord, append_registry_record, execute_trash_plan, import_verified_artifact_rows, load_registry, plan_deletion, registry_snapshot, restore_trash_receipt, validate_deletion_plan
 
 
 def row(identifier, *, retention="temporary", dependencies=(), locked=False):
@@ -50,3 +50,7 @@ def test_revalidated_plan_moves_only_managed_candidate_to_trash(tmp_path):
     assert receipt["moved"][0]["artifact_id"] == "art_a" and not (tmp_path / "art_a").exists()
     restore_trash_receipt(managed_root=tmp_path, plan_id=plan["plan_id"], receipt=receipt)
     assert (tmp_path / "art_a").read_bytes() == b"x"
+
+def test_verified_row_import_keeps_registry_invariants():
+    item = row("art_a")
+    assert import_verified_artifact_rows((item.__dict__,)) == (item,)
