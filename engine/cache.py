@@ -21,6 +21,10 @@ def render_admission(*, used_bytes: int, estimated_bytes: int, hard_limit_bytes:
     if min(used_bytes, estimated_bytes, hard_limit_bytes) < 0: raise ValueError("QUOTA_POLICY_INVALID")
     return "BLOCKED_HARD_QUOTA" if used_bytes + estimated_bytes > hard_limit_bytes else "ADMITTED"
 
+def performance_receipt(*, baseline_hash: str, candidate_hash: str, baseline_ms: int, candidate_ms: int) -> dict[str, object]:
+    if min(baseline_ms, candidate_ms) < 0 or not baseline_hash.startswith("sha256:") or not candidate_hash.startswith("sha256:"): raise ValueError("PERFORMANCE_RECEIPT_INVALID")
+    return {"quality_preserved": baseline_hash == candidate_hash, "improved": candidate_ms <= baseline_ms, "baseline_ms":baseline_ms,"candidate_ms":candidate_ms}
+
 def cache_put(root: Path, key: str, payload: bytes) -> Path:
     if not key.startswith("sha256:"): raise ValueError("CACHE_KEY_INVALID")
     target = root / "sha256" / key[7:9] / key[9:]

@@ -1,5 +1,5 @@
 import pytest
-from engine.cache import cache_get, cache_key, cache_put, incremental_action, quota_status, render_admission, storage_usage
+from engine.cache import cache_get, cache_key, cache_put, incremental_action, performance_receipt, quota_status, render_admission, storage_usage
 
 def test_cache_key_is_deterministic_and_profile_isolated():
     assert cache_key(profile="preview", inputs={"source":"sha256:x"}) == cache_key(profile="preview", inputs={"source":"sha256:x"})
@@ -27,3 +27,7 @@ def test_incremental_action_never_reuses_changed_key():
 
 def test_hard_quota_blocks_new_render_admission():
     assert render_admission(used_bytes=9, estimated_bytes=2, hard_limit_bytes=10) == "BLOCKED_HARD_QUOTA"
+
+def test_performance_receipt_never_claims_quality_for_changed_hash():
+    assert performance_receipt(baseline_hash="sha256:a", candidate_hash="sha256:a", baseline_ms=10, candidate_ms=9)["quality_preserved"]
+    assert not performance_receipt(baseline_hash="sha256:a", candidate_hash="sha256:b", baseline_ms=10, candidate_ms=9)["quality_preserved"]
