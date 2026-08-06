@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source outcome contract audit
+
+- Returned `FIX_REQUIRED` for typed source-policy binding and closed
+  source-outcome quality/error tokens; no runtime work was authorized.
+
 ## 2026-08-06 - Phase 15 evidence attachment bounded acceptance
 
 - Accepted the local Phase 4/14/Domain Pack quality-check attachment package;

@@ -11,11 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Define the next bounded Phase 15 source/transport outcome-validation contract
-from the open Master-gap rows. It must consume only existing REPLAY/MANUAL_UI
-evidence and explicitly report unsupported live modes; do not implement or
-enable live transport, retry, queue/worker, media validation, Studio/UI, Phase
-16 or Phase 17 behavior.
+Repair P15-SO-001 and P15-SO-002 in
+`docs/specifications/phase15_source_outcome_validation_contract.md`, then
+perform a targeted re-audit. Do not implement or enable live transport, retry,
+queue/worker, media validation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
