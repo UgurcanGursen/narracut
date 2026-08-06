@@ -117,13 +117,13 @@ def _fixture_intents():
     return tuple(result)
 
 
-def _compile(*, rate: TemporalFrameRate = TemporalFrameRate(30, 1), intents=None):
+def _compile(*, rate: TemporalFrameRate = TemporalFrameRate(30, 1), intents=None, sequence_id: str = "sequence_replay"):
     groups, events, frames, preview, report = _deps(rate=rate)
     if intents is None:
         intents = (_intent(),)
     words = frames.word_frames
     return edl.compile_video_edl(
-        intents=tuple(intents), sequence_id="sequence_replay",
+        intents=tuple(intents), sequence_id=sequence_id,
         sequence_start_word_id=words[0].start_word_id,
         sequence_end_word_id=words[-1].end_word_id,
         caption_groups=groups, emphasis_events=events, word_to_frame=frames,

@@ -143,7 +143,11 @@ class RenderInputSnapshotRecord:
     executable_plan_hash: str
     final_edl_bundle_id: str
     final_edl_bundle_hash: str
+    video_edl_id: str
+    video_edl_hash: str
     video_edl_bytes: bytes
+    audio_edl_id: str
+    audio_edl_hash: str
     audio_edl_bytes: bytes
     render_props_bytes: bytes
     render_props_id: str
@@ -152,6 +156,8 @@ class RenderInputSnapshotRecord:
     fixture_manifest_hash: str
     mode: Literal["preview_replay"]
     created_at: str
+    producer: str
+    producer_version: str
 
 
 @dataclass(frozen=True)

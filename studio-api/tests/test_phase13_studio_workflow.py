@@ -6,8 +6,12 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from engine.contracts._canonical_json import encode_canonical_json_bytes
+from engine.rendering import FixtureAssetResolver
+from engine.rendering.bridge import renderer_version
+from tests.test_render_bridge import build_phase4a_rich_replay_inputs
 from kurgu_studio_api import create_app
 from kurgu_studio_api.infrastructure.runtime import build_runtime
+from kurgu_studio_api.infrastructure.preview_adapters import CanonicalReplayInputFactory
 from kurgu_studio_api.application.models import PreviewExecutionResult, RenderInputSnapshotRecord
 
 
@@ -35,6 +39,11 @@ def _project(client: TestClient) -> str:
     response = client.post("/api/v1/projects", json=_business_request())
     assert response.status_code == 201
     return response.json()["project"]["project_id"]
+
+
+class _FixedProjectIdFactory:
+    def new_project_id(self) -> str:
+        return "prj_fx34"
 
 
 def test_task_creation_does_not_silently_fallback_from_core_only(tmp_path: Path) -> None:
@@ -90,6 +99,17 @@ def _bound_snapshot(project_id: str, policy_id: str, policy_hash: str) -> dict:
             **bundle_body,
         },
     }
+
+
+def _canonical_bound_snapshot(project_id: str, policy_id: str, policy_hash: str, inputs: list[dict[str, object]]) -> dict:
+    sequences = [{"executable_sequence_id": value["video_edl"].sequence_id, "executable_sequence_hash": "sha256:" + chr(97 + ordinal) * 64} for ordinal, value in enumerate(inputs)]
+    plan_body = {"schema_version": "PHASE12-EXECUTABLE-EDITORIAL-PLAN-V1", "project_id": project_id, "policy_snapshot_id": policy_id, "policy_snapshot_hash": policy_hash, "editorial_integration_policy_hash": "sha256:" + "c" * 64, "sequences": sequences}
+    plan_hash = _hash(plan_body)
+    plan = {"executable_editorial_plan_id": "eeplan_" + plan_hash[7:27], "executable_editorial_plan_hash": plan_hash, **plan_body}
+    rows = [{**sequence, "video_edl_id": value["video_edl"].video_edl_id, "video_edl_hash": value["video_edl"].video_edl_hash, "audio_edl_id": value["audio_edl"].audio_edl_id, "audio_edl_hash": value["audio_edl"].audio_edl_hash} for sequence, value in zip(sequences, inputs, strict=True)]
+    bundle_body = {"schema_version": "PHASE12-FINAL-EDL-BUNDLE-V1", "executable_editorial_plan_id": plan["executable_editorial_plan_id"], "executable_editorial_plan_hash": plan_hash, "sequence_edls": rows}
+    bundle_hash = _hash(bundle_body)
+    return {"executable_plan": plan, "final_edl_bundle": {"final_edl_bundle_id": "fedl_" + bundle_hash[7:27], "final_edl_bundle_hash": bundle_hash, **bundle_body}}
 
 
 def test_sqlite_project_reopens_after_new_runtime(tmp_path: Path) -> None:
@@ -196,6 +216,15 @@ class _SuccessfulPreviewExecutor:
         return PreviewExecutionResult("succeeded", "sha256:" + "2" * 64, manifest, {0: b"png"})
 
 
+class _FixedInputResolver:
+    def __init__(self, value: RenderInputSnapshotRecord) -> None:
+        self.value = value
+
+    def resolve(self, *, project_id: str, sequence_id: str, review_snapshot: object) -> RenderInputSnapshotRecord | None:
+        del review_snapshot
+        return self.value if (project_id, sequence_id) == (self.value.project_id, self.value.executable_sequence_id) else None
+
+
 def _install_preview_input(client: TestClient, project_id: str) -> tuple[object, dict]:
     runtime = client.app.state.runtime
     task = client.post(f"/api/v1/projects/{project_id}/tasks", json={"family": "research", "task_type": "source_discovery", "backend_mode": "replay", "topic": "AI chips"}).json()
@@ -208,11 +237,11 @@ def _install_preview_input(client: TestClient, project_id: str) -> tuple[object,
         domain_pack_version="0.1.0", policy_snapshot_id=task["policy_snapshot_id"], policy_snapshot_hash=task["policy_snapshot_hash"],
         executable_plan_id=bound["executable_plan"]["executable_editorial_plan_id"], executable_plan_hash=bound["executable_plan"]["executable_editorial_plan_hash"],
         final_edl_bundle_id=bound["final_edl_bundle"]["final_edl_bundle_id"], final_edl_bundle_hash=bound["final_edl_bundle"]["final_edl_bundle_hash"],
-        video_edl_bytes=b"{}", audio_edl_bytes=b"{}", render_props_bytes=b"{}", render_props_id="rprops_test", render_props_hash="sha256:" + "4" * 64,
-        fixture_manifest_id="fixman_test", fixture_manifest_hash="sha256:" + "5" * 64, mode="preview_replay", created_at="2026-08-06T00:00:00Z",
+        video_edl_id="vedl_test", video_edl_hash="sha256:" + "6" * 64, video_edl_bytes=b"{}", audio_edl_id="aedl_test", audio_edl_hash="sha256:" + "7" * 64, audio_edl_bytes=b"{}", render_props_bytes=b"{}", render_props_id="rprops_test", render_props_hash="sha256:" + "4" * 64,
+        fixture_manifest_id="fixman_test", fixture_manifest_hash="sha256:" + "5" * 64, mode="preview_replay", created_at="2026-08-06T00:00:00Z", producer="test", producer_version="0",
     )
-    runtime.project_repository.put_render_input(record)
     assert runtime.workflow_service is not None
+    runtime.workflow_service.render_inputs = _FixedInputResolver(record)
     runtime.workflow_service.preview_executor = _SuccessfulPreviewExecutor()
     return runtime, sequence
 
@@ -223,6 +252,30 @@ def test_preview_api_rejects_absent_trusted_input(tmp_path: Path) -> None:
     response = client.post(f"/api/v1/projects/{project_id}/sequences/eseq_alpha/preview-renders")
     assert response.status_code == 409
     assert response.json()["error"]["code"] == "REVIEW_BINDING_INVALID"
+
+
+def test_canonical_two_sequence_snapshots_are_verified_before_sqlite_persistence(tmp_path: Path) -> None:
+    database_path = tmp_path / "studio.sqlite3"
+    runtime = build_runtime(database_path=database_path)
+    runtime.project_service.project_id_factory = _FixedProjectIdFactory()
+    client = TestClient(create_app(runtime))
+    project_id = _project(client)
+    task = client.post(f"/api/v1/projects/{project_id}/tasks", json={"family": "research", "task_type": "source_discovery", "backend_mode": "replay", "topic": "AI chips"}).json()
+    inputs = [build_phase4a_rich_replay_inputs(sequence_id="eseq_replay_a"), build_phase4a_rich_replay_inputs(sequence_id="eseq_replay_b")]
+    bound = _canonical_bound_snapshot(project_id, task["policy_snapshot_id"], task["policy_snapshot_hash"], inputs)
+    assert client.post(f"/api/v1/projects/{project_id}/review-snapshots", json=bound).status_code == 201
+    factory = CanonicalReplayInputFactory()
+    fixture_assets = FixtureAssetResolver.load(Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "phase4a")
+    version = renderer_version((Path(__file__).resolve().parents[2] / "renderer-remotion" / "package-lock.json").read_bytes())
+    records = []
+    for sequence, value in zip(bound["executable_plan"]["sequences"], inputs, strict=True):
+        record = factory.build(project_id=project_id, executable_sequence_hash=sequence["executable_sequence_hash"], domain_pack_version="0.1.0", policy_snapshot_id=task["policy_snapshot_id"], policy_snapshot_hash=task["policy_snapshot_hash"], executable_plan_id=bound["executable_plan"]["executable_editorial_plan_id"], executable_plan_hash=bound["executable_plan"]["executable_editorial_plan_hash"], final_edl_bundle_id=bound["final_edl_bundle"]["final_edl_bundle_id"], final_edl_bundle_hash=bound["final_edl_bundle"]["final_edl_bundle_hash"], video_edl=value["video_edl"], audio_edl=value["audio_edl"], fixture_assets=fixture_assets, renderer_version=version, created_at="2026-08-06T00:00:00Z")
+        runtime.project_repository.put_render_input(record)
+        records.append(record)
+    reopened = build_runtime(database_path=database_path)
+    for record in records:
+        loaded = reopened.project_repository.get_render_input(project_id, record.executable_sequence_id)
+        assert loaded == record
 
 
 def test_preview_api_persists_ordered_safe_events_and_declared_delivery_only(tmp_path: Path) -> None:

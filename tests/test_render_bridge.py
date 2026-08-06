@@ -50,7 +50,7 @@ def _fixture_identity_projection(value: dict[str, object]) -> dict[str, object]:
     }
 
 
-def build_phase4a_rich_replay_inputs() -> dict[str, object]:
+def build_phase4a_rich_replay_inputs(*, sequence_id: str = "sequence_replay") -> dict[str, object]:
     """Build the accepted, Phase-4-owned multi-track REPLAY ingress pair.
 
     This deliberately uses only public Phase 3 materializers.  The V3 source
@@ -71,7 +71,7 @@ def build_phase4a_rich_replay_inputs() -> dict[str, object]:
             )
             intent = dataclasses.replace(intent, source=source)
         intents.append(intent)
-    video_edl = _compile_video_edl(intents=tuple(intents))
+    video_edl = _compile_video_edl(intents=tuple(intents), sequence_id=sequence_id)
     audio_kwargs = _all_track_kwargs(rate=TemporalFrameRate(30, 1))
     audio_kwargs["video_edl"] = video_edl
     audio_edl = compile_audio_edl(**audio_kwargs)

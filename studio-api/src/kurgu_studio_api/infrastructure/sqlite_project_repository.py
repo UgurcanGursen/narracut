@@ -333,6 +333,8 @@ class SQLiteProjectRepository:
                 raise ValueError("REVIEW_SEQUENCE_LOCKED") from exc
 
     def put_render_input(self, value: RenderInputSnapshotRecord) -> None:
+        from .preview_adapters import validate_render_input_snapshot
+        validate_render_input_snapshot(value)
         payload = {field: getattr(value, field) for field in value.__dataclass_fields__ if not field.endswith("_bytes")}
         with self._lock:
             try:
