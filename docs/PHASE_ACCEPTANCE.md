@@ -1,5 +1,23 @@
 # Phase Acceptance
 
+## Phase 12 final acceptance — 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Immutable executable plan and explicit continuity states | ACCEPT / CLOSED |
+| Phase 10/8/5/7/11 policy and provenance binding | PASS |
+| Approved range/crop, capability, visualization and chapter-audio fail-closed gates | PASS |
+| Consecutive family/template reuse policy | PASS |
+| Explicit Phase 3 video-compiler handoff without scheduler rewrite | PASS |
+| Business-tech / dummy core capability parity | PASS |
+| Targeted final re-audit | PASS (explicit multi-chapter audio mapping repaired) |
+| Phase 8 + 10 + 11 + 12 regression gate | `38 passed` |
+| Phase 12 overall | CLOSED |
+
+Evidence: `docs/specifications/phase12_continuity_executable_editorial_integration_contract.md`,
+`engine/editorial_integration.py`, `tests/test_phase12_editorial_integration.py`,
+commits `b55d888`, `58e4953`, `090dba4`.
+
 ## Phase 12 contract acceptance — 2026-08-06
 
 | Gate | Result |

@@ -12,6 +12,20 @@ Son guncelleme: 6 Agustos 2026
   Delivery Ledger rows is open. `PRODUCT_GATE_CLOSED` remains a Phase 17-only
   decision.
 
+## Faz 12 status note
+
+- Phase 12 is CLOSED only as a local executable-editorial-plan and Phase 3
+  handoff boundary. It does not make a final production render, create missing
+  PCM/timing inputs, run a Studio UI, persist multi-user review state, open
+  media or operate provider transports.
+- Phase 11 audio direction remains an explicit policy mapping, not an audio
+  event schedule. A complete audio EDL still requires explicit Phase 3 PCM and
+  timing inputs; Phase 12 does not invent them.
+- The unrelated historical `tests/test_edl.py` compact golden hash currently
+  differs from its committed expectation despite no Phase 12 change to the
+  Phase 3 module. The Phase 12 explicit-handoff test passes; investigate that
+  legacy Phase 3 golden separately rather than silently changing it here.
+
 ## Faz 11 status note
 
 - Phase 11 is CLOSED only as a local, policy-bound audio-direction planning

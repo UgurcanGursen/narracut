@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-08-06 - Phase 12 Continuity and Editorial Integration closure
+
+- Closed the bounded executable-editorial integration layer with immutable
+  approved asset/range/crop decisions, template capabilities, continuity
+  states and explicit Phase 11 chapter-audio mappings.
+- Added a fail-closed explicit handoff into the existing Phase 3 video
+  compiler; no timing, media, renderer, provider or audio schedule is
+  invented by Phase 12.
+- Confirmed focused Phase 8/10/11/12 regression coverage (`38 passed`).
+
 ## 2026-08-06 - Phase 12 executable editorial integration contract freeze
 
 - Added the bounded Phase 12 policy/continuity and executable-editorial-plan

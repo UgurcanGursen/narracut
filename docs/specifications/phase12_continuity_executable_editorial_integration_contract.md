@@ -1,6 +1,6 @@
 # Phase 12 Continuity and Executable Editorial Integration Contract
 
-Status: accepted implementation scope
+Status: accepted and closed bounded implementation scope
 
 ## Boundary
 
@@ -30,6 +30,8 @@ and after the decision. It fail-closes when a selected visual family or
 template exceeds the policy's consecutive-reuse limit, a required reset is
 missing, an approved asset/range/crop reference is absent, or a planner
 capability pair cannot be resolved to the active template capability.
+Every sequence provides an explicit Phase 11 chapter-audio-direction ID/hash
+pair; Phase 12 never guesses a chapter mapping from a beat or sequence name.
 
 ## Immutable artifacts
 

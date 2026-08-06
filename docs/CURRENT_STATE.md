@@ -1,11 +1,11 @@
 # Current State
 
 Son guncelleme: 6 Agustos 2026
-Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 NEXT**
+Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 NEXT**
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
-## Latest authoritative state - Phase 12 contract frozen; implementation next
+## Latest authoritative state - Phase 12 closed; Phase 13 scope next
 
 - The repository-wide Roadmap Scope Reconciliation is accepted at
   `docs/ROADMAP_SCOPE_RECONCILIATION.md`. It preserves the accepted Phase 0-10
@@ -39,10 +39,19 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
 - The final snapshot-ingress re-audit passed with no BLOCKER or MAJOR after
   sealing source-produced payloads as canonical immutable bytes. Final related
   gate: `98 passed, 1 skipped`; focused planner gate: `8 passed`.
-- The Phase 12 Continuity/Pacing and Executable Editorial Integration contract
-  is frozen at `docs/specifications/phase12_continuity_executable_editorial_integration_contract.md`.
-  Its bounded REPLAY/MANUAL_UI-first implementation is authorized; it is the
-  owner of the planner-to-executable-plan-to-Phase-3-EDL bridge.
+- Phase 12 Continuity/Pacing and Executable Editorial Integration is CLOSED as
+  a bounded REPLAY/MANUAL_UI-first integration layer. It binds accepted Phase
+  10 plans, Phase 8 approved asset/range/crop decisions, Phase 5 capabilities,
+  optional Phase 7 visualizations and explicit Phase 11 chapter-audio pairs
+  into immutable executable editorial plans.
+- Continuity state is explicit for every ordered sequence; forged/missing
+  provenance, range, capability, visualization, audio direction or a repeated
+  family/template policy violation fails closed. The explicit execution
+  handoff calls the existing Phase 3 video compiler without changing its
+  scheduler.
+- The sole next task is a read-only Phase 13 Studio UI/Manual LLM/Review scope
+  reconciliation. Do not implement Phase 13 until its bounded authorization is
+  complete.
 
 - Phase 9 Manual LLM Gateway, Research Engine and Persistent Claim Store is
   accepted and closed. Canonical contract:

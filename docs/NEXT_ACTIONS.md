@@ -1,6 +1,6 @@
 # Next Actions
 
-Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 NEXT.
+Aktif faz: Faz 0 CLOSED. Faz 1 CLOSED. Faz 2 CLOSED. Faz 3 CLOSED. Faz 4 CLOSED. Faz 5 CLOSED. Faz 6 CLOSED. Faz 7 CLOSED. Faz 8 CLOSED. Faz 9 CLOSED. Faz 10 CLOSED. Faz 11 CLOSED. Faz 12 CLOSED. Faz 13 NEXT.
 
 ## AI execution policy
 
@@ -11,21 +11,17 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the bounded Phase 12 Continuity/Pacing and Executable Editorial
-Integration contract in frozen order. Bind accepted Phase 10 planner, Phase 8
-approved asset/range/crop, Phase 5 capability, optional Phase 7 visualization
-and Phase 11 audio-direction decisions into immutable executable plans; pass
-only explicit verified timing inputs to the existing Phase 3 compiler.
+Perform a read-only Phase 13 Studio UI, Manual LLM Gateway and Human-in-the-
+loop Review scope reconciliation. Freeze the API/UI ownership, project-state
+persistence boundary, task/review/approval lifecycle and Phase 12 executable
+plan/Phase 3 EDL presentation boundary before authorizing implementation.
 
-Do not introduce provider API execution, browser-driven LLM automation, paid
-LLM calls, queue/retry infrastructure, UI expansion, media opening or a
-renderer bypass. Phase 12 must fail closed on missing provenance, approval,
-capability, policy, continuity or timing input.
+Do not implement Phase 13 in this task. Do not introduce browser-driven LLM
+automation, paid LLM calls, queue/retry infrastructure, direct filesystem UI
+access, media opening or a renderer bypass.
 
-Phase 12 contract evidence:
-`docs/specifications/phase12_continuity_executable_editorial_integration_contract.md`.
-Phase 11 closure evidence: `6717de4`, `24daca7`; final focused regression:
-`57 passed`. There is no open Phase 11 blocker.
+Phase 12 closure evidence: `b55d888`, `58e4953`, `090dba4`; final focused
+regression: `38 passed`. There is no open Phase 12 blocker.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
