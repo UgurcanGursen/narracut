@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 artifact-integrity implementation audit
+
+- Passed registry/output/deletion-plan integrity audit; bounded acceptance is
+  a separate decision.
+
 ## 2026-08-06 - Phase 15 artifact-integrity implementation authorization
 
 - Authorized only local registry/deletion-plan validation, ledger tokens and

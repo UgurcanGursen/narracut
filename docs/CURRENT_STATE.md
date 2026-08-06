@@ -50,6 +50,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase15_artifact_integrity_contract_audit.md`; a separate
   implementation authorization is at
   `baseline/phase15_artifact_integrity_implementation_authorization.md`.
+- `engine/validation/artifact_integrity.py` passed independent implementation
+  audit at `baseline/phase15_artifact_integrity_implementation_audit.md`.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
