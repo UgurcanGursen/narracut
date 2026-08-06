@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache-plan execution implementation audit
+
+- Returned `FIX_REQUIRED` for multi-payload retirement grouping and missing
+  storage/effective-state evidence; execution package remains unaccepted.
+
 ## 2026-08-06 - Phase 14 cache-plan execution implementation authorization
 
 - Authorized one bounded transaction/receipt/trash/restore implementation
