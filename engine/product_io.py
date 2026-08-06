@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import re
+import shutil
 import uuid
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Mapping
@@ -104,3 +107,43 @@ class ProjectExporter:
             return output
         except BaseException:
             raise
+
+
+class ProjectArchive:
+    """Creates and restores a checked local package; restore never overwrites."""
+
+    def create(self, *, source_directory: Path, archive_path: Path) -> Path:
+        source = Path(source_directory).resolve(strict=True)
+        target = Path(archive_path).resolve()
+        if not source.is_dir() or target.exists() or target.suffix.lower() != ".zip":
+            raise ValueError("PROJECT_ARCHIVE_INPUT_INVALID")
+        rows: list[dict[str, object]] = []
+        for file in sorted((item for item in source.rglob("*") if item.is_file()), key=lambda item: item.as_posix()):
+            relative = file.relative_to(source).as_posix(); content = file.read_bytes()
+            rows.append({"path": relative, "content_hash": _hash(content), "size_bytes": len(content)})
+        if not rows: raise ValueError("PROJECT_ARCHIVE_INPUT_INVALID")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(target, "x", compression=zipfile.ZIP_DEFLATED) as archive:
+            for row in rows: archive.write(source / row["path"], row["path"])
+            archive.writestr("archive_manifest.json", encode_canonical_json_bytes({"schema_version": "P17-PROJECT-ARCHIVE-V1", "files": rows}))
+        return target
+
+    def restore(self, *, archive_path: Path, destination: Path) -> Path:
+        archive_path = Path(archive_path).resolve(strict=True); target = Path(destination).resolve()
+        if target.exists() or archive_path.suffix.lower() != ".zip": raise ValueError("PROJECT_RESTORE_INPUT_INVALID")
+        try:
+            with zipfile.ZipFile(archive_path) as archive:
+                manifest = json.loads(archive.read("archive_manifest.json").decode("utf-8")); rows = manifest.get("files") if type(manifest) is dict else None
+                if manifest.get("schema_version") != "P17-PROJECT-ARCHIVE-V1" or type(rows) is not list: raise ValueError
+                target.mkdir(parents=True)
+                for row in rows:
+                    if type(row) is not dict or set(row) != {"path", "content_hash", "size_bytes"}: raise ValueError
+                    relative = Path(row["path"])
+                    if relative.is_absolute() or ".." in relative.parts or row["path"] == "archive_manifest.json": raise ValueError
+                    content = archive.read(row["path"])
+                    if len(content) != row["size_bytes"] or _hash(content) != row["content_hash"]: raise ValueError
+                    _atomic(target / relative, content)
+        except (OSError, KeyError, ValueError, zipfile.BadZipFile) as exc:
+            if target.exists(): shutil.rmtree(target)
+            raise ValueError("PROJECT_RESTORE_INVALID") from exc
+        return target

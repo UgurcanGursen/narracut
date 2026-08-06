@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from engine.product_io import LocalMediaStore, ProjectExporter
+from engine.product_io import LocalMediaStore, ProjectArchive, ProjectExporter
 
 
 def test_local_media_deduplicates_without_persisting_original_path(tmp_path):
@@ -35,3 +35,12 @@ def test_import_requires_explicit_license_and_export_is_non_overwriting(tmp_path
     exporter.export(**kwargs)
     with pytest.raises(ValueError, match="ALREADY_EXISTS"):
         exporter.export(**kwargs)
+
+
+def test_archive_restore_revalidates_bytes_and_never_overwrites(tmp_path):
+    source = tmp_path / "source"; source.mkdir(); (source / "nested").mkdir(); (source / "nested/file.txt").write_text("ok")
+    archive = ProjectArchive().create(source_directory=source, archive_path=tmp_path / "backup.zip")
+    restored = ProjectArchive().restore(archive_path=archive, destination=tmp_path / "restored")
+    assert (restored / "nested/file.txt").read_text() == "ok"
+    with pytest.raises(ValueError, match="RESTORE_INPUT_INVALID"):
+        ProjectArchive().restore(archive_path=archive, destination=restored)
