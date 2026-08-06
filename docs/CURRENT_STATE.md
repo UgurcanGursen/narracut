@@ -34,7 +34,8 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   binding, orphan reclaim planning and trusted resolver symlink handling.
   The targeted re-audit passes those bounded findings; a separate cache
   lifecycle package is accepted, while Phase 14 Master remains open for
-  cache-plan execution/receipts and performance evidence.
+  cache-plan execution/receipts. Fixed REPLAY preview/cache performance evidence
+  is accepted at `baseline/phase14_replay_performance_acceptance.md`.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 

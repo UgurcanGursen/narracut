@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 fixed REPLAY performance acceptance
+
+- Accepted the bounded initial-render versus verified-cache-hit replay
+  benchmark only after manifest hash equality; remaining GC execution is open.
+
 ## 2026-08-06 - Phase 14 cache lifecycle bounded acceptance
 
 - Accepted the cache lifecycle/soft-quota dry-run package after targeted

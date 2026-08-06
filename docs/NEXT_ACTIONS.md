@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 14 Master acceptance-gap reconciliation for cache
-plan-to-trash execution, soft-quota receipts and fixed REPLAY
-hash-preserving-performance evidence. Do not implement permanent deletion,
-automatic worker/scheduler behavior, provider transport, generic queue/retry,
-Studio FULL-render route or Phase 15 validation behavior.
+Perform a read-only Phase 14 cache-plan-to-trash/soft-quota execution scope
+reconciliation. Freeze reference-retirement persistence, revalidation and
+receipt/restore semantics before implementation authorization. Do not implement
+permanent deletion, automatic worker/scheduler behavior, provider transport,
+generic queue/retry, Studio FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -7,7 +7,8 @@
 | Cache write/hit lifecycle provenance and renderer artifact binding | PASS |
 | Reference-first soft-quota dry-run and orphan-payload planning | PASS |
 | Trusted cache object resolver and stale-plan rejection | PASS |
-| Cache-plan trash execution, soft-quota receipts, fixed REPLAY performance benchmark | OPEN |
+| Fixed REPLAY cache performance benchmark with hash preservation | PASS (bounded preview) |
+| Cache-plan trash execution and soft-quota receipts | OPEN |
 | Phase 14 Master Roadmap | OPEN / NOT CLOSED |
 
 Evidence: `baseline/phase14_cache_lifecycle_implementation_acceptance.md`.
