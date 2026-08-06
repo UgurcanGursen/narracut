@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 Master repair integration contract repair
+
+- Bound FULL artifact ingress to the canonical committed Phase 4B transaction
+  journal and matching registry marker rather than outcome memory.
+
 ## 2026-08-06 - Phase 14 Master repair integration contract audit
 
 - Returned `FIX_REQUIRED`: FULL artifact rows must enter through the committed

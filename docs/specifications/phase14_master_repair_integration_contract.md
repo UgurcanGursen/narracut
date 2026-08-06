@@ -4,10 +4,14 @@ Status: candidate; audit and implementation authorization are separate.
 
 ## 1. FULL artifact registry adapter
 
-`register_full_render_artifacts` consumes only a successful or terminal
-`FullRenderOutcome` and its existing verified `artifact_rows`. It receives a
-trusted, complete `FullArtifactLifecyclePolicyV1` keyed by row `kind`; each
-entry declares retention class, locked, pinned, approved, producer version and
+`register_full_render_artifacts` consumes only a trusted Phase 4B committed
+transaction ID. It loads `artifacts/transactions/<transaction_id>.json`,
+requires canonical journal identity, then requires exactly one matching
+`COMMITTED` marker with the receipt hash in the existing Phase 4B registry.
+The journal's embedded verified `artifact_rows` are the sole ingress; outcome
+memory and filesystem-path recomputation are forbidden. It receives a trusted,
+complete `FullArtifactLifecyclePolicyV1` keyed by row `kind`; each entry
+declares retention class, locked, pinned, approved, producer version and
 terminal eligibility. Missing/unknown kind or a final row without `final`
 retention fails before registry append. The adapter transforms rows without
 paths/URIs into `ArtifactRegistryRecord` and idempotently persists the full
