@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 domain/final-narration safety implementation authorization
+
+- Authorized the local validator, policy declaration and focused adversarial
+  tests; no renderer or operational expansion follows from this authorization.
+
 ## 2026-08-06 - Phase 15 domain/final-narration safety contract audit
 
 - Audited the fail-closed domain-pack compatibility and final narration safety
