@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 evidence attachment implementation authorization
+
+- Authorized only local cross-evidence attachment and focused tests.
+
 ## 2026-08-06 - Phase 15 evidence attachment contract audit
 
 - Passed the bounded Phase 4/14/Domain Pack evidence-attachment contract audit;
