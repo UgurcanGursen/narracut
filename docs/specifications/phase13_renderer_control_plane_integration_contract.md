@@ -61,13 +61,22 @@ returns its existing job view; it never starts a second process. A user may
 explicitly request a new attempt only after a terminal result. There is no
 automatic retry, fallback mode or silent conversion to FULL.
 
+`preview_request_id` identifies immutable requested inputs; it is not a job
+identity. Each admitted or pre-admission-rejected attempt receives a new opaque
+`preview_job_id` and an atomically allocated positive `attempt_ordinal` within
+that request. The job stores the exact parent request ID/hash and ordinal.
+There may be at most one non-terminal job for a request hash. A terminal job
+never accepts a new event, receipt or delivery descriptor, and a new attempt
+cannot reuse its job ID, ordinal, receipt hash or delivery ID. This preserves
+the lineage of two explicit attempts with identical render inputs.
+
 ## 4. Control-plane state and event log
 
 The Phase 13 repository stores a local, append-only control-plane event log.
-It is not the Phase 14 artifact registry. A job contains only stable IDs,
-canonical hashes, mode, timestamps, terminal public code and opaque delivery
-references; it never stores a local path, raw stderr, provider secret or media
-bytes.
+It is not the Phase 14 artifact registry. A job contains its `preview_job_id`,
+parent request ID/hash, attempt ordinal, stable IDs, canonical hashes, mode,
+timestamps, terminal public code and opaque delivery references; it never stores
+a local path, raw stderr, provider secret or media bytes.
 
 ```text
 REQUESTED -> ADMITTED -> RUNNING -> SUCCEEDED
@@ -101,10 +110,10 @@ canonical numeric progress.
 
 On success, the execution adapter validates Phase 4's canonical preview
 manifest and creates a `PreviewDeliveryDescriptorV1` containing only
-`delivery_id`, job/request IDs, project/sequence IDs, manifest ID/hash,
-selected-frame identity list and an opaque delivery expiry. The descriptor has
-no filesystem path, URL supplied by a renderer, artifact-store key or media
-byte payload.
+`delivery_id`, job/request IDs, attempt ordinal, project/sequence IDs, manifest
+ID/hash, selected-frame identity list and an opaque delivery expiry. The
+descriptor has no filesystem path, URL supplied by a renderer, artifact-store
+key or media byte payload.
 
 The only delivery endpoints are:
 
@@ -121,9 +130,13 @@ or fall back to another preview. The browser may receive only the verified
 manifest JSON and declared PNG frame bytes with fixed media types.
 
 This is a short-lived attempt delivery seam, not durable artifact retention.
-It reports `PREVIEW_DELIVERY_UNAVAILABLE` after its owner has removed evidence.
-Phase 14 alone can later replace it with durable artifact/media ownership,
-retention and restoration semantics.
+The trusted execution adapter alone owns its single-use output root and may
+withdraw the delivery capability only after terminal delivery handling; that
+attempt-local cleanup may not scan, classify, retain, pin or reclaim any other
+artifact. It reports `PREVIEW_DELIVERY_UNAVAILABLE` after withdrawal or a
+restart with no verified backing evidence. This is not a Phase 14 retention,
+quota or GC policy. Phase 14 alone can later replace it with durable
+artifact/media ownership, retention and restoration semantics.
 
 ## 6. Storage and FULL-render read states
 
@@ -163,6 +176,8 @@ acceptance. Its focused evidence must prove all of the following:
    requested sequence and policy snapshot.
 2. Forged, stale, cross-project, changed-review, unavailable-input and
    duplicate-active requests fail closed before the renderer process starts.
+   Two explicit terminal attempts for identical inputs receive distinct job IDs
+   and ordinals and cannot read or append one another's events or deliveries.
 3. Persisted event ordinals replay identically after a fresh FastAPI app;
    SSE reconnection resumes after an explicit ordinal without duplicate state.
 4. Success provides only manifest-declared frame bytes; path traversal, guessed

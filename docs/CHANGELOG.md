@@ -5,6 +5,8 @@
 - Added a PREVIEW-only, REPLAY-only candidate contract for an HTTP/API-safe
   handoff to existing Phase 4 renderer evidence, persisted ordered job events
   and safe manifest/frame delivery.
+- Repaired the candidate's repeated-attempt lineage: immutable request identity
+  is now distinct from per-attempt job ID/ordinal, receipt and delivery ID.
 - Kept FULL-render start, provider/queue/retry work and Phase 14 storage/GC
   outside the candidate. It is documentation only and awaits independent audit.
 
