@@ -11,12 +11,10 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Perform a read-only Phase 14 closure-repair scope reconciliation for the three
-gaps in `baseline/phase14_final_acceptance_audit.md`: sequence incremental
-proof, visible soft-quota pre-admission and full A/V hash-preserving benchmark.
-Do not implement permanent deletion, automatic worker/scheduler behavior,
-provider transport, generic queue/retry, Studio FULL-render route or Phase 15
-validation behavior.
+Draft the bounded Phase 14 closure-repair contract defined by
+`baseline/phase14_closure_repair_scope_reconciliation.md`. Do not implement
+permanent deletion, automatic worker/scheduler behavior, provider transport,
+generic queue/retry, Studio FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

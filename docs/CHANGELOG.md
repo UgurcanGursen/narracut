@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 closure-repair scope reconciliation
+
+- Froze the narrow sequence, soft-quota visibility and fixed FULL A/V evidence
+  boundaries required for final acceptance repair.
+
 ## 2026-08-06 - Phase 14 final acceptance audit
 
 - Kept Phase 14 open for sequence-level incremental proof, visible soft-quota
