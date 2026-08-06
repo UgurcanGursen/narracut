@@ -3,7 +3,7 @@ import json
 import pytest
 from engine.contracts._canonical_json import encode_canonical_json_bytes
 from engine.lifecycle import load_registry
-from engine.storage_manager import (StoragePressurePolicy, finalize_full_lifecycle, finalize_full_outcome,
+from engine.storage_manager import (StoragePressurePolicy, finalize_full_lifecycle, finalize_full_outcome, run_full_with_lifecycle,
     register_committed_full_artifacts, storage_pressure_admission)
 
 
@@ -26,3 +26,6 @@ def test_committed_full_journal_imports_only_explicit_policy_rows(tmp_path):
         register_committed_full_artifacts(project_root=tmp_path,transaction_id=transaction_id,registry_path=tmp_path/"bad.jsonl",policy_by_kind={})
     finalize_full_lifecycle(project_root=tmp_path,terminal_receipt={"transaction_id":transaction_id},registry_path=target,policy_by_kind=policy)
     assert finalize_full_outcome(project_root=tmp_path, outcome=type("Outcome", (), {"receipt":{"transaction_id":transaction_id}})(), registry_path=target, policy_by_kind=policy).receipt["transaction_id"] == transaction_id
+    assert run_full_with_lifecycle(managed_root=tmp_path,pressure_policy=StoragePressurePolicy("scope",10**9,0),estimated_bytes=0,runner=lambda:type("Outcome", (), {"receipt":{"transaction_id":transaction_id}})(),project_root=tmp_path,registry_path=target,policy_by_kind=policy).receipt["transaction_id"]==transaction_id
+    with pytest.raises(ValueError,match="HARD_QUOTA"):
+        run_full_with_lifecycle(managed_root=tmp_path,pressure_policy=StoragePressurePolicy("scope",0,0),estimated_bytes=1,runner=lambda:pytest.fail("runner"),project_root=tmp_path,registry_path=target,policy_by_kind=policy)

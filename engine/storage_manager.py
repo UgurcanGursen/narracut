@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -99,3 +100,16 @@ def finalize_full_outcome(*, project_root: Path, outcome: object,
     finalize_full_lifecycle(project_root=project_root, terminal_receipt=receipt,
         registry_path=registry_path, policy_by_kind=policy_by_kind)
     return outcome
+
+
+def run_full_with_lifecycle(*, managed_root: Path, pressure_policy: StoragePressurePolicy,
+                            estimated_bytes: int, runner: Callable[[], object],
+                            project_root: Path, registry_path: Path,
+                            policy_by_kind: Mapping[str, Mapping[str, object]]) -> object:
+    """Phase 14 FULL lifecycle entry: pressure admission, run, terminal import."""
+    admission = storage_pressure_admission(managed_root=managed_root,
+        policy=pressure_policy, estimated_bytes=estimated_bytes)
+    if admission != "ADMITTED": raise ValueError("RENDER_" + admission)
+    outcome = runner()
+    return finalize_full_outcome(project_root=project_root, outcome=outcome,
+        registry_path=registry_path, policy_by_kind=policy_by_kind)
