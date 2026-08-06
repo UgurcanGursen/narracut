@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 evidence attachment contract audit
+
+- Passed the bounded Phase 4/14/Domain Pack evidence-attachment contract audit;
+  implementation authorization remains separate.
+
 ## 2026-08-06 - Phase 15 Master-gap reconciliation
 
 - Mapped all remaining validation/observability acceptance rows to existing
