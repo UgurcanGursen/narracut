@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source outcome implementation authorization
+
+- Authorized only local Phase 6 outcome validation and ledger attachment.
+
 ## 2026-08-06 - Phase 15 source outcome contract targeted re-audit
 
 - Closed typed source-policy binding and closed outcome-token findings;
