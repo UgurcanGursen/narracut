@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Plan the bounded Phase 14 artifact lifecycle, cache, storage/GC and performance
-architecture package using
-`baseline/phase13_master_closure_reconciliation_report.md`. First produce a
-read-only scope/ownership decision; do not implement lifecycle, FULL render,
-provider transport or generic queue/retry work until that decision is accepted.
+Draft and independently accept the bounded Phase 14 durable artifact-registry
+and non-destructive lifecycle-planning contract selected by
+`baseline/phase14_scope_ownership_decision.md`. Do not implement lifecycle,
+FULL render, provider transport or generic queue/retry work until that contract
+is accepted.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 lifecycle scope decision
+
+- Selected the durable artifact-registry and non-destructive lifecycle-planning
+  contract as the first bounded Phase 14 package; no destructive operation or
+  cache/queue implementation was introduced.
+
 ## 2026-08-06 - Phase 13 Master-closure reconciliation
 
 - Confirmed that the actual two-sequence REPLAY preview repair closes its

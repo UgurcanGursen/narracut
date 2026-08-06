@@ -5,6 +5,13 @@ Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 C
 Aktif branch: `main`
 Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_freesound_20260724_224147304`
 
+## Phase 14 planning started
+
+- The read-only scope/ownership decision at
+  `baseline/phase14_scope_ownership_decision.md` selects a durable artifact
+  registry and non-destructive lifecycle-planning contract first. No cleanup,
+  cache, quota, queue or FULL-render implementation is authorized yet.
+
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 
 - The repository-wide Roadmap Scope Reconciliation is accepted at

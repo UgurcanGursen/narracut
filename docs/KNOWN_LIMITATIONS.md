@@ -40,6 +40,12 @@ Son guncelleme: 6 Agustos 2026
   Phase 14 owns the required lifecycle handoff and preview performance/SLO
   measurement.
 
+## Faz 14 planning limitation
+
+- Phase 14 has begun with a scope decision only. There is no durable registry,
+  deletion/trash/restore operation, cache, quota or performance claim until a
+  separately accepted lifecycle contract authorizes implementation.
+
 ## Faz 12 status note
 
 - Phase 12 is CLOSED only as a local executable-editorial-plan and Phase 3
