@@ -72,6 +72,11 @@
         "name": "final_narration_safety",
         "version": "0.1.0",
         "description": "Final narration requires domain-bound claim status and wording validation."
+      },
+      {
+        "name": "audio_boundary_quality",
+        "version": "0.1.0",
+        "description": "Audio boundary mitigation risk requires an observable quality gate."
       }
     ]
   },

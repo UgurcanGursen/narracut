@@ -177,6 +177,14 @@
       "source_speech_allowed_modes": ["clean_speech", "speech_with_ambience"],
       "source_speech_min_duration_ms": 2000,
       "source_speech_max_duration_ms": 6000
+    },
+    "audio_boundary_validation_policy": {
+      "policy_version": "AUDIO-BOUNDARY-VALIDATION-POLICY-V1",
+      "required_validation_rule": "audio_boundary_quality",
+      "max_trim_samples": 240,
+      "max_microfade_samples": 240,
+      "max_long_editorial_fade_samples": 24000,
+      "max_microfade_boundary_count": 5
     }
   },
   "editorial": {
