@@ -13,6 +13,7 @@ from engine.contracts.edl import serialize_video_edl
 from tests.test_render_bridge import FIXTURE_ROOT, ROOT, build_phase4a_rich_replay_inputs
 from engine.lifecycle import load_registry
 from engine.performance import benchmark_hash_preserving
+from engine.storage_manager import StoragePressurePolicy
 
 
 def _run(payload=b"manifest"):
@@ -44,6 +45,15 @@ def test_adapter_blocks_before_invoking_renderer_at_hard_quota(tmp_path):
         run_phase4_preview_cached(cache_root=tmp_path / "cache", managed_storage_root=tmp_path,
             registry_path=tmp_path / "r.jsonl", profile="preview", inputs={"x": 2}, estimated_bytes=1,
             hard_limit_bytes=2, lifecycle_timestamp_utc="2026-08-06T00:00:00Z", runner=lambda: _run())
+
+
+def test_adapter_blocks_before_renderer_when_trusted_pressure_policy_rejects(tmp_path):
+    with pytest.raises(ValueError, match="MIN_FREE_DISK"):
+        run_phase4_preview_cached(cache_root=tmp_path / "cache", managed_storage_root=tmp_path,
+            registry_path=tmp_path / "r.jsonl", profile="preview", inputs={"x": 3}, estimated_bytes=1,
+            hard_limit_bytes=100, lifecycle_timestamp_utc="2026-08-06T00:00:00Z",
+            pressure_policy=StoragePressurePolicy("scope", 100, 10**30),
+            runner=lambda: pytest.fail("renderer must not run"))
 
 
 def test_adapter_wraps_one_real_phase4_preview_and_reuses_its_manifest(tmp_path):

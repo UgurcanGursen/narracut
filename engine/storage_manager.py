@@ -75,3 +75,15 @@ def register_committed_full_artifacts(*, project_root: Path, transaction_id: str
             raise ValueError("FULL_LIFECYCLE_POLICY_INVALID")
         records.append(ArtifactRegistryRecord.materialize({"artifact_id": row["artifact_id"], "project_id": row["project_id"], "content_hash": row["content_sha256"], "size_bytes": row["byte_length"], "retention_class": rule.get("retention_class"), "dependency_ids": (), "locked": rule.get("locked"), "pinned": rule.get("pinned"), "approved": rule.get("approved"), "producer": row["producer"], "producer_version": rule.get("producer_version")}))
     append_registry_records(registry_path=registry_path, records=tuple(records))
+
+
+def finalize_full_lifecycle(*, project_root: Path, terminal_receipt: Mapping[str, object],
+                            registry_path: Path,
+                            policy_by_kind: Mapping[str, Mapping[str, object]]) -> None:
+    """Explicit terminal seam: committed receipt -> durable Phase 14 registry."""
+    transaction_id = terminal_receipt.get("transaction_id")
+    if type(transaction_id) is not str or not transaction_id:
+        raise ValueError("FULL_LIFECYCLE_TRANSACTION_INVALID")
+    register_committed_full_artifacts(project_root=project_root,
+        transaction_id=transaction_id, registry_path=registry_path,
+        policy_by_kind=policy_by_kind)

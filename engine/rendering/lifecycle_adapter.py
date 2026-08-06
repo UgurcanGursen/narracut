@@ -16,6 +16,7 @@ from engine.lifecycle import (
     import_verified_artifact_rows,
 )
 from engine.cache_lifecycle import cache_write_lifecycle_metadata, load_cache_write_lifecycle_metadata
+from engine.storage_manager import StoragePressurePolicy, storage_pressure_admission
 
 from .preview_runner import PreviewRun
 from .receipt import RenderStatus
@@ -41,6 +42,7 @@ def run_phase4_preview_cached(
     estimated_bytes: int,
     hard_limit_bytes: int,
     lifecycle_timestamp_utc: str,
+    pressure_policy: StoragePressurePolicy | None = None,
     runner: Callable[[], PreviewRun],
 ) -> CachedPreviewOutcome:
     """Admit one preview, or return an integrity-checked exact cache hit.
@@ -65,12 +67,14 @@ def run_phase4_preview_cached(
             preview_manifest_bytes=hit.payload,
             output_sha256=hit.payload_hash,
         )
-    if render_admission(
+    admission = (storage_pressure_admission(managed_root=managed_storage_root,
+        policy=pressure_policy, estimated_bytes=estimated_bytes)
+        if pressure_policy is not None else render_admission(
         used_bytes=storage_usage(managed_storage_root)["bytes"],
         estimated_bytes=estimated_bytes,
-        hard_limit_bytes=hard_limit_bytes,
-    ) != "ADMITTED":
-        raise ValueError("RENDER_BLOCKED_HARD_QUOTA")
+        hard_limit_bytes=hard_limit_bytes))
+    if admission != "ADMITTED":
+        raise ValueError("RENDER_" + admission)
 
     rendered = runner()
     if type(rendered) is not PreviewRun:
