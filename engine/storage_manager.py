@@ -87,3 +87,15 @@ def finalize_full_lifecycle(*, project_root: Path, terminal_receipt: Mapping[str
     register_committed_full_artifacts(project_root=project_root,
         transaction_id=transaction_id, registry_path=registry_path,
         policy_by_kind=policy_by_kind)
+
+
+def finalize_full_outcome(*, project_root: Path, outcome: object,
+                          registry_path: Path,
+                          policy_by_kind: Mapping[str, Mapping[str, object]]) -> object:
+    """Phase 14 production terminal boundary; no registry import, no success."""
+    receipt = getattr(outcome, "receipt", None)
+    if type(receipt) is not dict:
+        raise ValueError("FULL_LIFECYCLE_TERMINAL_RECEIPT_REQUIRED")
+    finalize_full_lifecycle(project_root=project_root, terminal_receipt=receipt,
+        registry_path=registry_path, policy_by_kind=policy_by_kind)
+    return outcome
