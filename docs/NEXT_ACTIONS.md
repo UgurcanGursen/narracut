@@ -11,10 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Implement the authorized local Phase 15 source-outcome validator and focused
-tests. It may consume only Phase 6 REPLAY/MANUAL_UI plan and policy evidence;
-do not enable live transport, retry, queue/worker, media validation, Studio/UI,
-Phase 16 or Phase 17 behavior.
+Independently audit the Phase 15 source-outcome validator against its accepted
+contract and focused test evidence. Do not repair it or enable live transport,
+retry, queue/worker, media validation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.

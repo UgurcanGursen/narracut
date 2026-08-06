@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-08-06 - Phase 15 source outcome implementation
+
+- Added local Phase 6 capture-plan outcome validation; challenge and unsupported
+  modes cannot produce a passing quality decision.
+
 ## 2026-08-06 - Phase 15 source outcome implementation authorization
 
 - Authorized only local Phase 6 outcome validation and ledger attachment.

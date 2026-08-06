@@ -24,6 +24,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `engine/validation/evidence_attachment.py`. It has real local Phase 4
   preview, Phase 14 registry and Domain Pack snapshot evidence; bounded
   acceptance is at `baseline/phase15_evidence_attachment_bounded_acceptance.md`.
+- Source outcome validation is now at `engine/validation/source_outcome.py`.
+  It consumes Phase 6 plans/policy only and makes challenge or unsupported
+  modes non-passing; implementation acceptance remains open.
 - Live transport, provider calls, retry execution, queue/worker, browser
   automation, Studio routes, Phase 16 benchmarking and Phase 17 packaging are
   not authorized by this package.
