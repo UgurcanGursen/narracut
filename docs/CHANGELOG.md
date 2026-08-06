@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache eviction contract audit
+
+- Returned `FIX_REQUIRED` with three MAJOR design gaps: cache reference versus
+  physical payload lifecycle, trusted path-free object resolution and
+  reproducible TTL/access eligibility.
+- No implementation authority was granted; the next bounded task is contract
+  repair followed by targeted re-audit.
+
 ## 2026-08-06 - Phase 14 cache eviction and soft-quota candidate contract
 
 - Defined the required registry/cache bridge, deterministic retention ordering,

@@ -25,7 +25,9 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   `baseline/phase14_cache_eviction_soft_quota_scope_reconciliation.md` records
   the missing registry metadata and cache-reference invariants. Its candidate
   contract is `docs/specifications/phase14_cache_eviction_soft_quota_contract.md`;
-  the sole next task is an independent audit, not eviction implementation.
+  its independent audit is `FIX_REQUIRED` for cache-reference/payload,
+  trusted-resolver and reproducible-TTL gaps. The sole next task is a bounded
+  contract repair, not eviction implementation.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 
