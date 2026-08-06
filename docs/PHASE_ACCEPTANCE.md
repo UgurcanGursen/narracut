@@ -13,6 +13,16 @@
 
 Evidence: `baseline/phase14_cache_lifecycle_implementation_acceptance.md`.
 
+## Phase 14 cache-plan execution bounded acceptance â€” 2026-08-06
+
+| Gate | Result |
+|---|---|
+| Per-payload retirement validation and transaction receipt | PASS |
+| Rollback, restore and effective-state replay | PASS |
+| Final Phase 14 Master acceptance reconciliation | OPEN |
+
+Evidence: `baseline/phase14_cache_plan_execution_acceptance.md`.
+
 ## Phase 14 renderer lifecycle adapter â€” 2026-08-06
 
 | Gate | Result |

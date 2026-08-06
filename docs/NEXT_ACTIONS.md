@@ -11,11 +11,11 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Make an independent bounded acceptance decision for cache-plan execution using
-`baseline/phase14_cache_plan_execution_targeted_implementation_reaudit.md`.
-Do not implement permanent deletion, automatic worker/scheduler behavior,
-provider transport, generic queue/retry, Studio FULL-render route or Phase 15
-validation behavior.
+Perform a read-only, requirement-by-requirement Phase 14 Master acceptance
+reconciliation across artifact registry, cache/incremental render, storage/GC,
+quota and performance evidence. Do not implement permanent deletion, automatic
+worker/scheduler behavior, provider transport, generic queue/retry, Studio
+FULL-render route or Phase 15 validation behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
