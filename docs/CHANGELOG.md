@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-08-06 - Phase 14 cache eviction and soft-quota scope reconciliation
+
+- Identified the registry metadata, cache-reference, storage-scope and policy
+  gaps that make eviction unsafe today.
+- Advanced only to a bounded contract-design task; no eviction, permanent
+  deletion or soft-quota cleanup implementation is authorized.
+
 ## 2026-08-06 - Phase 14 renderer lifecycle adapter implementation
 
 - Added a bounded Phase 4 REPLAY preview lifecycle adapter with integrity

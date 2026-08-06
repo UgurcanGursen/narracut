@@ -21,6 +21,10 @@ Authoritative repository: `C:\Users\user\Documents\Kurgu_V3_Clean_sanitized_free
   deduplication measurement and a fixed REPLAY hash-preserving performance
   benchmark remain open. There is no provider, generic queue/retry, Studio
   FULL-render route or permanent delete implementation.
+- The accepted cache-eviction/soft-quota scope reconciliation at
+  `baseline/phase14_cache_eviction_soft_quota_scope_reconciliation.md` records
+  the missing registry metadata and cache-reference invariants. The sole next
+  task is its bounded contract design, not eviction implementation.
 
 ## Latest authoritative state - Phase 13 Studio foundation accepted
 
