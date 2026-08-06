@@ -1,3 +1,5 @@
+import pytest
+
 from engine.acquisition.source_engine import (
     AccessStatus, AccessibleHtmlAdapter, AcquisitionAdapterId, DOMRegion,
     ReplaySourcePackage, SourceAdapterRegistry, SourcePriorityPolicy, SourceType,
@@ -27,3 +29,11 @@ def test_replay_success_and_challenge_are_truthful():
 def test_unsupported_mode_never_passes():
     rows = validate_source_outcome(run_id="run_source", timestamp_utc="2026-08-06T00:00:00Z", plan=_plan(AccessStatus.ACCESSIBLE), policy=POLICY, expected_policy_snapshot_id="dps_phase15", expected_policy_snapshot_hash=HASH, execution_mode="API")
     assert evaluate_quality_gate(source=serialize_jsonl(rows), required_checks={"source_outcome": HASH}).decision == "NOT_READY"
+
+
+def test_manual_ui_and_policy_are_trust_bound():
+    with pytest.raises(ValueError, match="MODE_EVIDENCE_MISMATCH"):
+        validate_source_outcome(run_id="run_source", timestamp_utc="2026-08-06T00:00:00Z", plan=_plan(AccessStatus.ACCESSIBLE), policy=POLICY, expected_policy_snapshot_id="dps_phase15", expected_policy_snapshot_hash=HASH, execution_mode="MANUAL_UI")
+    forged = SourcePriorityPolicy("SOURCE-PRIORITY-POLICY-V1", (SourceType.OFFICIAL_REPORT, SourceType.OFFICIAL_REPORT), (), "dps_phase15", HASH)
+    with pytest.raises(ValueError, match="POLICY_MISMATCH"):
+        validate_source_outcome(run_id="run_source", timestamp_utc="2026-08-06T00:00:00Z", plan=_plan(AccessStatus.ACCESSIBLE), policy=forged, expected_policy_snapshot_id="dps_phase15", expected_policy_snapshot_hash=HASH, execution_mode="REPLAY")

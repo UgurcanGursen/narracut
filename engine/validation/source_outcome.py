@@ -2,13 +2,26 @@
 from __future__ import annotations
 
 from engine.acquisition.source_engine import (
-    ACCESS_STATUS_FALLBACKS, AccessStatus, FallbackMode, SourceCapturePlan,
-    SourcePriorityPolicy, _validate_capture_plan,
+    ACCESS_STATUS_FALLBACKS, AccessStatus, AcquisitionAdapterId, FallbackMode,
+    SOURCE_PRIORITY_POLICY_V1, SourceCapturePlan, SourcePriorityPolicy,
+    SourceType, _validate_capture_plan,
 )
 from engine.validation.run_evidence import EvidenceReference, RunObservation, build_observation
 
 
 def _fail(code: str) -> None: raise ValueError(code)
+
+
+def _valid_policy(policy: object, snapshot_id: str, snapshot_hash: str) -> bool:
+    return (type(policy) is SourcePriorityPolicy
+        and policy.policy_version == SOURCE_PRIORITY_POLICY_V1
+        and (policy.policy_snapshot_id, policy.policy_snapshot_hash) == (snapshot_id, snapshot_hash)
+        and type(policy.ranked_source_types) is tuple and type(policy.mandatory_primary_source_types) is tuple
+        and bool(policy.ranked_source_types)
+        and all(type(value) is SourceType for value in (*policy.ranked_source_types, *policy.mandatory_primary_source_types))
+        and len(set(policy.ranked_source_types)) == len(policy.ranked_source_types)
+        and len(set(policy.mandatory_primary_source_types)) == len(policy.mandatory_primary_source_types)
+        and set(policy.mandatory_primary_source_types).issubset(set(policy.ranked_source_types)))
 
 
 def source_capture_reference(*, run_id: str, plan: SourceCapturePlan) -> EvidenceReference:
@@ -25,7 +38,7 @@ def validate_source_outcome(*, run_id: str, timestamp_utc: str, plan: SourceCapt
         _fail("SOURCE_OUTCOME_REQUEST_INVALID")
     try: plan = _validate_capture_plan(plan)
     except Exception as exc: raise ValueError("SOURCE_OUTCOME_PLAN_INVALID") from exc
-    if (type(policy) is not SourcePriorityPolicy or (policy.policy_snapshot_id, policy.policy_snapshot_hash) != (expected_policy_snapshot_id, expected_policy_snapshot_hash)):
+    if not _valid_policy(policy, expected_policy_snapshot_id, expected_policy_snapshot_hash):
         _fail("SOURCE_OUTCOME_POLICY_MISMATCH")
     if ACCESS_STATUS_FALLBACKS.get(plan.access_status) is not plan.fallback_mode:
         _fail("SOURCE_OUTCOME_FALLBACK_INVALID")
@@ -39,6 +52,8 @@ def validate_source_outcome(*, run_id: str, timestamp_utc: str, plan: SourceCapt
         transport = build_observation(run_id=run_id, ordinal=first_ordinal, timestamp_utc=timestamp_utc, category="transport", event="mode_declared", status="UNSUPPORTED", producer="phase15", evidence_references=())
         check = build_observation(run_id=run_id, ordinal=first_ordinal + 1, timestamp_utc=timestamp_utc, category="quality_gate", event="check_evaluated", status="UNSUPPORTED", producer="phase15", evidence_references=(ref,), check_id="source_outcome", policy_hash=policy.policy_snapshot_hash, public_code="SOURCE_OUTCOME_MODE_UNSUPPORTED")
         return transport, check
+    if execution_mode == "MANUAL_UI" and plan.acquisition_adapter is not AcquisitionAdapterId.MANUAL_CAPTURE:
+        _fail("SOURCE_OUTCOME_MODE_EVIDENCE_MISMATCH")
     if blocked:
         status, code = "NOT_READY", "MANUAL_CAPTURE_REQUIRED"
     elif plan.access_status is AccessStatus.UNAVAILABLE:
