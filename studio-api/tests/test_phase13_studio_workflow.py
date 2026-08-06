@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -261,7 +262,7 @@ def test_canonical_two_sequence_snapshots_are_verified_before_sqlite_persistence
     client = TestClient(create_app(runtime))
     project_id = _project(client)
     task = client.post(f"/api/v1/projects/{project_id}/tasks", json={"family": "research", "task_type": "source_discovery", "backend_mode": "replay", "topic": "AI chips"}).json()
-    inputs = [build_phase4a_rich_replay_inputs(sequence_id="eseq_replay_a"), build_phase4a_rich_replay_inputs(sequence_id="eseq_replay_b")]
+    inputs = [build_phase4a_rich_replay_inputs(sequence_id="eseq_replaya"), build_phase4a_rich_replay_inputs(sequence_id="eseq_replayb")]
     bound = _canonical_bound_snapshot(project_id, task["policy_snapshot_id"], task["policy_snapshot_hash"], inputs)
     assert client.post(f"/api/v1/projects/{project_id}/review-snapshots", json=bound).status_code == 201
     factory = CanonicalReplayInputFactory()
@@ -276,6 +277,25 @@ def test_canonical_two_sequence_snapshots_are_verified_before_sqlite_persistence
     for record in records:
         loaded = reopened.project_repository.get_render_input(project_id, record.executable_sequence_id)
         assert loaded == record
+
+    # This is deliberately an API-level execution of both independently bound
+    # Phase 4 REPLAY sequences.  Do not substitute a fake PreviewExecutionPort:
+    # the asserted delivery bytes must come from the checked-in Remotion runner.
+    for record in records:
+        created = client.post(
+            f"/api/v1/projects/{project_id}/sequences/{record.executable_sequence_id}/preview-renders"
+        )
+        assert created.status_code == 201, created.text
+        job = created.json()
+        assert job["state"] == "succeeded"
+        events = client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/events")
+        assert [event["state"] for event in events.json()["items"]] == ["requested", "admitted", "running", "succeeded"]
+        manifest = json.loads(client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/manifest").content)
+        frame_indices = [item["frame_index"] for item in manifest["frames"]]
+        assert len(frame_indices) == 5
+        assert frame_indices == sorted(set(frame_indices))
+        for frame_index in frame_indices:
+            assert client.get(f"/api/v1/projects/{project_id}/preview-renders/{job['job_id']}/frames/{frame_index}").content.startswith(b"\x89PNG")
 
 
 def test_preview_api_persists_ordered_safe_events_and_declared_delivery_only(tmp_path: Path) -> None:
