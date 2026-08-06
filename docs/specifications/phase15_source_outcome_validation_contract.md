@@ -33,7 +33,8 @@ fallback matrix; it cannot reinterpret a challenge page as source success.
 The closed public errors are `SOURCE_OUTCOME_REQUEST_INVALID`,
 `SOURCE_OUTCOME_PLAN_INVALID`, `SOURCE_OUTCOME_POLICY_MISMATCH`,
 `SOURCE_OUTCOME_FALLBACK_INVALID`, `SOURCE_OUTCOME_SNAPSHOT_MISSING`,
-`SOURCE_OUTCOME_CHALLENGE_FORBIDDEN` and `SOURCE_OUTCOME_MODE_UNSUPPORTED`.
+`SOURCE_OUTCOME_CHALLENGE_FORBIDDEN`, `SOURCE_OUTCOME_MODE_UNSUPPORTED` and
+`SOURCE_OUTCOME_MODE_EVIDENCE_MISMATCH`.
 Their observation references carry only the plan ID/hash, policy snapshot
 ID/hash and safe status/fallback tokens; no URL or source text is recorded.
 

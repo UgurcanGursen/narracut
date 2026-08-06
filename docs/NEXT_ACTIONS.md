@@ -11,10 +11,9 @@ are not the default workflow.
 
 ## NEXT AUTHORITATIVE TASK
 
-Repair P15-SOI-001 and P15-SOI-002 from
-`baseline/phase15_source_outcome_implementation_audit.md`, then perform a
-targeted re-audit. Do not enable live transport, retry, queue/worker, media
-validation, Studio/UI, Phase 16 or Phase 17 behavior.
+Make a bounded acceptance decision for the repaired Phase 15 source-outcome
+validator. Do not close Phase 15 Master Roadmap or enable live transport,
+retry, queue/worker, media validation, Studio/UI, Phase 16 or Phase 17 behavior.
 
 All instructions below this section are historical evidence only and are not
 active work authorization.
