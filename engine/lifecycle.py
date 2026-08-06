@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
@@ -78,6 +79,21 @@ def validate_deletion_plan(*, plan: Mapping[str, Any], records: tuple[ArtifactRe
     plan_id, plan_hash = _identity("ldp_", body)
     if plan.get("plan_id") != plan_id or plan.get("plan_hash") != plan_hash: raise ValueError("LIFECYCLE_PLAN_IDENTITY_INVALID")
     if plan.get("policy_hash") != policy_hash or plan.get("registry_snapshot_hash") != registry_snapshot(records): raise ValueError("LIFECYCLE_PLAN_STALE")
+
+
+def execute_trash_plan(*, managed_root: Path, plan: Mapping[str, Any], records: tuple[ArtifactRegistryRecord, ...], policy_hash: str) -> dict[str, Any]:
+    validate_deletion_plan(plan=plan, records=records, policy_hash=policy_hash)
+    root = managed_root.resolve(strict=True); moved = []
+    for candidate in plan["candidates"]:
+        source = (root / candidate["artifact_id"]).resolve(strict=True)
+        if root not in source.parents or not source.is_file(): raise ValueError("LIFECYCLE_TRASH_SOURCE_INVALID")
+        target = root / ".trash" / plan["plan_id"] / candidate["artifact_id"]
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists(): raise ValueError("LIFECYCLE_TRASH_COLLISION")
+        os.replace(source, target); moved.append({"artifact_id": candidate["artifact_id"], "trash_token": candidate["trash_token"]})
+    body = {"schema_version":"LIFECYCLE-TRASH-RECEIPT-V1","plan_hash":plan["plan_hash"],"moved":moved}
+    receipt_id, receipt_hash = _identity("ltr_", body)
+    return {"receipt_id":receipt_id,"receipt_hash":receipt_hash,**body}
 
 
 def append_registry_record(*, registry_path: Path, record: ArtifactRegistryRecord) -> None:
