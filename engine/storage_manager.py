@@ -45,6 +45,15 @@ class StorageQuotaManager:
         return storage_report(payloads=payloads, entries=entries)
     def plan(self, *, policy: RetentionPolicySnapshot, payloads: tuple[CachePayloadObject, ...], entries: tuple[CacheEntryRecord, ...], retained_artifact_ids: frozenset[str]) -> dict[str, Any]:
         return plan_soft_quota(payloads=payloads, entries=entries, policy=policy, retained_artifact_ids=retained_artifact_ids)
+    def assess_render_admission(self, *, managed_root: Path, pressure_policy: StoragePressurePolicy,
+                                estimated_bytes: int, policy: RetentionPolicySnapshot,
+                                payloads: tuple[CachePayloadObject, ...], entries: tuple[CacheEntryRecord, ...], retained_artifact_ids: frozenset[str]) -> dict[str, Any]:
+        admission = storage_pressure_admission(managed_root=managed_root, policy=pressure_policy, estimated_bytes=estimated_bytes)
+        if admission != "ADMITTED": return {"status": admission}
+        report = storage_report(payloads=payloads, entries=entries)
+        if report["physical_bytes"] > policy.soft_limit_bytes:
+            return {"status": "SOFT_QUOTA_PLAN_REQUIRED", "plan": self.plan(policy=policy, payloads=payloads, entries=entries, retained_artifact_ids=retained_artifact_ids)}
+        return {"status": "ADMITTED"}
     def execute(self, *, managed_root: Path, plan: Mapping[str, Any], payloads: tuple[CachePayloadObject, ...], entries: tuple[CacheEntryRecord, ...], policy: RetentionPolicySnapshot, timestamp_utc: str) -> dict[str, Any]:
         return execute_cache_plan(managed_root=managed_root, plan=plan, payloads=payloads, entries=entries, policy=policy, timestamp_utc=timestamp_utc)
 
