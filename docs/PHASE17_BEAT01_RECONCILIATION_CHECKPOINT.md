@@ -55,3 +55,38 @@ playback or new engine test pass is claimed by this documentation checkpoint.
 | QUALITY_BENCHMARKS | No creative PASS or threshold change |
 | ARCHITECTURE_DECISIONS | No architecture change |
 | MASTER_ROADMAP | Unchanged; Phase 17 open |
+
+## Repair scope decision — 2026-09-04
+
+The scoped documentation checkpoint was pushed as commit `403edc4` on
+`codex/phase17-source-renderer-docsync-20260904`; remote hash was verified.
+No main push, merge, unrelated code publication or working-tree cleanup occurred.
+
+Inspection found that Studio create_repair only accepts failed-validation tasks;
+the narration replacement path is specifically for audio-fit failure before
+canonical timing. Neither is an existing supported post-approval semantic
+sequence repair. No statuses, prior approvals or source evidence were forged.
+
+A source-qualified narration candidate is:
+
+> In constrained locations, DOE describes roughly 350 days of available capacity,
+> with solutions needed for the remaining fifteen.
+
+This draft is 18 lexical words under the current contract: at its upper 210 WPM
+limit, at least 5,142.86 ms versus the accepted beat's 3,000 ms. This is a
+feasibility calculation, not synthesized-audio measurement, and it is not a
+claim that every possible qualified paraphrase has the same length.
+
+The proposed bounded scope change is to replan the existing 11,000 ms first
+chapter, preserving the project's 39,000 ms total and other chapters. It needs
+versioned parent/child replacement and new exact-audio timing review, not
+overwriting the user's previous approval. User direction is needed before this
+duration/hierarchy change. No engine implementation or render was performed.
+
+Checks: remote branch identity and clean isolated doc worktree verified;
+PowerShell lexical-duration calculation completed. An initial calculation
+attempt used an unavailable worktree-local Python path; it made no changes.
+
+DOCUMENTATION_IMPACT_MATRIX: current/next/changelog updated with this scope
+decision; limitations/acceptance distinguish valid old timing from pending
+semantic repair. Quality benchmarks, architecture and master roadmap unchanged.
