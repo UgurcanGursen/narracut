@@ -1,5 +1,11 @@
 # Known Limitations
 
+Latest 2026-09-04 checkpoint: first chapter V2 proposals prepared at
+3,000/4,500/3,500 ms; six package checks pass, total remains 39 seconds.
+Not activated in Studio; no audio/render or creative acceptance. Next single
+step: `PHASE17_BUSINESS_TECH_V032_CHAPTER_REVISION_ACTIVATION`.
+Evidence/impact matrix: `docs/PHASE17_CHAPTER01_REVISION_PROPOSAL.md`.
+
 ## Phase 17 scoped workspace evidence — 2026-09-04
 
 This branch synchronizes only the beat-01 source/renderer reconciliation
