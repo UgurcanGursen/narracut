@@ -1,5 +1,14 @@
 # Current State
 
+## Phase 17 scoped workspace evidence — 2026-09-04
+
+This branch synchronizes only the beat-01 source/renderer reconciliation
+checkpoint. It does not publish the authoritative workspace's 22 local code
+commits or its unrelated dirty files. Older entries below remain historical.
+Current checkpoint and documentation impact matrix:
+`docs/PHASE17_BEAT01_RECONCILIATION_CHECKPOINT.md`.
+
+
 Son guncelleme: 6 Agustos 2026
 Aktif faz: **Faz 0 CLOSED / Faz 1 CLOSED / Faz 2 CLOSED / Faz 3 CLOSED / Faz 4 CLOSED / Faz 5 CLOSED / Faz 6 CLOSED / Faz 7 CLOSED / Faz 8 CLOSED / Faz 9 CLOSED / Faz 10 CLOSED / Faz 11 CLOSED / Faz 12 CLOSED / Faz 13 FOUNDATION_ACCEPTED (MASTER OPEN) / Faz 14 MASTER_PHASE_CLOSED / Faz 15 MASTER_PHASE_CLOSED / Faz 16 FOUNDATION_ACCEPTED (EXTERNAL EVIDENCE IN PHASE 17) / Faz 17 SCOPE_RECONCILIATION**
 Aktif branch: `main`

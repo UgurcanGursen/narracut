@@ -1,5 +1,14 @@
 # Known Limitations
 
+## Phase 17 scoped workspace evidence — 2026-09-04
+
+This branch synchronizes only the beat-01 source/renderer reconciliation
+checkpoint. It does not publish the authoritative workspace's 22 local code
+commits or its unrelated dirty files. Older entries below remain historical.
+Current checkpoint and documentation impact matrix:
+`docs/PHASE17_BEAT01_RECONCILIATION_CHECKPOINT.md`.
+
+
 Son guncelleme: 6 Agustos 2026
 
 ## Roadmap reconciliation status note
