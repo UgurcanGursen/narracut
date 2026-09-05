@@ -1,5 +1,20 @@
 # Current State
 
+## Latest checkpoint — 2026-09-05
+
+LOCAL_IMPLEMENTATION_AND_LIVE_ACTIVATION_VERIFIED. The Studio chapter editor
+now persists proposals, shows before/after review and atomically activates a
+new chapter/beat version. Real first chapter is V2 at 3/4.5/3.5 seconds;
+the other chapters and 39-second total are unchanged. Existing planner rows
+remain byte-identical; stale task and compiled-render ancestry is rejected.
+No new audio, timing or finished video was created. Phase 17 remains open.
+48 relevant Python and 106 UI tests passed, plus build/client checks and
+fresh-runtime live verification. This scoped documentation commit does not
+publish the authoritative workspace's accumulated implementation changes.
+Acceptance and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_chapter_revision_studio_acceptance_20260905.md`.
+
+## Previous checkpoints (historical)
+
 Latest 2026-09-04 checkpoint: first chapter V2 proposals prepared at
 3,000/4,500/3,500 ms; six package checks pass, total remains 39 seconds.
 Not activated in Studio; no audio/render or creative acceptance. Next single

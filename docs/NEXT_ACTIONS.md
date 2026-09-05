@@ -1,5 +1,32 @@
 # Next Actions
 
+## Latest checkpoint — 2026-09-05
+
+LOCAL_IMPLEMENTATION_AND_LIVE_ACTIVATION_VERIFIED. The Studio chapter editor
+now persists proposals, shows before/after review and atomically activates a
+new chapter/beat version. Real first chapter is V2 at 3/4.5/3.5 seconds;
+the other chapters and 39-second total are unchanged. Existing planner rows
+remain byte-identical; stale task and compiled-render ancestry is rejected.
+No new audio, timing or finished video was created. Phase 17 remains open.
+48 relevant Python and 106 UI tests passed, plus build/client checks and
+fresh-runtime live verification. This scoped documentation commit does not
+publish the authoritative workspace's accumulated implementation changes.
+Acceptance and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_chapter_revision_studio_acceptance_20260905.md`.
+
+## NEXT AUTHORITATIVE TASK
+
+`PHASE17_BUSINESS_TECH_V032_V2_OPENING_VISUAL_PROOF` is the single authoritative
+next task: build and review an 11-second source-qualified visual/audio preview
+from active chapter `chap_e8aa8b74e3b3b9e46fd8`. New planning must use its active
+beat IDs. Previous audio timing approval cannot transfer to changed audio.
+This remains part of the genuine 30–45 second Studio proof program.
+
+Documentation reconciliation is separately verified and published on this
+bounded branch. It does not merge or publish the accumulated implementation.
+
+## Previous next-task context — historical, not an execution queue
+
+
 Latest 2026-09-04 checkpoint: first chapter V2 proposals prepared at
 3,000/4,500/3,500 ms; six package checks pass, total remains 39 seconds.
 Not activated in Studio; no audio/render or creative acceptance. Next single
@@ -24,7 +51,7 @@ The active package uses one grouped implementation repair and one final
 independent audit; repeated micro-audit loops and repeated full render gates
 are not the default workflow.
 
-## NEXT AUTHORITATIVE TASK
+## Previous next-task record (historical)
 
 Implement a bounded P17 local non-REPLAY timing-adapter contract and its
 fail-closed integration for the two selected real projects. Preserve existing
