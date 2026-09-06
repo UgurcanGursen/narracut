@@ -1,5 +1,30 @@
 # Phase Acceptance
 
+## Latest checkpoint — 2026-09-06, joint narration/visual treatment
+
+The owner rejected the 39-second cut's creative quality and narration/visual
+relevance. Mechanical timing/playback PASS does not mean creative acceptance.
+The earlier video remains an unaccepted editorial draft.
+
+The actual business-tech 0.3.2 project now has a persistent Studio joint planning
+workbench: six scenes, ten current beats, 21 word-cued visual events, estimated
+83–109 seconds. The agent authored this plan; MANUAL_UI task download/import is
+available for the owner's external AI tools. No commercial API calls.
+Latest treatment: `etreat_33231dd0a14a464bbd02eb20`.
+UI: `http://127.0.0.1:5173/#editorial-treatment`.
+
+Evidence/parent checks, cue ordering, cross-scene object state continuity,
+immutable revisions, stale/concurrent edit rejection and actual UI save/reopen
+pass. Twenty backend tests, targeted UI tests, production build and client/boundary
+checks pass. This is PREPRODUCTION_DRAFT only: no new audio/video, measured timing,
+canonical activation or creative approval. The old canonical 39-second allocation
+remains; migration and treatment-to-Director/renderer execution are still required.
+Phase 17 SCOPE_RECONCILIATION stays OPEN.
+
+Acceptance, file inventory and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_joint_editorial_treatment_acceptance_20260906.md`.
+
+## Previous checkpoints (historical)
+
 ## Latest checkpoint — 2026-09-06, full editorial cut
 
 The user-authorized full first cut is rendered: 39 seconds, 1920×1080,
