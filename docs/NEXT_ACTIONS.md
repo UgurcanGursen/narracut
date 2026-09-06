@@ -1,5 +1,35 @@
 # Next Actions
 
+## Latest checkpoint — 2026-09-06, full editorial cut
+
+The user-authorized full first cut is rendered: 39 seconds, 1920×1080,
+30 fps / 1170 frames, 3 current chapters, 10 beats and 16 selected shots.
+It combines real illustrative footage, short source inserts, explanatory
+graphics, measured local narration, captions and an original quiet sound bed.
+Audio: −16.11 LUFS, −1.38 dBTP; all ten decoded voice placements have 0 ms
+measured start error. Full decode and 39-second browser playback pass.
+Shot seeking and local revision-note save/retrieval pass; QA notes were cleared.
+Final: `output/phase17-full-review-20260906/full-39s-editorial-review.mp4`.
+SHA-256: `2d34e8582b1f7d92ca1a82cf0ba5c86f1f3cf7f7136fbc82ec8c15471acc5fbf`.
+Review: `http://127.0.0.1:5173/reviews/full-39s/2d34e8582b1f/index.html`.
+This supersedes the earlier “remaining 28 seconds unrendered” limitation.
+Status is EDITORIAL_REVIEW_DRAFT. Shot selection/cuts were agent-directed;
+automatic production, canonical publication and human listening/timing approval
+are still absent. Review notes do not trigger regeneration. Some facility
+footage is limited by its 480p original. No commercial API calls. Phase 17 open.
+Acceptance and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_full_editorial_review_acceptance_20260906.md`.
+
+## NEXT AUTHORITATIVE TASK
+
+`PHASE17_FULL_CUT_CREATIVE_REVIEW_AND_ONE_REVISION` is the single authoritative
+next task. Review the delivered whole cut, collect the user's actual viewing
+and listening response, then apply one bounded revision to named shots.
+Do not infer human approval from successful playback or automatic timing.
+The next implementation follows the separate documentation synchronization
+gate; remote evidence is `output/phase17-full-review-20260906/documentation-sync.json`.
+
+## Previous checkpoints (historical)
+
 ## Latest checkpoint — 2026-09-06
 
 The active V2 opening has a real 11-second editorial-review MP4: 1920×1080,
@@ -14,7 +44,7 @@ human timing approval. The remaining 28 seconds are unrendered; Phase 17 open.
 Acceptance and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_opening_review_acceptance_20260906.md`.
 This scoped documentation commit does not publish local implementation/media.
 
-## NEXT AUTHORITATIVE TASK
+## Previous next-task record (historical)
 
 `PHASE17_V2_OPENING_CREATIVE_AND_TIMING_REVIEW` is the single authoritative
 next task: inspect the delivered video, collect actual feedback/timing approval,
