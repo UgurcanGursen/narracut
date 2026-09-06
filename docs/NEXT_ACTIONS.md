@@ -1,5 +1,33 @@
 # Next Actions
 
+## Latest checkpoint — 2026-09-06
+
+The active V2 opening has a real 11-second editorial-review MP4: 1920×1080,
+30 fps / 330 frames, new local Kokoro narration, measured WhisperX word timing,
+source-bound highlights and captions. Final audio measures -16.29 LUFS;
+per-voice synchronization errors are 0.333/0/0 ms. Actual browser playback
+completed at 11 seconds without error. Source-frame visual inspection passes.
+Artifact: `output/phase17-opening-review-20260906/opening-11s-review-v3.mp4`.
+SHA-256: `f93445215bac0ee3f9ce99d8be533534aa49c4c1431a410235bd7ac87060c481`.
+Status remains EDITORIAL_REVIEW_DRAFT: no canonical production publication or
+human timing approval. The remaining 28 seconds are unrendered; Phase 17 open.
+Acceptance and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_opening_review_acceptance_20260906.md`.
+This scoped documentation commit does not publish local implementation/media.
+
+## NEXT AUTHORITATIVE TASK
+
+`PHASE17_V2_OPENING_CREATIVE_AND_TIMING_REVIEW` is the single authoritative
+next task: inspect the delivered video, collect actual feedback/timing approval,
+then apply any bounded corrections before canonical production promotion.
+The acronym token E's has 0.505 automatic alignment confidence; playback
+completion is not human listening approval. Do not reuse old timing approval.
+
+Documentation synchronization is verified and published on this bounded branch;
+it does not merge accumulated implementation or generated media.
+
+## Previous next-task context — historical, not an execution queue
+
+
 ## Latest checkpoint — 2026-09-05
 
 LOCAL_IMPLEMENTATION_AND_LIVE_ACTIVATION_VERIFIED. The Studio chapter editor
@@ -13,7 +41,7 @@ fresh-runtime live verification. This scoped documentation commit does not
 publish the authoritative workspace's accumulated implementation changes.
 Acceptance and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_chapter_revision_studio_acceptance_20260905.md`.
 
-## NEXT AUTHORITATIVE TASK
+## Previous next-task record (historical)
 
 `PHASE17_BUSINESS_TECH_V032_V2_OPENING_VISUAL_PROOF` is the single authoritative
 next task: build and review an 11-second source-qualified visual/audio preview

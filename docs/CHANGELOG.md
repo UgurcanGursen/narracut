@@ -1,5 +1,21 @@
 # Changelog
 
+## Latest checkpoint — 2026-09-06
+
+The active V2 opening has a real 11-second editorial-review MP4: 1920×1080,
+30 fps / 330 frames, new local Kokoro narration, measured WhisperX word timing,
+source-bound highlights and captions. Final audio measures -16.29 LUFS;
+per-voice synchronization errors are 0.333/0/0 ms. Actual browser playback
+completed at 11 seconds without error. Source-frame visual inspection passes.
+Artifact: `output/phase17-opening-review-20260906/opening-11s-review-v3.mp4`.
+SHA-256: `f93445215bac0ee3f9ce99d8be533534aa49c4c1431a410235bd7ac87060c481`.
+Status remains EDITORIAL_REVIEW_DRAFT: no canonical production publication or
+human timing approval. The remaining 28 seconds are unrendered; Phase 17 open.
+Acceptance and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_opening_review_acceptance_20260906.md`.
+This scoped documentation commit does not publish local implementation/media.
+
+## Previous checkpoints (historical)
+
 ## Latest checkpoint — 2026-09-05
 
 LOCAL_IMPLEMENTATION_AND_LIVE_ACTIVATION_VERIFIED. The Studio chapter editor
