@@ -1,5 +1,20 @@
 # Next Actions
 
+## Latest checkpoint — 2026-09-07, Studio API activation
+
+Phase **17 SCOPE_RECONCILIATION remains OPEN**. Following the owner's explicit
+startup request, the updated local Studio API started on port **8007** (PID 6428).
+The ignored UI proxy setting now selects 8007. Direct health and proxied cycle
+requests pass. The saved project loads in the real browser; the old-API warning
+is absent, task preparation and render controls are enabled, and the existing
+AI task ZIP link is present. The earlier startup blocker is resolved.
+
+This passes activation acceptance only. Full live task download, returned-file
+import, rendering and version-bound feedback acceptance remains pending; no new
+video, owner creative approval or phase closure is claimed.
+Report and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_studio_api_activation_20260907.md`.
+Sync evidence: `output/phase17-manual-editorial-cycle-20260907/api-activation/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-07, manual editorial cycle
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. The owner authorized the bounded
@@ -77,12 +92,12 @@ Acceptance, commands, file inventory and DOCUMENTATION_IMPACT_MATRIX: `baseline/
 ## NEXT AUTHORITATIVE TASK
 
 `PHASE17_MANUAL_EDITORIAL_LIVE_UI_ACCEPTANCE` is the single authoritative next task.
-Activate the current API after the blocked launch and complete task download,
-returned-file import, render and version-bound feedback through live Studio
-controls. Then obtain owner review of the working cut; do not delegate baseline
+The current API is active and its Studio connection is verified. Complete task
+download, returned-file import, render and version-bound feedback through live
+Studio controls. Then obtain owner review of the working cut; do not delegate baseline
 shot design to repeated owner rejections. No full-video or autonomous-quality
 claim. Documentation sync must be remote-closed before another implementation
-slice; evidence: `output/phase17-manual-editorial-cycle-20260907/documentation-sync.json`.
+slice; evidence: `output/phase17-manual-editorial-cycle-20260907/api-activation/documentation-sync.json`.
 ## Previous checkpoints (historical)
 
 ## Latest checkpoint — 2026-09-06, joint narration/visual treatment
