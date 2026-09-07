@@ -1,5 +1,28 @@
 # Changelog
 
+## Latest checkpoint — 2026-09-07, documentary opening repair
+
+The prior 87.866667-second vector edit remains technically verified but was
+**creatively rejected by the owner**. A new project-owned **OPENING_EXCERPT**
+now renders the first **46.5 seconds** in 1080p/30fps, with five narration
+sections and 13 media/document shots. It is not the complete video.
+Job `ejob_9fd4a1421b884fd2840474da074f70ca`. Actual agreement, archival photo, illustrative footage,
+source paragraph, local narration and original underscore have exact lineage.
+
+The opening's script and new Microsoft source are unapproved working inputs;
+accepted chapter allocations/claim IDs are unchanged. Source-byte quote
+verification and documentary-specific AI repair instructions were added after
+the independent audit. 25 backend/mux and 15 API tests, 10 UI tests, build,
+renderer typecheck, generated client and HTTP boundary pass. Decoded mux offset:
+maximum **0.0 ms**. Technical success is not creative approval.
+
+Manual editorial authoring, limited footage, canonical promotion and full-video
+production remain open. No paid APIs, no other domains, no full-pilot benchmark
+claim. Phase **17 SCOPE_RECONCILIATION stays OPEN**. Current Studio API: **8006**.
+Full artifact, commands, file inventory and DOCUMENTATION_IMPACT_MATRIX:
+`baseline/phase17_documentary_opening_acceptance_20260907.md`. Documentation sync evidence:
+`output/phase17-opening-20260907/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-07, actual Studio working edit
 
 The saved business-tech project now renders a measured 87.866667-second,
