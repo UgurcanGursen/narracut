@@ -1,5 +1,29 @@
 # Architecture Decisions
 
+## Latest checkpoint — 2026-09-07, manual editorial cycle
+
+Phase **17 SCOPE_RECONCILIATION remains OPEN**. The owner authorized the bounded
+manual workflow following the opening assessment. Portable task bundles now
+carry actual media/source previews and a rendered-cut snapshot; returned AI files
+persist outline, per-shot needs and declared reviews before existing production.
+Missing material and unresolved/stale review gate rendering; atomic import and
+job admission preserve task/plan lineage. Scene feedback is version-bound.
+The immutable canonical catalog is adapted; supplementary working media remain
+unapproved. No paid calls, new domains or canonical promotion.
+
+Actual opening `ejob_296f3b4deb0745cc9abdc5a3d7f3e2ff`: 46.5s, 5 scenes, 13 shots. Final later section
+`ejob_d8afc9ddd8a14f75a0411786c5bb0964`: 28.433333s, 2 scenes, 7 shots. Its selected-scene repair preserves
+the first scene's exact video hash. Measured mux maximum offset 0.0ms. 42 engine,
+17 API and 44 UI cases pass; build, client and renderer checks pass.
+
+**Live cycle acceptance is pending.** Automatic approval review rejected the new
+API startup as `blocked by policy`; the old API8006 remains selected. Actual
+browser playback passes; the new workflow displays an explicit old-API warning
+and blocks production. In-process API/render success is not a full live UI pass,
+creative approval, full film, or autonomous professional editing.
+Report and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_manual_editorial_cycle_acceptance_20260907.md`.
+Sync evidence: `output/phase17-manual-editorial-cycle-20260907/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-07, documentary opening repair
 
 The prior 87.866667-second vector edit remains technically verified but was
