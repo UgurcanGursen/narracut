@@ -1,5 +1,28 @@
 # Architecture Decisions
 
+## ADR-P17-WORKING-EDIT — Measured previews retain accepted ancestry
+
+Status: Implemented for unapproved Studio working edits, 2026-09-07.
+
+Joint treatment narration has a different duration from the earlier accepted
+39-second chapter allocation. The Studio production worker records immutable
+treatment/direction snapshots and measured voice durations in project-owned
+working-edit jobs. Generic vector motion is executed through Remotion; normalized
+PCM is muxed against exact video frame counts. Input/code/model hashes determine
+scene reuse. No accepted chapter, EDL or approval ledger is rewritten.
+
+The tradeoff is explicit: this enables real video review before canonical duration
+migration, but it is not canonical activation or completion of the existing
+snapshot export path. Working edits carry `human_approved=false` and
+`canonical_publication=false`. Promotion requires its own migration/acceptance
+scope. Existing render paths remain available. Creative/business-tech decisions
+remain in the manual direction and domain-pack prompt, not domain-specific core
+classes or conditional branches.
+
+Evidence: `baseline/phase17_studio_working_edit_acceptance_20260907.md`.
+
+## Previous checkpoints (historical)
+
 ## ADR-P0-001 — Public wrapper ile aktif engine ayrımı
 
 Durum: Kabul edildi (Faz 0 baseline kaydı)

@@ -1,5 +1,45 @@
 # Next Actions
 
+## Latest checkpoint — 2026-09-07, actual Studio working edit
+
+The saved business-tech project now renders a measured 87.866667-second,
+six-scene, 1080p/30fps working edit with local speech, word alignment and 23
+executed visual cues. Final job `ejob_625336760cc24f69b3d91f59bb044dca`. UI review and selected-scene
+production work; the final revision changes only scene 2 and preserves the other
+five scene video hashes. Speech/alignment are reused for visual-only changes.
+
+Actual-output QA caught and repaired cumulative AAC/concat timing displacement.
+Final decoded full-cut and single-scene PCM comparison maximum offset is
+0.0 ms across 36 comparisons. This is mux accuracy,
+not human listening or semantic approval. 31 backend/mux and 40 UI tests pass;
+build, renderer typecheck, generated client and HTTP boundary pass.
+
+This is an unapproved working edit with independent measured duration and exact
+accepted chapter ancestry. Old canonical 39-second allocations are unchanged.
+Automatic creative planning/footage selection, sound design and canonical
+promotion remain outstanding. The current manual direction was agent-authored;
+one result does not establish reliable professional first-pass quality.
+Phase 17 SCOPE_RECONCILIATION remains OPEN. No commercial API calls.
+
+Current UI: `http://127.0.0.1:5173/#studio-video`; final API: localhost **8003**,
+selected through ignored `studio-ui/.env.local`. Existing servers were preserved
+after automatic approval review blocked a restart command.
+
+Acceptance, commands, file inventory and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_studio_working_edit_acceptance_20260907.md`.
+
+## NEXT AUTHORITATIVE TASK
+
+`PHASE17_WORKING_EDIT_CREATIVE_ACCEPTANCE_AND_REPAIR` is the single authoritative next task.
+Assess the whole current cut for narration relevance, viewer inference and
+editing rhythm. Repair recurring weaknesses across scenes; do not push baseline
+editing work onto the owner as repeated individual scene rejections. Record
+owner feedback separately from technical PASS. No new domains or automatic
+professional-quality claims. Canonical promotion is not part of this review.
+Separate documentation sync must close before subsequent implementation;
+evidence: `output/phase17-studio-production-20260907/documentation-sync.json`.
+
+## Previous checkpoints (historical)
+
 ## Latest checkpoint — 2026-09-06, joint narration/visual treatment
 
 The owner rejected the 39-second cut's creative quality and narration/visual
@@ -23,7 +63,7 @@ Phase 17 SCOPE_RECONCILIATION stays OPEN.
 
 Acceptance, file inventory and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_joint_editorial_treatment_acceptance_20260906.md`.
 
-## NEXT AUTHORITATIVE TASK
+## Previous next-task record (historical)
 
 `PHASE17_TREATMENT_TO_STUDIO_EXECUTION` is the single authoritative next task.
 Connect the saved joint treatment to the existing Studio production path:
