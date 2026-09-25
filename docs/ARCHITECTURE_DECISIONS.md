@@ -1,5 +1,21 @@
 # Architecture Decisions
 
+## 2026-09-25 — durable local Studio state
+
+Default API and worker databases now live in repository-local `.studio-data`,
+which is ignored by Git and included in local backup instructions. The explicit
+`KURGU_STUDIO_DATA_DIR` override must be absolute; explicit runtime/worker database
+arguments retain priority for isolated runs. If the durable default is absent
+and the old temporary Studio database contains projects, startup fails with an
+explicit migration message instead of silently creating an empty workspace.
+No automatic copying or overwriting of legacy data is performed.
+
+The bounded recovery tool writes to a fresh staging directory, verifies recorded
+IDs/hashes and the historical activation receipt, then activates the directory
+only after checks. Missing history is reported without synthesizing approvals.
+This is a local storage correction, not cloud sync, a new domain, or phase closure.
+Evidence: `baseline/phase17_project_state_recovery_20260925.md`.
+
 ## Latest checkpoint — 2026-09-07, manual editorial cycle
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. The owner authorized the bounded

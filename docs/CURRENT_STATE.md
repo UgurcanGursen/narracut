@@ -1,5 +1,31 @@
 # Current State
 
+## Latest checkpoint — 2026-09-25, verified project state recovery
+
+Phase **17 SCOPE_RECONCILIATION remains OPEN**. The saved business-tech project
+is restored into repository-local `.studio-data` and loads in live Studio.
+The September 5 activation reproduces its recorded receipt exactly. Verified
+exports restore 2 treatments, 7 plans, 14 successful working-edit jobs, 5 manual
+AI tasks, 3 results and 1 version-bound feedback record. The current cycle
+matches the September 7 exported overview exactly; the final later section is
+still `ejob_d8afc9ddd8a14f75a0411786c5bb0964`, not a newly rendered full video.
+
+API and workers share durable storage. `KURGU_STUDIO_DATA_DIR` accepts an
+explicit absolute override; populated legacy temporary storage blocks silent
+creation of an unrelated default workspace. Originals and a verified restored
+SQLite snapshot are preserved under `output/phase17-project-state-recovery-20260925`.
+Actual API restart, project/cycle reads, scene selection, UI task ZIP download,
+ZIP integrity, delivered-video hash and full A/V decode pass. Muted browser
+playback reaches the end; audible browser playback remains unverified.
+Eleven storage/recovery and existing editorial API tests pass.
+
+One pre-September-7 treatment ancestor is unavailable; unexported historical
+records are not claimed recovered. No new human approval or paid API call.
+Single next task: `PHASE17_MANUAL_EDITORIAL_LIVE_UI_ACCEPTANCE`.
+User guide: `STUDIO_DEVAM_REHBERI.md`.
+Report and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_project_state_recovery_20260925.md`.
+Sync evidence: `output/phase17-project-state-recovery-20260925/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-25, resume audit
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. After the pause, the local API
