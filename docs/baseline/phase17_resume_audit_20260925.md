@@ -25,6 +25,31 @@ These are recovery inputs, not a verified complete database backup. Do not
 silently activate the older snapshot as if it includes 2026-09-07 edits.
 No code or production records were changed in this audit.
 
+## Historical-path recheck
+
+The project is not empty. The earlier observation concerns the newly opened
+runtime database only. Historical command output at 2026-09-05T15:42:10.425Z
+records the exact path
+`C:/Users/user/AppData/Local/Temp/kurgu-studio/studio.sqlite3` and its paired
+planner database as present. The current runtime resolves that same directory.
+The current Studio database CreationTime is 2026-09-25 11:01:53.6058613 +03:00,
+matching the restart attempt. Repository initialization uses `sqlite3.connect`
+and `CREATE TABLE IF NOT EXISTS`, creating an empty database when absent.
+No alternate original database was found by the expanded accessible user-profile
+filename inventory or the exact-project-ID scan of repository SQLite/WAL files.
+Only the two already identified September 5 backups matched that ID.
+
+The task ZIP passes all 25 entry CRC checks. The latest section video remains
+13,928,179 bytes, SHA-256
+`95870581cfaa795012b5324a47b945403d7f943b4df7f827761578dacc18c1f8`.
+The old claims SQLite file was already absent in the September 5 inspection;
+it must not be described as a newly lost file. No cause such as user deletion
+or Windows cleanup has been established. No recovery/import has been executed.
+Evidence: `output/phase17-resume-audit-20260925/path-verification.json`.
+This recheck refines the blocker; the single next recovery task and Phase 17
+status remain unchanged. Documentation impact is limited to the same five status
+documents and this report; code and roadmap are unchanged.
+
 ## Next task and acceptance
 
 `PHASE17_PROJECT_STATE_RECOVERY`: make immutable working copies of the current

@@ -5,9 +5,12 @@
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. After the pause, the local API
 and UI were restarted and health checks passed, but the saved business-tech
 project could not load: `/api/v1/projects` returned zero items and the known
-project's editorial-cycle endpoint returned `PROJECT_NOT_FOUND`. The currently
-configured SQLite location is under the OS temporary directory; the cause of
-its missing earlier rows is not yet proven. The resumed services were stopped
+project's editorial-cycle endpoint returned `PROJECT_NOT_FOUND`. Historical
+execution output confirms the same exact temporary database path as today.
+The current empty file was CREATED at 2026-09-25 11:01:53 +03:00, matching the
+restart attempt; it is a newly created database, not evidence that the whole
+repository is empty. Why the original file is absent is still undetermined.
+Code, videos and AI exchange artifacts remain. The resumed services were stopped
 after diagnosis so the empty Studio is not mistaken for the saved project.
 
 The 2026-09-05 `before-studio.sqlite3` snapshot contains the exact project ID
