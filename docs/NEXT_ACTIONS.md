@@ -1,5 +1,29 @@
 # Next Actions
 
+## Latest checkpoint — 2026-09-25, resume audit
+
+Phase **17 SCOPE_RECONCILIATION remains OPEN**. After the pause, the local API
+and UI were restarted and health checks passed, but the saved business-tech
+project could not load: `/api/v1/projects` returned zero items and the known
+project's editorial-cycle endpoint returned `PROJECT_NOT_FOUND`. The currently
+configured SQLite location is under the OS temporary directory; the cause of
+its missing earlier rows is not yet proven. The resumed services were stopped
+after diagnosis so the empty Studio is not mistaken for the saved project.
+
+The 2026-09-05 `before-studio.sqlite3` snapshot contains the exact project ID
+and a paired planner snapshot; 2026-09-07 task ZIP, results, job records and
+rendered videos remain. These provide a recovery starting point, but do not
+prove the complete 2026-09-07 database state can be restored. The prior API
+activation pass is historical, not a current live workflow pass. No data was
+deleted, imported, or relabeled as approved.
+
+The single next task is `PHASE17_PROJECT_STATE_RECOVERY`: preserve originals,
+recover into durable storage, reconcile newer artifacts with verified lineage,
+then prove the project and editorial cycle load. Live UI acceptance follows
+only after recovery. Report and DOCUMENTATION_IMPACT_MATRIX:
+`baseline/phase17_resume_audit_20260925.md`. Sync evidence:
+`output/phase17-resume-audit-20260925/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-07, Studio API activation
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. Following the owner's explicit
@@ -91,13 +115,14 @@ Acceptance, commands, file inventory and DOCUMENTATION_IMPACT_MATRIX: `baseline/
 
 ## NEXT AUTHORITATIVE TASK
 
-`PHASE17_MANUAL_EDITORIAL_LIVE_UI_ACCEPTANCE` is the single authoritative next task.
-The current API is active and its Studio connection is verified. Complete task
-download, returned-file import, render and version-bound feedback through live
-Studio controls. Then obtain owner review of the working cut; do not delegate baseline
-shot design to repeated owner rejections. No full-video or autonomous-quality
-claim. Documentation sync must be remote-closed before another implementation
-slice; evidence: `output/phase17-manual-editorial-cycle-20260907/api-activation/documentation-sync.json`.
+`PHASE17_PROJECT_STATE_RECOVERY` is the single authoritative next task.
+Preserve the current empty temporary database and the 2026-09-05 snapshots;
+recover the saved project into durable local storage, reconcile 2026-09-07
+artifacts with verifiable IDs and lineage, and prove the project plus editorial
+cycle load in Studio. Do not infer creative approval or fabricate missing records.
+After this gate, perform `PHASE17_MANUAL_EDITORIAL_LIVE_UI_ACCEPTANCE` as a
+separate task. Documentation sync must be remote-closed before implementation;
+evidence: `output/phase17-resume-audit-20260925/documentation-sync.json`.
 ## Previous checkpoints (historical)
 
 ## Latest checkpoint — 2026-09-06, joint narration/visual treatment
