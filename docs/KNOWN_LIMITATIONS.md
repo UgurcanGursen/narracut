@@ -1,5 +1,15 @@
 # Known Limitations
 
+## Clarification — 2026-10-29, concrete deletion candidates
+
+The earlier 40.90 GiB figure totals 32 related folders, not application code.
+An exact comparison now identifies 10.103 GiB of deletion candidates: one byte-
+identical older backup, one redundant clean clone, archived test directories
+and two duplicate SQLite backups. No deletion was attempted in this recheck.
+Exact paths and preserved counterparts: `output/project-audit-20261029/deletion-candidates.json`.
+Details: `baseline/phase17_product_audit_20261029.md`.
+The existing single authoritative next task and Phase 17 OPEN status remain.
+
 ## Latest checkpoint — 2026-10-29, product and folder audit
 
 Current product source is not yet a verified clean-checkout baseline: critical

@@ -4,6 +4,44 @@ Rol: teknik ürün sorumlusu ve mimari denetçi. Aktif faz: 17, açık.
 Kapsam: kayıtlı hedef, mevcut kod/veri, Git durumu, Belgeler altındaki ilişkili
 klasörler, hedefli doğrulama ve arşivli temizlik hazırlığı. Yeni özellik yok.
 
+## Boyut düzeltmesi ve kesin silme adayları
+
+40,90 GiB tek uygulamanın büyüklüğü değildir: 32 ilişkili klasörün, geçmiş
+kopyaların, bağımlılıkların ve çıktıların toplamıdır. Önceki anlatım bunu yeterince
+ayırmadı. Seçilmiş kaynak/metin uzantılarıyla 789 dosya 10,11 MiB ölçüldü;
+bu ölçüm tüm uygulama bağımlılıklarını veya bütün repository dosyalarını kapsamaz.
+Aktif çalışma alanının ilk ölçümü 20,15 GiB'dir ve çoğu kod dışı çalışma verisidir.
+
+Byte düzeyindeki ek karşılaştırmayla aşağıdaki silme adayları doğrulandı:
+
+| Silme adayı | GiB | Korunacak kopya / kanıt |
+| --- | ---: | --- |
+| Belgeler/Kurgu_V3_Clean_backup_20260724_163006 | 4,556 | 163134 tarihli yedek korunur; iki repository içindeki 608 dosya, Git dahil, SHA-256 ile tamamen aynı; eski kökte başka dosya yok |
+| Belgeler/Kurgu_V3_Clean_freesound_postpush_verify_20260724_225900000 | 2,130 | Temiz doğrulama klonu; ignored/untracked çalışma dosyası yok; tüm commit'leri korunacak 163134 yedeğinde mevcut |
+| Önceki cleanup-plan.json içindeki 446 test/doğrulama dizini | 2,956 | 420 aktif .pytest* dizini ve 26 kardeş test/küçük temiz doğrulama dizini; tamamı doğrulanmış ZIP'te |
+| recovery/attempt-1/originals/phase10-planner.sqlite3 ve attempt-2/originals/phase10-planner.sqlite3 | 0,461 | Aynı recovery alanındaki attempt-3/originals/phase10-planner.sqlite3 ile SHA-256 aynı |
+| **Toplam doğrulanmış aday** | **10,103** | Çakışan yollar toplamda bir kez sayıldı |
+
+Tam mutlak yollar ve her yolun korunacak karşılığı
+`output/project-audit-20261029/deletion-candidates.json` içinde. SQL yollarının
+ortak kökü `output/phase17-project-state-recovery-20260925`.
+Bu tur yalnızca tespit yapıldı; silme denenmedi. Önceki arşivleme turundan kalan
+1,421 GiB ZIP hâlâ mevcut. Buradaki 10,103 GiB adayların mevcut boyut toplamıdır;
+önceki envantere göre arşivin ek maliyeti ayrıca hesaba katılmalıdır.
+
+Aktif `.studio-data`, güncel video/AI görev klasörleri, ses ortamları ve
+163134 tarihli eski yedek korunur. Eski ana Kurgu ve Kurgu_V3_Clean klasörlerinin
+bütününü silme kararı için farklı kaynaklarının önce korunması gerekir.
+Mevcut output'un tamamı çöp değildir. IBM örnek videolarının ve Git içindeki
+aynı büyük medyaların eski kopyalarda bulunması şişkinliğin önemli nedenidir.
+
+Yeni doğrulamalar: iki yedeğin eksiksiz dosya/hash karşılaştırması, temiz klonun
+Git geçmişi/ignored dosya kontrolü, kurtarma dosyalarının SHA-256 karşılaştırması,
+seçilmiş kaynak/metin ölçümü. Yeni test/build veya canlı çalışma iddiası yok.
+DOCUMENTATION_IMPACT_MATRIX ek etkisi: bu rapor, CURRENT_STATE, CHANGELOG,
+NEXT_ACTIONS ve KNOWN_LIMITATIONS boyut/aday bilgisini netleştirir; sonraki tek
+görev, faz, mimari kararlar ve roadmap değişmez.
+
 ## Sonuç
 
 Çalışan bir mühendislik prototipi var. Günlük kullanım için kabul edilmiş bir
@@ -78,10 +116,10 @@ Kalıcı `.studio-data` veritabanları yerinde ve salt okunur sorgularla doğrul
 | kurgu_pytest_V3_CONTRACT_TESTS_8ccc2d02becb43a5bb254fdf3bf5889f | 0.000 | Arşivlendi; silme engellendi |
 | Kurgu_Test_Temp | 0.000 | Arşivlendi; silme engellendi |
 | Kurgu_V3_Clean | 4.556 | Farklı/önemli içerik veya geçmiş; koru |
-| Kurgu_V3_Clean_backup_20260724_163006 | 4.556 | Farklı/önemli içerik veya geçmiş; koru |
+| Kurgu_V3_Clean_backup_20260724_163006 | 4.556 | Silme adayı: 163134 yedeğiyle birebir aynı repository |
 | Kurgu_V3_Clean_backup_20260724_163134 | 4.556 | Farklı/önemli içerik veya geçmiş; koru |
 | Kurgu_V3_Clean_freesound_final_verify_20260724_231200000 | 0.001 | Arşivlendi; silme engellendi |
-| Kurgu_V3_Clean_freesound_postpush_verify_20260724_225900000 | 2.130 | Farklı/önemli içerik veya geçmiş; koru |
+| Kurgu_V3_Clean_freesound_postpush_verify_20260724_225900000 | 2.130 | Silme adayı: temiz klon, geçmişi korunacak yedekte |
 | Kurgu_V3_Clean_freesound_postpush_verify_20260724_230300000 | 0.001 | Arşivlendi; silme engellendi |
 | Kurgu_V3_Clean_phase0_final_verify_20260725_0001 | 0.002 | Farklı/önemli içerik veya geçmiş; koru |
 | Kurgu_V3_Clean_phase0_final_verify_20260725_0002 | 0.002 | Arşivlendi; silme engellendi |
