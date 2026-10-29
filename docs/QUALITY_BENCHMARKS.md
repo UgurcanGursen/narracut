@@ -1,5 +1,15 @@
 # Quality Benchmarks
 
+## Latest checkpoint — 2026-10-29, product and folder audit
+
+October 29 technical checks: 11 targeted persistence/editorial API tests PASS;
+UI TypeScript + production build PASS. These are scoped engineering checks,
+not a new creative benchmark, full regression or live production-cycle pass.
+Earlier checkpoint runtime/port statements below are historical.
+
+Report and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_product_audit_20261029.md`.
+Sync: `output/project-audit-20261029/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-07, manual editorial cycle
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. The owner authorized the bounded

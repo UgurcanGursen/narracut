@@ -1,5 +1,16 @@
 # Changelog
 
+## Latest checkpoint — 2026-10-29, product and folder audit
+
+Recorded the product audit, 32-folder inventory, source comparisons, 11 passing
+targeted tests and successful UI build. Added the root README entry point.
+Created and hash/CRC-verified an archive of 17,837 files across 446 cleanup
+candidates. Deletion was blocked by automatic approval review, including the
+narrower empty-directory attempt; no deletion occurred.
+
+Report and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_product_audit_20261029.md`.
+Sync: `output/project-audit-20261029/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-25, verified project state recovery
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. The saved business-tech project

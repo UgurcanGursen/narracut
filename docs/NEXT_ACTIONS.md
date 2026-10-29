@@ -1,5 +1,10 @@
 # Next Actions
 
+## Latest checkpoint — 2026-10-29, product and folder audit
+
+The current source-control gap precedes the pending live UI acceptance task.
+Report: `baseline/phase17_product_audit_20261029.md`. Phase 17 stays open.
+
 ## Latest checkpoint — 2026-09-25, verified project state recovery
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. The saved business-tech project
@@ -144,15 +149,14 @@ Acceptance, commands, file inventory and DOCUMENTATION_IMPACT_MATRIX: `baseline/
 
 ## NEXT AUTHORITATIVE TASK
 
-`PHASE17_MANUAL_EDITORIAL_LIVE_UI_ACCEPTANCE` is the single authoritative next task.
-Use the restored pending task `ect_d0249e72ea224492947a58869223f7e8` for the
-manual external-AI workflow, import its genuine returned JSON through Studio,
-verify render admission/output and version-bound scene feedback, and complete
-audible playback/owner review. Recovery, existing task download and historical
-video playback do not establish this new complete cycle or creative acceptance.
-Follow `STUDIO_DEVAM_REHBERI.md`; no paid APIs or new domain packs.
-Documentation sync must be remote-closed before another implementation slice;
-evidence: `output/phase17-project-state-recovery-20260925/documentation-sync.json`.
+`PHASE17_REPRODUCIBLE_PRODUCT_BASELINE` is the single authoritative next task.
+Build an explicit product-source manifest, distinguish untracked implementation
+from generated experiments, selectively version the current application, then
+prove isolated clean-checkout installation, UI build, API and a short fixture
+render. Preserve user databases and secrets outside Git. Do not bulk-stage the
+working directory. Complete manual live editorial-cycle acceptance after this
+gate. No new domains or speculative features. Documentation sync must be
+remote-closed first: `output/project-audit-20261029/documentation-sync.json`.
 
 ## Previous checkpoints (historical)
 

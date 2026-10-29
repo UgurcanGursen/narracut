@@ -1,5 +1,15 @@
 # Phase Acceptance
 
+## Latest checkpoint — 2026-10-29, product and folder audit
+
+Bounded product/folder audit PASS: current state checked, 32 related folders
+classified, selected older sources compared, 11 targeted tests and UI build pass.
+Cleanup archive and protected hashes verified. Deletion NOT EXECUTED: automatic
+approval rejected both attempts. No full product or phase closure claim.
+
+Report and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_product_audit_20261029.md`.
+Sync: `output/project-audit-20261029/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-25, verified project state recovery
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. The saved business-tech project

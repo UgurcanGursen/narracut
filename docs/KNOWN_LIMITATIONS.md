@@ -1,5 +1,17 @@
 # Known Limitations
 
+## Latest checkpoint — 2026-10-29, product and folder audit
+
+Current product source is not yet a verified clean-checkout baseline: critical
+editorial/storage/UI files are untracked alongside generated test debris.
+Full live manual-AI cycle, audible review and creative/full-film acceptance
+remain open. Older project copies contain different source files and are not
+proven redundant. Cleanup archive occupies additional disk space because
+both deletion attempts were blocked by automatic approval review.
+
+Report and DOCUMENTATION_IMPACT_MATRIX: `baseline/phase17_product_audit_20261029.md`.
+Sync: `output/project-audit-20261029/documentation-sync.json`.
+
 ## Latest checkpoint — 2026-09-25, verified project state recovery
 
 Phase **17 SCOPE_RECONCILIATION remains OPEN**. The saved business-tech project
